@@ -1,0 +1,14 @@
+# Fictional studio. IP plan from spec 2.6. Passwords live in Windows Credential Manager, never here.
+schema_version: 1
+studio: example
+atem: { ip: 10.10.10.10, model: "ATEM Mini Extreme ISO" }
+companion: { url: "http://127.0.0.1:8000", engine_page: 10, operator_page: 11, pages_version: 1 }
+pearl: { ip: 10.10.10.30, recorder_id: "1", username: cutcut }
+cameras:
+  C1: { ip: 10.10.10.21, model: "Canon CR-N300" }
+  C2: { ip: 10.10.10.22, model: "OBSBOT Tail 2" }
+  C3: { ip: 10.10.10.23, model: "OBSBOT Tail 2" }
+  C4: { ip: 10.10.10.24, model: "OBSBOT Tail 2" }
+  C5: { model: "Fast fugleperspektiv (HDMI)" }
+card_reader: { usb_id: "09D8:0320" }
+api_port: 8080

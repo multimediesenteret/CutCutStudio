@@ -1,0 +1,14 @@
+# Fictional show with 2 participant(s). See spec section 4.
+schema_version: 1
+id: samtale
+name: "Samtale"
+version: 1
+participants:
+  - { id: P1, name: "Programleder", mic: M1, camera: C1, role: host }
+  - { id: P2, name: "Gjest 1", mic: M2, camera: C2, role: guest }
+cameras:
+  C1: { driver: canon_xc, ip: 10.10.10.21, atem_input: 1, presets: { tight: 1, wide: 2 } }
+  C2: { driver: obsbot, ip: 10.10.10.22, atem_input: 2, presets: { tight: 1, wide: 2 } }
+  C5: { driver: none, atem_input: 5, role: bird }
+content: { atem_input: 6, audio_mic: M5 }
+rules_preset: standard
