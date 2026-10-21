@@ -689,6 +689,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/touch/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Touch Heartbeat Age
+         * @description For the kiosk guard on the same PC: how long since the touch screen was heard.
+         */
+        get: operations["touch_heartbeat_age_api_touch_heartbeat_get"];
+        put?: never;
+        /**
+         * Touch Heartbeat
+         * @description The touch screen is alive (every 5 s, SO-6).
+         */
+        post: operations["touch_heartbeat_api_touch_heartbeat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/touch/start": {
         parameters: {
             query?: never;
@@ -2542,6 +2566,48 @@ export interface operations {
         };
     };
     again_api_touch_again_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+        };
+    };
+    touch_heartbeat_age_api_touch_heartbeat_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number | null;
+                    };
+                };
+            };
+        };
+    };
+    touch_heartbeat_api_touch_heartbeat_post: {
         parameters: {
             query?: never;
             header?: never;

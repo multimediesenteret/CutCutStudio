@@ -2912,6 +2912,59 @@
         ]
       }
     },
+    "/api/touch/heartbeat": {
+      "get": {
+        "description": "For the kiosk guard on the same PC: how long since the touch screen was heard.",
+        "operationId": "touch_heartbeat_age_api_touch_heartbeat_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "title": "Response Touch Heartbeat Age Api Touch Heartbeat Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Touch Heartbeat Age",
+        "tags": [
+          "status"
+        ]
+      },
+      "post": {
+        "description": "The touch screen is alive (every 5 s, SO-6).",
+        "operationId": "touch_heartbeat_api_touch_heartbeat_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Touch Heartbeat",
+        "tags": [
+          "status"
+        ]
+      }
+    },
     "/api/touch/start": {
       "post": {
         "description": "«Start uten kort» (D-057): the touch screen starts a session for «Gjest».",
