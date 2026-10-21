@@ -1,0 +1,12 @@
+[
+  {
+    "id": "samtale",
+    "title": "Samtale med to personer",
+    "file": "samtale.json"
+  },
+  {
+    "id": "panel-laptop",
+    "title": "Panel med tre personer og slides",
+    "file": "panel-laptop.json"
+  }
+]
