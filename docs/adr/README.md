@@ -14,5 +14,7 @@
 | [ADR-0010](0010-monoton-klokke.md) | Monoton klokke i motoren, NTP for veggklokke | Akseptert |
 | [ADR-0011](0011-brytere-i-sanntid.md) | Brytere kan endres i sanntid fra teknikervinduet | Akseptert |
 | [ADR-0012](0012-atem-bridge-node.md) | En egen liten prosess, atem-bridge, i Node.js med atem-connection, som snakker med regi-core over den interne meldingsbussen | Forslag |
+| [ADR-0013](0013-web-simulator.md) | Web-simulator med samme GUI, publisert på Vercel | Forslag |
+| [ADR-0014](0014-audio-capture-prosess.md) | Lyd via RØDE ASIO i egen prosess `audio-capture` | Forslag |
 
 Nye beslutninger får neste nummer. Gamle filer endres ikke; de settes til «Erstattet av ADR-NNNN». Mal: `template.md`.

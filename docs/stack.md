@@ -29,7 +29,7 @@ Teknologi, versjoner og verktøy for CutCut Studio. Spesifikasjonen 3.1 er fasit
 | --- | --- | --- |
 | Server | FastAPI, uvicorn, Pydantic v2 | OpenAPI genereres til `docs/reference/` |
 | Konfig | PyYAML/ruamel.yaml, Pydantic | JSON Schema genereres til `config/schema/` |
-| Lyd | `sounddevice` (PortAudio), `numpy` | ASIO på Windows: se Q21 |
+| Lyd | `sounddevice` (PortAudio) med `SD_ENABLE_ASIO`, `numpy` | RØDE ASIO-driver, 20 kanaler, 48 kHz; Silero i 512-sampler-blokker ved 16 kHz. Se Q21 og ADR-0014 |
 | Tale | Silero VAD (ONNX) | |
 | Bilde | OpenCV / FFmpeg, ONNX Runtime | |
 | Meldingsbuss | `pyzmq` | |
@@ -53,7 +53,7 @@ Eksakte versjoner settes når første kode skrives (M1) og står deretter bare i
 
 ## Prosesser
 
-Spesifikasjonen sier både «to prosesser» (seksjon 3, innledning) og «tre prosesser» (ADR-0003). Gjeldende er ADR-0003: `core`, `vision` og `stt` under én supervisor. Med ADR-0012 kommer `atem-bridge` i tillegg. `core` må kunne klippe alene på lyd hvis alle andre prosesser er nede.
+Spesifikasjonen sier både «to prosesser» (seksjon 3, innledning) og «tre prosesser» (ADR-0003). Gjeldende er ADR-0003: `core`, `vision` og `stt` under én supervisor. Med ADR-0012 kommer `atem-bridge` i tillegg, og med ADR-0014 `audio-capture` (lyd fra RØDECaster via ASIO, se `docs/research/lyd-fra-rodecaster.md`). `core` må kunne klippe alene på lyd hvis alle andre prosesser er nede.
 
 ## Utviklingsmiljø
 

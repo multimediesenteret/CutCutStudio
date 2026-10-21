@@ -2,6 +2,8 @@
 
 Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent eller menneske. Alt du trenger for å komme i gang står her eller er lenket herfra. Filen endres bare via pull request godkjent av et menneske.
 
+> **Fase nå: forprosjekt.** Det skrives ingen kode ennå. Repoet samler krav, beslutninger og research til koding starter (se `docs/forprosjekt/README.md`). Første oppgave i seksjon 4 gjelder når forprosjektet er godkjent.
+
 **Hovedprinsipp:** prosjektet skal kunne tas over av hvem som helst, når som helst, uten muntlig overlevering. Det som ikke står i repoet, finnes ikke.
 
 ---
@@ -16,14 +18,16 @@ CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Wi
 | --- | --- | --- |
 | 1 | `docs/STATUS.md` | Hvor prosjektet står akkurat nå, og neste steg |
 | 2 | Denne filen, helt | Regler, oppsett, arbeidsflyt |
-| 3 | `docs/spec/01-app-spesifikasjon.md` | Hva som skal bygges. Fasit ved uenighet. Særlig seksjon 0, 5, 11, 12 og 13 |
-| 4 | `docs/stack.md` | Teknologi, versjoner, utviklingsmiljø, CI |
-| 5 | `docs/open-questions.md` | Hva som ikke er avklart. Ikke bygg på åpne svar |
-| 6 | `docs/adr/README.md` | Arkitekturbeslutninger |
-| 7 | `docs/RELEASE.md` | Versjonering og dokumentasjonsplikt per versjon |
-| 8 | `docs/publishing.md` | Hva som publiseres hvor (Vercel, Windows-pakke) |
+| 3 | `docs/forprosjekt/beslutningslogg.md` | Alle beslutninger fra forprosjektet. **Nyere rader går foran spesifikasjonen** |
+| 4 | `docs/spec/01-app-spesifikasjon.md` | Hva som skal bygges. Særlig seksjon 0, 5, 11, 12 og 13 |
+| 5 | `docs/stack.md` | Teknologi, versjoner, utviklingsmiljø, CI |
+| 6 | `docs/open-questions.md` | Hva som ikke er avklart. Ikke bygg på åpne svar |
+| 7 | `docs/adr/README.md` | Arkitekturbeslutninger |
+| 8 | `docs/RELEASE.md` | Versjonering og dokumentasjonsplikt per versjon |
+| 9 | `docs/publishing.md` og `docs/simulator.md` | Hva som publiseres hvor; web-simulatoren på Vercel |
 | – | `docs/spec/02-teknisk-referanse.md` | Oppslagsverk: protokoller, kommandoer, API-er per enhet |
 | – | `docs/spec/03-evaluering-og-bakgrunn.md` | Hvorfor valgene er tatt |
+| – | `docs/research/` | Research bak beslutninger (f.eks. lyd fra RØDECaster) |
 | – | `docs/prototype/cutcut-prototype.html` | Klikkbar referanse for oppførsel og regel-ID-er |
 
 Markdown-eksporten av spesifikasjonen mangler tegningene (`[embedded content: …]`). De finnes i PDF-ene i `docs/spec/`.
@@ -83,7 +87,7 @@ Agenter jobber i et Linux-skymiljø uten ATEM, kameraer, RØDECaster, Pearl, kor
 ## 7. Arbeidsflyt
 
 1. Ta en oppgave fra planen eller et issue. Én pull request = én leveranse, under én dags arbeid.
-2. Egen gren: `agent/<kort-beskrivelse>` for agenter, `<navn>/<kort-beskrivelse>` for mennesker. Ingen direkte push til `main` etter første commit.
+2. Egen gren: `agent/<kort-beskrivelse>` for agenter, `<navn>/<kort-beskrivelse>` for mennesker. Ingen direkte push til `main`. Unntak i forprosjektet: rene dokumentasjonsendringer avtalt med produkteier i samtalen kan gå rett til `main`.
 3. Commit-meldinger etter *Conventional Commits*: `feat(core): …`, `fix(devices/obsbot): …`, `docs(spec): …`, `chore(ci): …`. Scope er modulnavnet fra `src/cutcut/`.
 4. Pull request med malen. CI må være grønn. Et menneske godkjenner og merger; agenter merger aldri selv.
 5. **Ferdig betyr dokumentert** (se 8). En pull request uten oppdatert dokumentasjon er ikke ferdig.
@@ -100,7 +104,8 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 | Avslutter en arbeidsøkt | `docs/STATUS.md` (ferdig, pågår, kjente feil, neste steg) |
 | Endrer eller lager en modul | `src/cutcut/<modul>/README.md` (ansvar, inn/ut, regel-ID-er, akseptanse) |
 | Endrer en regel | Regelens test, `docs/reference/rules.md` (generert) og spesifikasjonen hvis oppførselen endres |
-| Tar en arkitekturbeslutning | Ny `docs/adr/NNNN-*.md` |
+| Tar en arkitekturbeslutning | Ny `docs/adr/NNNN-*.md` og en rad i `docs/forprosjekt/beslutningslogg.md` |
+| Gjør research | Ny fil i `docs/research/` med kilder |
 | Lærer noe nytt om en enhet | `docs/spec/02-teknisk-referanse.md`, med kilde |
 | Får svar på et spørsmål | `docs/open-questions.md` (svar, dato, hvem) |
 | Løser en hendelse som tok over 10 min | Ny runbook i `docs/runbooks/` |
@@ -108,7 +113,7 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 | Endrer noe brukeren merker | `CHANGELOG.md` under `[Unreleased]` |
 | Lager en release | Sjekklisten i `docs/RELEASE.md` |
 
-Spesifikasjonen i `docs/spec/` er en eksport fra Claude Docs-dokumentet «CutCut Studio – spesifikasjon og evaluering». Endringer i oppførsel avtales med produkteier og føres inn der; deretter eksporteres den på nytt til repoet.
+Spesifikasjonen i `docs/spec/` er en eksport fra Claude Docs-dokumentet «CutCut Studio – spesifikasjon og evaluering». Endringer i oppførsel avtales med produkteier og føres inn i beslutningsloggen; ved neste eksport av spesifikasjonen innarbeides de der.
 
 ## 9. Kode (fra M1)
 

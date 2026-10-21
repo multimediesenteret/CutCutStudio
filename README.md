@@ -6,7 +6,7 @@ CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. 
 
 ## Status
 
-Ingen kode ennå. Første steg er implementasjonsplaner (se `docs/STATUS.md`).
+**Forprosjekt.** Ingen kode ennå; krav, beslutninger og research samles her (se `docs/forprosjekt/` og `docs/STATUS.md`).
 
 ## Hvor ting ligger
 
@@ -16,7 +16,10 @@ Ingen kode ennå. Første steg er implementasjonsplaner (se `docs/STATUS.md`).
 | Stack og utviklingsmiljø | [`docs/stack.md`](docs/stack.md) |
 | Versjonering og release | [`docs/RELEASE.md`](docs/RELEASE.md) |
 | Publisering (Vercel, Windows-pakke) | [`docs/publishing.md`](docs/publishing.md) |
-| Spesifikasjonen (fasit) | [`docs/spec/`](docs/spec/) – start med `01-app-spesifikasjon.md` |
+| Beslutninger fra forprosjektet | [`docs/forprosjekt/beslutningslogg.md`](docs/forprosjekt/beslutningslogg.md) |
+| Web-simulator (Vercel) | [`docs/simulator.md`](docs/simulator.md) |
+| Research | [`docs/research/`](docs/research/) |
+| Spesifikasjonen | [`docs/spec/`](docs/spec/) – start med `01-app-spesifikasjon.md` |
 | Status og neste steg | [`docs/STATUS.md`](docs/STATUS.md) |
 | Åpne spørsmål og hvem som svarer | [`docs/open-questions.md`](docs/open-questions.md) |
 | Arkitekturbeslutninger | [`docs/adr/`](docs/adr/) |

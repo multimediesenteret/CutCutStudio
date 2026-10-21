@@ -1,0 +1,39 @@
+# Beslutningslogg fra forprosjektet
+
+Alle beslutninger og ønsker fra forprosjektet (samtalene med Claude, oktober 2026), i rekkefølge. Hver rad viser hvor den er dokumentert i detalj.
+
+**Regel ved konflikt:** en nyere rad her gjelder foran eldre tekst i `docs/spec/`. Når spesifikasjonen eksporteres på nytt, skal raden være innarbeidet der, og det noteres i kolonnen «Status».
+
+| ID | Dato | Beslutning | Begrunnelse / ønske fra NTNU | Detaljer | Status |
+| --- | --- | --- | --- | --- | --- |
+| D-001 | 2026-10 | Lage egen auto-regi i stedet for VVD | VVD klipper dårlig med OBSBOT Tail 2 og RØDECaster Pro II | Evaluering, kortversjon | I spesifikasjonen |
+| D-002 | 2026-10 | Alt er live; ingen etterarbeid | Sendingen skal være ferdig når den er ferdig | Spes. 1 | I spesifikasjonen |
+| D-003 | 2026-10 | Lyd per mic bestemmer *når*, bildet (multiview via capture-kort) bekrefter og velger *hva* | Gi løsningen «øyne» uten at bildet styrer alene | Spes. 5–6, evaluering | I spesifikasjonen |
+| D-004 | 2026-10 | Ingen NDI. Kameraer går på HDMI/SDI til ATEM; styring over IP | Eksisterende kabling | Spes. 2 | I spesifikasjonen |
+| D-005 | 2026-10 | Støtte OBSBOT Tail 2 og Canon CR-N300 først; Panasonic og Sony senere | Utstyr i bruk | Spes. 7.3, teknisk referanse | I spesifikasjonen |
+| D-006 | 2026-10 | Fargematching av kameraene mot hverandre, bare off air | Like farger på tvers av merker | Evaluering, spes. 6.4 | I spesifikasjonen |
+| D-007 | 2026-10 | 1–4 deltakere, hver med egen mic | Vanlig bruk i studio | Spes. 4–5 | I spesifikasjonen |
+| D-008 | 2026-10 | Fugleperspektiv-kamera og laptop-HDMI (content) er med; moduser N1–N4, N1C–N4C og A (kun lyd) | Studioets oppsett | Spes. 5.1, 5.4–5.5 | I spesifikasjonen |
+| D-009 | 2026-10 | PiP/quad-layouter lages som ATEM-makroer, kalles via Companion, **av som standard** | Enkelt først | Spes. 5.6, 7.2 | I spesifikasjonen |
+| D-010 | 2026-10 | Klippe «som om jeg klippet selv»: preview først (IDLE → ARMED → READY → TAKE), kutt mellom setninger (K1–K3), hold og release (H1–H4), roller vert/gjest | Organisk klipping er hovedmålet | Spes. 5.9–5.12 | I spesifikasjonen |
+| D-011 | 2026-10 | Grunnmodus først; ekstra som brytere: video-bekreftelse, reaksjoner, utsnittsvariasjon, langsom zoom, layouter, live tekst (NB-Whisper), turbytte-prediksjon, AI-tracking | Ingen unødvendige funksjoner; prøv én om gangen | Spes. 5.13, 11 | I spesifikasjonen |
+| D-012 | 2026-10 | Navn: **CutCut Studio**, «You speak. We cut cut.» | Fengende og beskrivende | Spes. forside | I spesifikasjonen |
+| D-013 | 2026-10 | Opptak kan startes fra både bruker- og teknikerside; stoppes aldri automatisk (I7) | Brukeren skal klare seg alene | Spes. 7.4, 8 | I spesifikasjonen |
+| D-014 | 2026-10 | Innlogging med NTNU-kort: ELATEC TWN3 MIFARE (USB) i COM-modus → hex → NTNU-API gir brukernavn. Kortnummer lagres aldri (I8) | Samme som Crestron-studioene, men innebygd | Spes. 7.5, Q4 | I spesifikasjonen |
+| D-015 | 2026-10 | Touch-skjerm 16:9 (iiyama T2254MSC-B2AG, senere ProDVX TMP-22X) med flyt: velkommen med navn → gjester → show-type → video eller kun lyd → start | Store knapper, enkel flyt | Spes. 8.1–8.2 | I spesifikasjonen |
+| D-016 | 2026-10 | Opptak til Epiphan Pearl Nexus (REST v2.0); publiseres senere til brukerens egen Panopto-konto | Eierskap hos brukeren | Spes. 7.4, 7.6, Q5 | I spesifikasjonen |
+| D-017 | 2026-10 | Teknikervindu med overstyring, konfig, start/stopp av opptak og ATEM ISO-opptak | Teknikeren skal kunne alt | Spes. 8.3, 7.7 | I spesifikasjonen |
+| D-018 | 2026-10 | Setup-hjelper (10 steg, «fiks for meg», godkjenn til `baseline.yaml`) og statusside med helsekatalog | Oppsett og drift uten ekspert | Spes. 8.4–8.5 | I spesifikasjonen |
+| D-019 | 2026-10 | Stabil teknologi som står i måneder uten tekniker; profesjonell grunnmur: dokumentasjon, versjonering, filstruktur, sikkerhet, GUI | «Vi velger teknikk som er sikker og alltid fungerer» | Spes. 0, 9, 12 | I spesifikasjonen |
+| D-020 | 2026-10 | ATEM Mini Extreme ISO (W-APS-17) eller G2 (W-APS-44); G2 hvis bibliotekstøtte bekreftes | ISO tar opp alle kilder | Spes. 2.2, Q7 | I spesifikasjonen |
+| D-021 | 2026-10 | Capture-kort INOGENI 4KXUSB3 (UVC) for multiview | Driverfritt og stabilt | Teknisk referanse | I spesifikasjonen |
+| D-022 | 2026-10 | OBSBOT styres direkte: VISCA (UDP 52381) for bevegelse/presets, OSC (UDP 57110/57120) for kelvin, eksponering og AI-tracking. OBSBOT Center brukes ikke | Færrest mulig mellomledd | Teknisk referanse | I spesifikasjonen |
+| D-023 | 2026-10 | AI-tracking skal kunne slås av/på per kamera (OSC `SetAiEnable`), av som standard | NTNU vil kunne trigge tracking | Teknisk referanse, Q16 | I spesifikasjonen |
+| D-024 | 2026-10 | Leverandørinfo (Companion, OBSBOT m.fl.) samles i Teknisk referanse så den ikke må hentes på nytt | Mye ligger bak innlogging | Teknisk referanse | I spesifikasjonen |
+| D-025 | 2026-10-21 | Kode og dokumentasjon i `github.com/multimediesenteret/CutCutStudio`; agent bygger fra repoet | Én kilde for agent og mennesker | `AGENTS.md` | Gjort |
+| D-026 | 2026-10-21 | Alle commits har forfatter `Multimediesenteret <magnus.lian@ntnu.no>`, uten `Co-authored-by`. Eier og CODEOWNER: `@Multimediesenteret` | Vercel Hobby blokkerer andre forfattere | `AGENTS.md` 3, CI `commit-identity` | Gjort |
+| D-027 | 2026-10-21 | Dokumentasjon oppdateres ved hver endring og hver versjon; SemVer når koding starter | Hvem som helst skal kunne ta over når som helst | `AGENTS.md` 8, `docs/RELEASE.md` | Gjort |
+| D-028 | 2026-10-21 | **Forprosjekt:** ingen kode nå. Samtalene brukes til å samle og klargjøre alt; alt som avtales skrives inn i repoet | Agenten som programmerer skal ha full oversikt | Denne filen, `docs/forprosjekt/README.md` | Gjort |
+| D-029 | 2026-10-21 | Vercel Hobby holder: universitet, intern prototyping, ikke kommersielt. Brukes bare til web-simulatoren | Q22 besvart | `docs/publishing.md` | Gjort |
+| D-030 | 2026-10-21 | Web-simulator med samme GUI som appen, drevet av simulerte data, på Vercel | Se hva som gir mening uten å være ved utstyret | `docs/simulator.md`, ADR-0013 (forslag) | Ny – ikke i spesifikasjonen |
+| D-031 | 2026-10-21 | Lyd: ASIO-driveren fra RØDE, én flerkanals strøm, kanalkart etter fader-posisjon (firmware ≥ 1.7.3), lyd i egen prosess `audio-capture`, WASAPI som reserve; Silero-blokker er 32 ms | Research-runde om optimal lydhåndtering | `docs/research/lyd-fra-rodecaster.md`, ADR-0014 (forslag), Q21 | Ny – endrer spes. 3 og 3.1 |
