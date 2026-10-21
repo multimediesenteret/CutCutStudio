@@ -1,4 +1,4 @@
-"""Per-mic measurements from multitrack blocks (AU-1, AU-2; later AU-3, AU-4).
+"""Per-mic measurements from multitrack blocks (AU-1, AU-2, AU-3; leakage in AU-4).
 
 Input: 10 ms blocks of the RØDECaster multitrack (480 samples × channels at 48 kHz).
 Output per block: one ``audio.frame`` payload with, for each mic, the fields core reads
@@ -7,9 +7,10 @@ Output per block: one ``audio.frame`` payload with, for each mic, the fields cor
 * ``level_db`` – RMS of the last 10 ms;
 * ``vad`` – voice probability from the VAD, updated every 32 ms and held in between;
 * ``dominance_db`` – own level minus the loudest other mic (who is talking, not leaking);
-* ``pause_ms`` – how long the mic has been quiet (hysteresis 0.5 / 0.35 on ``vad``).
+* ``pause_ms`` – how long the mic has been quiet (hysteresis 0.5 / 0.35 on ``vad``);
+* ``phrase_end``, ``pitch_falling`` – phrase boundaries (:mod:`cutcut.audio.phrase`).
 
-Phrase ends, pitch and leakage come in AU-3/AU-4; until then they are reported as neutral.
+Leakage and muted-on-mixer come in AU-4; until then they are reported as neutral.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ import numpy as np
 
 from cutcut.audio.channels import DEFAULT_MAP
 from cutcut.audio.dsp import SILENCE_DB, Array, Decimator, rms_db
+from cutcut.audio.phrase import PhraseTracker
 from cutcut.audio.vad import BLOCK, Vad, make_vad
 from cutcut.common.ids import MicId
 
@@ -41,6 +43,7 @@ class _Mic:
     active: bool = False
     pause_ms: int = MAX_PAUSE_MS
     level_db: float = SILENCE_DB
+    phrase: PhraseTracker = field(default_factory=PhraseTracker)
 
 
 class Analyzer:
@@ -68,7 +71,8 @@ class Analyzer:
                 else np.zeros(len(block), np.float32)
             )
             m.level_db = rms_db(x)
-            m.buf16 = np.concatenate([m.buf16, m.decimator(x)])
+            x16 = m.decimator(x)
+            m.buf16 = np.concatenate([m.buf16, x16])
             while len(m.buf16) >= BLOCK:
                 m.prob = m.vad(m.buf16[:BLOCK])
                 m.buf16 = m.buf16[BLOCK:]
@@ -77,6 +81,7 @@ class Analyzer:
             elif not m.active and m.prob >= ON:
                 m.active = True
             m.pause_ms = 0 if m.active else min(MAX_PAUSE_MS, m.pause_ms + 10)
+            m.phrase.feed(x16, m.level_db, m.active, m.pause_ms)
         out: dict[str, Any] = {}
         for mic, m in self.mics.items():
             others = [o.level_db for k, o in self.mics.items() if k is not mic]
@@ -86,8 +91,8 @@ class Analyzer:
                 "level_db": round(m.level_db, 1),
                 "dominance_db": round(dominance, 1),
                 "pause_ms": m.pause_ms,
-                "phrase_end": False,
-                "pitch_falling": False,
+                "phrase_end": not m.active and m.phrase.phrase_end(m.pause_ms),
+                "pitch_falling": not m.active and m.phrase.pitch_falling,
                 "in_main_mix": True,
                 "leak": False,
                 "laughter": False,

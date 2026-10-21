@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-3: `audio-capture` finner frasegrenser per mic, så `K2` kan klippe etter 150 ms i stedet for 250 ms når en setning slutter.
+  - Tonehøyde med YIN, energifall og pause.
+  - Gylne filer med syntetiske stemmer: påstand, spørsmål, nøling, stemme som dør ut, dyp stemme.
 - SO-1: `cutcut supervisor` starter `core`, `atem-bridge` og `audio-capture` og holder dem i gang.
   - Ny start etter 1, 2, 5, 10 og 30 s.
   - En prosess som henger, stoppes og startes på nytt.

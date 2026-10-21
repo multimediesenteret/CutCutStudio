@@ -1,0 +1,70 @@
+{
+ "statement": {
+  "what": "Påstand: tonen faller og stemmen dør ut. Frasegrense allerede etter 150 ms.",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2140, "pitch_falling", true],
+   [2280, "phrase_end", true]
+  ]
+ },
+ "statement_steady": {
+  "what": "Tonen faller, men stemmen holder styrken. Frasegrense etter 150 ms (tonehøyde).",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2140, "pitch_falling", true],
+   [2280, "phrase_end", true]
+  ]
+ },
+ "trailing_off": {
+  "what": "Tonen er flat, men stemmen dør ut. Frasegrense etter 150 ms (energi).",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2280, "phrase_end", true]
+  ]
+ },
+ "question": {
+  "what": "Spørsmål: tonen stiger. Frasegrense først etter 250 ms pause.",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2380, "phrase_end", true]
+  ]
+ },
+ "flat": {
+  "what": "Flat tone og styrke. Frasegrense etter 250 ms pause.",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2380, "phrase_end", true]
+  ]
+ },
+ "hesitation": {
+  "what": "Kort nøling (100 ms) midt i: ingen frasegrense der, bare på slutten.",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [1430, "active", false],
+   [1500, "active", true],
+   [2550, "active", false],
+   [2790, "phrase_end", true]
+  ]
+ },
+ "low_voice": {
+  "what": "Dyp stemme (85 Hz) som faller til 70 Hz.",
+  "events": [
+   [510, "active", true],
+   [510, "phrase_end", false],
+   [2140, "active", false],
+   [2140, "pitch_falling", true],
+   [2280, "phrase_end", true]
+  ]
+ }
+}
