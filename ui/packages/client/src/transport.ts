@@ -10,11 +10,10 @@ export interface Transport {
 }
 
 export class CommandError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-  ) {
+  readonly status: number;
+  constructor(message: string, status: number) {
     super(message);
+    this.status = status;
   }
 }
 
@@ -46,10 +45,13 @@ export class WsTransport implements Transport {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private stopped = false;
 
-  constructor(
-    private readonly topics: string[],
-    private readonly base = "",
-  ) {}
+  private readonly topics: string[];
+  private readonly base: string;
+
+  constructor(topics: string[], base = "") {
+    this.topics = topics;
+    this.base = base;
+  }
 
   start(store: Store): void {
     this.store = store;
@@ -58,7 +60,7 @@ export class WsTransport implements Transport {
   }
 
   private url(): string {
-    const loc = window.location;
+    const loc = globalThis.location;
     const proto = loc.protocol === "https:" ? "wss:" : "ws:";
     return `${proto}//${loc.host}${this.base}/ws?topics=${this.topics.join(",")}`;
   }
