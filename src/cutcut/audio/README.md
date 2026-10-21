@@ -11,12 +11,28 @@ Egen prosess (ADR-0014, PL-02) som leser multitrack fra RØDECaster og sender ba
 | `phrase.py` | Frasegrenser (AU-3, spesifikasjonen 5.10): tonehøyde med YIN (64–500 Hz, bare mens mic-en snakker), energifall og pause. `phrase_end` etter 250 ms pause, eller 150 ms når tonen falt eller stemmen døde ut |
 | `leak.py` | Lekkasje (AU-4): en aktiv mic som ikke er minst 6 dB over lekkasjen forutsagt fra en høyere, aktiv mic, merkes `leak`. Matrisen måles i setup steg 5 (`LeakMeasurer`) og lagres i `baseline.yaml` (`audio.leak_db`); før det brukes −18 dB |
 | `mainmix.py` | `S6` (AU-4): hovedmiksen (kanal 1–2) sammenlignes med hver mic på nivåkurven over 0,5 s. Følger ikke hovedmiksen stavelsene i 0,5 s, er mic-en dempet (`in_main_mix = false`); ett godt vindu gir den tilbake. Ingenting dømmes før hovedmiksen har hatt lyd |
-| `backend.py` | Hvor lyden kommer fra: `fake` spiller en 48 kHz WAV; ASIO/WASAPI kommer i AU-5 |
+| `backend.py` | `fake` spiller en 48 kHz multitrack-WAV (tester, demo) |
+| `device.py` | Lydkortet (AU-5). Se detaljene under tabellen |
 | `process.py`, `main.py` | Løkka og `cutcut audio --wav fil.wav` |
 
 ```bash
 uv sync --extra silero && uv run python tools/fetch_models.py   # Silero-modellen, sjekket med SHA-256
+uv run cutcut audio --site site/ntnu-studio                      # RØDECaster (ASIO, ellers WASAPI)
 uv run cutcut audio --wav opptak.wav --site site/ntnu-studio     # spill av til en kjørende core
 ```
 
 Tester (`tests/unit/audio/`) bruker syntetiske signaler, aldri ekte opptak av personer. Frasegrensene sjekkes mot den gylne fila `tests/fixtures/audio/phrases.json`: påstand, spørsmål, nøling, stemme som dør ut, og dyp stemme. Fila oppdateres med vilje med `CUTCUT_UPDATE_GOLDEN=1`. En test viser at målingene får den ekte motoren til å klippe til den som snakker.
+
+## Lydkortet (`device.py`, AU-5)
+
+- **Kobling:** RØDECaster-multitracken leses via PortAudio med `sounddevice`, med ASIO først og WASAPI eksklusiv som reserve.
+- **Ingen blokkering:** PortAudio sin tråd kopierer bare inn i en kø, og analysen får 10 ms-blokker.
+- **Åpnes på nytt:** når lydkortet mangler eller strømmen stopper (USB trukket ut, ingen lyd på 1 s), prøver `audio-capture` å åpne det igjen hvert 5. sekund, uten slutt. Imens går motoren over til `S4`.
+- **`audio.status`** sendes hvert sekund, også mens kortet er borte. Den har backend, enhet, buffer, over- og underflyt, tapte rammer og siste feil. Helsesjekken `H-AUD-1` viser feilen.
+- **Oppsett** i `devices.yaml` under `audio`:
+  - `backend` (`asio` eller `wasapi`);
+  - `device`, en del av navnet, standard «RODECaster»;
+  - `channels`, standard 20;
+  - `buffer`, standard 256 sampler. Øk den ved dropouts.
+- **Krav:** `sounddevice` installeres bare på Windows (PortAudio med ASIO følger med).
+- **Tester:** de bruker en falsk PortAudio. Windows-CI laster ekte PortAudio uten lydkort. Ekte ASIO testes på test-PC-en (AU-6).

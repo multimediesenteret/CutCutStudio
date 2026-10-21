@@ -27,6 +27,42 @@
       "title": "AtemDevice",
       "type": "object"
     },
+    "AudioDevice": {
+      "additionalProperties": false,
+      "description": "The RØDECaster's multitrack over USB (docs/research/lyd-fra-rodecaster.md, AU-5).",
+      "properties": {
+        "backend": {
+          "default": "asio",
+          "enum": [
+            "asio",
+            "wasapi"
+          ],
+          "title": "Backend",
+          "type": "string"
+        },
+        "buffer": {
+          "default": 256,
+          "maximum": 2048,
+          "minimum": 64,
+          "title": "Buffer",
+          "type": "integer"
+        },
+        "channels": {
+          "default": 20,
+          "maximum": 32,
+          "minimum": 12,
+          "title": "Channels",
+          "type": "integer"
+        },
+        "device": {
+          "default": "RODECaster",
+          "title": "Device",
+          "type": "string"
+        }
+      },
+      "title": "AudioDevice",
+      "type": "object"
+    },
     "CameraDevice": {
       "additionalProperties": false,
       "properties": {
@@ -202,6 +238,15 @@
     },
     "atem": {
       "$ref": "#/$defs/AtemDevice"
+    },
+    "audio": {
+      "$ref": "#/$defs/AudioDevice",
+      "default": {
+        "backend": "asio",
+        "buffer": 256,
+        "channels": 20,
+        "device": "RODECaster"
+      }
     },
     "cameras": {
       "additionalProperties": {

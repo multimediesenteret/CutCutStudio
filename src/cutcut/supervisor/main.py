@@ -35,7 +35,7 @@ class SupervisorOptions:
     port: int = 8080
     ui_dir: Path | None = None
     bridge_dir: Path = REPO / "bridges" / "atem"
-    audio_wav: Path | None = None  # until AU-5 brings the real sound card
+    audio_wav: Path | None = None  # play a file instead of the sound card (tests, demo)
 
 
 def effective_atem_ip(site_dir: Path, data_dir: Path) -> str:
@@ -95,13 +95,13 @@ def specs(opts: SupervisorOptions) -> list[ProcessSpec]:
             cwd=opts.bridge_dir,
         ),
     ]
+    audio = [*py, "audio", "--site", str(opts.site_dir)]
     if opts.audio_wav is not None:
-        out.append(
-            ProcessSpec(
-                "audio-capture",
-                [*py, "audio", "--wav", str(opts.audio_wav), "--site", str(opts.site_dir)],
-            )
-        )
+        audio += ["--wav", str(opts.audio_wav)]
+    model = REPO / "models" / "silero_vad.onnx"
+    if model.exists():
+        audio += ["--vad-model", str(model)]
+    out.append(ProcessSpec("audio-capture", audio))
     return out
 
 

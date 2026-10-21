@@ -116,7 +116,7 @@ def test_wav_backend_and_process_publish_frames(tmp_path: Path) -> None:
     n = asyncio.run(run(WavBackend(path, loop=False), Analyzer(), publish, realtime=False))
     assert n == 100
     assert sum(t == "audio.frame" for t, _ in sent) == 100
-    assert sent[0][0] == "audio.frame"
+    assert sent[0][0] == "audio.status"  # status first, so core knows the backend at once
     assert any(t == "audio.status" for t, _ in sent)
 
 

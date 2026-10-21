@@ -25,16 +25,26 @@ from cutcut.health.model import CheckLevel, CheckResult
 AUDIO_RED_MS = 2_000  # S4: two seconds without measurements (spec 5.7)
 
 
-def audio_stream(age_ms: Callable[[], int | None], now: Callable[[], datetime]) -> FuncCheck:
-    """``H-AUD-1``: measurements from audio-capture arrive (the ASIO stream is alive)."""
+def audio_stream(
+    age_ms: Callable[[], int | None],
+    now: Callable[[], datetime],
+    detail: Callable[[], dict[str, object]] | None = None,
+) -> FuncCheck:
+    """``H-AUD-1``: measurements from audio-capture arrive (the ASIO stream is alive).
+
+    When audio-capture says why (``audio.status``: no RØDECaster, stream stopped), the
+    message says so too."""
 
     def run() -> CheckResult:
         age = age_ms()
+        why = (detail() if detail else {}).get("last_error")
         if age is None:
             status, value, msg = "red", "ingen lyd", "Ingen lyd fra audio-capture ennå."
         elif age > AUDIO_RED_MS:
             status, value = "red", f"{age / 1000:.1f} s siden"
             msg = "Lyden fra RØDECaster har stoppet. Motoren klipper ikke på lyd (S4)."
+            if why:
+                msg += f" audio-capture: {why}."
         else:
             status, value, msg = "green", f"{age} ms", "Lyden kommer jevnt."
         return CheckResult(

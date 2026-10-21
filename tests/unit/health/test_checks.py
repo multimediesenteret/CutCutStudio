@@ -165,3 +165,12 @@ def test_faults_turn_their_check_red(
     assert not any(c["for_user"] and c["status"] == "red" for c in rig.state()["health"]["checks"])
     settle(rig, 31)
     assert rig.state()["health"]["status"] == "green"
+
+
+def test_H_AUD_1_says_why_when_audio_capture_knows() -> None:
+    check = hc.audio_stream(
+        lambda: 5_000, now, lambda: {"last_error": "fant ikke «RODECaster» med 20 kanaler på ASIO"}
+    )
+    r = asyncio.run(check.run())
+    assert r.status == "red"
+    assert "fant ikke «RODECaster»" in r.message

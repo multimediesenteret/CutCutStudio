@@ -49,6 +49,15 @@ class CardReaderDevice(_Strict):
     usb_id: str = Field(default="09D8:0320", pattern=r"^[0-9A-F]{4}:[0-9A-F]{4}$")
 
 
+class AudioDevice(_Strict):
+    """The RØDECaster's multitrack over USB (docs/research/lyd-fra-rodecaster.md, AU-5)."""
+
+    backend: Literal["asio", "wasapi"] = "asio"  # WASAPI exclusive is the reserve
+    device: str = "RODECaster"  # part of the device name, case-insensitive
+    channels: int = Field(default=20, ge=12, le=32)  # USB 1 multitrack
+    buffer: int = Field(default=256, ge=64, le=2048)  # samples; raise on dropouts
+
+
 class NtnuApi(_Strict):
     url: HttpUrl = HttpUrl("https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid")
     timeout_s: float = Field(default=3.0, gt=0, le=10)
@@ -61,6 +70,7 @@ class Devices(_Strict):
     companion: CompanionDevice = CompanionDevice()
     pearl: PearlDevice
     cameras: dict[CameraId, CameraDevice]
+    audio: AudioDevice = AudioDevice()
     card_reader: CardReaderDevice = CardReaderDevice()
     ntnu_api: NtnuApi = NtnuApi()
     api_port: int = Field(default=8080, ge=1024, le=65535)
