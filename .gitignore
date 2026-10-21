@@ -8,9 +8,9 @@ node_modules/
 dist/
 build/
 *.log
-data/
-models/
-recordings/
+/data/
+/models/          # ONNX model files (models/manifest.yaml is fetched at install)
+/recordings/
 *.wav
 *.mp4
 .env
