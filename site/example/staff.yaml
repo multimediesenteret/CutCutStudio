@@ -1,0 +1,4 @@
+# Fictional usernames only (spec 12.4). The real list for the NTNU studio is Q33.
+schema_version: 1
+operators: [tekniker1, tekniker2]
+admins: [admin1]

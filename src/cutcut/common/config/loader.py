@@ -18,6 +18,7 @@ from ruamel.yaml.error import YAMLError
 
 from cutcut.common.config.rules import RuleParams, RulePresets
 from cutcut.common.models.show import SHOW_SCHEMA_VERSION, RulesPreset, ShowConfig
+from cutcut.common.models.site import CompanionMap, Devices, Staff
 
 
 class ConfigError(Exception):
@@ -126,3 +127,44 @@ def effective_rules(show: ShowConfig, presets: RulePresets) -> RuleParams:
         return presets.get(show.rules_preset).with_overrides(show.rules_override)
     except ValueError as exc:
         raise ConfigError(f"show {show.id}: {exc}") from exc
+
+
+class Site(BaseModel):
+    """Everything in ``site/<studio>/``, loaded and cross-checked."""
+
+    model_config = ConfigDict(frozen=True)
+
+    root: Path
+    devices: Devices
+    staff: Staff
+    companion_map: CompanionMap
+    shows: dict[str, ShowConfig]
+
+
+def load_site(root: Path) -> Site:
+    """Load a studio folder. Fails with a readable message if anything does not fit together."""
+    devices = _validate(Devices, read_yaml(root / "devices.yaml"), str(root / "devices.yaml"))
+    staff = _validate(Staff, read_yaml(root / "staff.yaml"), str(root / "staff.yaml"))
+    cmap_path = root / "equipment" / "companion_map.yaml"
+    companion_map = _validate(CompanionMap, read_yaml(cmap_path), str(cmap_path))
+    shows: dict[str, ShowConfig] = {}
+    for path in sorted((root / "shows").glob("*.yaml")):
+        show = load_show(path)
+        if show.id in shows:
+            raise ConfigError(f"{path}: show-id {show.id!r} finnes allerede")
+        for cam_id, cam in show.cameras.items():
+            device = devices.cameras.get(cam_id)
+            if device is None:
+                raise ConfigError(f"{path}: kamera {cam_id} finnes ikke i devices.yaml")
+            if cam.ip is not None and cam.ip != device.ip:
+                raise ConfigError(
+                    f"{path}: {cam_id} har IP {cam.ip}, devices.yaml sier {device.ip}"
+                )
+        shows[show.id] = show
+    if not shows:
+        raise ConfigError(f"{root / 'shows'}: ingen show-oppsett")
+    return Site(root=root, devices=devices, staff=staff, companion_map=companion_map, shows=shows)
+
+
+def example_site_dir() -> Path:
+    return default_config_dir().parent / "site" / "example"

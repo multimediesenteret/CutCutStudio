@@ -1,0 +1,12 @@
+# Fictional show with 1 participant(s). See spec section 4.
+schema_version: 1
+id: solo
+name: "Solo"
+version: 1
+participants:
+  - { id: P1, name: "Programleder", mic: M1, camera: C1, role: host }
+cameras:
+  C1: { driver: canon_xc, ip: 10.10.10.21, atem_input: 1, presets: { tight: 1, wide: 2 } }
+  C5: { driver: none, atem_input: 5, role: bird }
+content: { atem_input: 6, audio_mic: M5 }
+rules_preset: standard
