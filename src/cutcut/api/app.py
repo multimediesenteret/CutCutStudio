@@ -210,6 +210,12 @@ def create_app(
         require(me, "operator")
         return studio.multiview_status()
 
+    @app.post("/api/setup/multiview/check", tags=["setup"])
+    async def multiview_check(me: Who) -> dict[str, Any]:
+        """Check the multiview now and warn if it is wrong (also done once at start-up)."""
+        require(me, "operator")
+        return studio.check_multiview_now(me.role, me.actor)
+
     @app.get("/api/shows", tags=["config"])
     async def shows(me: Who) -> list[dict[str, Any]]:
         require(me, "operator")

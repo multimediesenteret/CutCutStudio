@@ -425,15 +425,18 @@ def test_only_admin_changes_addresses(tmp_path: Path) -> None:
         rig.store.close()
 
 
-def test_multiview_check_finds_a_changed_atem_and_recovers_D055(rig: Rig) -> None:
+def test_multiview_checked_at_start_and_on_request_D055_D056(rig: Rig) -> None:
     c = rig.client
     status = c.get("/api/setup/multiview").json()
     assert status["ok"] is True
     assert status["readback"]["windows"][0] == "input1"
     assert [t["source"] for t in status["recommended"]["tiles"]][:2] == ["preview", "program"]
+    rig.run(100)  # the start-up check has run and found nothing
+    assert not [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
     c.post("/api/sim/fault", json={"kind": "multiview_wrong", "on": True})
-    rig.run(10_100)
-    status = c.get("/api/setup/multiview").json()
+    rig.run(60_000)  # not checked again during use (D-056)
+    assert not [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
+    status = c.post("/api/setup/multiview/check").json()
     assert status["ok"] is False
     checks = {(f["check"], f["where"]) for f in status["findings"]}
     assert ("H-MV-5", "rute W1") in checks
@@ -442,7 +445,19 @@ def test_multiview_check_finds_a_changed_atem_and_recovers_D055(rig: Rig) -> Non
     assert alerts
     assert alerts[-1]["level"] == "warn"
     c.post("/api/sim/fault", json={"kind": "multiview_wrong", "on": False})
-    rig.run(10_100)
-    assert c.get("/api/setup/multiview").json()["ok"] is True
+    assert c.post("/api/setup/multiview/check").json()["ok"] is True
+    rig.run(60)
     alerts = [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
     assert alerts[-1]["level"] == "info"
+
+
+def test_multiview_start_up_check_warns_when_wrong(tmp_path: Path) -> None:
+    rig = Rig(tmp_path)
+    try:
+        rig.sim.multiview_wrong(True)  # wrong before CutCut starts
+        rig.run(100)
+        alerts = [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
+        assert len(alerts) == 1
+        assert alerts[0]["level"] == "warn"
+    finally:
+        rig.store.close()

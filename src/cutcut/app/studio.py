@@ -85,7 +85,9 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 HISTORY_KEEP: Final = 200
-MULTIVIEW_CHECK_MS: Final = 10_000
+# The multiview is set up once and not changed during use, so it is checked at start-up
+# (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
+MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
 
 
 @dataclass
@@ -206,7 +208,8 @@ class Studio:
         self._last_state_ms = -STATE_EVERY_MS
         self._last_meters_ms = -METERS_EVERY_MS
         self._tracked: tuple[str, TouchStep] | None = None
-        self._last_mv_check_ms = -MULTIVIEW_CHECK_MS
+        self._started_ms = self.now
+        self._mv_checked = False
         self._mv_errors = ""
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
@@ -369,8 +372,10 @@ class Studio:
             self._last_state_ms = now
             self._publish_state()
         self._track_session()
-        if now - self._last_mv_check_ms >= MULTIVIEW_CHECK_MS:
-            self._last_mv_check_ms = now
+        if not self._mv_checked and (
+            self._mv_readback() is not None or now - self._started_ms >= MULTIVIEW_STARTUP_WAIT_MS
+        ):
+            self._mv_checked = True
             self._check_multiview()
         return result
 
@@ -400,9 +405,15 @@ class Studio:
             "ok": not any(f.level == "error" for f in findings),
         }
 
+    def check_multiview_now(self, role: Role, actor: str) -> dict[str, Any]:
+        """«Sjekk nå» on the setup screen, e.g. after someone changed the ATEM."""
+        self._check_multiview()
+        self._audit(role, actor, "multiview_check")
+        return self.multiview_status()
+
     def _check_multiview(self) -> None:
-        """Warn the technician once when the multiview stops matching (CutCut would read the
-        wrong camera); say so again when it is fixed."""
+        """Warn the technician when the multiview does not match the rutekart (CutCut would
+        read the wrong camera); say so when a later check finds it fixed."""
         try:
             status = self.multiview_status()
         except Exception:  # never let a check stop the studio

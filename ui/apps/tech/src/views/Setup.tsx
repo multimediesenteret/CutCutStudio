@@ -281,11 +281,16 @@ function Multiview() {
       .then(setSt)
       .catch(() => setSt(null));
   }, [transport]);
-  useEffect(() => {
-    load();
-    const t = setInterval(load, 5000);
-    return () => clearInterval(t);
-  }, [load]);
+  useEffect(load, [load]);
+  const [checking, setChecking] = useState(false);
+  const checkNow = () => {
+    setChecking(true);
+    transport
+      .send("POST", "/api/setup/multiview/check")
+      .then(load)
+      .catch(() => undefined)
+      .finally(() => setChecking(false));
+  };
 
   if (!st) {
     return (
@@ -304,14 +309,20 @@ function Multiview() {
     <div className="panel">
       <div className="ph">
         <span className="lbl">Multiview · ATEM mot rutekartet</span>
-        <span className={`hst ${st.ok ? "" : "err"}`}>
-          <i />
-          {st.ok ? "Stemmer" : "Stemmer ikke"}
+        <span className="row">
+          <span className={`hst ${st.ok ? "" : "err"}`}>
+            <i />
+            {st.ok ? "Stemmer" : "Stemmer ikke"}
+          </span>
+          <button type="button" className="btn" onClick={checkNow} disabled={checking}>
+            {checking ? "Sjekker …" : "Sjekk nå"}
+          </button>
         </span>
       </div>
       <p className="muted">
         CutCut leser kameraene fra multiviewen etter posisjon. Står en rute feil, ville CutCut sett
-        på feil kamera, så det sjekkes hvert 10. sekund og varsles under Helse.
+        på feil kamera. Det sjekkes ved oppstart og varsles under Helse; trykk «Sjekk nå» hvis noen
+        har endret ATEM-oppsettet.
       </p>
       <div className="mvgrids">
         {st.map && (

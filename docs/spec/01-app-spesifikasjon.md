@@ -101,7 +101,7 @@ Alt utstyr settes opp én gang etter tabellene under, og innstillingene lagres s
 
 ### 2.1 Inngangskart og multiview
 
-Multiview-oppsettet er en fast avtale mellom ATEM og videolaget: rutene må ligge der tegningen viser, ellers leser systemet feil kamera. CutCut sjekker avtalen hvert 10. sekund mot rutekartet, show-oppsettet og ATEM, og varsler med `H-MV-*`; anbefalt oppsett og sjekkene står i `docs/studio/multiview.md` (D-055).
+Multiview-oppsettet er en fast avtale mellom ATEM og videolaget: rutene må ligge der tegningen viser, ellers leser systemet feil kamera. CutCut sjekker avtalen ved oppstart og på forespørsel mot rutekartet, show-oppsettet og ATEM, og varsler med `H-MV-*`; anbefalt oppsett og sjekkene står i `docs/studio/multiview.md` (D-055).
 
 &#91;embedded content: ATEM multiview · rutekart som videolaget leser\]
 
@@ -998,7 +998,7 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 | `POST /rules/overrides` `{"T2_confirm_ms": 1000}` | Finjuster enkeltverdier oppå forhåndsvalget; `null` nullstiller. Gjelder fra neste tikk og overlever omstart (admin, ADR-0011) |
 | `GET /shows`, `GET /shows/{id}`, `PUT /shows/{id}` | Les og lagre show-oppsett (validert) |
 | `GET /settings/devices`, `PUT /settings/devices`, `GET /settings/devices.yaml` | Utstyrsadresser (IP, Companion): les, endre (admin, `null` nullstiller), last ned som `devices.yaml` (D-055) |
-| `GET /setup/multiview` | Rutekart, det ATEM viser, anbefalt oppsett og avvik (`H-MV-*`, D-055) |
+| `GET /setup/multiview`, `POST /setup/multiview/check` | Rutekart, det ATEM viser, anbefalt oppsett og avvik (`H-MV-*`, D-055); `check` sjekker på nytt og varsler (D-056) |
 | `POST /setup/mic-test/{P}` | Start mic-test for en deltaker |
 | `POST /setup/color-match` | Kjør fargematching mot referansekamera |
 | `POST /setup/cameras/{C}/calibrate` | Kjør kameraet gjennom området innenfor grensene og mål fart |
