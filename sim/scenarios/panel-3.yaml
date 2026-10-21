@@ -1,0 +1,10 @@
+id: panel-3
+description: "Tre personer i stokastisk samtale med krysstale og latter."
+seed: 7
+show: panel-3
+duration_s: 600
+conversation: true
+expect:
+  - { min_cuts: 20 }
+  - { shot_seen: "CU:P3" }
+  - { never: cuts_faster_than_1s }

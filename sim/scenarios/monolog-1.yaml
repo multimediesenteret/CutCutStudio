@@ -1,0 +1,13 @@
+id: monolog-1
+description: "Én person snakker lenge med pauser. Åpning, vinkelbytte bare med WIDE."
+show: solo
+duration_s: 120
+script:
+  - { at: 5, talk: P1, for: 30 }
+  - { at: 36, talk: P1, for: 40 }
+  - { at: 80, talk: P1, for: 30 }
+expect:
+  - { rule: B1, action: any }
+  - { shot_seen: "CU:P1" }
+  - { never: cuts_faster_than_1s }
+  - { never: cut_to_moving_camera }

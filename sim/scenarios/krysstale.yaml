@@ -1,0 +1,12 @@
+id: krysstale
+description: "Programleder snakker, to gjester bryter inn samtidig (T5/B2)."
+show: panel-3
+duration_s: 40
+script:
+  - { at: 5, talk: P1, for: 12 }
+  - { at: 12, talk: P2, for: 6 }
+  - { at: 12.5, talk: P3, for: 5 }
+  - { at: 20, talk: P2, for: 10 }
+expect:
+  - { rule: B2, between_s: [12, 16] }
+  - { never: cuts_faster_than_1s }

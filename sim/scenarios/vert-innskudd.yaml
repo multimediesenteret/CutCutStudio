@@ -1,0 +1,11 @@
+id: vert-innskudd
+description: "Vertens korte «mm» og «ja» mens gjesten svarer gir ingen kutt (5.12)."
+show: samtale
+duration_s: 37
+script:
+  - { at: 3, talk: P2, for: 35 }
+  - { at: 12, talk: P1, for: 0.8, dominance: 14 }
+  - { at: 20, talk: P1, for: 1.2, dominance: 14 }
+expect:
+  - { shot_not_seen: "CU:P1", after_s: 10 }
+  - { shot_not_seen: BIRD, after_s: 10 }

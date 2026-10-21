@@ -1,0 +1,13 @@
+id: laptop-slide
+description: "Laptop med ny slide og statisk innhold; tilbake til taleren via kort fugleperspektiv."
+show: samtale
+duration_s: 60
+script:
+  - { at: 3, talk: P1, for: 57 }
+  - { at: 10, content: STATIC }
+  - { at: 15, content: NEW_SLIDE }
+  - { at: 15.1, content: STATIC }
+expect:
+  - { rule: CT2, between_s: [15, 16.5] }
+  - { rule: B1, between_s: [20, 30] }
+  - { program_at_end: "CU:P1" }

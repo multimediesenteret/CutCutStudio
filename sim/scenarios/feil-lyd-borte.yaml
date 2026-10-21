@@ -1,0 +1,12 @@
+id: feil-lyd-borte
+description: "Lyden fra RØDECaster forsvinner i 5 s midt i et svar (S4)."
+show: samtale
+duration_s: 38
+script:
+  - { at: 3, talk: P2, for: 36 }
+faults:
+  - { at: 15, kind: audio_lost, for: 5 }
+expect:
+  - { rule: S4, between_s: [17, 18] }
+  - { never: cuts_faster_than_1s }
+  - { program_at_end: "CU:P2" }
