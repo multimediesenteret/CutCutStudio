@@ -24,10 +24,9 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Kjente feil og funn
 
-- `main` kan ikke beskyttes på gratis privat GitHub. Valgt løsning: agenten pusher aldri til `main`; produkteier merger (D-050).
+- `main` kan ikke beskyttes på gratis privat GitHub. Valgt løsning: agenten pusher aldri direkte til `main`, men merger egne pull requests når CI er grønn (D-050, D-052).
 
 ## Neste steg
 
-1. **Eier:** merge PR #1 (planene) på GitHub.
-2. **Agent:** M1 i rekkefølgen C → K → SIM → A → U (se `docs/plans/milestones.md`).
-3. **NTNU:** test-PC klar med Windows 11 Pro (Q28); når den er klar: modell, CPU, GPU og om den er NTNU-administrert (Q8, Q20).
+1. **Agent:** M1 i rekkefølgen C → K → SIM → A → U (se `docs/plans/milestones.md`).
+2. **NTNU:** test-PC klar med Windows 11 Pro (Q28); når den er klar: modell, CPU, GPU og om den er NTNU-administrert (Q8, Q20).

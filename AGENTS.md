@@ -95,7 +95,7 @@ Agenter jobber i et Linux-skymiljø uten ATEM, kameraer, RØDECaster, Pearl, kor
 1. Ta en oppgave fra planen eller et issue. Én pull request = én leveranse, under én dags arbeid.
 2. Egen gren: `agent/<kort-beskrivelse>` for agenter, `<navn>/<kort-beskrivelse>` for mennesker. Ingen direkte push til `main`. Unntak i forprosjektet: rene dokumentasjonsendringer avtalt med produkteier i samtalen kan gå rett til `main`.
 3. Commit-meldinger etter *Conventional Commits*: `feat(core): …`, `fix(devices/obsbot): …`, `docs(spec): …`, `chore(ci): …`. Scope er modulnavnet fra `src/cutcut/`.
-4. Pull request med malen. CI må være grønn. Et menneske godkjenner og merger; agenter merger aldri selv.
+4. Pull request med malen. CI må være grønn. **Agenten merger selv når all CI er grønn** (D-052), med metoden *rebase* så forfatteren beholdes og det ikke blir merge-commits (Vercel Hobby). Unntak som alltid krever et menneske står i 10.
 5. **Ferdig betyr dokumentert** (se 8). En pull request uten oppdatert dokumentasjon er ikke ferdig.
 6. Avslutt hver arbeidsøkt med å oppdatere `docs/STATUS.md`, også om arbeidet ikke er ferdig.
 
@@ -137,7 +137,7 @@ Kommandoene for å bygge, teste og kjøre simulatoren står i `README.md` og `do
 ## 10. Krever alltid et menneske
 
 - Endringer i `AGENTS.md`, nye ADR-er, ufravikelige regler og sikkerhetstiltak (spesifikasjonen 12.4).
-- Merge til `main`, tagging av release og utrulling i studio.
+- Merge av pull requests som endrer `AGENTS.md`, ufravikelige regler eller sikkerhetstiltak, eller som har rød CI. Tagging av release og utrulling i studio. (Andre pull requests merger agenten selv når CI er grønn, D-052.)
 - Nye avhengigheter med annen lisens enn MIT/BSD/Apache-2.0, eller som krever nett i drift.
 - Alt som sender kommandoer til ekte utstyr eller NTNU-tjenester.
 - Lagring av nye personopplysninger.
