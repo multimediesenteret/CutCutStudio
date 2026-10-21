@@ -19,6 +19,7 @@ from cutcut.common.bus.zmq_bus import (
     Publisher,
     Subscriber,
     endpoint,
+    use_selector_event_loop,
 )
 from cutcut.common.clock import SystemClock
 from cutcut.common.ids import MicId
@@ -83,5 +84,6 @@ def main(wav: Path | None, vad_model: Path | None, site_dir: Path | None = None)
 
     matrix = "målt (baseline.yaml)" if leak_db else "standard"
     print(f"audio-capture: {source}, VAD {analyzer.vad_name}, lekkasje {matrix}")
+    use_selector_event_loop()  # the bus needs it on Windows
     asyncio.run(go())
     return 0

@@ -7,12 +7,18 @@ name: windows-service
 on:
   pull_request:
     paths:
+      - "src/cutcut/common/bus/**"
+      - "src/cutcut/app/core.py"
+      - "src/cutcut/audio/main.py"
       - "installer/**"
       - "src/cutcut/supervisor/**"
       - ".github/workflows/windows-service.yml"
   push:
     branches: [main]
     paths:
+      - "src/cutcut/common/bus/**"
+      - "src/cutcut/app/core.py"
+      - "src/cutcut/audio/main.py"
       - "installer/**"
       - "src/cutcut/supervisor/**"
       - ".github/workflows/windows-service.yml"
@@ -60,9 +66,11 @@ jobs:
           }
           $h = Wait-Health 120
           $h.runtime.processes | Format-Table name, running, uptime_s, restarts_10min
+          # A venv python.exe on Windows is a launcher plus the real interpreter: kill both,
+          # like a crash would.
           $core = @(Get-Core)
-          if ($core.Count -ne 1) { throw "forventet én core, fant $($core.Count)" }
-          Stop-Process -Id $core[0].ProcessId -Force
+          if ($core.Count -lt 1) { throw "fant ingen core" }
+          $core | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
           Start-Sleep -Seconds 3
           $h = Wait-Health 60
           $c = $h.runtime.processes | Where-Object { $_.name -eq "core" }

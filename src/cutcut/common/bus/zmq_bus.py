@@ -38,6 +38,16 @@ EVENTS_IN_PORT: Final = 5560
 EVENTS_OUT_PORT: Final = 5561
 
 
+def use_selector_event_loop() -> None:
+    """ZeroMQ's asyncio support needs a selector event loop. Windows defaults to the proactor
+    loop, on which every receive fails (pyzmq: «Proactor event loop does not implement
+    add_reader»). Call before the loop starts, in every process that uses the bus."""
+    import sys
+
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
 def endpoint(port: int) -> str:
     return f"tcp://{HOST}:{port}"
 
