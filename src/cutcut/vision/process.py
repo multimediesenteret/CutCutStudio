@@ -8,6 +8,8 @@ frame (``change``, VI-2 and VI-3 turn that into content and movement). Published
   engine's ``video_confirm`` reads, comes with the heavy part in M4.)
 * ``vision.content`` from the laptop tile (VI-2, :mod:`cutcut.vision.content`), 5 Hz and at
   once when the state changes;
+* ``vision.moving`` – cameras that move or moved in the last 0.5 s (VI-3, ``S1``), 5 Hz;
+* ``vision.pgm`` – which camera the program window shows (VI-3), 5 Hz;
 * ``vision.status`` once a second: fps, frame size, source, last error (``H-VID-1``).
 """
 
@@ -24,6 +26,7 @@ import numpy as np
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.vision.capture import Source
 from cutcut.vision.content import ContentDetector
+from cutcut.vision.motion import MotionTracker, match_program, thumb
 from cutcut.vision.tiles import Cut, Frame, cuts
 
 log = logging.getLogger(__name__)
@@ -31,6 +34,7 @@ log = logging.getLogger(__name__)
 FPS: Final = 15.0
 SIGNAL_LEVEL: Final = 10.0  # mean of 0–255 below this: black, no signal
 CHANGE_DIFF: Final = 25  # a pixel changed if it moved this much (0–255)
+FLAT_STD: Final = 6.0  # a picture with less spread than this is flat (black, graphic)
 SAMPLE: Final = 4  # measure every 4th pixel each way: 16× less work, same answer
 
 Publish = Callable[[str, dict[str, Any]], Awaitable[object]]
@@ -65,9 +69,34 @@ class Vision:
         self.meters: list[TileMeter] = []
         self._shape: tuple[int, int] | None = None
         self.content = ContentDetector()
+        self.motion = MotionTracker()
         self.laptop = next(
             (t.id for t in mv.tiles if t.camera is not None and t.camera.value == "LAPTOP"), None
         )
+
+    def moving(self, now_ms: int, rows: list[dict[str, Any]]) -> list[str]:
+        """Cameras (C1–C7) that move now or within 0.5 s. Laptop and SuperSource are not
+        cameras: their content changes on purpose."""
+        changes = {
+            r["source"]: float(r["change"]) for r in rows if r.get("source", "").startswith("C")
+        }
+        return self.motion.feed(now_ms, changes)
+
+    def program(self, frame: Frame) -> dict[str, Any] | None:
+        """What the program window shows, by comparing it with the camera windows."""
+        pgm = next((m for m in self.meters if m.cut.tile.source == "program"), None)
+        if pgm is None:
+            return None
+        cams = {
+            m.cut.tile.camera.value: thumb(m.cut.of(frame))
+            for m in self.meters
+            if m.cut.tile.camera is not None
+        }
+        area = pgm.cut.of(frame)
+        if float(area[::8, ::8].std()) < FLAT_STD:  # black, a graphic, «Kun lyd»: no camera
+            return {"source": None, "score": 1.0}
+        source, score = match_program(thumb(area), cams)
+        return {"source": source, "score": score}
 
     def content_state(self, now_ms: int, rows: list[dict[str, Any]]) -> dict[str, Any] | None:
         row = next((r for r in rows if r["tile"] == self.laptop), None)
@@ -106,6 +135,7 @@ async def run(
     frames = 0
     last_content: dict[str, Any] | None = None
     last_content_at = -1.0
+    last_slow = -1.0
     last_status = -1.0
     period = 1.0 / fps
     window: list[float] = []
@@ -137,6 +167,13 @@ async def run(
             if content is not None and (content != last_content or t0 - last_content_at >= 0.2):
                 await publish("vision.content", content)
                 last_content, last_content_at = content, t0
+            moving = vision.moving(int(clock() * 1000), rows)
+            if t0 - last_slow >= 0.2:  # 5 Hz is enough for both (and spares the CPU)
+                last_slow = t0
+                await publish("vision.moving", {"moving": moving})
+                pgm = vision.program(frame)
+                if pgm is not None:
+                    await publish("vision.pgm", pgm)
             if on_frame is not None:
                 on_frame(frame, rows)
             frames += 1

@@ -135,7 +135,10 @@ class SyntheticSource:
     height: int = 540
     content: Content = "slide"
     slide: int = 1
-    moving: set[str] = field(default_factory=set)  # tile ids with movement
+    moving: set[str] = field(default_factory=set)  # tile ids where someone moves
+    panning: set[str] = field(default_factory=set)  # tile ids whose camera pans
+    program: str = "W1"  # which camera tile the program window shows
+    preview: str = "W2"
     black: bool = False  # the capture card lost the signal
     name: str = "syntetisk"
     _t: int = 0
@@ -163,18 +166,47 @@ class SyntheticSource:
             area = frame[y0:y1, x0:x1]
             if t.camera is not None and t.camera.value == "LAPTOP":
                 self._content(area, rng)
-            elif t.source.startswith("input") or t.source in ("preview", "program"):
-                area[:] = 90 + (hash(t.id) % 60)  # a camera: an even grey per tile
-                cy, cx = area.shape[0] // 2, area.shape[1] // 2
-                area[cy - 12 : cy + 12, cx - 8 : cx + 8] = 200  # a «person»
-                if t.id in self.moving:
-                    off = (self._t * 7) % max(1, area.shape[1] - 30)
-                    area[10:40, off : off + 30] = 255
+            elif t.source.startswith("input"):
+                self._camera(area, t.id)
+            elif t.source in ("program", "preview"):
+                shown = self.program if t.source == "program" else self.preview
+                if any(x.id == shown and x.source.startswith("input") for x in self.mv.tiles):
+                    self._camera(area, shown)
+                else:
+                    area[:] = 20  # a graphic or black (media player, «Kun lyd»)
             else:
                 area[:] = 20
             area[:2, :] = area[-2:, :] = 0  # the tally border the inset removes
             area[:, :2] = area[:, -2:] = 0
         return frame
+
+    def _camera(self, area: Frame, tile_id: str) -> None:
+        """A camera picture that only this tile shows: a «person» placed by the tile id, the
+        same at any size (so the program window can be matched with it)."""
+        h, w = area.shape[:2]
+        seed = sum(ord(c) for c in tile_id)
+        area[:] = 70 + (seed * 13) % 90
+        px = (0.2 + (seed % 7) / 10) * w
+        py = (0.25 + (seed % 3) / 10) * h
+        area[int(py) : int(py + 0.45 * h), int(px) : int(px + 0.18 * w)] = 210
+        area[int(0.8 * h) :, :] = 40 + (seed * 7) % 50  # the table
+        # a wall with texture (stripes in picture coordinates: the same at any size)
+        stripes = 45 * np.sin(np.linspace(0, 2 * np.pi * (6 + seed % 5), w))
+        wall = area[: int(0.25 * h)].astype(np.int16) + stripes[None, :, None].astype(np.int16)
+        area[: int(0.25 * h)] = wall.clip(0, 255).astype(np.uint8)
+        area[int(0.25 * h) : int(0.8 * h)] = (
+            (
+                area[int(0.25 * h) : int(0.8 * h)].astype(np.int16)
+                + (stripes[None, :, None] * 0.8).astype(np.int16)
+            )
+            .clip(0, 255)
+            .astype(np.uint8)
+        )
+        if tile_id in self.panning:  # the whole picture slides sideways
+            area[:] = np.roll(area, (self._t * max(3, w // 25)) % w, axis=1)
+        if tile_id in self.moving:  # someone gestures: a small part changes
+            off = (self._t * 7) % max(1, w - 30)
+            area[10:40, off : off + 30] = 255
 
     def _content(self, area: Frame, rng: np.random.Generator) -> None:
         h, w = area.shape[:2]

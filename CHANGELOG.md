@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- VI-3: bevegelse og programbekreftelse fra multiviewen.
+  - Et kamera som panorerer, holdes utenfor (`S1`) til det har stått stille i 0,5 s (`V5`). En person som gestikulerer, teller ikke.
+  - Programruta gjenkjennes og sammenlignes med ATEM (`H-VID-3`).
 - VI-2: content-deteksjon på laptop-ruta (6.2).
   - Fire tilstander: `NO_SIGNAL`, `STATIC`, `NEW_SLIDE` og `VIDEO`, sendt som `vision.content` til motorens `CT`-regler.
   - Testet mot kriteriene i 10.4: ny slide og frakoblet laptop oppdages innen 1 s.
