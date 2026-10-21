@@ -1,5 +1,11 @@
 // Shared helpers for the technician window.
-import type { Commands, Decision, Role, StudioState } from "@cutcut/client";
+import {
+  errorMessage,
+  type Commands,
+  type Decision,
+  type Role,
+  type StudioState,
+} from "@cutcut/client";
 import type { IconName } from "@cutcut/design";
 
 export type View =
@@ -92,5 +98,5 @@ export function hms(ts: string): string {
 }
 
 export function errorText(e: unknown): string {
-  return e instanceof Error ? e.message : "Noe gikk galt.";
+  return errorMessage(e);
 }

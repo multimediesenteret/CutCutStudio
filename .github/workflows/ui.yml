@@ -20,6 +20,8 @@ on:
       - "src/cutcut/session/**"
       - "src/cutcut/sim/**"
       - ".github/workflows/ui.yml"
+      - "concept/**"
+      - "vercel.json"
   push:
     branches: [main]
     paths:
@@ -36,6 +38,8 @@ on:
       - "src/cutcut/session/**"
       - "src/cutcut/sim/**"
       - ".github/workflows/ui.yml"
+      - "concept/**"
+      - "vercel.json"
   workflow_dispatch:
 
 concurrency:
@@ -64,6 +68,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: What Vercel publishes
+        run: node ui/scripts/vercel-out.mjs
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true

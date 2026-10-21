@@ -50,6 +50,14 @@ describe("ReplayTransport (SIM-7 trace)", () => {
     expect(b.store.getSnapshot().state).toEqual(a.store.getSnapshot().state);
   });
 
+  it("keeps the decision log when jumping", () => {
+    const a = player();
+    a.advance(60_000);
+    const b = player();
+    b.replay.seek(60_000);
+    expect(b.store.getSnapshot().decisions.length).toBe(a.store.getSnapshot().decisions.length);
+  });
+
   it("pauses", () => {
     const { replay, advance } = player();
     replay.setPlaying(false);

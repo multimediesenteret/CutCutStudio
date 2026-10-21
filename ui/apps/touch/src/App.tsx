@@ -1,6 +1,6 @@
 // Touch screen in the studio (spec 8.1–8.3, D-036). The engine decides which step is shown;
 // this app only draws it and sends what the user presses.
-import { commands, useSnapshot, useStudio, type StudioState } from "@cutcut/client";
+import { commands, errorMessage, useSnapshot, useStudio, type StudioState } from "@cutcut/client";
 import { Icon, Logo, applyTheme, clock, isDark, loadTheme, saveTheme } from "@cutcut/design";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Countdown, Done, Idle, Ready, Rec } from "./screens";
@@ -80,7 +80,7 @@ export function App() {
       cmd,
       toast,
       run: (p) => {
-        p.catch((e: unknown) => toast(e instanceof Error ? e.message : "Noe gikk galt."));
+        p.catch((e: unknown) => toast(errorMessage(e)));
       },
     };
   }, [transport, toast]);
