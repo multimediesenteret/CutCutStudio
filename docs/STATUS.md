@@ -19,7 +19,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Pågår
 
-- M1: første leveranse er C-1 (Python-skjelett og CI).
+- M1: C-1 (Python-skjelett og CI) ferdig på grenen `agent/m1-c1-skeleton`; neste er C-2 (ID-er og modeller).
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn

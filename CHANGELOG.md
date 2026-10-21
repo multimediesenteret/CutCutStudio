@@ -22,3 +22,4 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - Hindrer `Co-authored-by`: `.claude/settings.json` og `commit-msg`-hook.
 - M0: implementasjonsplaner for alle 13 moduler og `milestones.md` i `docs/plans/`, forslag PL-01–PL-08, spørsmål Q27–Q36.
 - Planene godkjent (D-046); ADR-0012–0014 akseptert. Lisens Apache-2.0 (`LICENSE`, `NOTICE`). Ingen skyggerunde: M2 er nå «Studiotest» (D-049). Vercel hopper over utrulling når skjermene ikke er endret (`ignoreCommand`, D-050).
+- C-1: Python-prosjekt (`pyproject.toml`, `uv.lock`, Python 3.12), ruff, mypy strict, pytest, kommandoen `cutcut`, og CI-jobben `python` med sti-filter.

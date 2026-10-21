@@ -1,0 +1,54 @@
+[project]
+name = "cutcut"
+version = "0.1.0.dev0"
+description = "CutCut Studio – live auto-regi for videopodcast (NTNU Multimediesenteret)"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "NTNU Multimediesenteret", email = "magnus.lian@ntnu.no" }]
+dependencies = []
+
+[project.scripts]
+cutcut = "cutcut.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.112",
+    "mypy>=1.13",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cutcut"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["docs", "concept", "site"]  # Markdown code samples are illustrations, not code
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "ASYNC", "S", "RUF", "SIM", "PT"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # Norwegian letters in UI strings and comments are intentional
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+mypy_path = "src"
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
