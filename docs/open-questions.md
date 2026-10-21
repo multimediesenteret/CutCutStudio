@@ -14,7 +14,7 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q4 | NTNU-API: nøkkel, svarformat, eksempelsvar, kortformat (hex, byte-rekkefølge som i Crestron) | Kortinnlogging | NTNU IT | Steg 6 | Åpen | |
 | Q5 | Panopto: hvordan opptak havner på brukerens egen konto uten passord | Publisering | NTNU + Panopto-admin | Senere | Åpen | |
 | Q6 | Canon XC-kommandoliste fra Canon | Canon-driver | NTNU via Canon | Steg 8 | Åpen | |
-| Q7 | ATEM-modell (Extreme ISO eller G2) og bekreftet støtte i `atem-connection` og Companion | Integrasjon | NTNU | Steg 5 | Åpen | |
+| Q7 | ATEM-modell (Extreme ISO eller G2) og bekreftet støtte i `atem-connection` og Companion | Integrasjon | NTNU | Steg 5 | Delvis | Studioet har **ATEM Television Studio HD8 ISO** (foto av multiview 2026-10-21, D-053). Støtte i `atem-connection` og Companion verifiseres i maskintesten (M2) |
 | Q8 | Er regi-PC-en NTNU-administrert (Intune/gruppepolicy)? Kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt? | Drift (9) | NTNU IT | Steg 9 | Åpen | |
 | Q9 | Nett: VLAN, IP-plan bekreftet, brannmur ut mot NTNU-API og Panopto | Alt | NTNU IT | Steg 5 | Åpen | |
 | Q10 | Personvern: behandlingsgrunnlag og lagringstid for brukernavn, økthistorikk, ev. live tekst | Lagring og logg | Personvernombud | Før produksjon | Åpen | |
@@ -54,3 +54,6 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q34 | Godkjennes tuning-forslaget for `K`, `H`, `B`, `CT`, `L` per forhåndsvalg (`docs/plans/core.md`, vedlegg) som startpunkt? | Eier | M1 | Besvart | Godkjent som startpunkt med planene (D-046, 2026-10-21, Magnus Lian) |
 | Q35 | Skal Companion kjøre som Windows-tjeneste uten skrivebord, eller i kiosk-brukerens økt? | Tekniker | M2 | Åpen | |
 | Q36 | Godkjennes forslagene PL-01–PL-08 i `docs/plans/README.md` (blant annet ADR-0012, 0013 og 0014 bekreftet)? | Eier | M1 | Besvart | Godkjent (D-046, 2026-10-21, Magnus Lian). Endring: ingen skyggerunde som milepæl (D-049) |
+| Q37 | Inngangskart på HD8 ISO: hvilken inngang er programleder, gjest 1–3, fugleperspektiv (inngang 6 «Camera 6»?), laptop og eventuelt halvtotal? Inngang 5 og 8 vises ikke i multiview i dag | Rutekart, `devices.yaml`, Companion | Tekniker | M2 (studiotest) | Åpen | Utkast i `site/ntnu-studio/equipment/multiview_map.yaml` og `docs/studio/multiview.md` |
+| Q38 | Får CutCut endre ATEM-oppsettet (multiview-ruter, korte navn, safe area av, SuperSource i en rute), eller brukes studioet også av andre slik det står i dag? Og er OBSBOT-kameraene og laptopen koblet via HDMI-til-SDI-omformere? | Rutekart, videolag, oppsett-veiviser | Eier / tekniker | M2–M3 | Åpen | |
+| Q39 | Mediaspiller 1 har «Podkast Akrinn»-grafikken. Skal «Kun lyd»-grafikken (modus `A`) ligge på mediaspiller 2? | Modus A, Companion side 11 | Eier | M2 | Åpen | Forslag: mediaspiller 2 |

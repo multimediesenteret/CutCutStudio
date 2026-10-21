@@ -11,7 +11,7 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 
 ## Vercel
 
-**Hva publiseres:** GUI-konseptet på `/concept/` (forsiden peker dit til U-10 er godkjent) og web-simulatoren på `/sim/`: de ekte skjermene som spiller av forløp fra den ekte motoren (`docs/simulator.md`).
+**Hva publiseres:** web-simulatoren på `/sim/` (forsiden, `/touch` og `/tech` går dit, U-10 godkjent 2026-10-21): de ekte skjermene som spiller av forløp fra den ekte motoren (`docs/simulator.md`). GUI-konseptet ligger som arkiv på `/concept/`.
 
 **Oppsett** (gjøres av eier, ikke av agent):
 
@@ -22,7 +22,7 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
   - bygg: `pnpm --filter "@cutcut/simulator..." run build && node ui/scripts/vercel-out.mjs`
   - ut-mappe: `.vercel-out/` med `concept/` og `sim/`. Ingenting annet fra repoet publiseres.
   - CI-jobben `ui` bygger det samme og tester `/sim/` med Playwright før merge.
-- **U-10 (eier godkjenner):** forsiden `/` byttes fra `/concept/` til `/sim/` ved å endre første omdirigering i `vercel.json`. `concept/` beholdes som arkiv.
+- **U-10 (godkjent av eier 2026-10-21, D-053):** forsiden `/`, `/touch`, `/tech` og alle ukjente stier går til simulatoren. `concept/` beholdes som arkiv.
 - **Bygg bare når skjermene endres (D-050):** `ignoreCommand` i `vercel.json` kjører `git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json package.json pnpm-lock.yaml`. Har siste commit ikke endret noen av dem, hoppes utrullingen over (avslutningskode 0). Ellers, eller hvis forrige commit mangler, bygges det som vanlig. Det sparer utrullinger på Hobby (100 per døgn) når bare dokumentasjon eller Python-kode endres.
 - Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
 
