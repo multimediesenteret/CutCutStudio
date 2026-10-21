@@ -6,7 +6,7 @@ CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. 
 
 ## Status
 
-**M1 Simulator pågår.** Planene er godkjent (`docs/plans/`); se `docs/STATUS.md`.
+**M1 Simulator er nesten ferdig:** motor, simulator, API og begge skjermene virker; web-simulatoren ligger på https://cutcutstudio2026.vercel.app/sim/. Planene er godkjent (`docs/plans/`); se `docs/STATUS.md`.
 
 ## Lisens
 
@@ -17,6 +17,8 @@ Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 | Hva | Hvor |
 | --- | --- |
 | **Start her** (agenter og mennesker) | [`AGENTS.md`](AGENTS.md) |
+| Arkitektur (prosesser, dataflyt, Mermaid) | [`docs/architecture/`](docs/architecture/README.md) |
+| Runbooks for feil i studio | [`docs/runbooks/`](docs/runbooks/) – mal i `_mal.md` |
 | Stack og utviklingsmiljø | [`docs/stack.md`](docs/stack.md) |
 | Versjonering og release | [`docs/RELEASE.md`](docs/RELEASE.md) |
 | Publisering (Vercel, Windows-pakke) | [`docs/publishing.md`](docs/publishing.md) |
@@ -45,7 +47,7 @@ pnpm install && pnpm build # skjermene, til ui/dist
 uv run cutcut sim          # motor, simulator og begge skjermer på http://127.0.0.1:8080
 ```
 
-Åpne http://127.0.0.1:8080/touch/ og http://127.0.0.1:8080/tech/. Alt utstyr er simulert. Testkort `04A1B2C3` og `04D4E5F6`, PIN `1234` for tekniker. CI kjører den samme kommandoen med `--smoke`.
+Åpne http://127.0.0.1:8080/touch/ og http://127.0.0.1:8080/tech/ (under Helse kan du slå på samtale, slides og feil). Alt utstyr er simulert. Testkort `04A1B2C3` og `04D4E5F6`, PIN `1234` for tekniker. CI kjører de samme kommandoene: `uv sync`, `pnpm install`, `pnpm build` og `uv run cutcut sim --smoke`, og Playwright går gjennom begge skjermene mot simulatoren.
 
 Kvalitet, som i CI:
 
