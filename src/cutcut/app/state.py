@@ -63,6 +63,11 @@ class RecordingInfo(_S):
     pearl: Literal["idle", "starting", "started", "stopped", "error", "disabled"]
     duration_s: int
     started_by: Literal["touch", "tech", "streamdeck"] | None
+    # From the real Pearl client (SE-2); the in-process fake leaves the defaults.
+    online: bool = True
+    error: str | None = None
+    firmware: str | None = None
+    storage_free_pct: int | None = None
 
 
 class RulesInfo(_S):

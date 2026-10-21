@@ -322,6 +322,27 @@ class Studio:
             "rows": devices.rows(self.deps.site.devices, self.devices, self.device_overrides),
         }
 
+    def _recording_info(self) -> RecordingInfo:
+        session = self.sessions.session
+        info = RecordingInfo(
+            pearl=self.deps.recorder.state.value,
+            duration_s=session.recording.duration_s if session else 0,
+            started_by=session.recording.started_by if session else None,
+        )
+        status = getattr(self.deps.recorder, "status", None)
+        if not callable(status):
+            return info
+        st = status()
+        main = next((x for x in st.storages if x.id == "main"), None)
+        return info.model_copy(
+            update={
+                "online": st.online,
+                "error": st.last_error,
+                "firmware": st.firmware,
+                "storage_free_pct": round(main.free_share * 100) if main else None,
+            }
+        )
+
     def _save_tuning(self) -> None:
         if self.deps.store is not None:
             value = {
@@ -600,11 +621,7 @@ class Studio:
                 )
                 for p in self.show.participants
             ],
-            recording=RecordingInfo(
-                pearl=self.deps.recorder.state.value,
-                duration_s=session.recording.duration_s if session else 0,
-                started_by=session.recording.started_by if session else None,
-            ),
+            recording=self._recording_info(),
             rules=RulesInfo(
                 preset=self.preset,
                 features=self.features.model_dump(),

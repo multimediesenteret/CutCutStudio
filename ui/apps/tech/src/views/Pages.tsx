@@ -406,6 +406,28 @@ export function Recording({ ctx }: { ctx: Ctx }) {
           <span>{state.recording.started_by ?? "–"}</span>
           <span>Publisering</span>
           <span>Panopto, brukerens egen konto (ad-hoc)</span>
+          <span>Forbindelse</span>
+          <span className={state.recording.online ? "" : "err-text"}>
+            {state.recording.online ? "Svarer" : "Svarer ikke"}
+          </span>
+          {state.recording.storage_free_pct != null && (
+            <>
+              <span>Ledig lagring</span>
+              <span>{state.recording.storage_free_pct} %</span>
+            </>
+          )}
+          {state.recording.firmware && (
+            <>
+              <span>Fastvare</span>
+              <span>{state.recording.firmware}</span>
+            </>
+          )}
+          {state.recording.error && (
+            <>
+              <span>Siste feil</span>
+              <span className="err-text">{state.recording.error}</span>
+            </>
+          )}
         </div>
       </div>
       <div className="panel">
