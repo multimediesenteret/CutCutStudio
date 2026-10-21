@@ -2,7 +2,7 @@
 
 *You speak. We cut cut.*
 
-CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM Mini Extreme ISO; PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren logger inn med NTNU-kortet på en touch-skjerm.
+CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM-mikseren (i NTNU-studioet en Television Studio HD8 ISO); PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren logger inn med NTNU-kortet på en touch-skjerm.
 
 ## Status
 

@@ -5,10 +5,35 @@
   "outputDirectory": ".vercel-out",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json package.json pnpm-lock.yaml",
   "redirects": [
-    { "source": "/", "destination": "/concept/", "permanent": false },
-    { "source": "/touch", "destination": "/concept/touch.html", "permanent": false },
-    { "source": "/tech", "destination": "/concept/tech.html", "permanent": false },
-    { "source": "/sim", "destination": "/sim/", "permanent": false },
-    { "source": "/((?!concept/|sim/).*)", "destination": "/concept/", "permanent": false }
+    {
+      "source": "/",
+      "destination": "/sim/",
+      "permanent": false
+    },
+    {
+      "source": "/touch",
+      "destination": "/sim/touch.html",
+      "permanent": false
+    },
+    {
+      "source": "/tech",
+      "destination": "/sim/tech.html",
+      "permanent": false
+    },
+    {
+      "source": "/sim",
+      "destination": "/sim/",
+      "permanent": false
+    },
+    {
+      "source": "/concept",
+      "destination": "/concept/",
+      "permanent": false
+    },
+    {
+      "source": "/((?!concept/|sim/).*)",
+      "destination": "/sim/",
+      "permanent": false
+    }
   ]
 }

@@ -58,7 +58,7 @@ Knappekartet (side 10, rad 0–3) ligger i `site/<studio>/equipment/companion_ma
 
 ## 4. Avhengigheter
 
-Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64) eller, hvis det gir trøbbel, JSON-linjer over lokal TCP bak samme kontrakt. Python: `httpx`. Utstyr: ATEM Mini Extreme ISO eller G2 (Q7), Companion 5.x låst (teknisk referanse), Stream Deck XL.
+Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64) eller, hvis det gir trøbbel, JSON-linjer over lokal TCP bak samme kontrakt. Python: `httpx`. Utstyr: ATEM Television Studio HD8 ISO i NTNU-studioet (D-053; Q7 delvis), Companion 5.x låst (teknisk referanse), Stream Deck XL.
 
 ## 5. Testplan
 

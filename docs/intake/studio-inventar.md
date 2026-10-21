@@ -6,7 +6,7 @@ Fylles ut av tekniker i studio. Agenten trenger dette for å skrive `site/ntnu-s
 
 | Enhet | Modell | Fastvare | IP / port | Inngang på ATEM | Merknad |
 | --- | --- | --- | --- | --- | --- |
-| Miksere | ATEM Mini Extreme ISO / G2 | | | – | |
+| Miksere | ATEM Television Studio HD8 ISO (foto 2026-10-21, D-053) | | | – | 8 SDI-innganger; se `docs/studio/multiview.md` |
 | Opptaker | Epiphan Pearl Nexus | (≥ 4.24.1 for REST) | | – | |
 | Lydmikser | RØDECaster Pro II | | USB | – | USB 1 multitrack på? |
 | Kamera 1 | | | | | Rolle: |
