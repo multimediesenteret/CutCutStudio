@@ -28,7 +28,7 @@ def test_CT1_content_counts_as_active_after_two_seconds() -> None:
     h.run(1500)
     assert h.engine.mode is Mode.N2
     h.run(700)
-    assert h.engine.mode.value == "N2C"
+    assert h.engine.mode is Mode.N2C
 
 
 def test_CT1_black_or_no_signal_is_not_content() -> None:

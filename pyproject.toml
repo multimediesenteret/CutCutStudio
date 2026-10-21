@@ -62,3 +62,8 @@ testpaths = ["tests"]
 addopts = "-ra --strict-markers"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[[tool.mypy.overrides]]
+# Tests check state after method calls; mypy's narrowing does not see that the call changed it.
+module = "tests.*"
+disable_error_code = ["comparison-overlap"]
