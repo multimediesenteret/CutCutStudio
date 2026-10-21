@@ -2,6 +2,7 @@ name: ui
 
 # Lint, types, tests and build for the screens (ui/). Runs only when UI-related files change,
 # to save Actions minutes on the free plan (D-050). Linux only: the UI is static files.
+# Also runs when the parts of the engine the screens talk to change (API, studio, session, sim).
 
 on:
   pull_request:
@@ -14,6 +15,10 @@ on:
       - ".prettierrc.json"
       - ".prettierignore"
       - "docs/reference/openapi.json"
+      - "src/cutcut/api/**"
+      - "src/cutcut/app/**"
+      - "src/cutcut/session/**"
+      - "src/cutcut/sim/**"
       - ".github/workflows/ui.yml"
   push:
     branches: [main]
@@ -26,6 +31,10 @@ on:
       - ".prettierrc.json"
       - ".prettierignore"
       - "docs/reference/openapi.json"
+      - "src/cutcut/api/**"
+      - "src/cutcut/app/**"
+      - "src/cutcut/session/**"
+      - "src/cutcut/sim/**"
       - ".github/workflows/ui.yml"
   workflow_dispatch:
 
@@ -60,3 +69,15 @@ jobs:
           enable-cache: true
       - name: Screens served by the simulator (README command, SIM-6)
         run: uv run cutcut sim --smoke
+      - name: Touch flow end to end against the simulator (U-5)
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm e2e
+        env:
+          CI: "1"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

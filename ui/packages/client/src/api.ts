@@ -12,6 +12,7 @@ export function commands(t: Transport) {
     logout: () => t.send("DELETE", "/api/session"),
     help: () => t.send("POST", "/api/help"),
     touched: () => t.send("POST", "/api/touch/touched"),
+    again: () => t.send("POST", "/api/touch/again"),
     startSession: (username: string, displayName?: string) =>
       t.send("POST", "/api/session", { username, display_name: displayName }),
     touchStep: (step: string) => t.send("POST", "/api/touch/step", { step }),

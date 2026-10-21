@@ -983,6 +983,7 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 | `PUT /session/show` `{"guests": 2, "video": true, "type": "podcast"}` | Lagre showvalg; setter modus og regler. `type` er valgfri og hentes fra studio-oppsettet når touch ikke sender den (D-036); laptop oppdages fra multiview |
 | `DELETE /session` | Logg ut (avvises under opptak) |
 | `POST /touch/step` `{"step": "countdown"}` | Flytt touch-skjermen til et steg: `idle`, `ready`, `countdown`, `rec`, `done` (bare tekniker, D-036) |
+| `POST /touch/again` | «Ta et nytt opptak» på ferdig-skjermen: tilbake til klar med samme bruker og valg, ny økt (touch) |
 | `POST /help` | Hjelp-knappen: varsel til tekniker |
 | `POST /recording` `{"action": "start"}` | Start eller stopp Pearl-opptak; `started_by` settes fra hvem som kaller |
 | `POST /auto` `{"on": true}` | AUTO på eller av |

@@ -80,6 +80,26 @@ def test_whole_touch_flow_from_card_to_done(rig: Rig) -> None:
     s = rig.state()
     assert s["touch"]["step"] == "done"
     assert s["session"]["recording"]["duration_s"] >= 6
+    assert c.post("/api/touch/again").status_code == 200
+    rig.run(60)
+    s = rig.state()
+    assert s["touch"]["step"] == "ready"
+    assert s["session"]["show"]["guests"] == 2
+    assert c.post("/api/touch/again").status_code == 409  # only from the done screen
+    assert c.delete("/api/session").status_code == 200
+    rig.run(60)
+    assert rig.state()["touch"]["step"] == "idle"
+
+
+def test_done_screen_logs_out_by_itself(rig: Rig) -> None:
+    c = rig.client
+    c.post("/api/sim/card", json={"card": TEST_CARD})
+    rig.run(60)
+    c.post("/api/recording", json={"action": "start"})
+    rig.run(5000)
+    c.post("/api/recording", json={"action": "stop"})
+    rig.run(200)
+    assert rig.state()["touch"]["step"] == "done"
     rig.run(31_000)
     assert rig.state()["touch"]["step"] == "idle"
 

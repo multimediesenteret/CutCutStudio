@@ -386,6 +386,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/touch/again": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Again
+         * @description «Ta et nytt opptak» on the done screen: back to ready for the same user.
+         */
+        post: operations["again_api_touch_again_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/touch/step": {
         parameters: {
             query?: never;
@@ -1596,6 +1616,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudioState"];
+                };
+            };
+        };
+    };
+    again_api_touch_again_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
                 };
             };
         };
