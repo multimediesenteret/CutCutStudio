@@ -21,5 +21,19 @@
     "tally": true,
     "video_mode": "1080p50"
   },
-  "recording": "Idle"
+  "recording": "Idle",
+  "macros": [
+    {
+      "number": 10,
+      "name": "PIP_P1_CONTENT"
+    },
+    {
+      "number": 20,
+      "name": "PIP_P1_P2"
+    },
+    {
+      "number": 30,
+      "name": "QUAD4"
+    }
+  ]
 }

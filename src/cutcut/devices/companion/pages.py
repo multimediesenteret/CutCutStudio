@@ -31,6 +31,7 @@ from cutcut.common.config import Site
 from cutcut.common.ids import SourceId
 from cutcut.common.models.site import CompanionButton
 from cutcut.devices.atem.bridge import MP1, SUPERSOURCE, site_input_map
+from cutcut.devices.atem.macros import BY_SHOT, LAYOUT_RESET
 
 FILE_VERSION: Final = 12  # Companion 4.3 / 5.0 export format
 ATEM_CONNECTION: Final = "cutcut-atem"
@@ -39,22 +40,9 @@ ATEM_UPGRADE_INDEX: Final = 6  # last v3.x upgrade script in companion-module-bm
 ME: Final = 0  # mix effect 1, zero-based as stored by the v3 module
 GRID: Final = {"minColumn": 0, "maxColumn": 7, "minRow": 0, "maxRow": 3}  # Stream Deck XL
 
-# Spec 7.2: layout macros, numbered as in ATEM Software Control.
-LAYOUT_MACROS: Final[dict[str, int]] = {
-    "PIP:P1+CONTENT": 10,
-    "PIP:P2+CONTENT": 11,
-    "PIP:P3+CONTENT": 12,
-    "PIP:P4+CONTENT": 13,
-    "PIP:P1+P2": 20,
-    "PIP:P1+P3": 21,
-    "PIP:P1+P4": 22,
-    "PIP:P2+P3": 23,
-    "PIP:P2+P4": 24,
-    "PIP:P3+P4": 25,
-    "QUAD4": 30,
-    "QUAD3C": 31,
-}
-LAYOUT_RESET_MACRO: Final = 40
+# Spec 7.2: layout macros, numbered as in ATEM Software Control (cutcut.devices.atem.macros).
+LAYOUT_MACROS: Final[dict[str, int]] = dict(BY_SHOT)
+LAYOUT_RESET_MACRO: Final = LAYOUT_RESET
 
 ENGINE_VARIABLES: Final[dict[str, str]] = {
     "regi_shot": "Bildet motoren har valgt (f.eks. CU:P2)",

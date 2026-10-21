@@ -134,7 +134,7 @@ def settle(rig: Rig, seconds: float) -> dict[str, str]:
 
 def test_the_simulator_is_all_green(rig: Rig) -> None:
     got = settle(rig, 20)
-    want = {"H-AUD-1", "H-PRL-1", "H-ATEM-1", "H-COMP-1", "H-PC-1", "H-PC-2", "H-PC-3"}
+    want = {"H-AUD-1", "H-PRL-1", "H-ATEM-1", "H-ATEM-3", "H-COMP-1", "H-PC-1", "H-PC-2", "H-PC-3"}
     assert set(got) == want
     assert set(got.values()) == {"green"}
 
@@ -190,3 +190,30 @@ def test_touch_heartbeat_and_H_PROC_touch(rig: Rig) -> None:
     assert got["H-PROC-touch"] == "yellow"
     c.post("/api/touch/heartbeat")
     assert settle(rig, 6)["H-PROC-touch"] == "green"
+
+
+def test_layout_macros_DA7() -> None:
+    from cutcut.devices.atem.macros import LAYOUT_MACROS, check
+
+    full = {m.number: m.name for m in LAYOUT_MACROS}
+    assert check(full) == []
+    assert check({**full, 31: "quad3c "}) == []  # case and spaces do not matter
+    del full[40]
+    full[20] = "TO_PERSONER"
+    assert check(full) == [
+        "Makro 20 heter «TO_PERSONER», skal være PIP_P1_P2",
+        "Makro 40 LAYOUT_RESET mangler",
+    ]
+
+
+def test_H_ATEM_3_and_the_layout_switch_in_the_simulator(rig: Rig) -> None:
+    got = settle(rig, 2)
+    assert got["H-ATEM-3"] == "green"
+    assert rig.client.post("/api/features", json={"layouts": True}).status_code == 200
+    rig.client.post("/api/features", json={"layouts": False})
+    del rig.sim.atem.macro_list[30]
+    asyncio.run(rig.sim.studio.health.run_all())
+    assert {c["id"]: c["status"] for c in rig.state()["health"]["checks"]}["H-ATEM-3"] == "yellow"
+    r = rig.client.post("/api/features", json={"layouts": True})
+    assert r.status_code == 409
+    assert "Makro 30 QUAD4 mangler" in r.json()["detail"]

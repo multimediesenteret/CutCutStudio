@@ -54,6 +54,11 @@ class _Payload(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
 
+class AtemMacroRaw(_Payload):
+    number: int
+    name: str
+
+
 class AtemStateRaw(_Payload):
     connected: bool = True
     model: str = "Unknown"
@@ -61,6 +66,7 @@ class AtemStateRaw(_Payload):
     preview_input: int
     multiview: MultiviewReadback | None = None
     recording: str | None = None
+    macros: list[AtemMacroRaw] = []
 
 
 @dataclass
@@ -113,6 +119,11 @@ class AtemBridgeClient:
             log.warning("ugyldig %s fra atem-bridge: %s", topic, exc)
 
     # -- what the ATEM shows --------------------------------------------------------------
+
+    def macros(self) -> dict[int, str] | None:
+        """Macros in the ATEM (number → name), or None while the bridge is not connected."""
+        st = self._fresh()
+        return None if st is None else {m.number: m.name for m in st.macros}
 
     def _fresh(self) -> AtemStateRaw | None:
         if not self._connected or self._state is None or self._state_at is None:

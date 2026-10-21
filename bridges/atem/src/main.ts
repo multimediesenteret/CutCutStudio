@@ -77,7 +77,8 @@ async function commands(): Promise<void> {
       if (!connected) throw new Error("ATEM er ikke tilkoblet");
       if (cmd.op === "cut") await atem.changeProgramInput(cmd.args.input ?? 0);
       else if (cmd.op === "preview") await atem.changePreviewInput(cmd.args.input ?? 0);
-      else await atem.macroRun(cmd.args.macro ?? 0);
+      // The bus numbers macros like ATEM Software Control (1 = first); the protocol from 0.
+      else await atem.macroRun((cmd.args.macro ?? 1) - 1);
       await send("atem.ack", { id, ok: true });
     } catch (err) {
       await send("atem.ack", { id, ok: false, error: String(err) });

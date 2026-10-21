@@ -48,7 +48,9 @@ def site_copy(tmp: Path, companion_url: str, pearl_url: str) -> Path:
         "pearl: { ip: 10.10.10.30,", f"pearl: {{ ip: {host}, port: {port}, scheme: http,"
     )
     (site / "devices.yaml").write_text(devices)
-    (site / "staff.yaml").write_text("schema_version: 1\noperators: [tekniker1]\nadmins: []\n")
+    (site / "staff.yaml").write_text(
+        "schema_version: 1\noperators: [tekniker1]\nadmins: [admin1]\n"
+    )
     return site
 
 
@@ -79,6 +81,10 @@ class Bus:
     def close(self) -> None:
         self.sock.close(0)
         self.ctx.term()
+
+
+def core_out_port(core: Any) -> int:
+    return int(core.bus_out_port)
 
 
 def talk(mic: str | None) -> dict[str, Any]:
@@ -116,6 +122,7 @@ def rig(
             )
         )
         bus = Bus(bus_in)
+        core.bus_out_port = bus_out  # type: ignore[attr-defined]  # for tests listening to core
         try:
             with TestClient(core.app) as client:
                 yield client, bus, cstate, pstate, core
@@ -236,3 +243,55 @@ def test_core_checks_companion_pages_and_pearl(
     assert until(lambda: (check("H-PRL-1") or {}).get("status") == "green", 10)
     assert check("H-PRL-1")["value"].endswith("min ledig")  # type: ignore[index]
     assert {"H-PC-1", "H-PC-2", "H-PC-3"} <= {r.id for r in core.studio.health.results()}
+
+
+def test_companion_down_the_cut_goes_through_atem_bridge_S5(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """DA-7 end to end: Companion stops answering; the technician's cut still reaches the
+    ATEM, as an ``atem.cmd`` for atem-bridge on the bus."""
+    client, bus, cstate, _, core = rig
+    out_ctx = zmq.Context()
+    sub = out_ctx.socket(zmq.SUB)
+    sub.setsockopt(zmq.SUBSCRIBE, b"atem.cmd")
+    sub.connect(f"tcp://127.0.0.1:{core_out_port(core)}")
+    try:
+        assert (
+            client.post("/api/login", json={"username": "tekniker1", "pin": PIN}).status_code == 200
+        )
+        until(
+            lambda: core.bridge.readback() is not None,
+            5,
+            lambda: bus.send("atem.state", "atem-bridge", ATEM),
+        )
+        cstate.fail = True
+        got: list[dict[str, Any]] = []
+
+        def cut_and_listen() -> None:
+            bus.send("atem.state", "atem-bridge", ATEM)
+            if not got:
+                client.post("/api/cut", json={"shot": "CU:P2"})
+            while sub.poll(10):
+                got.append(json.loads(sub.recv_multipart()[1])["payload"])
+
+        assert until(lambda: any(g.get("op") == "cut" for g in got), 15, cut_and_listen)
+        cut = next(g for g in got if g.get("op") == "cut")
+        assert cut["args"] == {"input": 2}  # Camera 2 = gjest 1 (D-054)
+    finally:
+        sub.close(0)
+        out_ctx.term()
+
+
+def test_missing_layout_macros_block_the_layout_switch_DA7(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    client, bus, _, _, core = rig
+    assert client.post("/api/login", json={"username": "admin1", "pin": PIN}).status_code == 200
+    assert until(
+        lambda: core.bridge.macros() is not None,
+        5,
+        lambda: bus.send("atem.state", "atem-bridge", ATEM),  # the fixture lacks most macros
+    )
+    r = client.post("/api/features", json={"layouts": True})
+    assert r.status_code == 409
+    assert "Makro 11 PIP_P2_CONTENT mangler" in r.json()["detail"]

@@ -42,6 +42,12 @@ export interface MultiviewPayload {
   video_mode: string;
 }
 
+export interface MacroPayload {
+  /** Numbered as in ATEM Software Control and Companion: the first macro is 1. */
+  number: number;
+  name: string;
+}
+
 export interface AtemStatePayload {
   connected: true;
   model: string;
@@ -49,6 +55,17 @@ export interface AtemStatePayload {
   preview_input: number;
   multiview: MultiviewPayload | null;
   recording: string | null;
+  macros: MacroPayload[];
+}
+
+/** The macros stored in the ATEM, for the layout check at start-up (DA-7, spec 7.2). */
+export function macros(state: AtemState): MacroPayload[] {
+  const list = state.macro?.macroProperties ?? [];
+  const out: MacroPayload[] = [];
+  list.forEach((m, i) => {
+    if (m?.isUsed) out.push({ number: i + 1, name: m.name });
+  });
+  return out;
 }
 
 function videoMode(state: AtemState): string {
@@ -86,5 +103,6 @@ export function statePayload(state: AtemState): AtemStatePayload {
     recording: state.recording?.status?.state !== undefined
       ? (Enums.RecordingStatus[state.recording.status.state] ?? null)
       : null,
+    macros: macros(state),
   };
 }
