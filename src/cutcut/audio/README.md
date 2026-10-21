@@ -36,3 +36,5 @@ Tester (`tests/unit/audio/`) bruker syntetiske signaler, aldri ekte opptak av pe
   - `buffer`, standard 256 sampler. Øk den ved dropouts.
 - **Krav:** `sounddevice` installeres bare på Windows (PortAudio med ASIO følger med).
 - **Tester:** de bruker en falsk PortAudio. Windows-CI laster ekte PortAudio uten lydkort. Ekte ASIO testes på test-PC-en (AU-6).
+
+Maskintesten for RØDECaster (AU-6) er `uv run cutcut hwtest audio --site …` (`src/cutcut/hwtest/audio.py`, `docs/studio/maskintest.md`). Rapporten svarer på Q21 og Q24.
