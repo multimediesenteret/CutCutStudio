@@ -25,7 +25,9 @@ from cutcut.common.config.rules import RuleParams
 from cutcut.common.ids import (
     AUDIO_ONLY,
     BIRD,
+    CONTENT,
     WIDE,
+    MicId,
     Mode,
     ParticipantId,
     RuleId,
@@ -36,6 +38,7 @@ from cutcut.common.ids import (
 from cutcut.common.models.decision import Decision, DecisionAction
 from cutcut.common.models.show import ShowConfig
 from cutcut.core import shots
+from cutcut.core.content import ContentTracker
 from cutcut.core.inputs import (
     EndShow,
     EngineConfig,
@@ -91,6 +94,7 @@ class Proposal:
     confirmed: bool = True  # speaker proposals arm at half T2 and are confirmed at T2
     speaker: ParticipantId | None = None
     insert_ms: int | None = None  # inserts (reaction, bird) return after this long (H4)
+    return_to: str | None = None  # where an insert returns to; default: the shot it replaced
 
 
 @dataclass
@@ -157,6 +161,7 @@ class Engine:
         self.vars: dict[str, str] = {}
         self._cut_rule: RuleId | None = None
         self.bird_ms_total = 0
+        self.content = ContentTracker()
         self.last_bird_ms = -(10**9)
         self._now = now_ms
         self._decisions: list[Decision] = []
@@ -191,9 +196,18 @@ class Engine:
         self._now = now = inp.now_ms
         self._decisions, self._intents = [], []
         self.speakers.update(now, inp.mics, self.rules)
+        laptop = inp.mics.get(MicId.M5)
+        laptop_audio = laptop is not None and laptop.vad >= self.rules.T1_vad_threshold
         self._commands(inp)
+        self.content.update(
+            now,
+            inp.content,
+            laptop_audio,
+            self.content_enabled and self.config.features.content,
+            self.rules,
+        )
         self._reconcile(inp)
-        self.mode = Mode.for_show(len(self.show.participants), False, self.audio_only)
+        self.mode = Mode.for_show(len(self.show.participants), self.content.active, self.audio_only)
 
         if self.audio_only:
             self._audio_only()
@@ -226,6 +240,8 @@ class Engine:
                     self.shadow = on
                 case StartShow(audio_only=audio_only):
                     self.audio_only = audio_only
+                    if not audio_only:
+                        self._opening()
                 case EndShow():
                     self.audio_only = False
                     self.insert = None
@@ -272,6 +288,13 @@ class Engine:
             if self.program != target:
                 self._take_direct(target, RuleId.S4, "Ingen lyd: til reservebildet")
             return True
+        if self._shows_content(self.program) and self.content.lost():
+            # CT6: the laptop disappeared while on air – cut away at once (PV4), only S3 holds
+            target = self._speaker_shot() or shots.fallback_shot(
+                self.mode, self.show, self.config.features
+            )
+            self._take_direct(target, RuleId.CT6, "Content-signalet forsvant")
+            return True
         if self.s4_paused:
             if self.audio_back_since is None:
                 self.audio_back_since = self._now
@@ -297,6 +320,8 @@ class Engine:
         """Why a shot cannot be used right now, or None if it can (S1, S2, S6)."""
         if not shots.available(shot, self.show, self.config.features):
             return RuleId.S2
+        if self._shows_content(shot) and not self.content.active:
+            return RuleId.CT1
         camera = shots.camera_of(shot, self.show)
         if camera is not None and camera in inp.cameras_moving:
             return RuleId.S1
@@ -355,7 +380,83 @@ class Engine:
         return Proposal(self.manual_preview, RuleId.MANUAL, "soft", "Lagt på preview av operatør")
 
     def _propose_content(self, inp: Inputs) -> Proposal | None:
-        return None  # CT rules: K-8
+        """CT1–CT6 (5.5): new slide, video and laptop audio go to content; static content
+        returns to the speaker; never content during crosstalk or laughter."""
+        r, c, now = self.rules, self.content, self._now
+        if not c.active:
+            return None
+        sp = self.speakers
+        if sp.crosstalk_ms(now) >= r.T5_crosstalk_s * 1000 or sp.laughter_since is not None:
+            return None  # CT6
+        within_video = c.video_since is not None and now - c.video_since <= r.CT3_video_max_s * 1000
+        if c.laptop_audio and within_video:
+            return Proposal(CONTENT, RuleId.CT5, "soft", "Lyd fra laptop", {"laptop_audio": 1})
+        if within_video and c.video_since is not None:
+            return Proposal(
+                CONTENT, RuleId.CT3, "soft", "Video på laptop", {"video_ms": now - c.video_since}
+            )
+        if c.slide_at is not None and now - c.slide_at < r.CT2_hold_s * 1000:
+            return Proposal(CONTENT, RuleId.CT2, "soft", "Ny slide", {"slide_ms": now - c.slide_at})
+        if self.program == CONTENT:
+            if now - self.program_since < r.CT4_return_after_s * 1000:
+                return Proposal(CONTENT, RuleId.CT4, "soft", "Content står")
+            target = self._speaker_shot()
+            if target is None:
+                return None  # nobody to return to: silence keeps content (5.1)
+            if shots.available(BIRD, self.show, self.config.features):
+                return Proposal(
+                    BIRD,
+                    RuleId.B1,
+                    "soft",
+                    "Kort fugleperspektiv etter content",
+                    speaker=shots.speaker_of(target),
+                    insert_ms=int(r.B1_after_content_s * 1000),
+                    return_to=target,
+                )
+            return Proposal(target, RuleId.CT4, "soft", "Tilbake til taleren etter content")
+        if (
+            r.CT4_revisit_enabled
+            and self.insert is None
+            and now - c.last_on_air_end >= r.CT4_revisit_every_s * 1000
+            and shots.speaker_of(self.program) is not None
+        ):
+            return Proposal(
+                CONTENT,
+                RuleId.CT4,
+                "insert",
+                "Kort besøk på content",
+                speaker=shots.speaker_of(self.program),
+                insert_ms=int(r.CT4_revisit_s * 1000),
+            )
+        return None
+
+    def _shows_content(self, shot: str) -> bool:
+        return shot == CONTENT or shot.endswith("+CONTENT")
+
+    def _speaker_shot(self) -> str | None:
+        """Close-up of whoever holds the floor (talking now, else on air before, else last)."""
+        speaking = self.speakers.speaking()
+        if speaking:
+            best = max(speaking, key=lambda t: (t.score(self.rules), t.host))
+            return close_up(best.pid)
+        pid = self.speaker_on_air or self.speakers.dominant
+        return close_up(pid) if pid is not None else None
+
+    def _opening(self) -> None:
+        """B1: the show opens on BIRD for B1_open_s, then the host (5.4, 5.12)."""
+        host = next((p.id for p in self.show.participants if p.role == "host"), None)
+        if host is None:
+            return
+        host_shot = close_up(host)
+        if shots.available(BIRD, self.show, self.config.features):
+            if self.program != BIRD:
+                self._take_direct(BIRD, RuleId.B1, "Åpning: fugleperspektiv", force=True)
+            self.insert = Insert(
+                RuleId.B1, host_shot, host, self._now + int(self.rules.B1_open_s * 1000)
+            )
+            self._decide("hold", BIRD, RuleId.B1, "Åpning: fugleperspektiv, så verten")
+        else:
+            self._take_direct(host_shot, RuleId.B1, "Åpning: verten", force=True)
 
     def _propose_crosstalk(self, inp: Inputs) -> Proposal | None:
         sp, r = self.speakers, self.rules
@@ -447,6 +548,8 @@ class Engine:
         shot = close_up(best.pid)
         if self.insert is not None and best.pid == self.insert.speaker:
             return None  # the insert returns to this speaker on its own (H4)
+        if self.insert is not None and self.insert.rule is RuleId.B1:
+            return None  # B1: the opening and the bird after content are not interrupted
         run = best.run_ms(self._now)
         required, rule, measures = self._required_run_ms(best.pid)
         if shot == self.program:
@@ -484,11 +587,12 @@ class Engine:
         on_screen = shots.speaker_of(self.program)
         if on_screen is not None and self.speakers.get(on_screen).speaking:
             return None  # R3: the listener on screen is talking; speaker rules decide
+        rule = ins.rule if ins.rule is RuleId.B1 else RuleId.H4
         return Proposal(
             ins.return_to,
-            RuleId.H4,
+            rule,
             "return",
-            "Tilbake til samme taler",
+            "Tilbake til taleren" if rule is RuleId.B1 else "Tilbake til samme taler",
             confirmed=self._now >= ins.end_ms,
             speaker=ins.speaker,
         )
@@ -700,8 +804,10 @@ class Engine:
         measures["preview_ms"] = self._now - self.preview_since
         transition: Literal["cut", "mix"] = "mix" if is_layout(p.shot) else "cut"
         self._intent(Take(transition))
-        if p.timing == "insert" and p.insert_ms is not None and p.speaker is not None:
-            self.insert = Insert(p.rule, self.program, p.speaker, self._now + p.insert_ms)
+        if p.insert_ms is not None and p.speaker is not None:
+            self.insert = Insert(
+                p.rule, p.return_to or self.program, p.speaker, self._now + p.insert_ms
+            )
             self.variation_count += 1
             self.last_variation_ms = self._now
         else:
@@ -738,6 +844,8 @@ class Engine:
 
     def _set_program(self, shot: str) -> None:
         if shot != self.program:
+            if self._shows_content(self.program):
+                self.content.last_on_air_end = self._now
             if self.program == BIRD:
                 self.bird_ms_total += self._now - self.program_since
                 self.last_bird_ms = self._now

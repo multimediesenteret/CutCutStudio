@@ -19,6 +19,7 @@ from cutcut.core.engine import Engine
 from cutcut.core.inputs import (
     AtemReadback,
     Command,
+    ContentState,
     EngineConfig,
     Inputs,
     MicFrame,
@@ -96,6 +97,7 @@ class Harness:
         self.moving: set[CameraId] = set()
         self.vision: dict[SourceId, TileFrame] | None = None
         self.atem: AtemReadback | None = None
+        self.content: ContentState | None = None
         self.pending: list[Command] = []
         self.violations: list[str] = []
 
@@ -175,6 +177,7 @@ class Harness:
             mics={} if self.audio_lost else mics,
             audio_age_ms=self.audio_age_ms,
             vision=self.vision,
+            content=self.content,
             atem=self.atem,
             cameras_moving=frozenset(self.moving),
             commands=tuple(self.pending),
