@@ -19,7 +19,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Pågår
 
-- M1: C-1 (Python-skjelett og CI) ferdig på grenen `agent/m1-c1-skeleton`; neste er C-2 (ID-er og modeller).
+- M1: grunnmuren (C-1–C-8) og regimotoren (K-1–K-9) er ferdige og merget. Neste: sporbarhet (K-10), simulator (SIM), API (A), skjermer (U).
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn

@@ -188,6 +188,25 @@ class Engine:
             or self._now < self.quiet_until
         )
 
+    def settings(self) -> dict[str, bool]:
+        """What must survive a restart (K-9). Shots and timers do not: after a restart the
+        engine takes what the ATEM shows and waits ``manual_quiet_s`` before cutting."""
+        return {
+            "auto": self.auto,
+            "lock": self.lock,
+            "content_enabled": self.content_enabled,
+            "audio_only": self.audio_only,
+            "shadow": self.shadow,
+        }
+
+    def restore(self, settings: dict[str, bool], now_ms: int) -> None:
+        self.auto = bool(settings.get("auto", True))
+        self.lock = bool(settings.get("lock", False))
+        self.content_enabled = bool(settings.get("content_enabled", True))
+        self.audio_only = bool(settings.get("audio_only", False))
+        self.shadow = bool(settings.get("shadow", self.shadow))
+        self.quiet_until = now_ms + int(self.rules.manual_quiet_s * 1000)
+
     def set_config(self, config: EngineConfig) -> None:
         """Takes effect from the next tick (ADR-0011: switches can change live)."""
         self.config = config

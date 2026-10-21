@@ -7,6 +7,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 - **Ren kjerne (PL-04, I3):** `Engine.step(Inputs) -> StepResult` uten klokke, I/O, tråder eller tilfeldighet. Samme inndata gir alltid samme beslutninger; det testes.
 - **Inn** (`inputs.py`): målinger per mic fra `audio-capture` (`MicFrame`), video per rute (`TileFrame`), content-tilstand, ATEM-tilstand, kameraer i bevegelse og operatørkommandoer.
 - **Ut**: beslutninger (`Decision`, spes. 5.8) og ønsker til utstyret (`intents.py`: `SetPreview`, `PrepareLayout`, `Take`, `DirectCut`, `ShowAudioOnly`, `SetCompanionVariable`). Skallet (K-9) utfører ønskene via Companion og `atem-bridge`.
+- **Etter omstart (K-9):** AUTO, LÅS, content og skyggemodus hentes fra SQLite; bildet hentes fra ATEM; motoren venter `manual_quiet_s` (5 s) før første kutt.
 - **Skyggemodus (PL-05):** motoren beslutter og logger (`shadow: true`), men sender ingenting.
 
 | Fil | Innhold |
@@ -16,6 +17,8 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 | `content.py` | Content-tilstand fra laptop-ruta og laptop-lyd (`CT1`–`CT6`) |
 | `speakers.py` | Hvem snakker: `T1`, `T12`, `S6`, krysstale, latter og turbytter (`T6`) |
 | `shots.py` | Bildeutvalg per modus (5.1) og bilde ↔ ATEM-kilde |
+| `messages.py` | Busmeldinger som motoren leser (`audio.frame`, `vision.content`, `vision.tile`, `atem.state`, `cameras.moving`) |
+| `runtime.py` | Skallet: tikk hvert 30. ms, mater motoren, logger beslutninger, sender ønsker til en `Executor`, lagrer innstillinger hvert sekund og gjenoppretter dem etter omstart |
 | `engine.py` | Prioritetsrekkefølgen (5.2), preview-tilstander (5.9), kuttpunkt (5.10), hold (5.11), sikkerhet (5.7), overstyring |
 
 ## Regel-ID-er modulen eier
