@@ -18,7 +18,7 @@ Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 | --- | --- |
 | **Start her** (agenter og mennesker) | [`AGENTS.md`](AGENTS.md) |
 | Arkitektur (prosesser, dataflyt, Mermaid) | [`docs/architecture/`](docs/architecture/README.md) |
-| Runbooks for feil i studio | [`docs/runbooks/`](docs/runbooks/) – mal i `_mal.md` |
+| Runbooks for feil i studio | [`docs/runbooks/`](docs/runbooks/README.md): ingen lyd, touch svart, opptak startet ikke, kamera, strømbrudd |
 | Stack og utviklingsmiljø | [`docs/stack.md`](docs/stack.md) |
 | Versjonering og release | [`docs/RELEASE.md`](docs/RELEASE.md) |
 | Publisering (Vercel, Windows-pakke) | [`docs/publishing.md`](docs/publishing.md) |

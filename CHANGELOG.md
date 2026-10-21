@@ -5,6 +5,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-9: runbooks i `docs/runbooks/` for «Ingen lyd», «Touch er svart», «Opptak startet ikke», «Kamera beveger seg ikke» og «Etter strømbrudd». De gjennomgås med tekniker i studio.
 - SO-7: nattlig vedlikehold i `core`.
   - Gamle rader slettes etter oppbevaringstiden. Før ble databasen aldri ryddet.
   - En kopi av `cutcut.db` legges i `data\backup\`, og de 7 nyeste beholdes.
