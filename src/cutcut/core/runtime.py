@@ -94,6 +94,11 @@ class CoreRuntime:
         self._started_ms = clock.mono_ms()
         self._restore()
 
+    @property
+    def latest_mics(self) -> dict[MicId, MicFrame]:
+        """The newest mic measurements (read-only use: meters for the screens)."""
+        return self._mics
+
     # -- feeding --------------------------------------------------------------------------
 
     def feed_audio(self, mics: dict[MicId, MicFrame]) -> None:
