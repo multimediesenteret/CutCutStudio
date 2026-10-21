@@ -49,7 +49,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # Norwegian letters in UI strings and c
 known-first-party = ["cutcut"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
+"tests/**" = ["S101", "N802"]  # N802: rule IDs (T2, K1 …) stay uppercase in test names (spec 12.1)
 
 [tool.mypy]
 strict = true
