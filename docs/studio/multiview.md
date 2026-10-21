@@ -51,9 +51,9 @@ CutCut regner ut det anbefalte oppsettet fra studioets show-oppsett og viser det
 
 **I studio i dag** avviker bare rute 7 og 8 (Media Player 1 og opptaksstatus), som CutCut ikke leser, og safe area er på. Det er forslag og en advarsel, ikke feil: CutCut virker med oppsettet slik det står. Bytter dere til det anbefalte, endres rutekartet (`equipment/multiview_map.yaml`) samtidig.
 
-## Feil oppdages av seg selv
+## Feil oppdages ved oppstart
 
-CutCut sjekker multiviewen hvert 10. sekund (`H-MV`), og teknikeren får varsel under Helse når noe ikke stemmer:
+Multiview-oppsettet endres ikke under bruk, så CutCut sjekker det **ved oppstart** (så snart ATEM kan leses, senest etter 30 s), i morgensjekken (M2) og når teknikeren trykker **Sjekk nå** under Oppsett (D-056). Teknikeren får varsel under Helse når noe ikke stemmer:
 
 | Sjekk | Nivå | Hva |
 | --- | --- | --- |
@@ -67,7 +67,7 @@ CutCut sjekker multiviewen hvert 10. sekund (`H-MV`), og teknikeren får varsel 
 | `H-MV-10` | Advarsel | Multiview er ikke 1080p50 |
 | `H-MV-11` | Forslag | Avvik fra det anbefalte oppsettet |
 
-Sjekk mot rutekart og show-oppsett virker allerede. Sjekk mot det ATEM viser (`H-MV-3`–`H-MV-10`) virker i simulatoren nå, og mot ekte ATEM når `atem-bridge` er på plass (M2). Prøv det i simulatoren: Helse → «Noen har endret ATEM-multiviewen».
+Sjekk mot rutekart og show-oppsett virker allerede. Sjekk mot det ATEM viser (`H-MV-3`–`H-MV-10`) virker i simulatoren nå, og mot ekte ATEM når `atem-bridge` er på plass (M2). Prøv det i simulatoren: Helse → «Noen har endret ATEM-multiviewen», så Oppsett → Sjekk nå.
 
 ## Hva som ikke endres
 

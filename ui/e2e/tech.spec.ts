@@ -102,7 +102,8 @@ test("oppsett: equipment addresses are saved and the multiview is checked (D-055
   await expect(page.getByText("Stemmer", { exact: true })).toBeVisible();
   await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: true } });
   try {
-    await expect(page.getByText("Stemmer ikke")).toBeVisible({ timeout: 8000 });
+    await page.getByRole("button", { name: "Sjekk nå" }).click();
+    await expect(page.getByText("Stemmer ikke")).toBeVisible();
     await expect(page.getByText(/CutCut ville lest feil kamera/).first()).toBeVisible();
   } finally {
     await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: false } });

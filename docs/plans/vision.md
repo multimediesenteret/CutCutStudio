@@ -20,7 +20,7 @@ Leser ATEM-multiviewen via INOGENI 4KXUSB3, deler bildet i ruter etter rutekarte
 - Inn: UVC-capture (DirectShow/Media Foundation via OpenCV eller FFmpeg), YUY2 1080p50. Rammer tas med 15 Hz; resten forkastes tidlig for å spare CPU.
 - Rutekart: `site/<studio>/equipment/multiview_map.yaml` med koordinater 0–1 og 4 % innkutt (6.1).
 - Ut: `vision.tile` (6.6), `vision.content` (6.2), `vision.pgm` (hva som faktisk er på lufta), `vision.status` (fps, forsinkelse, siste feil).
-- Bildeutsnitt til teknikervinduet: små JPEG-er av multiview maks 2 per sekund på eget emne, bare når teknikervinduet er åpent.
+- Bildeutsnitt til teknikervinduet (D-056): hver rute klippes ut av det samme multiview-bildet som analyseres og sendes som liten JPEG (ca. 480 × 270 for små ruter, 960 × 540 for preview/program) maks 2 per sekund på eget emne, bare mens Oversikt eller Kameraer er åpen. Ingen egne strømmer fra kameraene: det belaster verken kameraene eller nettet, gir samme bilde som ATEM med tally, og virker også for oversikt og laptop. Uten videolag (eller i simulatoren) vises de tegnede bildene som i dag.
 
 ## 3. Tilstander og feil
 

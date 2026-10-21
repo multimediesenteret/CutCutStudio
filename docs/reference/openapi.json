@@ -2207,6 +2207,30 @@
         ]
       }
     },
+    "/api/setup/multiview/check": {
+      "post": {
+        "description": "Check the multiview now and warn if it is wrong (also done once at start-up).",
+        "operationId": "multiview_check_api_setup_multiview_check_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Multiview Check Api Setup Multiview Check Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Multiview Check",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
     "/api/shadow": {
       "post": {
         "operationId": "shadow_api_shadow_post",

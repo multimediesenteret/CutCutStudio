@@ -479,6 +479,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/setup/multiview/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Multiview Check
+         * @description Check the multiview now and warn if it is wrong (also done once at start-up).
+         */
+        post: operations["multiview_check_api_setup_multiview_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/shadow": {
         parameters: {
             query?: never;
@@ -1894,6 +1914,28 @@ export interface operations {
         };
     };
     multiview_api_setup_multiview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    multiview_check_api_setup_multiview_check_post: {
         parameters: {
             query?: never;
             header?: never;
