@@ -33,6 +33,11 @@ class _In(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class LoginModeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["open", "card"]
+
+
 class SessionIn(_In):
     username: str = Field(pattern=r"^[a-z0-9._-]{1,64}$")
     display_name: str | None = Field(default=None, max_length=120)
@@ -319,6 +324,24 @@ def create_app(
     async def touch_step(body: StepIn, me: Who) -> Ok:
         require(me, "operator")
         studio.touch_step(body.step, me.role, me.actor)
+        return Ok()
+
+    @app.post("/api/touch/start", tags=["session"])
+    async def start_without_card(me: Who) -> Ok:
+        """«Start uten kort» (D-057): the touch screen starts a session for «Gjest»."""
+        studio.start_without_card(me.role, me.actor)
+        return Ok()
+
+    @app.get("/api/settings/login", tags=["config"])
+    async def get_login(me: Who) -> dict[str, str]:
+        require(me, "operator")
+        return {"mode": studio.login_mode}
+
+    @app.put("/api/settings/login", tags=["config"])
+    async def put_login(body: LoginModeIn, me: Who) -> Ok:
+        """Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057)."""
+        require(me, "admin")
+        studio.set_login_mode(body.mode, me.role, me.actor)
         return Ok()
 
     @app.post("/api/touch/again", tags=["session"])

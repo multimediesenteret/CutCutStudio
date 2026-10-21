@@ -81,6 +81,7 @@ function MorningDot({ state }: { state: StudioState }) {
 }
 
 export function Idle({ state, act }: { state: StudioState; act: Act }) {
+  if (state.touch.login === "open") return <IdleOpen state={state} act={act} />;
   const problem = blocking(state);
   return (
     <section className="scr" id="idle">
@@ -117,6 +118,38 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
   );
 }
 
+/** Until the card reader and NTNU API are switched on (D-057): one button starts the studio. */
+function IdleOpen({ state, act }: { state: StudioState; act: Act }) {
+  const problem = blocking(state);
+  return (
+    <section className="scr" id="idle">
+      <div className="txt">
+        <h1>Velkommen til podkaststudioet</h1>
+        <p className="intro">Trykk Start for å sette opp opptaket. Studioet gjør resten.</p>
+        <StatusRow>
+          {problem ? (
+            <Chip level="err">Teknikeren er varslet om en feil</Chip>
+          ) : (
+            <>
+              <Chip level="ok">Studio klart</Chip>
+              <MorningDot state={state} />
+            </>
+          )}
+        </StatusRow>
+      </div>
+      <div className="art">
+        <button
+          type="button"
+          className="primary"
+          onClick={() => act.run(act.cmd.startWithoutCard())}
+        >
+          Start
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function Ready({ state, act }: { state: StudioState; act: Act }) {
   const show = state.session?.show ?? state.touch.default_show;
   const n = show.guests + 1;
@@ -132,7 +165,7 @@ export function Ready({ state, act }: { state: StudioState; act: Act }) {
     <section className="scr" id="ready">
       <div className="left">
         <div>
-          <h1>Hei, {firstName(state)}!</h1>
+          <h1>{state.session?.user.username === "gjest" ? "Hei!" : `Hei, ${firstName(state)}!`}</h1>
           <p className="intro" style={{ marginTop: 14 }}>
             Velg hvem som er med, og trykk Start.
           </p>

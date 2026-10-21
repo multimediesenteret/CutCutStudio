@@ -717,6 +717,8 @@ Motoren leser Pearl direkte via [REST-API v2.0](https://github.com/epiphan-video
 
 ### 7.5 Kortinnlogging og økter
 
+> **Innlogging uten kort (D-057):** kortleser og NTNU-API tas i bruk sist. Til da står innstillingen «Innlogging» på «Start-knapp»: hvileskjermen viser en Start-knapp, og økta får brukeren «Gjest» uten Panopto-eier. Valget «NTNU-kort» gir flyten under.
+
 Brukeren holder ansattkortet mot leseren ved touch-skjermen, og systemet viser «Velkommen» med navnet. Kortnummeret brukes bare til oppslaget og lagres aldri (`I8`).
 
 1. **Lesing:** kortleseren er en [ELATEC TWN3 MIFARE](https://www.ELATEC-rfid.com/fileadmin/Documents/Data-Sheet/elatec-twn3-mifare-data-sheet-en.pdf) med USB. Den settes i modusen *Intelligent Virtual COM Port* med ELATEC sitt verktøy TWNConfig, og et skript som sender kortnummeret som hex-tekst. Motoren leser COM-porten med `pyserial`. Da trengs ikke tastaturfokus, og et kort som skannes kan ikke havne i feil felt på skjermen. Bruk samme leseroppsett som i studioene med Crestron, så kortnummeret får samme format.
