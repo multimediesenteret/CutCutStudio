@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- VI-2: content-deteksjon på laptop-ruta (6.2).
+  - Fire tilstander: `NO_SIGNAL`, `STATIC`, `NEW_SLIDE` og `VIDEO`, sendt som `vision.content` til motorens `CT`-regler.
+  - Testet mot kriteriene i 10.4: ny slide og frakoblet laptop oppdages innen 1 s.
 - VI-1: videolaget `cutcut vision`.
   - Leser multiviewen fra INOGENI, en videofil eller en tegnet multiview, med 15 bilder/s.
   - Deler bildet i ruter etter rutekartet, 4 % inn.
