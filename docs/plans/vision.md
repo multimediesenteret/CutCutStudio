@@ -44,7 +44,7 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 - Rutekart: bilde av multiview med kjente kilder gir riktig rute → kilde.
 - Ytelse lett del: under 25 % av én kjerne ved 15 Hz.
 - Drapstest: drep `vision` under scenario → kuttingen fortsetter (10.4).
-- **Maskintest** `tools/hw-test/inogeni.py`: format, fps, forsinkelse ATEM → PC med blinkende testbilde, 60 min uten tapte rammer.
+- **Maskintest** `cutcut hwtest vision` (VI-4): format, fps, forsinkelse ATEM → PC ved å bytte preview, 60 min uten tapte rammer.
 
 ## 6. Leveranser
 

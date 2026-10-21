@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- VI-4: `cutcut hwtest vision` er maskintesten for capture-kortet.
+  - Sjekker format, bilder per sekund og at rutekartet passer.
+  - Måler forsinkelsen fra ATEM til PC ved å bytte preview, aldri program.
+  - Teller tapte og svarte bilder over en time.
 - CA-5: `cutcut hwtest camera` er maskintesten for PTZ-kameraene, med samme rapport som de andre.
   - KA1–KA3 leser bare: protokoll og svartid, posisjon og manuell modus.
   - KA4–KA7 flytter kameraet eller endrer fargen, og spør først: presets, laveste zoomfart, fargetemperatur over OSC og AI-tracking (Q16).

@@ -63,3 +63,21 @@ uv run cutcut hwtest camera --site C:\CutCut\site --camera C2
 | KA7 AI-tracking | Tracking på: gå foran kameraet, det skal følge. Av: det skal stå stille (OBSBOT) | ja | Q16 |
 
 Steg som flytter kameraet eller endrer fargen, spør først. Bekreft bare når kameraet ikke er på program eller preview (I2). Canon hopper over KA6 og KA7 til XC er på plass (Q6).
+
+## Capture-kortet INOGENI (VI-4)
+
+Stopp videolaget først: kortet kan bare åpnes av ett program om gangen. Med `--user` måles også forsinkelsen, og da må CutCut og Companion kjøre:
+
+```powershell
+uv run cutcut hwtest vision --site C:\CutCut\site --device 0 --user tekniker1
+```
+
+| Steg | Hva skjer | Svarer på |
+| --- | --- | --- |
+| V1 Kortet | Kortet åpnes og gir bilder | |
+| V2 Format | 1920 × 1080 og bilder per sekund (50 ventet) | |
+| V3 Rutekart | Alle ruter med en CutCut-kilde har bilde | |
+| V4 Forsinkelse | Bytter PREVIEW mellom to kameraer fem ganger og måler når ATEM og når preview-ruta på PC-en viser det. Endrer ikke program | `H-VID-2` |
+| V5 Stabilitet | Leser bilder i `--minutes` (60): tapte bilder, svarte bilder og gjenåpninger | |
+
+Motoren låses (LÅS) mens testen kjører, og låses opp etterpå.

@@ -316,25 +316,39 @@ class AtemTest:
             )
 
 
-def main(site_dir: Path, api_url: str | None, user: str | None, out: Path) -> int:
+def cutcut_session(site: Site, api_url: str | None, user: str | None) -> httpx.Client | None:
+    """Sign in to the CutCut that runs (technician). ``None`` when the sign-in is refused."""
     import getpass
 
-    site = load_site(site_dir)
     url = api_url or f"http://127.0.0.1:{site.devices.api_port}"
     api = httpx.Client(base_url=url, timeout=5.0, trust_env=False)
     username = user or input("Brukernavn (tekniker): ").strip()
     pin = getpass.getpass("PIN: ")
     if api.post("/api/login", json={"username": username, "pin": pin}).status_code != 200:
         print("Innloggingen ble avvist.")
-        return 2
+        return None
+    return api
+
+
+def companion_url(site: Site, api: httpx.Client) -> str:
+    """Companion's address as set in the technician window, else from devices.yaml."""
+    url = str(site.devices.companion.url)
     devices = api.get("/api/settings/devices")
-    companion_url = str(site.devices.companion.url)
     if devices.status_code == 200:
         for row in devices.json().get("rows", []):
             if row.get("key") == "companion.url" and row.get("value"):
-                companion_url = row["value"]
-    print(f"Maskintest ATEM og Companion · CutCut {url} · Companion {companion_url}")
-    test = AtemTest(site, api, CompanionHttp(companion_url), ConsoleOperator())
+                url = str(row["value"])
+    return url
+
+
+def main(site_dir: Path, api_url: str | None, user: str | None, out: Path) -> int:
+    site = load_site(site_dir)
+    api = cutcut_session(site, api_url, user)
+    if api is None:
+        return 2
+    comp = companion_url(site, api)
+    print(f"Maskintest ATEM og Companion · CutCut {api.base_url} · Companion {comp}")
+    test = AtemTest(site, api, CompanionHttp(comp), ConsoleOperator())
     report = test.run()
     js, md = report.write(out)
     print("\n" + report.to_markdown())

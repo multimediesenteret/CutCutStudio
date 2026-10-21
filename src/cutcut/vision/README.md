@@ -15,8 +15,9 @@ Planen står i `docs/plans/vision.md` (spesifikasjonen 6). Videolaget leser ATEM
 
 Teknikervinduet henter utsnittene fra `GET /api/vision/thumb/{kilde}` (C1…, LAPTOP, PVW, PGM) to ganger i sekundet, på Oversikt og Kameraer. Hvert kall ber `core` sende `vision.want` (høyst hvert 2. sekund), så videolaget bare lager bilder mens noen ser. Når videolaget ikke svarer, vises de tegnede bildene, og bildet kommer tilbake av seg selv.
 
+Maskintesten for kortet er `cutcut hwtest vision` (VI-4, `docs/studio/maskintest.md`).
+
 Dette bygges videre:
-- maskintest for INOGENI (VI-4);
 - rutekart-forslag i setup (VI-5).
 
 OpenCV (`opencv-python-headless`) ligger i ekstraen `vision`: `uv sync --extra vision`.
