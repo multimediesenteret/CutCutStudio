@@ -39,3 +39,18 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q24 | Inneholder pre-fader multitrack-sporet lyd fra en mic som er dempet på RØDECaster? Avgjør om regel `S6` trengs eller om post-fader er bedre. Testes i `tools/hw-test/audio_rodecaster.py` | Tekniker (hw-test) | Åpen | |
 | Q25 | Eksakte fargenavn i RØDECaster-paletten for magenta, cyan, lilla og oransje (noteres i `baseline.yaml`) | Tekniker | Åpen | |
 | Q26 | Kamerakart: hvilket kamera ser hvem? Konseptet antar CAM 1 = Canon CR-N300 på programleder, CAM 2–4 = OBSBOT Tail 2 på gjestene, CAM 5 = fast fugleperspektiv, IN 6 = laptop. Stemmer det, og hvor mange OBSBOT finnes? | NTNU | Åpen | |
+
+## Fra implementasjonsplanene (M0, 2026-10-21)
+
+| ID | Spørsmål | Ansvar | Blokkerer | Status | Svar |
+| --- | --- | --- | --- | --- | --- |
+| Q27 | GitHub og Vercel: beskyttelse av `main` finnes ikke for private repoer på gratis GitHub. Velg A (privat, disiplin), B (GitHub Pro) eller C (offentlig repo). Godkjenn også CI med sti-filtre og `ignoreCommand` i `vercel.json` (se `docs/plans/milestones.md`) | Eier | M1 | Åpen | |
+| Q28 | Finnes en Windows-maskin (gjerne lik regi-PC-en) vi kan teste på før studio, eventuelt som egen GitHub Actions-maskin (gratis minutter, ekte Windows)? | NTNU | M2 | Åpen | |
+| Q29 | Varsling utenfor studio ved rødt over 1 min: e-post, Teams eller begge? Hvem skal få det? | NTNU | M3 | Åpen | |
+| Q30 | Åpningstider og servicevindu: når kan CutCut gjøre nattlig vedlikehold (forslag 04:00) og når kan Windows og CutCut oppdateres? | NTNU | M2 | Åpen | |
+| Q31 | Strøm: finnes UPS for PC, ATEM, RØDECaster og switch? Kan BIOS settes til «power on after AC loss», og er automatisk innlogging for kiosk-brukeren tillatt? | NTNU IT | M3 | Åpen | |
+| Q32 | Standardvalg på touch: 2 personer og video (D-036), eller hentes det fra studio-oppsettet? | Eier | M1 | Åpen | |
+| Q33 | Hvem står på teknikerlisten (`operator`) og admin-listen, og skal PIN brukes som reserve? | Eier | M1 (fiktivt), M3 (ekte) | Åpen | |
+| Q34 | Godkjennes tuning-forslaget for `K`, `H`, `B`, `CT`, `L` per forhåndsvalg (`docs/plans/core.md`, vedlegg) som startpunkt? | Eier | M1 | Åpen | |
+| Q35 | Skal Companion kjøre som Windows-tjeneste uten skrivebord, eller i kiosk-brukerens økt? | Tekniker | M2 | Åpen | |
+| Q36 | Godkjennes forslagene PL-01–PL-08 i `docs/plans/README.md` (blant annet ADR-0012, 0013 og 0014 bekreftet)? | Eier | M1 | Åpen | |
