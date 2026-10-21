@@ -27,7 +27,7 @@ class GuardedCamera:            # pakker hver driver
 | Driver | Transport | Bygges fra |
 | --- | --- | --- |
 | `obsbot` | VISCA over IP (UDP 52381) + OSC (UDP 57110/57120) | Tabellene i spes. 7.3 og teknisk referanse; OSC-definisjonene i `site/ntnu-studio/equipment/obsbot/` |
-| `canon_xc` | XC over HTTP; VISCA over IP som reserve | XC-kommandolisten fra Canon (Q6). Til den finnes: bare VISCA for preset og posisjon |
+| `canon_xc` | XC over HTTP; VISCA over IP som reserve | XC-kommandolisten fra Canon (Q6). Til den finnes: bare VISCA for preset og posisjon (gjort, felles med OBSBOT i `visca_ptz.py`) |
 
 ## 3. Tilstander og feil
 
