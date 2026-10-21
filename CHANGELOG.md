@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- DA-7: makrosjekk.
+  - `atem-bridge` sender ATEM-makroene, nummerert som i ATEM Software Control.
+  - `H-ATEM-3` sjekker at alle layoutmakroene i 7.2 finnes med riktig navn.
+  - Layout-bryteren kan ikke slås på før de finnes.
+  - `S5` er testet ende til ende: Companion svarer ikke, og kuttet går som `atem.cmd` til atem-bridge.
 - SO-6: kiosk for touch-skjermen.
   - `installer/kiosk/setup-kiosk.ps1` lager kiosk-brukeren, automatisk innlogging og en oppgave i Oppgaveplanlegger.
   - `kiosk-vakt.ps1` starter Edge i kiosk-modus og starter den på nytt når den er borte eller siden har hengt i 30 s.
@@ -125,6 +130,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).
 
 ### Fixed
+- `atem-bridge`: makronummer på bussen er nå 1-basert som i ATEM Software Control og Companion. Ingen sendte `run_macro` ennå.
 - Windows: bussen (ZeroMQ) trenger selector-løkka. Med Windows' standardløkke fikk `core` ingen meldinger fra `atem-bridge`, `audio-capture` eller supervisor. Funnet av den nye tjenestetesten.
 - Windows: supervisor stopper hele prosesstreet. En venv-`python.exe` er en starter med den ekte Python som barn, og ellers ville en hengt `core` blitt stående og holdt porten.
 - Companion og Pearl kontaktes alltid direkte, aldri via en proxy satt i Windows.

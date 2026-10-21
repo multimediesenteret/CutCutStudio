@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from cutcut.common.platform.system import SystemSnapshot
+from cutcut.devices.atem.macros import LAYOUT_MACROS
+from cutcut.devices.atem.macros import check as atem_macro_check
 from cutcut.health.engine import FuncCheck
 from cutcut.health.model import CheckLevel, CheckResult
 
@@ -286,6 +288,36 @@ def atem(
         )
 
     return FuncCheck("H-ATEM-1", 1.0, run)
+
+
+def atem_macros(
+    read: Callable[[], dict[int, str] | None], now: Callable[[], datetime]
+) -> FuncCheck:
+    """``H-ATEM-3``: the layout macros (spec 7.2) are in the ATEM with the right names.
+    Yellow: the layouts are then switched off; the rest of the studio is not affected."""
+
+    def run() -> CheckResult:
+        found = read()
+        if found is None:
+            return _result("H-ATEM-3", "green", "venter på ATEM", "ATEM er ikke lest ennå.", now)
+        problems = atem_macro_check(found)
+        expected = f"{len(LAYOUT_MACROS)} makroer (7.2)"
+        if problems:
+            more = f" (+{len(problems) - 1} til)" if len(problems) > 1 else ""
+            return _result(
+                "H-ATEM-3",
+                "yellow",
+                f"{len(problems)} avvik",
+                f"{problems[0]}{more}. Layoutene kan ikke slås på før makroene er laget.",
+                now,
+                expected=expected,
+                level="as_agreed",
+            )
+        return _result(
+            "H-ATEM-3", "green", "alle finnes", "Layoutmakroene finnes.", now, expected=expected
+        )
+
+    return FuncCheck("H-ATEM-3", 300.0, run, level="as_agreed")
 
 
 # -- H-COMP-1 ---------------------------------------------------------------------------------

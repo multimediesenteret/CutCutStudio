@@ -21,6 +21,7 @@ Slik oppfører `HealthEngine` seg:
 | `H-PC-1`, `-2`, `-3` | Disk der data ligger, minne, CPU | 30 s | Gult under 20 GB / over 90 % / over 85 %; rødt under 2 GB disk |
 | `H-PRL-1` | Pearl svarer, har ingen feil, har plass | 5 s | Rødt (også for brukeren) når Pearl ikke svarer eller har under 15 min igjen; gult under 60 min |
 | `H-ATEM-1` | Program og preview kan leses | 1 s | Rødt (også for brukeren) etter 15 s oppstart |
+| `H-ATEM-3` | Layoutmakroene (7.2) finnes i ATEM med riktig navn (`cutcut.devices.atem.macros`) | 5 min, og i morgensjekken | Gult. Layout-bryteren kan ikke slås på |
 | `H-COMP-1` | Companions HTTP-API og `cutcut_pages_version` | 5 s | Rødt: svarer ikke (`S5` tar over), sidene mangler eller har feil versjon |
 
 Lagringen på Pearl regnes om til minutter med 20 Mbit/s til bitraten er målt i maskintesten (DA-5). Dette kommer senere:

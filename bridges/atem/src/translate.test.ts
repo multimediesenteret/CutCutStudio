@@ -44,6 +44,15 @@ function ntnuState(): AtemState {
       ],
     },
     recording: { status: { state: Enums.RecordingStatus.Idle } },
+    macro: {
+      // ATEM index 9 is macro 10 in ATEM Software Control. 39 = 40 is missing on purpose.
+      macroProperties: Object.assign([], {
+        9: { name: "PIP_P1_CONTENT", description: "", isUsed: true },
+        19: { name: "PIP_P1_P2", description: "", isUsed: true },
+        29: { name: "QUAD4", description: "", isUsed: true },
+        30: { name: "old", description: "", isUsed: false },
+      }),
+    },
   } as unknown as AtemState;
 }
 
@@ -63,6 +72,14 @@ describe("atem.state payload", () => {
       "input7",
       "mediaplayer1",
       "other",
+    ]);
+  });
+
+  it("numbers macros like ATEM Software Control (1-based) and skips empty slots", () => {
+    expect(statePayload(ntnuState()).macros).toEqual([
+      { number: 10, name: "PIP_P1_CONTENT" },
+      { number: 20, name: "PIP_P1_P2" },
+      { number: 30, name: "QUAD4" },
     ]);
   });
 

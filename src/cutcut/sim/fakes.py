@@ -22,6 +22,7 @@ from cutcut.core.intents import (
     ShowAudioOnly,
     Take,
 )
+from cutcut.devices.atem.macros import LAYOUT_MACROS
 
 
 @dataclass
@@ -38,6 +39,9 @@ class FakeAtem:
     commands: int = 0
     dropped: int = 0
     multiview: MultiviewReadback | None = None  # what atem-bridge will read in M2
+    macro_list: dict[int, str] = field(
+        default_factory=lambda: {m.number: m.name for m in LAYOUT_MACROS}
+    )  # all layout macros in place (spec 7.2)
 
     def submit(self, intent: Intent) -> None:
         if not self.online:
@@ -68,6 +72,9 @@ class FakeAtem:
 
     def multiview_readback(self) -> MultiviewReadback | None:
         return self.multiview if self.online else None
+
+    def macros(self) -> dict[int, str] | None:
+        return dict(self.macro_list) if self.online else None
 
     def readback(self) -> AtemReadback | None:
         if not self.online:

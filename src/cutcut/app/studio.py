@@ -74,6 +74,7 @@ from cutcut.core.inputs import (
     SetShadow,
 )
 from cutcut.core.runtime import CoreRuntime, Executor
+from cutcut.devices.atem.macros import check as macro_check
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
 from cutcut.health import checks as health_checks
 from cutcut.session.manager import (
@@ -642,11 +643,17 @@ class Studio:
             health_checks.companion(
                 self._companion_reading, self.devices.companion.pages_version, now
             ),
+            health_checks.atem_macros(self._atem_macros, now),
         ]
         system = self.deps.system
         if system is not None:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
         return checks
+
+    def _atem_macros(self) -> dict[int, str] | None:
+        source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
+        read = getattr(source, "macros", None)
+        return read() if callable(read) else None
 
     def _pearl_reading(self) -> health_checks.PearlReading:
         rec = self.deps.recorder
@@ -1118,6 +1125,13 @@ class Studio:
         unknown = set(changes) - set(type(self.features).model_fields)
         if unknown:
             raise CommandError(f"Ukjent bryter: {', '.join(sorted(unknown))}")
+        if changes.get("layouts") and not self.features.layouts:
+            found = self._atem_macros()
+            problems = macro_check(found) if found is not None else []
+            if problems:  # DA-7: the engine would take a SuperSource that shows something else
+                raise CommandError(
+                    f"Layoutene kan ikke slås på: {problems[0]}. Lag makroene i ATEM (7.2)."
+                )
         self.features = self.features.model_copy(update=changes)
         self._reconfigure()
         self._audit(role, actor, "features", **changes)
