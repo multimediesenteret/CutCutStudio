@@ -35,7 +35,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
   - Windows-tjeneste, kiosk og `setup-pc.ps1` (SO-2, SO-5, SO-6).
 
   Resten av M2 venter på test-PC og studio. Rekkefølgen står i `docs/studio/testdag.md`.
-- M3 (påbegynt): videolaget `cutcut vision` med ruter, content-deteksjon og bevegelse/programbekreftelse (VI-1–VI-3), kamerabilder i teknikervinduet (D-056) kameravakten `GuardedCamera` (CA-1) og OBSBOT over VISCA (CA-2). Prøves uten utstyr med `cutcut sim --vision`.
+- M3 (påbegynt): videolaget `cutcut vision` med ruter, content-deteksjon og bevegelse/programbekreftelse (VI-1–VI-3), kamerabilder i teknikervinduet (D-056) kameravakten `GuardedCamera` (CA-1) og OBSBOT over VISCA og OSC (CA-2, CA-3). Prøves uten utstyr med `cutcut sim --vision`.
 - Innlogging (D-057): studioet bruker Start-knappen («Gjest») til appen har vært testet en stund. Kortleser og NTNU-API (SE-4, SE-5) er flyttet til M4.
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 

@@ -205,7 +205,8 @@ class GuardedCamera:
             return True
         try:
             await asyncio.wait_for(send(self.driver, cmd), self.timeout_s)
-        except Unsupported as e:  # the camera answered fine; it just has no such function
+        except (Unsupported, ValueError) as e:  # no such function, or a value it cannot take:
+            # the camera is not broken, so this does not count towards the circuit breaker
             self.st.unsupported += 1
             self.st.last_error = f"{cmd.kind}: {e}"
             log.info("%s: %s", self.id, self.st.last_error)

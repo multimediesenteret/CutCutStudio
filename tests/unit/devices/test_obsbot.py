@@ -16,7 +16,9 @@ from cutcut.devices.cameras import visca
 from cutcut.devices.cameras.base import PTZPosition, RecallPreset, Unsupported, WhiteBalance
 from cutcut.devices.cameras.guarded import GuardedCamera, on_air
 from cutcut.devices.cameras.obsbot import Calibration, ObsbotDriver
+from cutcut.sim import fake_osc
 from cutcut.sim.fake_camera import FakeCamera
+from cutcut.sim.fake_osc import FakeOsc
 from cutcut.sim.fake_visca import FakeVisca, serve
 
 
@@ -81,21 +83,30 @@ def test_calibration_round_trips() -> None:
 Body = Callable[[ObsbotDriver, FakeCamera, FakeVisca], Awaitable[None]]
 
 
-def with_camera(body: Body, timeout_s: float = 0.2) -> None:
+def with_camera(body: Body, timeout_s: float = 0.2) -> FakeOsc:
+    """A fake OBSBOT on both ports (VISCA and OSC); returns the OSC side to look at."""
+    out: list[FakeOsc] = []
+
     async def go() -> None:
         cam = FakeCamera(CameraId.C2)
         fake, port = await serve(cam)
-        drv = ObsbotDriver(CameraId.C2, "127.0.0.1")
+        oscs, oport = await fake_osc.serve(cam)
+        out.append(oscs)
+        drv = ObsbotDriver(CameraId.C2, "127.0.0.1", osc_port=oport)
         drv.client.port = port
         drv.client.timeout_s = timeout_s
         try:
             await body(drv, cam, fake)
+            await asyncio.sleep(0.05)  # OSC is fire-and-forget: let the datagrams land
         finally:
             drv.close()
             assert fake._transport is not None
             fake._transport.close()
+            assert oscs.transport is not None
+            oscs.transport.close()
 
     asyncio.run(go())
+    return out[0]
 
 
 def test_presets_position_and_status_over_udp() -> None:
@@ -141,12 +152,47 @@ def test_camera_errors_and_silence() -> None:
     with_camera(body, timeout_s=0.05)
 
 
-def test_osc_functions_wait_for_CA3() -> None:
+def test_colour_exposure_and_tracking_over_osc() -> None:
     async def body(drv: ObsbotDriver, cam: FakeCamera, fake: FakeVisca) -> None:
-        with pytest.raises(Unsupported):
-            await drv.set_white_balance(kelvin=5600)
+        await drv.set_white_balance(kelvin=5600)
+        await drv.set_exposure(shutter="1/50", gain_db=6)
+        await drv.set_auto_tracking(False)
+        with pytest.raises(Unsupported, match="R/B-gain"):
+            await drv.set_white_balance(r=10, b=20)
+        with pytest.raises(Unsupported, match="fast blender"):
+            await drv.set_exposure(iris=2.8)
+        with pytest.raises(ValueError, match="kelvin 12000"):
+            await drv.set_white_balance(kelvin=12000)
+        with pytest.raises(ValueError, match="1/55 finnes ikke"):
+            await drv.set_exposure(shutter="1/55")
 
-    with_camera(body)
+    o = with_camera(body)
+    assert o.log == [
+        ("/OBSBOT/WebCam/General/SetAutoWhiteBalance", [0]),
+        ("/OBSBOT/WebCam/General/SetColorTemperature", [5600]),
+        ("/OBSBOT/WebCam/General/SetAutoExposure", [0]),
+        ("/OBSBOT/WebCam/General/SetShutterSpeed", [50]),
+        ("/OBSBOT/WebCam/General/SetISO", [200]),
+        ("/OBSBOT/Camera/Tail2/SetAiEnable", [0]),
+    ]
+    assert o.auto_wb is False
+    assert o.auto_exposure is False
+
+
+def test_osc_bytes() -> None:
+    from cutcut.devices.cameras import osc
+
+    msg = osc.encode("/OBSBOT/WebCam/General/SetColorTemperature", 5600)
+    assert msg == (
+        b"/OBSBOT/WebCam/General/SetColorTemperature\x00\x00" + b",i\x00\x00" + b"\x00\x00\x15\xe0"
+    )
+    assert len(msg) % 4 == 0
+    assert osc.decode(osc.encode("/a/b", 1, 2.5, "hei")) == ("/a/b", [1, 2.5, "hei"])
+    assert osc.encode("/abc") == b"/abc\x00\x00\x00\x00,\x00\x00\x00"
+    with pytest.raises(TypeError):
+        osc.encode("/x", True)
+    with pytest.raises(ValueError, match="starte med /"):
+        osc.encode("x")
 
 
 def test_PV2_the_real_driver_behind_the_guard() -> None:
@@ -161,10 +207,14 @@ def test_PV2_the_real_driver_behind_the_guard() -> None:
         assert g.submit(WhiteBalance(kelvin=5600)) == "queued"
         while await g.step():
             pass
-        assert cam.received == ["recall 1 0.48"]  # 0x0C of 0x19
-        assert g.st.failed == 0  # not a broken camera: no step towards the circuit breaker
+        assert g.submit(WhiteBalance(kelvin=99_999)) == "queued"
+        while await g.step():
+            pass
+        await asyncio.sleep(0.05)
+        assert cam.received == ["recall 1 0.48", "wb 5600 None None"]  # 0x0C of 0x19
+        assert g.st.failed == 0  # a value it cannot take: no step towards the circuit breaker
         assert g.st.unsupported == 1
-        assert g.st.last_error == "white_balance: fargetemperatur settes med OSC (CA-3)"
+        assert g.st.last_error == "white_balance: kelvin 99999 er utenfor 2000–10000"
         assert g.st.position == PTZPosition(0.0, 0.0, 0.0)
 
     with_camera(body)

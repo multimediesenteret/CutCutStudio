@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-3: OBSBOT over OSC.
+  - Manuell hvitbalanse i kelvin, manuell eksponering (lukkertid og ISO) og AI-tracking av og på.
+  - Verdier kameraet ikke tar, avvises uten å telle mot kretsbryteren.
 - CA-2: OBSBOT Tail 2 over VISCA.
   - Status, posisjon, presets med fart, absolutt pan/tilt og zoom, og små justeringer.
   - Kommandoene er testet byte for byte mot tabellen i 7.3, og driveren mot et falskt kamera over UDP.
