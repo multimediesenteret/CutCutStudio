@@ -185,6 +185,45 @@ def video(
     return FuncCheck("H-VID-1", 2.0, run, level="working")
 
 
+PGM_MISMATCH_MS = 3_000
+
+
+def program_confirm(
+    seen: Callable[[], str | None],
+    atem_says: Callable[[], str | None],
+    mismatch_ms: Callable[[], int],
+    now: Callable[[], datetime],
+) -> FuncCheck:
+    """``H-VID-3``: the program window in the multiview shows the camera the ATEM says is on
+    program (VI-3). Yellow after 3 s apart: the rutekart or the multiview is probably wrong, and
+    CutCut would judge the wrong picture."""
+
+    def run() -> CheckResult:
+        a, v = atem_says(), seen()
+        if a is None or v is None:
+            return _result(
+                "H-VID-3",
+                "green",
+                "ikke sammenlignbart",
+                "Program sammenlignes når både ATEM og videolaget ser et kamera.",
+                now,
+            )
+        if a != v and mismatch_ms() >= PGM_MISMATCH_MS:
+            return _result(
+                "H-VID-3",
+                "yellow",
+                f"bildet ligner {v}",
+                f"ATEM sier {a} på program, "
+                f"men programruta ligner {v}. Sjekk rutekartet (Oppsett).",
+                now,
+                expected=a,
+                level="as_agreed",
+            )
+        return _result("H-VID-3", "green", v, "Programruta viser det ATEM sier.", now, expected=a)
+
+    return FuncCheck("H-VID-3", 2.0, run, level="as_agreed")
+
+
 TOUCH_STALE_MS = 30_000
 
 

@@ -259,6 +259,7 @@ class Studio:
         self.mic_check: MicCheck | None = None
         self._touch_seen: int | None = None
         self._video_check = False
+        self._pgm_apart_since: int | None = None
         self.on_audio_config: Callable[[dict[str, Any]], None] | None = None  # core: the bus
         self.runtime.on_audio = self._on_audio_frame
         self._check: dict[str, dict[str, int | bool]] = {}
@@ -1106,17 +1107,44 @@ class Studio:
             )
 
     def _maybe_add_video_check(self) -> None:
-        """``H-VID-1`` from the first time the video layer reports (not before: M3, optional)."""
-        if not self._video_check and self.runtime.vision_status_ms is not None:
-            self._video_check = True
-            rt = self.runtime
-            self.health.add(
-                health_checks.video(
-                    lambda: None if rt.vision_frame_ms is None else self.now - rt.vision_frame_ms,
-                    lambda: rt.vision_status,
-                    self.deps.clock.now,
-                )
+        """``H-VID-1`` and ``H-VID-3`` from the first time the video layer reports (M3)."""
+        rt = self.runtime
+        if rt.vision_status_ms is None:
+            return
+        seen, says = self._pgm_seen(), self._pgm_atem()
+        if seen is not None and says is not None and seen != says:
+            if self._pgm_apart_since is None:
+                self._pgm_apart_since = self.now
+        else:
+            self._pgm_apart_since = None
+        if self._video_check:
+            return
+        self._video_check = True
+        self.health.add(
+            health_checks.video(
+                lambda: None if rt.vision_frame_ms is None else self.now - rt.vision_frame_ms,
+                lambda: rt.vision_status,
+                self.deps.clock.now,
             )
+        )
+        self.health.add(
+            health_checks.program_confirm(
+                self._pgm_seen,
+                self._pgm_atem,
+                lambda: 0 if self._pgm_apart_since is None else self.now - self._pgm_apart_since,
+                self.deps.clock.now,
+            )
+        )
+
+    def _pgm_seen(self) -> str | None:
+        src = self.runtime.vision_pgm.get("source")
+        return str(src) if src else None
+
+    def _pgm_atem(self) -> str | None:
+        rb = self.runtime.atem
+        if rb is None or rb.program_layout is not None or rb.program.value == "SUPERSOURCE":
+            return None
+        return rb.program.value
 
     def touch_heartbeat_age(self) -> int | None:
         return None if self._touch_seen is None else self.now - self._touch_seen

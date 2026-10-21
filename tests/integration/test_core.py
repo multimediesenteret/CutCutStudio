@@ -314,3 +314,26 @@ def test_core_hears_the_video_layer_H_VID_1(
 
     assert until(lambda: check() == "green", 10, send)
     assert core.studio.runtime.vision_frame["tiles"][0]["tile"] == "W1"
+
+
+def test_program_window_disagrees_with_the_atem_H_VID_3(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """VI-3: the ATEM says Camera 2 on program, the program window looks like Camera 3."""
+    client, bus, _, _, _ = rig
+    state = {**ATEM, "program_input": 2}
+    seen = {"source": "C3"}
+
+    def send() -> None:
+        bus.send("atem.state", "atem-bridge", state)
+        bus.send("vision.status", "vision", {"source": "syntetisk", "fps": 15})
+        bus.send("vision.frame", "vision", {"tiles": []})
+        bus.send("vision.pgm", "vision", {**seen, "score": 0.05})
+
+    def check() -> str | None:
+        rows = client.get("/api/health/checks").json()
+        return next((r["status"] for r in rows if r["id"] == "H-VID-3"), None)
+
+    assert until(lambda: check() == "yellow", 15, send)
+    seen["source"] = "C2"
+    assert until(lambda: check() == "green", 10, send)

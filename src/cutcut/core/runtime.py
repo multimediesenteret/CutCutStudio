@@ -94,6 +94,9 @@ class CoreRuntime:
         self._last_vision_ms: int | None = None
         self._atem: AtemReadback | None = None
         self._moving: frozenset[CameraId] = frozenset()
+        self._moving_vision: frozenset[CameraId] = frozenset()
+        self._moving_vision_ms: int | None = None
+        self.vision_pgm: dict[str, Any] = {}
         self._commands: list[Command] = []
         self._last_snapshot_ms = -SNAPSHOT_EVERY_MS
         self._stop = asyncio.Event()
@@ -135,10 +138,22 @@ class CoreRuntime:
         self._atem = readback
 
     def feed_cameras_moving(self, moving: frozenset[CameraId]) -> None:
+        """What the cameras themselves report (drivers, simulator)."""
         self._moving = moving
+
+    def feed_vision_moving(self, moving: frozenset[CameraId]) -> None:
+        """What the video layer sees move (VI-3). ``S1`` uses both: either is enough."""
+        self._moving_vision = moving
+        self._moving_vision_ms = self.clock.mono_ms()
 
     def command(self, cmd: Command) -> None:
         self._commands.append(cmd)
+
+    def _vision_moving(self, now: int) -> frozenset[CameraId]:
+        """Old news is no news: a silent video layer stops holding cameras back after 1 s."""
+        if self._moving_vision_ms is None or now - self._moving_vision_ms > 1_000:
+            return frozenset()
+        return self._moving_vision
 
     def feed_bus(self, topic: str, payload: dict[str, Any]) -> None:
         """Route one bus message. Invalid payloads are counted and dropped, never raised."""
@@ -154,6 +169,10 @@ class CoreRuntime:
             elif topic == "vision.frame":
                 self.vision_frame = dict(payload)  # VI-1: the screens and H-VID-1, not rules
                 self.vision_frame_ms = self.clock.mono_ms()
+            elif topic == "vision.moving":
+                self.feed_vision_moving(messages.cameras_moving(payload))
+            elif topic == "vision.pgm":
+                self.vision_pgm = dict(payload)
             elif topic == "vision.status":
                 self.vision_status = dict(payload)
                 self.vision_status_ms = self.clock.mono_ms()
@@ -181,7 +200,7 @@ class CoreRuntime:
             vision=dict(self._vision) if vision_ok else None,
             content=self._content,
             atem=self._atem,
-            cameras_moving=self._moving,
+            cameras_moving=self._moving | self._vision_moving(now),
             commands=commands,
         )
 
