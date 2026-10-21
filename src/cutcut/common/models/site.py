@@ -34,6 +34,7 @@ class PearlDevice(_Strict):
     recorder_id: str = "1"
     username: str = "cutcut"  # password in Windows Credential Manager (pearl_password)
     scheme: Literal["https", "http"] = "https"
+    port: int | None = Field(default=None, ge=1, le=65535)  # None: the scheme's default
     # Pearl ships with a self-signed certificate. On the closed studio network the address is
     # fixed; set to true once a trusted certificate is installed on the Pearl.
     verify_tls: bool = False

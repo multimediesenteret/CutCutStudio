@@ -37,6 +37,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--smoke", action="store_true", help="start, sjekk helse og skjermer, avslutt (CI)"
     )
 
+    core = sub.add_parser(
+        "core",
+        help="kjør studioet med ekte utstyr (Companion, ATEM via atem-bridge, Pearl, lyd)",
+        description="Startes av supervisor i studio. Skjermene på /touch/ og /tech/.",
+    )
+    core.add_argument(
+        "--site", type=Path, required=True, help="studio-oppsett, f.eks. site/ntnu-studio"
+    )
+    core.add_argument("--data", type=Path, default=None, help="database og logger")
+    core.add_argument("--host", default="127.0.0.1")
+    core.add_argument("--port", type=int, default=8080)
+    core.add_argument("--ui-dir", type=Path, default=None, help="bygde skjermer (ui/dist)")
+
     audio = sub.add_parser(
         "audio",
         help="kjør audio-capture: mikrofoner til målinger på bussen (ADR-0014)",
@@ -71,6 +84,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             site_dir=args.site,
         )
         return smoke(opts) if args.smoke else serve(opts)
+    if args.command == "core":
+        from cutcut.app.core import CoreOptions, default_data_dir
+        from cutcut.app.core import serve as serve_core
+        from cutcut.common.platform import get_platform
+        from cutcut.sim.serve import default_ui_dir as ui_default
+
+        return serve_core(
+            CoreOptions(
+                site_dir=args.site,
+                data_dir=args.data or default_data_dir(),
+                secrets=get_platform().secrets,
+                host=args.host,
+                port=args.port,
+                ui_dir=args.ui_dir or ui_default(),
+            )
+        )
     if args.command == "audio":
         from cutcut.audio.main import main as audio_main
 

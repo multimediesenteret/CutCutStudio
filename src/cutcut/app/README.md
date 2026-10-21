@@ -6,6 +6,8 @@
 | --- | --- |
 | `studio.py` | `Studio`: tikk, kommandoer med revisjonslogg, tilstand for skjermene, live endring av forhåndsvalg, brytere og finjustering som overlever omstart (ADR-0011), økthistorikk |
 | `state.py` | Typede modeller for tilstanden og live-meldingene (`StudioState`, `Meter`, `LiveMessage`). De står i `docs/reference/openapi.json`, og skjermenes typer genereres derfra |
+| `core.py` | `cutcut core`: samme `Studio` koblet til ekte utstyr – Companion (med atem-bridge som reservevei), ATEM via bussen, Pearl og lyd. `core` binder bussen (5560 inn, 5561 ut). Starter selv om noe utstyr mangler |
+| `devices.py` | Utstyrsadresser som kan endres i teknikervinduet |
 | `export.py` | CSV av logg og økter, og feilsøkingspakken (zip uten hemmeligheter, personliste eller kortnummer) |
 | `hub.py` | Fordeling av live-meldinger til skjermene, med begrenset kø per klient |
 

@@ -42,6 +42,14 @@ def input_map(show: ShowConfig) -> dict[int, SourceId]:
     return out
 
 
+def site_input_map(shows: list[ShowConfig]) -> dict[int, SourceId]:
+    """The same, across all shows of the studio (the inputs do not change with the show)."""
+    out: dict[int, SourceId] = {}
+    for show in shows:
+        out.update(input_map(show))
+    return out
+
+
 class _Payload(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 

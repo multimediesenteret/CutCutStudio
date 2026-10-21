@@ -145,6 +145,20 @@
           "title": "Ip",
           "type": "string"
         },
+        "port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Port"
+        },
         "recorder_id": {
           "default": "1",
           "title": "Recorder Id",
