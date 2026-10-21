@@ -20,7 +20,8 @@ CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. 
 | Web-simulator (Vercel) | [`docs/simulator.md`](docs/simulator.md) |
 | Research | [`docs/research/`](docs/research/) |
 | Standardoppsett i studio | [`docs/studio/`](docs/studio/) |
-| Farger og design | [`docs/design/farger.md`](docs/design/farger.md) |
+| Farger og design | [`docs/design/farger.md`](docs/design/farger.md), [`docs/design/gui-konsept.md`](docs/design/gui-konsept.md) |
+| Skjermkonsept (Vercel) | [`concept/`](concept/) – åpne `concept/index.html` |
 | Spesifikasjonen | [`docs/spec/`](docs/spec/) – start med `01-app-spesifikasjon.md` |
 | Status og neste steg | [`docs/STATUS.md`](docs/STATUS.md) |
 | Åpne spørsmål og hvem som svarer | [`docs/open-questions.md`](docs/open-questions.md) |

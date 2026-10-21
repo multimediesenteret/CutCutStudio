@@ -47,7 +47,11 @@ Krav til koden for at trinn 2 skal virke: regelmotoren i `src/cutcut/core/` har 
 
 - Vercel-prosjekt koblet til `main` (produksjon) og pull requests (forhåndsvisning). Se `docs/publishing.md`.
 - Byggekommando og mappe dokumenteres i `docs/publishing.md` når de finnes.
-- Før M1 publiseres den klikkbare prototypen (`docs/prototype/cutcut-prototype.html`) som en enkel forside, så Vercel-oppsettet kan testes tidlig.
+- Før M1 publiseres GUI-konseptet i `concept/` på Vercel.
+
+## Forhold til GUI-konseptet
+
+`concept/` er skjermkonseptet fra forprosjektet (D-036–D-039): ferdig utseende og flyt for begge skjermene, med en forenklet JavaScript-motor. Simulatoren i M1 skal se ut og oppføre seg som konseptet, men bruke de ekte UI-appene og den ekte regelkoden.
 
 ## Forhold til prototypen
 

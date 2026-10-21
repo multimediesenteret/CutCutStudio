@@ -11,12 +11,13 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 
 ## Vercel
 
-**Hva publiseres:** web-simulatoren beskrevet i `docs/simulator.md`. Før M1 publiseres den klikkbare prototypen som forside, så oppsettet kan testes.
+**Hva publiseres:** nå GUI-konseptet i `concept/` (begge skjermene på simulerte data, ingen byggesteg). Fra M1 erstattes det av web-simulatoren beskrevet i `docs/simulator.md`.
 
 **Oppsett** (gjøres av eier, ikke av agent):
 
 - Vercel-prosjektet kobles til `multimediesenteret/cutcutstudio`, gren `main` til produksjon, pull requests til forhåndsvisning.
-- Byggkommando og ut-mappe settes når simulatoren lages (forslag: `pnpm --filter simulator build`, ut-mappe `ui/apps/simulator/dist/`). Agenten dokumenterer det her når det finnes.
+- **Nå (konsept):** Root Directory `concept`, Framework Preset «Other», ingen byggekommando, Output Directory `.`.
+- **Fra M1:** byggekommando og ut-mappe for simulatoren (forslag: `pnpm --filter simulator build`, ut-mappe `ui/apps/simulator/dist/`). Agenten dokumenterer det her når det finnes.
 - Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
 
 **Hobby-planen har to begrensninger som styrer hvordan vi jobber:**

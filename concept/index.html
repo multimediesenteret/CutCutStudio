@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CutCut Studio Konsept</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+/* Concept front page: the two real 16:9 screens shown as scaled monitors, side by side,
+   sharing one simulation. Each can also be opened full size. */
+body{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1680px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand .logo{width:78px;height:auto;flex:none}
+.brand h1{font-family:var(--f-display);font-size:30px;font-weight:700;margin:0;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.tbtn{height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
+.mons{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1000px){.mons{grid-template-columns:minmax(0,1fr)}}
+.mon{display:flex;flex-direction:column;gap:10px;min-width:0}
+.mon .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mon h2{font-family:var(--f-display);font-size:19px;font-weight:700;margin:0}
+.mon .hd span{color:var(--muted);font-size:13px}
+.mon a{color:var(--eye);font-weight:600;font-size:14px;text-decoration:none}
+.mon a:hover{text-decoration:underline}
+.screen{position:relative;width:100%;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--cam-bg2);box-shadow:var(--shadow);outline:6px solid var(--surface);border:1px solid var(--line)}
+.screen iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted)}
+.note b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span id="logo"></span><div><h1>CutCut Studio · skjermkonsept</h1><p>Teknikervindu og touch-skjerm i studio, på simulerte data. Begge skjermene deler samme simulering.</p></div></div>
+    <button class="tbtn" id="theme">Bytt tema</button>
+  </header>
+  <div class="mons">
+    <div class="mon"><div class="hd"><h2>Teknikervindu</h2><span>Vanlig nettleservindu på 16:9-skjerm · <a href="tech.html" target="_blank" rel="noopener">Åpne i full størrelse</a></span></div><div class="screen"><iframe src="tech.html" title="Teknikervindu" loading="eager"></iframe></div></div>
+    <div class="mon"><div class="hd"><h2>Touch-skjerm i studio</h2><span>1920 × 1080, kiosk · <a href="touch.html" target="_blank" rel="noopener">Åpne i full størrelse</a></span></div><div class="screen"><iframe src="touch.html" title="Touch-skjerm" loading="eager"></iframe></div></div>
+  </div>
+  <div class="notes">
+    <div class="note"><b>Prøv flyten</b><ol><li>Trykk «Demo: simuler kortskanning» på touch-skjermen.</li><li>Velg hvem som er med, og trykk Start opptak.</li><li>Se teknikervinduet klippe, med regel-ID for hvert kutt.</li><li>Hold «Avslutt opptak» inne i 2 sekunder.</li></ol></div>
+    <div class="note"><b>Brukeren tenker ikke på teknikk</b>Kort, ett valg av personer, eventuelt kun lyd, og Start. Standardvalgene er klare, så det holder å skanne og trykke Start.</div>
+    <div class="note"><b>Teknikeren ser alt på én side</b>Multiview, program og preview, mikrofoner, beslutninger og tidslinje. Oppsett, helse og kameraer ligger i menyen til venstre.</div>
+    <div class="note"><b>Feil og hjelp</b>Under Helse kan du simulere feil. Rødt på lyd stopper Start på touch med en enkel melding. «Trenger du hjelp?» varsler teknikeren.</div>
+  </div>
+</div>
+<script src="assets/sim.js"></script>
+<script src="assets/views.js"></script>
+<script>
+(()=>{
+const V=window.CutCutViews;document.getElementById('logo').innerHTML=V.LOGO;
+V.initTheme('index',null);
+document.getElementById('theme').onclick=()=>{V.toggleTheme('index')};
+const fit=()=>document.querySelectorAll('.screen').forEach(s=>{const f=s.querySelector('iframe');f.style.transform=`scale(${s.clientWidth/1920})`});
+addEventListener('resize',fit);new ResizeObserver(fit).observe(document.body);fit();
+})();
+</script>
+</body>
+</html>

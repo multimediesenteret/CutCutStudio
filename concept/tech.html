@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CutCut Studio Tekniker</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<style>
+/* Tech window: classic desktop web GUI for a 16:9 monitor (not fullscreen kiosk).
+   Overview shows everything at once without scrolling at 1920×1080; setup, health and
+   details live behind the left rail. */
+body{font-size:14px}
+.app{display:grid;grid-template-columns:84px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;background:var(--surface);border-right:1px solid var(--line)}
+.rail .logo{width:56px;height:auto;margin:2px 0 14px}
+.nav{width:68px;height:62px;border-radius:12px;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;cursor:pointer;position:relative}
+.nav svg{width:22px;height:22px}
+.nav:hover{background:var(--surface-2);color:var(--ink)}
+.nav.on{background:var(--eye-soft);color:var(--eye)}
+.nav .badge{position:absolute;top:6px;right:10px;min-width:18px;height:18px;border-radius:9px;background:var(--pgm);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 5px}
+.nav .badge.warn{background:var(--wait)}
+.rail .grow{flex:1}
+.col{display:flex;flex-direction:column;min-width:0}
+.top{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:14px;height:64px;padding:0 20px;background:var(--bg);border-bottom:1px solid var(--line-2)}
+.top h1{font-family:var(--f-display);font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em;white-space:nowrap}
+.top .room{color:var(--muted);font-size:13px;white-space:nowrap}
+.top .grow{flex:1}
+.pill{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:17px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:13px;white-space:nowrap}
+.pill .d{width:9px;height:9px;border-radius:50%;background:var(--pvw)}
+.pill.err{border-color:var(--pgm);color:var(--pgm)} .pill.err .d{background:var(--pgm)}
+.pill.warn{border-color:var(--wait);color:var(--wait)} .pill.warn .d{background:var(--wait)}
+.pill.rec{background:var(--pgm);border-color:var(--pgm);color:#fff}
+.pill.rec .d{background:#fff;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.user{display:flex;align-items:center;gap:10px;font-size:13px;white-space:nowrap}
+.user .av{width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:13px}
+.user small{display:block;color:var(--muted);font-size:12px}
+.btn{height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.red{background:var(--pgm);border-color:var(--pgm);color:#fff}
+.btn.on{background:var(--pvw);border-color:var(--pvw);color:#fff}
+.btn.warn{background:var(--wait);border-color:var(--wait);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.seg button{height:34px;padding:0 12px;border:0;background:transparent;font-weight:600;font-size:13px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.sel{background:var(--ink);color:var(--bg)}
+.banner{display:none;align-items:center;gap:12px;margin:12px 20px 0;padding:10px 14px;border-radius:10px;background:var(--wait-soft);border:1px solid var(--wait);font-weight:600}
+.banner.on{display:flex}
+main{padding:16px 20px 20px;min-width:0}
+.view{display:none}.view.on{display:block}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.tag{font-family:var(--f-mono);font-size:11px;padding:2px 6px;border-radius:5px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line-2)}
+/* overview */
+.ov{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px}
+.ov .c{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (min-width:1300px) and (min-height:860px){.ov{height:calc(100vh - 64px - 36px)}.ov .c{min-height:0}.grow-panel{flex:1;min-height:0}}
+.mv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:8px;overflow:hidden;background:var(--cam-bg2);border:3px solid transparent;cursor:pointer;padding:0}
+.tile svg{position:absolute;inset:0;width:100%;height:100%}
+.tile .cap{position:absolute;left:6px;bottom:6px;display:flex;align-items:center;gap:6px;background:rgba(10,14,19,.72);color:#fff;border-radius:6px;padding:3px 8px 3px 6px;font-size:12px;font-weight:600}
+.tile .cap i{width:10px;height:10px;border-radius:50%;background:var(--pc,var(--bleed))}
+.tile .st{position:absolute;right:6px;top:6px;font-size:11px;font-weight:800;letter-spacing:.08em;padding:2px 7px;border-radius:4px;color:#fff;display:none}
+.tile.pgm{border-color:var(--pgm)} .tile.pgm .st{display:block;background:var(--pgm)}
+.tile.pvw{border-color:var(--pvw)} .tile.pvw .st{display:block;background:var(--pvw)}
+.tile.off{opacity:.38}
+.tile .x{position:absolute;inset:0;display:none;place-items:center;color:#fff;font-weight:700;background:rgba(10,14,19,.6)}
+.tile.dead .x{display:grid}
+.mvnote{font-size:12px}
+.pgmcard{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center}
+.onair{display:inline-flex;align-items:center;gap:6px;background:var(--pgm);color:#fff;font-weight:800;letter-spacing:.1em;font-size:11px;padding:3px 8px;border-radius:5px}
+.shot{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.1;display:flex;align-items:center;gap:10px;margin:2px 0}
+.shot i{width:16px;height:16px;border-radius:50%;background:var(--pc,var(--bleed));flex:none}
+.age{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.age i{display:block;height:100%;background:var(--pgm);width:0}
+.age.ok i{background:var(--pvw)}
+.line{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;padding:8px 10px;border-radius:8px;font-size:13px}
+.line b{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.line.pv{background:var(--pvw-soft)} .line.pv b{color:var(--pvw)}
+.line.nx{background:var(--wait-soft)} .line.nx b{color:var(--wait)}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.ctrls .btn{height:44px;font-size:14px;flex:1}
+.mics{display:flex;flex-direction:column;gap:6px}
+.mic{display:grid;grid-template-columns:28px minmax(0,130px) minmax(0,1fr) 92px;gap:10px;align-items:center;padding:7px 10px 7px 8px;border-radius:9px;border:1px solid var(--line-2);border-left:5px solid var(--pc)}
+.seat{width:26px;height:26px;border-radius:50%;background:var(--pc);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.mic.lead .seat{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--pc)}
+.mic .nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mic .nm small{display:block;font-weight:400;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.meter{position:relative;height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--pc);border-radius:5px;width:0;transition:width .08s}
+.meter .th{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.4;left:60%}
+.state{text-align:center;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 4px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+.state.talk{background:var(--pvw-soft);color:var(--pvw)} .state.conf{background:var(--wait-soft);color:var(--wait)}
+.state.bleed{text-decoration:line-through} .state.err{background:var(--pgm-soft);color:var(--pgm)}
+.mic.onpgm{background:color-mix(in srgb,var(--pgm) 7%,var(--surface))}
+.log{list-style:none;margin:0;padding:0;overflow:auto;min-height:0;flex:1}
+.log li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:1px 10px;padding:7px 0;border-top:1px solid var(--line-2);font-size:13px}
+.log li:first-child{border-top:0}
+.log .t{font-family:var(--f-mono);font-size:11px;color:var(--muted);padding-top:2px}
+.log .to{font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.log .to i{width:9px;height:9px;border-radius:50%;background:var(--pc,var(--bleed))}
+.log .why{grid-column:2;color:var(--muted);font-size:12px}
+.tl{position:relative;min-height:0;flex:1;display:flex;flex-direction:column;gap:8px}
+.tl canvas{width:100%;height:100%;min-height:150px;display:block}
+.tx{display:flex;flex-direction:column;gap:4px;font-size:13px;min-height:66px}
+.tx div{display:grid;grid-template-columns:52px 96px minmax(0,1fr);gap:8px;align-items:baseline}
+.tx .w{font-weight:700;display:flex;align-items:center;gap:6px}
+.tx .w i{width:8px;height:8px;border-radius:50%;background:var(--pc)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+/* generic pages */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.feat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line-2)}
+.feat:first-of-type{border-top:0}
+.feat .fd{font-size:12px;color:var(--muted);grid-column:1}
+.sw{grid-row:1/3;grid-column:2;position:relative;width:42px;height:24px;border-radius:12px;border:0;background:var(--line);cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.sw[aria-checked="true"]{background:var(--pvw)} .sw[aria-checked="true"]::after{left:21px}
+.slider{display:grid;grid-template-columns:34px minmax(0,1fr) 70px;gap:4px 10px;align-items:center}
+.slider input{grid-column:2/4;width:100%;accent-color:var(--eye)}
+.slider output{text-align:right;font-family:var(--f-mono);font-size:12px}
+.camcard .pic{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:8px;overflow:hidden;background:var(--cam-bg2)}
+.camcard .pic svg{position:absolute;inset:0;width:100%;height:100%}
+.kv{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}.bar i{display:block;height:100%;background:var(--eye)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.scroll{overflow-x:auto}
+.hst{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px}
+.hst i{width:10px;height:10px;border-radius:50%;background:var(--pvw)}
+.hst.warn{color:var(--wait)} .hst.warn i{background:var(--wait)}
+.hst.err{color:var(--pgm)} .hst.err i{background:var(--pgm)}
+.hst.todo{color:var(--muted)} .hst.todo i{background:transparent;border:2px solid var(--faint)}
+.wiz{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}
+.steps{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:2px}
+.steps button{width:100%;display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:10px;border-radius:9px;border:0;background:transparent;cursor:pointer}
+.steps button:hover{background:var(--surface-2)}
+.steps button.sel{background:var(--eye-soft)}
+.steps .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;background:var(--surface-2);border:1px solid var(--line)}
+.steps .ok .n{background:var(--pvw);border-color:var(--pvw);color:#fff}
+.steps .warn .n{background:var(--wait);border-color:var(--wait);color:#fff}
+.steps small{display:block;color:var(--muted);font-size:12px}
+ol.how{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.cmp td:nth-child(3){font-weight:700}
+.cmp tr.bad td:nth-child(3){color:var(--wait)}
+.colors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.colors div{border-radius:10px;border:1px solid var(--line);padding:10px;display:flex;align-items:center;gap:10px}
+@media (max-width:900px){.ov{grid-template-columns:minmax(0,1fr)}.wiz{grid-template-columns:minmax(0,1fr)}.top .room,.user small{display:none}}
+@media (max-width:640px){.top{height:auto;flex-wrap:wrap;padding-block:10px}.top .grow,.user{display:none}.pgmcard{grid-template-columns:minmax(0,1fr)}.shot{font-size:24px}.ctrls .btn{flex:1 1 40%}.kv{grid-template-columns:96px minmax(0,1fr)}.app{grid-template-columns:minmax(0,1fr)}.rail{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;flex-direction:row;overflow-x:auto;z-index:6;padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px))}.rail .logo,.rail .grow{display:none}main{padding-bottom:96px}.top{gap:8px;padding:0 max(12px,env(safe-area-inset-left,0px))}.top h1{font-size:18px}.mv{grid-template-columns:repeat(2,minmax(0,1fr))}.mic{grid-template-columns:28px minmax(0,1fr) 80px}.mic .meter{grid-column:1/-1}.colors{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Meny"></nav>
+  <div class="col">
+    <header class="top">
+      <h1 id="vtitle">Oversikt</h1><span class="room">Podkaststudio · Multimediesenteret</span>
+      <span class="grow"></span>
+      <div class="user" id="user"></div>
+      <span id="recpill"></span>
+      <span id="recbtn"></span>
+      <button class="pill" id="healthpill"></button>
+    </header>
+    <div class="banner" id="helpBanner"><span>⚑</span><span id="helpTxt"></span><span style="flex:1"></span><button class="btn" id="helpOk">Kvitter</button></div>
+    <main>
+      <!-- OVERVIEW -->
+      <section class="view on" id="v-oversikt">
+        <div class="ov">
+          <div class="c">
+            <div class="panel"><div class="ph"><span class="lbl">Multiview · klikk for å klippe manuelt</span><span class="muted mvnote" id="mvnote"></span></div><div class="mv" id="mv"></div></div>
+            <div class="panel grow-panel"><div class="ph"><span class="lbl">Siste 60 sekunder</span><span class="legend" id="tlLegend"></span></div>
+              <div class="tl"><canvas id="tl" width="1600" height="300" aria-label="Tidslinje: hvem snakker og hva som var på lufta"></canvas></div>
+              <div class="tx" id="tx"></div></div>
+          </div>
+          <div class="c">
+            <div class="panel">
+              <div class="pgmcard">
+                <div><div class="row"><span class="onair">PÅ LUFTA</span><span class="tag" id="mode">N2</span><span class="tag" id="ageTxt">0,0 s</span></div>
+                  <div class="shot" id="shot"><i></i><span></span></div></div>
+                <div class="seg" id="presets"><button data-p="rolig">Rolig</button><button data-p="standard">Standard</button><button data-p="energisk">Energisk</button></div>
+              </div>
+              <div class="age" id="age"><i></i></div>
+              <div class="line pv"><b>Preview</b><span id="pvw">–</span></div>
+              <div class="line nx"><b>Neste</b><span id="next">–</span></div>
+              <div class="ctrls"><button class="btn" id="auto"></button><button class="btn" id="lock"></button><button class="btn" id="birdNow">Bird nå</button></div>
+            </div>
+            <div class="panel"><div class="ph"><span class="lbl">Mikrofoner · RØDECaster USB 1</span><span class="muted" style="font-size:12px">fader = mic = kamera</span></div><div class="mics" id="mics"></div></div>
+            <div class="panel grow-panel"><div class="ph"><span class="lbl">Beslutninger · nyeste øverst</span><button class="btn" data-go="logg">Hele loggen</button></div><ul class="log" id="log"></ul></div>
+          </div>
+        </div>
+      </section>
+      <!-- REGI -->
+      <section class="view" id="v-regi"><div class="grid2">
+        <div class="panel"><div class="ph"><span class="lbl">Tuning</span><div class="seg" id="presets2"><button data-p="rolig">Rolig</button><button data-p="standard">Standard</button><button data-p="energisk">Energisk</button></div></div>
+          <p class="muted" style="margin:0">Forhåndsvalg gjelder umiddelbart. Finjustering lagres i show-oppsettet og vises i loggen.</p><div id="sliders" style="display:flex;flex-direction:column;gap:12px"></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Brytere · grunnmodus først</span></div><div id="feats"></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Laptop og content</span></div>
+          <div class="feat"><span><b>Laptop tilkoblet</b></span><span class="fd">Inngang 6, lest fra multiview</span><button class="sw" id="laptopSw" role="switch" aria-label="Laptop tilkoblet"></button></div>
+          <div class="row"><button class="btn" id="slideBtn">Test: ny slide</button><span class="muted" id="contentState"></span></div></div>
+      </div></section>
+      <!-- KAMERAER -->
+      <section class="view" id="v-kameraer"><p class="muted" style="margin:0 0 12px">Presets og utsnitt kan bare endres på kamera som ikke er på program eller preview (I2).</p><div class="grid3" id="cams"></div></section>
+      <!-- OPPTAK -->
+      <section class="view" id="v-opptak"><div class="grid2">
+        <div class="panel"><div class="ph"><span class="lbl">Epiphan Pearl Nexus</span><span id="pearlSt"></span></div>
+          <div class="kv"><span>Opptaker</span><span>Podkast · kanal 1 (ATEM program)</span><span>Inngang</span><span>HDMI 1 · 1080p50 · signal</span><span>Lagring</span><span><span class="tnum" id="pearlGb"></span><div class="bar" style="margin-top:6px"><i id="pearlBar"></i></div></span><span>Publisering</span><span>Panopto, brukerens egen konto (ad-hoc)</span></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">ATEM ISO-opptak</span><span id="isoSt"></span></div>
+          <div class="kv"><span>Disk</span><span class="tnum" id="isoGb"></span><span>Kilder</span><span>Program + CAM 1–5 + laptop</span><span>Brukes til</span><span>Etterarbeid og tuning av regler</span></div></div>
+        <div class="panel" style="grid-column:1/-1"><div class="ph"><span class="lbl">Opptak i dag</span></div><div class="scroll"><table><thead><tr><th>Start</th><th>Bruker</th><th>Lengde</th><th>Type</th><th>Personer</th><th>Panopto</th></tr></thead><tbody id="sessions"></tbody></table></div></div>
+      </div></section>
+      <!-- HELSE -->
+      <section class="view" id="v-helse"><div class="grid2">
+        <div class="panel" style="grid-column:1/-1"><div class="ph"><span class="lbl">Status per sjekk</span><span class="muted" style="font-size:12px">Grønt i 30 s før et varsel regnes som løst · <span class="mono">GET /api/health</span></span></div><div class="scroll"><table><thead><tr><th>Sjekk</th><th>Område</th><th>Status</th><th>Siste verdi</th></tr></thead><tbody id="health"></tbody></table></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Simuler feil (bare i konseptet)</span></div><div id="faults"></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Morgensjekk</span><span class="hst"><i></i>Bestått 07:00</span></div><p class="muted" style="margin:0">Alle sjekker kjøres ved oppstart og hver morgen kl. 07:00. Resultatet vises som en prikk på hvileskjermen til brukerne.</p></div>
+      </div></section>
+      <!-- OPPSETT -->
+      <section class="view" id="v-oppsett"><div class="wiz">
+        <div class="panel" style="padding:6px"><ul class="steps" id="steps"></ul></div>
+        <div class="panel" id="stepDetail"></div>
+      </div></section>
+      <!-- LOGG -->
+      <section class="view" id="v-logg"><div class="panel"><div class="ph"><div class="seg" id="logFilter"><button data-f="all" class="sel">Alle</button><button data-f="cut">Kutt</button><button data-f="set">Innstillinger</button><button data-f="err">Feil</button></div><span class="muted" style="font-size:12px">Eksporter loggpakke (logg, konfig, versjon, helse) kommer i appen</span></div>
+        <div class="scroll"><table><thead><tr><th>Tid</th><th>Til</th><th>Regel</th><th>Hvorfor</th></tr></thead><tbody id="fullLog"></tbody></table></div></div></section>
+      <!-- INNSTILLINGER -->
+      <section class="view" id="v-innstillinger"><div class="grid2">
+        <div class="panel"><div class="ph"><span class="lbl">Tema</span></div><div class="seg" id="themeSeg"><button data-t="system">System</button><button data-t="light">Lyst</button><button data-t="dark">Mørkt</button></div><p class="muted" style="margin:0">Touch-skjermen i studio har eget valg og starter i mørkt tema, så den ikke lyser opp rommet.</p></div>
+        <div class="panel"><div class="ph"><span class="lbl">Deltakerfarger</span><span class="muted" style="font-size:12px">Samme på RØDECaster og mikrofonflagg</span></div><div class="colors" id="colors"></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Om</span></div><div class="kv"><span>Versjon</span><span>Konsept 0.0 · simulerte data</span><span>Studio</span><span>site/ntnu-studio</span><span>Språk</span><span>Norsk (bokmål)</span></div></div>
+      </div></section>
+    </main>
+  </div>
+</div>
+<script src="assets/sim.js"></script>
+<script src="assets/views.js"></script>
+<script>
+(()=>{
+const {Sim,PEOPLE,PRESETS,FEATURES,HEALTH,WIZARD,FAULTS,clock,fmt1}=window.CutCut, V=window.CutCutViews;
+const $=id=>document.getElementById(id);
+let theme=V.initTheme('tech',null);
+const sim=new Sim();let S=null,H=[];
+const NAV=[['oversikt','Oversikt','grid'],['regi','Regi','sliders'],['kameraer','Kameraer','cam'],['opptak','Opptak','rec'],['helse','Helse','pulse'],['oppsett','Oppsett','wand'],['logg','Logg','list'],['innstillinger','Innstill.','gear']];
+const TITLES={oversikt:'Oversikt',regi:'Regi og brytere',kameraer:'Kameraer',opptak:'Opptak',helse:'Helse',oppsett:'Oppsett-veiviser',logg:'Beslutningslogg',innstillinger:'Innstillinger'};
+$('rail').innerHTML=V.LOGO+NAV.map(([k,l,i])=>`<button class="nav" data-v="${k}" aria-label="${TITLES[k]}">${V.ICON[i]}<span>${l}</span>${k==='helse'?'<span class="badge" id="hbadge" hidden></span>':''}</button>`).join('')+'<span class="grow"></span><button class="nav" id="themeBtn" aria-label="Bytt tema"></button>';
+let view='oversikt';
+function go(v){view=v;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));document.querySelectorAll('.nav[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('vtitle').textContent=TITLES[v];try{history.replaceState(null,'','#'+v)}catch(e){}renderAll(true)}
+document.querySelectorAll('.nav[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+const setThemeBtn=()=>{$('themeBtn').innerHTML=(V.isDark()?V.ICON.sun:V.ICON.moon)+'<span>Tema</span>';document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('sel',b.dataset.t===(theme||'system')))};
+$('themeBtn').onclick=()=>{theme=V.toggleTheme('tech');setThemeBtn();colorsCache=null;lastTiles={}};
+document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>{theme=b.dataset.t;window.CutCut.theme.set('tech',theme);if(theme==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',theme);setThemeBtn();colorsCache=null;lastTiles={}});
+setThemeBtn();
+
+// static builds
+const TILES=[{k:'P1',cam:'CAM 1'},{k:'P2',cam:'CAM 2'},{k:'P3',cam:'CAM 3'},{k:'P4',cam:'CAM 4'},{k:'BIRD',cam:'CAM 5'},{k:'CONTENT',cam:'IN 6'}];
+const tileEls={};
+TILES.forEach(t=>{const b=document.createElement('button');b.className='tile';const p=t.k[0]==='P'?PEOPLE[+t.k[1]-1]:null;if(p)b.style.setProperty('--pc',`var(${p.color})`);
+  b.innerHTML=`<span class="pic"></span><span class="st"></span><span class="cap"><i></i>${t.cam} · ${p?(p.id==='P1'?'Programleder':p.name):t.k==='BIRD'?'Fugleperspektiv':'Laptop'}</span><span class="x">Svarer ikke</span>`;
+  b.onclick=()=>{if(S&&!b.classList.contains('off'))sim.cmd('cut',t.k)};$('mv').appendChild(b);tileEls[t.k]=b});
+const micEls=PEOPLE.map((p,i)=>{const d=document.createElement('div');d.className='mic '+p.id.toLowerCase()+(i===0?' lead':'');
+  d.innerHTML=`<span class="seat">${i+1}</span><span class="nm">${i===0?'Programleder':p.name}<small>fader ${i+1} · kanal ${2*i+3}</small></span><span class="meter"><i></i><span class="th"></span></span><span class="state">stille</span>`;$('mics').appendChild(d);return d});
+$('auto').onclick=()=>sim.cmd('auto',!S.auto);$('lock').onclick=()=>sim.cmd('lock',!S.lock);$('birdNow').onclick=()=>sim.cmd('cut','BIRD');
+['presets','presets2'].forEach(id=>document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>sim.cmd('preset',b.dataset.p)));
+$('helpOk').onclick=()=>sim.cmd('help-ok');
+$('healthpill').onclick=()=>go('helse');
+$('tlLegend').innerHTML=`<span><i style="background:linear-gradient(90deg,var(--p1) 25%,var(--p2) 25% 50%,var(--p3) 50% 75%,var(--p4) 75%)"></i>tale og nærbilde</span><span><i style="background:var(--bleed)"></i>lekkasje</span><span><i style="background:var(--wait)"></i>total</span><span><i style="background:var(--eye)"></i>laptop</span>`;
+// regi
+const SL=[['confirm','T2','Bekreftelse før kutt',200,2000,50,v=>v+' ms'],['minShot','T3','Minste bildelengde',1,8,.1,v=>fmt1(+v)+' s'],['dom','T1','Dominans over andre mic-er',2,15,1,v=>v+' dB'],['cross','T5','Krysstale før total',.4,3,.1,v=>fmt1(+v)+' s'],['silence','T8','Stillhet før total',1,8,.5,v=>fmt1(+v)+' s'],['monolog','T7','Reaksjonsbilde etter',5,40,1,v=>v+' s']];
+$('sliders').innerHTML=SL.map(([k,id,l,mi,ma,st])=>`<div class="slider"><span class="tag">${id}</span><label for="sl-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="sl-${k}" min="${mi}" max="${ma}" step="${st}"></div>`).join('');
+SL.forEach(([k,,,,,,f])=>{$('sl-'+k).oninput=e=>{$('o-'+k).textContent=f(e.target.value)}});
+function syncSliders(){const R=PRESETS[S.preset];SL.forEach(([k,,,,,,f])=>{$('sl-'+k).value=R[k];$('o-'+k).textContent=f(R[k])})}
+$('feats').innerHTML=FEATURES.map(f=>`<div class="feat"><span><b>${f.name}</b> <span class="tag">${f.ids}</span>${f.base?' <span class="tag">grunnmodus</span>':''}</span><span class="fd">${f.d}</span><button class="sw" role="switch" data-k="${f.k}" aria-label="${f.name}"></button></div>`).join('');
+document.querySelectorAll('#feats .sw').forEach(b=>b.onclick=()=>sim.cmd('feature',{k:b.dataset.k,on:!S.features[b.dataset.k]}));
+$('laptopSw').onclick=()=>sim.cmd('laptop',!S.laptop);$('slideBtn').onclick=()=>sim.cmd('slide');
+// cameras
+const CAMS=[{k:'P1',cam:'CAM 1',model:'Canon CR-N300',proto:'XC over HTTP',ip:'10.10.10.21',ai:false},{k:'P2',cam:'CAM 2',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.22',ai:true},{k:'P3',cam:'CAM 3',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.23',ai:true},{k:'P4',cam:'CAM 4',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.24',ai:true},{k:'BIRD',cam:'CAM 5',model:'Fast kamera',proto:'Ingen styring',ip:'–',ai:false}];
+$('cams').innerHTML=CAMS.map(c=>{const p=c.k[0]==='P'?PEOPLE[+c.k[1]-1]:null;return `<div class="panel camcard" id="cc-${c.k}" ${p?`style="--pc:var(${p.color})"`:''}><div class="ph"><span style="font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px">${p?`<span class="seat" style="width:22px;height:22px;font-size:12px">${p.id[1]}</span>`:''}${c.cam} · ${p?(p.id==='P1'?'Programleder':p.name):'Fugleperspektiv'}</span><span class="hst" data-st></span></div>
+  <div class="pic" data-pic></div><div class="kv"><span>Modell</span><span>${c.model}</span><span>Styring</span><span>${c.proto}</span><span>IP</span><span class="mono">${c.ip}</span><span>Hvitbalanse</span><span>${c.ip==='–'?'Fast':'Manuell · 4300 K'}</span></div>
+  ${c.ip!=='–'?`<div class="row"><button class="btn" data-preset>Tett</button><button class="btn" data-preset>Halv</button><button class="btn" data-preset>Vid</button></div>`:''}
+  ${c.ai?`<div class="feat" style="padding-bottom:0"><span><b>AI-tracking</b> <span class="tag">OSC SetAiEnable</span></span><span class="fd">Av som standard. Kameraet følger personen.</span><button class="sw" role="switch" aria-checked="false" data-ai aria-label="AI-tracking ${c.cam}"></button></div>`:''}</div>`}).join('');
+document.querySelectorAll('[data-ai]').forEach(b=>b.onclick=()=>b.setAttribute('aria-checked',b.getAttribute('aria-checked')!=='true'));
+// faults
+$('faults').innerHTML=Object.entries(FAULTS).map(([k,f])=>`<div class="feat"><span><b>${f.label}</b></span><span class="fd">${f.health} · ${f.sev==='err'?'rødt':'gult'}${f.touch?' · vises på touch':''}</span><button class="sw" role="switch" data-f="${k}" aria-label="${f.label}"></button></div>`).join('');
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>sim.cmd('fault',{k:b.dataset.f,on:!S.faults[b.dataset.f]}));
+// wizard
+const HOW={
+ 4:{why:'Kameraene må stå i manuell hvitbalanse og eksponering, ellers endrer bildet seg midt i en sending.',how:['Åpne kameraets nettside eller bruk «Fiks for meg».','Sett hvitbalanse til <b>manuell, 4300 K</b> og eksponering til <b>manuell</b>.','Slå på <b>VISCA over IP</b> (OBSBOT) eller <b>XC-protokoll</b> (Canon).','Kjør kalibrering: still inn grenser for pan, tilt og zoom, og lagre presets Tett, Halv og Vid.'],
+   cmp:[['CAM 1 hvitbalanse','Manuell 4300 K','Manuell 4300 K'],['CAM 2 eksponering','Manuell','Manuell'],['CAM 3 AI-tracking','Av','Av'],['CAM 4 hvitbalanse','Manuell 4300 K','Auto',1]]},
+ 5:{why:'CutCut leser hver mic som eget spor. Kanalene følger faderne, så faderkartet må være fast.',how:['Oppdater RØDECaster til firmware <b>1.7.6</b> (ikke beta).','Sett fader 1 = programleder, 2–4 = gjest 1–3, 5 = laptop (USB 2).','Settings → Outputs → Multitrack → USB 1: <b>Pre-Fader</b>.','Sett kanalfarger: magenta, cyan, lilla, oransje.','Trykk Sjekk: hver person sier noen ord i sin mikrofon.'],
+   cmp:[['Firmware','1.7.6','1.7.6'],['USB 1 multitrack','Pre-fader','Pre-fader'],['Mic 1 → kanal','3','3'],['Mic 2 → kanal','5','5'],['Lekkasje mic 1 → 2','under −18 dB','−24 dB']]}};
+let stepSel=5;
+function renderSteps(){
+  $('steps').innerHTML=WIZARD.map(w=>`<li class="${w.state}"><button data-n="${w.n}" class="${w.n===stepSel?'sel':''}"><span class="n">${w.state==='ok'?'✓':w.n}</span><span><b>${w.name}</b><small>${w.what}</small></span><span class="hst ${w.state==='ok'?'':w.state}" title="${w.state}"><i></i></span></button></li>`).join('');
+  document.querySelectorAll('#steps button').forEach(b=>b.onclick=()=>{stepSel=+b.dataset.n;renderSteps()});
+  const w=WIZARD[stepSel-1],h=HOW[stepSel]||{why:w.what+'.',how:['Følg stegene i steg-filen site/ntnu-studio/setup/'+String(w.n).padStart(2,'0')+'.yaml.','Trykk Sjekk for å lese verdiene tilbake fra utstyret.'],cmp:[['Status','Lik fasit',w.state==='todo'?'Ikke sjekket':'Lik fasit']]};
+  const rec=S&&S.session.phase==='rec';
+  $('stepDetail').innerHTML=`<div class="ph"><span style="font-family:var(--f-display);font-size:22px;font-weight:700">Steg ${w.n} · ${w.name}</span><span class="hst ${w.state==='ok'?'':w.state}"><i></i>${w.state==='ok'?'Godkjent':w.state==='warn'?'Avvik fra fasit':'Ikke gjort'}</span></div>
+  <div><span class="lbl">Hva og hvorfor</span><p style="margin:6px 0 0">${h.why}</p></div>
+  <div><span class="lbl">Slik gjør du</span><ol class="how" style="margin-top:8px">${h.how.map(x=>`<li>${x}</li>`).join('')}</ol></div>
+  <div><span class="lbl">Sjekk · forventet og faktisk</span><div class="scroll"><table class="cmp" style="margin-top:6px"><thead><tr><th>Innstilling</th><th>Fasit</th><th>Faktisk</th></tr></thead><tbody>${h.cmp.map(r=>`<tr class="${r[3]?'bad':''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="row">${w.fix?`<button class="btn" ${rec?'disabled title="Sperret under opptak"':''}>Fiks for meg</button>`:''}<button class="btn">Sjekk</button><button class="btn primary">Godkjenn som fasit</button>${rec?'<span class="muted" style="font-size:12px">«Fiks for meg» er sperret mens opptak pågår.</span>':''}</div>`;
+}
+renderSteps();
+// log filter
+let logF='all';document.querySelectorAll('#logFilter button').forEach(b=>b.onclick=()=>{logF=b.dataset.f;document.querySelectorAll('#logFilter button').forEach(x=>x.classList.toggle('sel',x===b));renderAll(true)});
+$('colors').innerHTML=PEOPLE.map((p,i)=>`<div style="--pc:var(${p.color})"><span class="seat">${i+1}</span><span><b>${i===0?'Programleder':p.name}</b><br><span class="muted">${p.colorName}</span></span></div>`).join('');
+
+// helpers
+let colorsCache=null;
+function cols(){if(colorsCache)return colorsCache;const cs=getComputedStyle(document.documentElement),c=k=>cs.getPropertyValue(k).trim();colorsCache={p:PEOPLE.map(p=>c(p.color)),bleed:c('--bleed'),wait:c('--wait'),eye:c('--eye'),grid:c('--line-2'),muted:c('--muted'),ink:c('--ink'),pgm:c('--pgm'),track:c('--surface-2'),font:c('--f-ui')};return colorsCache}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{colorsCache=null;lastTiles={};setThemeBtn()});
+const shotName=k=>{if(!k)return '–';if(k==='BIRD')return 'CAM 5 · Fugleperspektiv';if(k==='CONTENT')return 'IN 6 · Laptop';if(k==='AUDIO')return 'MP 1 · Kun lyd-grafikk';const p=PEOPLE[+k[1]-1];return `CAM ${k[1]} · ${p.id==='P1'?'Programleder':p.name}`};
+const pcOf=k=>k&&k[0]==='P'?`var(${PEOPLE[+k[1]-1].color})`:k==='BIRD'?'var(--wait)':k==='CONTENT'?'var(--eye)':'var(--bleed)';
+const healthOf=s=>{const st={};HEALTH.forEach(h=>st[h.id]='ok');Object.keys(s.faults).forEach(k=>st[FAULTS[k].health]=FAULTS[k].sev);return st};
+let lastTiles={},lastLogKey='',lastView='';
+
+function drawTL(s){
+  const cv=$('tl'),r=cv.getBoundingClientRect();if(r.width<10)return;
+  const dpr=Math.min(2,devicePixelRatio||1);const W=Math.round(r.width*dpr),Hh=Math.round(r.height*dpr);if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh}
+  const ctx=cv.getContext('2d'),C=cols(),n=s.session.n;ctx.setTransform(dpr,0,0,dpr,0,0);const w=r.width,h=r.height;ctx.clearRect(0,0,w,h);
+  const left=96,rows=n+1,gap=6,axis=18,rh=Math.max(14,(h-axis-gap*(rows-1))/rows);
+  ctx.font=`600 12px ${C.font}`;ctx.textBaseline='middle';
+  for(let r2=0;r2<rows;r2++){const y=r2*(rh+gap);ctx.fillStyle=C.track;ctx.fillRect(left,y,w-left,rh);
+    if(r2<n){ctx.fillStyle=C.p[r2];ctx.fillRect(0,y+3,4,rh-6);ctx.fillText(r2===0?'Programleder':PEOPLE[r2].name,10,y+rh/2)}else{ctx.fillStyle=C.ink;ctx.fillText('Program',10,y+rh/2)}}
+  const N=600,sw=(w-left)/N,off=N-H.length,py=(rows-1)*(rh+gap);
+  for(let k=0;k<H.length;k++){const x=left+(off+k)*sw,sm=H[k];
+    for(let i=0;i<n;i++){const v=sm.m[i];if(!v)continue;ctx.fillStyle=v===2?C.p[i]:C.bleed;const y=i*(rh+gap);ctx.fillRect(x,v===2?y:y+rh*.62,Math.ceil(sw)+.5,v===2?rh:rh*.38)}
+    const p=sm.p;ctx.fillStyle=p&&p[0]==='P'?C.p[+p[1]-1]:p==='CONTENT'?C.eye:p==='AUDIO'?C.bleed:C.wait;ctx.fillRect(x,py,Math.ceil(sw)+.5,rh);
+    if(k>0&&H[k-1].p!==p){ctx.fillStyle=C.ink;ctx.fillRect(x-1,0,2,py+rh)}}
+  ctx.fillStyle=C.muted;ctx.font=`500 11px ${C.font}`;ctx.textBaseline='alphabetic';
+  [60,45,30,15,0].forEach(sec=>{const x=left+(w-left)*(1-sec/60);ctx.textAlign=sec===0?'right':sec===60?'left':'center';ctx.fillText(sec?`−${sec} s`:'nå',x,h-3)});ctx.textAlign='left';
+}
+
+function renderAll(force){
+  const s=S;if(!s)return;const se=s.session,ph=se.phase,rec=ph==='rec';
+  // top bar
+  $('user').innerHTML=se.user?`<span class="av">${se.user.first[0]}</span><span>${se.user.name}<small>${se.n} ${se.n===1?'person':'personer'} · ${se.mode==='audio'?'kun lyd':'video'} · ${{idle:'',ready:'velger oppsett',countdown:'starter',rec:'tar opp',done:'ferdig'}[ph]}</small></span>`:'<span class="muted">Ingen innlogget</span>';
+  $('recpill').innerHTML=rec?`<span class="pill rec"><span class="d"></span>OPPTAK <span class="tnum">${clock(s.t-se.recStart)}</span> · Pearl${s.rec.iso?' + ISO':''}</span>`:`<span class="pill"><span class="d" style="background:var(--faint)"></span>Ikke opptak</span>`;
+  const rb=$('recbtn');const want=rec?'stop':'start';if(rb.dataset.m!==want){rb.dataset.m=want;rb.innerHTML=rec?'<button class="btn" id="stopRec">Stopp opptak</button>':'<button class="btn red" id="startRec">Start opptak</button>';
+    if(rec)$('stopRec').onclick=()=>{const b=$('stopRec');if(b.dataset.c){sim.cmd('stop','tekniker')}else{b.dataset.c=1;b.textContent='Bekreft stopp';b.classList.add('red');setTimeout(()=>{if(b.isConnected){delete b.dataset.c;b.textContent='Stopp opptak';b.classList.remove('red')}},3000)}};else $('startRec').onclick=()=>sim.cmd('tech-rec')}
+  const hs=healthOf(s),errs=Object.values(hs).filter(v=>v==='err').length,warns=Object.values(hs).filter(v=>v==='warn').length;
+  const hp=$('healthpill');hp.className='pill'+(errs?' err':warns?' warn':'');hp.innerHTML=`<span class="d"></span>${errs?errs+' feil':warns?warns+' advarsel':'Alt OK'}`;
+  const hb=$('hbadge');hb.hidden=!(errs||warns);hb.textContent=errs||warns;hb.className='badge'+(errs?'':' warn');
+  $('helpBanner').classList.toggle('on',!!s.helpAt);if(s.helpAt)$('helpTxt').textContent=`${se.user?se.user.first:'Brukeren'} ba om hjelp fra touch-skjermen for ${Math.round((s.t-s.helpAt)/1000)} s siden.`;
+  if(view==='oversikt'){
+    const n=se.n,audio=se.mode==='audio'&&rec;
+    TILES.forEach(t=>{const el=tileEls[t.k],used=t.k[0]==='P'?+t.k[1]<=n:t.k==='CONTENT'?s.laptop:true;
+      el.classList.toggle('off',!used||audio);el.classList.toggle('pgm',s.pgm===t.k);el.classList.toggle('pvw',s.pvw===t.k&&s.pgm!==t.k);el.classList.toggle('dead',t.k==='P3'&&!!s.faults['cam3-off']);
+      el.querySelector('.st').textContent=s.pgm===t.k?'PGM':'PVW';
+      const key=t.k+(t.k==='BIRD'?n:'')+(t.k==='CONTENT'?s.slide:'')+(t.k[0]==='P'&&s.mics[+t.k[1]-1].state==='snakker'?'t':'')+(document.documentElement.getAttribute('data-theme')||'');
+      if(lastTiles[t.k]!==key){el.querySelector('.pic').innerHTML=V.shot(t.k,s);lastTiles[t.k]=key}});
+    $('mvnote').textContent=audio?'Kun lyd: kameraene brukes ikke':!rec?'Ingen opptak: motoren står på total':s.auto?'AUTO på':'AUTO av';
+    $('mode').textContent=audio?'A':'N'+n+(s.laptop&&s.features.content?'C':'');
+    const sh=$('shot');sh.style.setProperty('--pc',pcOf(s.pgm));sh.querySelector('span').textContent=shotName(s.pgm);
+    const R=PRESETS[s.preset],minShot=R.minShot*1000;$('ageTxt').textContent=fmt1(s.age/1000)+' s';
+    $('age').classList.toggle('ok',s.age>=minShot);$('age').firstElementChild.style.width=Math.min(100,s.age/minShot*100)+'%';
+    $('pvw').textContent=s.pvw?`${shotName(s.pvw)} · ${s.pvState}`:'Ingen kandidat';$('next').textContent=s.next;
+    const a=$('auto');a.className='btn'+(s.auto?' on':'');a.textContent=s.auto?'Auto på':'Auto av';
+    const l=$('lock');l.className='btn'+(s.lock?' warn':'');l.textContent=s.lock?'Låst':'Lås bildet';
+    document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('sel',b.dataset.p===s.preset));
+    micEls.forEach((d,i)=>{const m=s.mics[i],used=i<n;d.hidden=!used;if(!used)return;
+      d.querySelector('.meter i').style.width=Math.max(0,Math.min(100,(m.lvl+60)/60*100))+'%';
+      const st=d.querySelector('.state');st.textContent=m.state;st.className='state'+(m.state==='snakker'?' talk':m.state==='bekrefter'?' conf':m.state==='lekkasje'?' bleed':m.state==='dempet'||m.state==='ingen lyd'?' err':'');
+      d.classList.toggle('onpgm',s.pgm==='P'+(i+1))});
+    const lk=s.log.length+'|'+(s.log[0]?s.log[0].t:'');if(lk!==lastLogKey||force){lastLogKey=lk;
+      $('log').innerHTML=s.log.slice(0,30).map(e=>`<li><span class="t">${clock(e.t)}</span><span class="to" style="--pc:${pcOf(e.to)}">${e.to?`<i></i>→ ${shotName(e.to)}`:'Innstilling'} ${e.rule&&e.rule!=='—'?`<span class="tag">${e.rule==='M'?'manuell':e.rule}</span>`:''}</span><span class="why">${e.why}</span></li>`).join('')}
+    $('tx').innerHTML=s.features.live_transcript?s.tx.slice(0,3).map(x=>`<div style="--pc:var(${PEOPLE[x.who].color})"><span class="mono muted" style="font-size:11px">${clock(x.t)}</span><span class="w"><i></i>${x.who===0?'Programl.':PEOPLE[x.who].name}</span><span>${x.text}</span></div>`).join('')||'<span class="muted">Live tekst vises her når noen snakker (ca. 3 s forsinket).</span>':'<span class="muted">Live tekst er av (bryter under Regi).</span>';
+    drawTL(s);
+  }
+  if(view==='regi'){document.querySelectorAll('#presets2 button').forEach(b=>b.classList.toggle('sel',b.dataset.p===s.preset));document.querySelectorAll('#feats .sw').forEach(b=>b.setAttribute('aria-checked',!!s.features[b.dataset.k]));
+    $('laptopSw').setAttribute('aria-checked',s.laptop);$('contentState').textContent='Content: '+s.content;if(force||lastView!==view||$('sl-confirm').dataset.p!==s.preset){syncSliders();$('sl-confirm').dataset.p=s.preset}}
+  if(view==='kameraer'){CAMS.forEach(c=>{const el=$('cc-'+c.k),used=c.k[0]==='P'?+c.k[1]<=se.n:true,dead=c.k==='P3'&&s.faults['cam3-off'],live=s.pgm===c.k||s.pvw===c.k;
+    const st=el.querySelector('[data-st]');st.className='hst'+(dead?' err':!used?' todo':'');st.innerHTML=`<i></i>${dead?'Svarer ikke':!used?'Ikke i bruk':s.pgm===c.k?'På lufta':s.pvw===c.k?'På preview':'Klar'}`;
+    const pk=c.k+(document.documentElement.getAttribute('data-theme')||'')+se.n;if(el.dataset.k!==pk){el.querySelector('[data-pic]').innerHTML=V.shot(c.k,s);el.dataset.k=pk}
+    el.querySelectorAll('[data-preset]').forEach(b=>{b.disabled=live||dead;b.title=live?'Kamera på program eller preview flyttes aldri (I2)':''})})}
+  if(view==='opptak'){$('pearlSt').innerHTML=`<span class="hst ${s.faults['pearl-full']?'warn':''}"><i></i>${s.rec.pearl?'Tar opp':'Klar'}</span>`;const gb=s.faults['pearl-full']?38:s.rec.pearlFreeGb;$('pearlGb').textContent=`${gb} GB ledig av 1 TB · ca. ${Math.round(gb/14)} timer`;$('pearlBar').style.width=(100-gb/10)+'%';
+    $('isoSt').innerHTML=`<span class="hst"><i></i>${s.rec.iso?'Tar opp':'Klar'}</span>`;$('isoGb').textContent=`${s.rec.isoFreeGb} GB ledig · ca. 9 timer ISO`;
+    $('sessions').innerHTML=s.sessions.map(r=>`<tr><td class="tnum">${r.start}</td><td>${r.user}</td><td class="tnum">${r.dur}</td><td>${r.mode}</td><td>${r.n}</td><td><span class="hst ${r.status==='Lastet opp'?'':'warn'}"><i></i>${r.status}</span></td></tr>`).join('')}
+  if(view==='helse'){$('health').innerHTML=HEALTH.map(h=>{const v=hs[h.id];const f=Object.entries(FAULTS).find(([k,x])=>x.health===h.id&&s.faults[k]);return `<tr><td><span class="tag">${h.id}</span> ${h.name}</td><td>${h.grp}</td><td><span class="hst ${v==='ok'?'':v}"><i></i>${v==='ok'?'OK':v==='warn'?'Advarsel':'Feil'}</span></td><td class="${v==='ok'?'muted':''}">${f?f[1].label:h.val}</td></tr>`}).join('');
+    document.querySelectorAll('[data-f]').forEach(b=>b.setAttribute('aria-checked',!!s.faults[b.dataset.f]))}
+  if(view==='oppsett'&&(force||lastView!==view))renderSteps();
+  if(view==='logg'){const lk2='L'+s.log.length+'|'+(s.log[0]?s.log[0].t:'')+logF;if(lk2!==lastLogKey||force){lastLogKey=lk2;
+    const rows=s.log.filter(e=>logF==='all'||(logF==='cut'&&e.to)||(logF==='set'&&!e.to&&!(e.rule||'').startsWith('S'))||(logF==='err'&&(e.rule||'').startsWith('S')));
+    $('fullLog').innerHTML=rows.map(e=>`<tr><td class="mono">${clock(e.t)}</td><td style="--pc:${pcOf(e.to)}">${e.to?`<span class="hst" style="color:var(--ink)"><i style="background:var(--pc)"></i>${shotName(e.to)}</span>`:'–'}</td><td>${e.rule&&e.rule!=='—'?`<span class="tag">${e.rule==='M'?'manuell':e.rule}</span>`:''}</td><td>${e.why}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Ingen hendelser ennå.</td></tr>'}}
+  lastView=view;
+}
+sim.on((s,h)=>{S=s;H=sim.hist;renderAll(false)});
+addEventListener('resize',()=>S&&drawTL(S));
+const h0=(location.hash||'').slice(1);if(TITLES[h0])go(h0);else go('oversikt');
+addEventListener('hashchange',()=>{const h=(location.hash||'').slice(1);if(TITLES[h]&&h!==view)go(h)});
+})();
+</script>
+</body>
+</html>

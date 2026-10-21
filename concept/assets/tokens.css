@@ -1,0 +1,46 @@
+/* CutCut Studio – design tokens (concept).
+   Layout concept: broadcast control room. Status colours carry meaning (spec 12.5);
+   participant colours only mark who (docs/design/farger.md). System fonts only, so the
+   Windows app needs nothing from the network: Segoe UI Variable + Cascadia Mono. */
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --surface-2:#F5F7FA; --line:#D5DBE3; --line-2:#E4E8EE;
+  --ink:#111821; --muted:#59636F; --faint:#8A939E;
+  --pgm:#D7262E; --pgm-soft:#FBE4E5; --pvw:#1F8A4C; --pvw-soft:#DDF1E5;
+  --wait:#B67600; --wait-soft:#FBEFD6; --eye:#2F6FD6; --eye-soft:#E2EBFB; --bleed:#8A93A0;
+  --p1:#D12E8A; --p2:#0A93B5; --p3:#6F4BD8; --p4:#E0640F;
+  --cam-bg1:#2A323C; --cam-bg2:#141A21; --cam-skin:#5B6573; --cam-table:#3A4552;
+  --shadow:0 1px 2px rgba(17,24,33,.06),0 4px 16px rgba(17,24,33,.06);
+  --f-ui:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --f-display:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:"Cascadia Mono","Cascadia Code",Consolas,ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B0F14; --surface:#131920; --surface-2:#19212A; --line:#26313C; --line-2:#1E2731;
+  --ink:#E6EBF0; --muted:#97A3B0; --faint:#66727F;
+  --pgm:#FF4D55; --pgm-soft:#3A1A1D; --pvw:#3CCF7D; --pvw-soft:#14301F;
+  --wait:#F0B03C; --wait-soft:#372B13; --eye:#7EA6FF; --eye-soft:#1A2844; --bleed:#6B7480;
+  --p1:#FF5CB8; --p2:#3FCFEA; --p3:#A68BFF; --p4:#FF9442;
+  --cam-bg1:#1E252D; --cam-bg2:#0C1015; --cam-skin:#465160; --cam-table:#2A333E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B0F14; --surface:#131920; --surface-2:#19212A; --line:#26313C; --line-2:#1E2731;
+  --ink:#E6EBF0; --muted:#97A3B0; --faint:#66727F;
+  --pgm:#FF4D55; --pgm-soft:#3A1A1D; --pvw:#3CCF7D; --pvw-soft:#14301F;
+  --wait:#F0B03C; --wait-soft:#372B13; --eye:#7EA6FF; --eye-soft:#1A2844; --bleed:#6B7480;
+  --p1:#FF5CB8; --p2:#3FCFEA; --p3:#A68BFF; --p4:#FF9442;
+  --cam-bg1:#1E252D; --cam-bg2:#0C1015; --cam-skin:#465160; --cam-table:#2A333E;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+.mono,.tnum{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono)}
+:focus-visible{outline:2px solid var(--eye);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.p1{--pc:var(--p1)} .p2{--pc:var(--p2)} .p3{--pc:var(--p3)} .p4{--pc:var(--p4)}

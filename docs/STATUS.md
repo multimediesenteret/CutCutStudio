@@ -19,6 +19,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (med Claude)
 - Web-simulator beskrevet (`docs/simulator.md`, ADR-0013).
 - Research på lyd fra RØDECaster (`docs/research/lyd-fra-rodecaster.md`, ADR-0014).
 - RØDECaster standardoppsett og deltakerfarger (D-032–D-035); prototypen oppdatert med fargene.
+- GUI-konsept for touch og tekniker i `concept/`, klart for Vercel (D-036–D-039).
 
 ## Pågår
 
