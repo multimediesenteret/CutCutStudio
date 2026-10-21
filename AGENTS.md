@@ -2,7 +2,7 @@
 
 Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent eller menneske. Alt du trenger for å komme i gang står her eller er lenket herfra. Filen endres bare via pull request godkjent av et menneske.
 
-> **Fase nå: forprosjekt.** Det skrives ingen kode ennå. Repoet samler krav, beslutninger og research til koding starter (se `docs/forprosjekt/README.md`). Første oppgave i seksjon 4 gjelder når forprosjektet er godkjent.
+> **Fase nå: forprosjektet er overlevert, M0 (planer) kan starte.** Ingen produksjonskode før planene er godkjent. Les `docs/forprosjekt/overlevering.md` for startmelding, hva som mangler og hva som blokkerer hva.
 
 **Hovedprinsipp:** prosjektet skal kunne tas over av hvem som helst, når som helst, uten muntlig overlevering. Det som ikke står i repoet, finnes ikke.
 
@@ -18,6 +18,7 @@ CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Wi
 | --- | --- | --- |
 | 1 | `docs/STATUS.md` | Hvor prosjektet står akkurat nå, og neste steg |
 | 2 | Denne filen, helt | Regler, oppsett, arbeidsflyt |
+| 2b | `docs/forprosjekt/overlevering.md` | Startmelding, hva som mangler, rekkefølge for kilder til sannhet |
 | 3 | `docs/forprosjekt/beslutningslogg.md` | Alle beslutninger fra forprosjektet. **Nyere rader går foran spesifikasjonen** |
 | 4 | `docs/spec/01-app-spesifikasjon.md` | Hva som skal bygges. Særlig seksjon 0, 5, 11, 12 og 13 |
 | 5 | `docs/stack.md` | Teknologi, versjoner, utviklingsmiljø, CI |
@@ -31,7 +32,7 @@ CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Wi
 | – | `docs/design/` | Farger, GUI-konsept og visuelle regler for alle skjermer |
 | – | `concept/` | Klikkbart skjermkonsept (touch og tekniker) som UI-et skal bygges etter |
 | – | `docs/research/` | Research bak beslutninger (f.eks. lyd fra RØDECaster) |
-| – | `docs/prototype/cutcut-prototype.html` | Klikkbar referanse for oppførsel og regel-ID-er |
+| – | `docs/prototype/cutcut-prototype.html` | Eldre skisse; bare referanse for regel-ID-er. GUI bygges etter `concept/` |
 
 Markdown-eksporten av spesifikasjonen mangler tegningene (`[embedded content: …]`). De finnes i PDF-ene i `docs/spec/`.
 
@@ -116,7 +117,7 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 | Endrer noe brukeren merker | `CHANGELOG.md` under `[Unreleased]` |
 | Lager en release | Sjekklisten i `docs/RELEASE.md` |
 
-Spesifikasjonen i `docs/spec/` er en eksport fra Claude Docs-dokumentet «CutCut Studio – spesifikasjon og evaluering». Endringer i oppførsel avtales med produkteier og føres inn i beslutningsloggen; ved neste eksport av spesifikasjonen innarbeides de der.
+Repoet er fasit fra overleveringen 21.10.2026. Spesifikasjonen i `docs/spec/*.md` redigeres direkte her (Claude Docs-dokumentet er arkiv). Endringer i oppførsel avtales med produkteier, føres inn i beslutningsloggen og deretter i spesifikasjonen i samme pull request. PDF-ene er et øyeblikksbilde fra overleveringen.
 
 ## 9. Kode (fra M1)
 

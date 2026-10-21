@@ -7,4 +7,4 @@
 | `03-evaluering-og-bakgrunn.md` / `.pdf` | Markedsoversikt, SOTA og begrunnelse for valgene |
 | `CutCut-Studio-komplett.pdf` | Alle tre samlet |
 
-Versjon v1, eksportert 2026-10-21 fra Claude Docs-dokumentet «CutCut Studio – spesifikasjon og evaluering». Markdown-filene mangler tegningene (`[embedded content: …]`); de finnes i PDF-ene. Ved ny eksport: erstatt filene og noter dato og hva som er endret i `CHANGELOG.md`.
+Versjon v1, eksportert 2026-10-21 fra Claude Docs-dokumentet «CutCut Studio – spesifikasjon og evaluering». **Fra overleveringen er Markdown-filene her fasit** og redigeres direkte; Claude Docs-dokumentet er arkiv (D-040). Markdown-filene mangler tegningene (`[embedded content: …]`); de finnes i PDF-ene, som er et øyeblikksbilde fra overleveringen. Beslutninger i `docs/forprosjekt/beslutningslogg.md` som ikke er innarbeidet ennå, går foran.

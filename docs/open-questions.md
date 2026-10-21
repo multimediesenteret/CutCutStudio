@@ -38,3 +38,4 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q23 | RØDECaster-firmware og faderkart | Claude (valgt) | Besvart | Firmware 1.7.6, fast faderkart med programleder på fader 1. `docs/studio/rodecaster-standardoppsett.md` (2026-10-21) |
 | Q24 | Inneholder pre-fader multitrack-sporet lyd fra en mic som er dempet på RØDECaster? Avgjør om regel `S7` trengs eller om post-fader er bedre. Testes i `tools/hw-test/audio_rodecaster.py` | Tekniker (hw-test) | Åpen | |
 | Q25 | Eksakte fargenavn i RØDECaster-paletten for magenta, cyan, lilla og oransje (noteres i `baseline.yaml`) | Tekniker | Åpen | |
+| Q26 | Kamerakart: hvilket kamera ser hvem? Konseptet antar CAM 1 = Canon CR-N300 på programleder, CAM 2–4 = OBSBOT Tail 2 på gjestene, CAM 5 = fast fugleperspektiv, IN 6 = laptop. Stemmer det, og hvor mange OBSBOT finnes? | NTNU | Åpen | |

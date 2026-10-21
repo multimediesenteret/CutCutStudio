@@ -24,12 +24,15 @@ Fylles ut av tekniker i studio. Agenten trenger dette for å skrive `site/ntnu-s
 
 ## Mikrofoner
 
-| RØDECaster-kanal | Mic-modell | Hvem sitter der (vert/gjest) | Kamera som ser personen |
+Faderkartet er bestemt (`docs/studio/rodecaster-standardoppsett.md`, D-032). Fyll inn mic-modell og bekreft kameraene.
+
+| Fader / kanal | Deltaker og farge | Mic-modell | Kamera som ser personen |
 | --- | --- | --- | --- |
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 / 3–4 | Programleder · magenta | | CAM 1 (antatt Canon CR-N300) |
+| 2 / 5–6 | Gjest 1 · cyan | | CAM 2 (antatt OBSBOT Tail 2) |
+| 3 / 7–8 | Gjest 2 · lilla | | CAM 3 (antatt OBSBOT Tail 2) |
+| 4 / 9–10 | Gjest 3 · oransje | | CAM 4 (antatt OBSBOT Tail 2) |
+| 5 / 11–12 | Laptop (USB 2) | – | IN 6 |
 
 ## Filer som legges i `site/ntnu-studio/equipment/`
 
