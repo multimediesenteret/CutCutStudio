@@ -289,3 +289,79 @@ def test_openapi_reference_is_current() -> None:
     from tools.gen_openapi import OUT, render
 
     assert OUT.read_text(encoding="utf-8") == render()
+
+
+def _one_recording(rig: Rig, guests: int = 1) -> None:
+    c = rig.client
+    c.post("/api/sim/card", json={"card": TEST_CARD})
+    rig.run(60)
+    c.put("/api/session/show", json={"guests": guests, "video": True})
+    c.post("/api/recording", json={"action": "start"})
+    rig.run(4500)
+    c.post("/api/sim/talk", json={"participant": "P2", "on": True})
+    rig.run(6000)
+    c.post("/api/recording", json={"action": "stop"})
+    rig.run(300)
+
+
+def test_session_history_and_csv_A6(rig: Rig) -> None:
+    _one_recording(rig, guests=2)
+    rig.client.delete("/api/session")
+    rig.run(60)
+    rows = rig.client.get("/api/sessions").json()
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["username"] == "testa"
+    assert row["participants"] == 3
+    assert row["started_by"] == "tech"  # the test client is admin in the simulator
+    assert row["duration_s"] >= 6
+    assert row["ended_at"] is not None
+    text = rig.client.get("/api/sessions.csv").text
+    assert text.startswith("﻿started_at;ended_at;username")
+    assert "testa" in text
+    log = rig.client.get("/api/log.csv")
+    assert log.headers["content-type"].startswith("text/csv")
+    assert "attachment" in log.headers["content-disposition"]
+    assert ";cut;" in log.text
+
+
+def test_session_history_survives_restart(tmp_path: Path) -> None:
+    first = Rig(tmp_path)
+    _one_recording(first)
+    first.store.close()
+    second = Rig(tmp_path)
+    try:
+        rows = second.client.get("/api/sessions").json()
+        assert [r["username"] for r in rows] == ["testa"]
+    finally:
+        second.store.close()
+
+
+def test_debug_package_has_log_config_version_and_no_secrets_A6(rig: Rig) -> None:
+    import io
+    import zipfile
+
+    _one_recording(rig)
+    r = rig.client.get("/api/debug-package")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/zip"
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    names = set(z.namelist())
+    for must in ("README.txt", "version.json", "state.json", "rules.json", "decisions.jsonl"):
+        assert f"cutcut-feilsok/{must}" in names
+    assert any(n.startswith("cutcut-feilsok/site/shows/") for n in names)
+    assert not any("staff" in n for n in names)
+    blob = b"".join(z.read(n) for n in names).decode("utf-8")
+    assert TEST_CARD not in blob  # I8
+    assert SIM_PIN not in blob.replace('"1234', "")  # no PIN, even as a substring of values
+    assert "operator_pin" not in blob
+    assert "admin_pin" not in blob
+
+
+def test_exports_need_the_right_role(tmp_path: Path) -> None:
+    rig = Rig(tmp_path, dev_admin=False)
+    try:
+        assert rig.client.get("/api/sessions").status_code == 403
+        assert rig.client.get("/api/debug-package").status_code == 403
+    finally:
+        rig.store.close()

@@ -285,6 +285,38 @@ class Store:
         )
         return [Decision.model_validate_json(r["data"]) for r in rows]
 
+    def sessions_since(self, since: datetime, limit: int = 500) -> list[dict[str, Any]]:
+        """Sessions started at or after ``since``, newest first, with their stored data."""
+        rows = self._query(
+            "SELECT data, started_at, ended_at FROM sessions WHERE started_at >= ?"
+            " ORDER BY started_at DESC LIMIT ?",
+            (since.isoformat(), limit),
+        )
+        return [
+            {
+                "session": json.loads(r["data"]),
+                "started_at": r["started_at"],
+                "ended_at": r["ended_at"],
+            }
+            for r in rows
+        ]
+
+    def audit_since(self, since: datetime, limit: int = 5000) -> list[dict[str, Any]]:
+        rows = self._query(
+            "SELECT ts, role, actor, action, detail FROM audit WHERE ts >= ? ORDER BY id LIMIT ?",
+            (since.isoformat(), limit),
+        )
+        return [
+            {
+                "ts": r["ts"],
+                "role": r["role"],
+                "actor": r["actor"],
+                "action": r["action"],
+                "detail": json.loads(r["detail"]),
+            }
+            for r in rows
+        ]
+
     def latest_config(self, kind: str, key: str) -> dict[str, Any] | None:
         rows = self._query(
             "SELECT data FROM config_versions WHERE kind=? AND key=? ORDER BY version DESC LIMIT 1",

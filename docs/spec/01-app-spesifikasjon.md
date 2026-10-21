@@ -1000,6 +1000,8 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 | `POST /setup/cameras/{C}/calibrate` | Kjør kameraet gjennom området innenfor grensene og mål fart |
 | `POST /cameras/{C}/preset/{n}` | Hent preset (bare når kameraet er av program og preview) |
 | `GET /log?since=…` | Beslutningslogg, med live tekst hvis bryteren er på |
+| `GET /log.csv`, `GET /sessions?days=…`, `GET /sessions.csv` | Logg og økthistorikk (hvem, når, lengde, startet fra) som tabell og CSV |
+| `GET /debug-package` | Feilsøkingspakke (logg, konfig, versjon, helse) som zip, uten hemmeligheter (admin, 12.1) |
 
 Kortnummeret finnes ikke i API-et: kortleseren er koblet direkte til motoren, så UID aldri sendes over nettet (`I8`). Touch-skjermen er innlogget som rolle `touch` og kan bare kalle det brukeren skal kunne gjøre.
 

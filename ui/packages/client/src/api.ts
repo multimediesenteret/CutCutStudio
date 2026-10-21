@@ -14,6 +14,21 @@ export interface RulesDetail {
   ids: string[];
 }
 
+export interface SessionRow {
+  session_id: string;
+  username: string;
+  display_name: string;
+  started_at: string;
+  ended_at: string | null;
+  duration_s: number;
+  recording: string | null;
+  started_by: string | null;
+  stopped_by: string | null;
+  participants: number;
+  video: boolean;
+  publish: string | null;
+}
+
 export interface CameraConfig {
   driver: string;
   ip?: string | null;
@@ -52,6 +67,7 @@ export function commands(t: Transport) {
     rules: () => t.get<RulesDetail>("/api/rules"),
     me: () => t.get<{ role: Role; actor: string }>("/api/me"),
     log: (since = 0) => t.get<components["schemas"]["Decision"][]>(`/api/log?since=${since}`),
+    sessions: (days = 1) => t.get<SessionRow[]>(`/api/sessions?days=${days}`),
     show: (id: string) => t.get<ShowDetail>(`/api/shows/${encodeURIComponent(id)}`),
     features: (changes: Record<string, boolean>) => t.send("POST", "/api/features", changes),
     shadow: (on: boolean) => t.send("POST", "/api/shadow", { on }),

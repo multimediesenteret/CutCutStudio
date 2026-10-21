@@ -52,7 +52,12 @@ test("pages render and the log can be filtered", async ({ page }) => {
     await page.goto(`/tech/#${hash}`);
     await expect(page.getByRole("heading", { name: heading })).toBeVisible();
   }
+  await page.goto("/tech/#opptak");
+  await expect(page.getByText("Opptak siste døgn")).toBeVisible();
   await page.goto("/tech/#logg");
+  const pkg = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Feilsøkingspakke" }).click();
+  expect((await pkg).suggestedFilename()).toMatch(/^cutcut-feilsok-.*\.zip$/);
   await page.getByRole("button", { name: "Kutt" }).click();
   await expect(page.getByRole("button", { name: "Kutt" })).toHaveAttribute("aria-pressed", "true");
 });

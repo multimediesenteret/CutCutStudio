@@ -5,6 +5,7 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
+from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
@@ -16,6 +17,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from cutcut import __version__
 from cutcut.api.auth import COOKIE, SESSION_S, Auth, Identity, require
+from cutcut.app import export
 from cutcut.app.hub import TOPICS
 from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
@@ -141,6 +143,42 @@ def create_app(
     async def get_log(me: Who, since: Annotated[int, Query(ge=0)] = 0) -> list[dict[str, Any]]:
         require(me, "operator")
         return [d for d in studio.decisions if d["mono_ms"] >= since]
+
+    @app.get("/api/log.csv", tags=["export"], response_class=Response)
+    async def log_csv(me: Who) -> Response:
+        """Recent decisions as CSV (spec 8.4)."""
+        require(me, "operator")
+        text = export.decisions_csv(reversed(list(studio.decisions)))
+        return _download(text.encode("utf-8"), "text/csv; charset=utf-8", "cutcut-logg", "csv")
+
+    @app.get("/api/sessions", tags=["session"])
+    async def sessions(
+        me: Who, days: Annotated[int, Query(ge=1, le=90)] = 1
+    ) -> list[dict[str, Any]]:
+        """Session history, newest first: who, when, how long, started from (spec 8.4)."""
+        require(me, "operator")
+        since = studio.deps.clock.now() - timedelta(days=days)
+        return await asyncio.to_thread(studio.session_history, since)
+
+    @app.get("/api/sessions.csv", tags=["export"], response_class=Response)
+    async def sessions_csv(me: Who, days: Annotated[int, Query(ge=1, le=90)] = 30) -> Response:
+        require(me, "operator")
+        since = studio.deps.clock.now() - timedelta(days=days)
+        rows = await asyncio.to_thread(studio.session_history, since)
+        data = export.sessions_csv(rows).encode("utf-8")
+        return _download(data, "text/csv; charset=utf-8", "cutcut-okter", "csv")
+
+    @app.get("/api/debug-package", tags=["export"], response_class=Response)
+    async def debug_package(me: Who) -> Response:
+        """Log, configuration, version and health as a zip, without secrets (spec 12.1)."""
+        require(me, "admin")
+        data = await asyncio.to_thread(export.debug_package, studio, studio.deps.clock.now())
+        return _download(data, "application/zip", "cutcut-feilsok", "zip")
+
+    def _download(data: bytes, media: str, name: str, ext: str) -> Response:
+        stamp = studio.deps.clock.now().strftime("%Y-%m-%d-%H%M")
+        headers = {"Content-Disposition": f'attachment; filename="{name}-{stamp}.{ext}"'}
+        return Response(data, media_type=media, headers=headers)
 
     @app.get("/api/shows", tags=["config"])
     async def shows(me: Who) -> list[dict[str, Any]]:
