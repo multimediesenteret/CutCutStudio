@@ -1,0 +1,25 @@
+# Show types (spec 7.5). The user does not pick a type on touch (D-036); the studio setup
+# decides it. Each type points to a rules preset, switches and whether ATEM ISO records.
+schema_version: 1
+default: podcast
+types:
+  podcast:
+    name: "Podcast"
+    rules_preset: standard
+    audio_only: false
+    iso_record: false
+  intervju:
+    name: "Intervju"
+    rules_preset: rolig
+    audio_only: false
+    iso_record: false
+  panel:
+    name: "Panel"
+    rules_preset: standard
+    audio_only: false
+    iso_record: false
+  kun-lyd:
+    name: "Kun lyd"
+    rules_preset: standard
+    audio_only: true          # mode A: no cutting, cameras still, "Kun lyd" graphic on program
+    iso_record: false

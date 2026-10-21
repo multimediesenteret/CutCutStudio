@@ -1,0 +1,421 @@
+{
+  "$defs": {
+    "CameraConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "atem_input": {
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Atem Input",
+          "type": "integer"
+        },
+        "driver": {
+          "enum": [
+            "obsbot",
+            "canon_xc",
+            "panasonic_aw",
+            "sony_visca",
+            "none"
+          ],
+          "title": "Driver",
+          "type": "string"
+        },
+        "ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ip"
+        },
+        "presets": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Presets",
+          "type": "object"
+        },
+        "role": {
+          "default": "closeup",
+          "enum": [
+            "closeup",
+            "bird",
+            "wide"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "slow_zoom": {
+          "default": false,
+          "title": "Slow Zoom",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "driver",
+        "atem_input"
+      ],
+      "title": "CameraConfig",
+      "type": "object"
+    },
+    "CameraId": {
+      "description": "Camera IDs. C1–C4 close-ups (ATEM inputs 1–4), C5 bird's-eye, C7 optional wide.",
+      "enum": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C7"
+      ],
+      "title": "CameraId",
+      "type": "string"
+    },
+    "ColorConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_camera": {
+          "$ref": "#/$defs/CameraId"
+        },
+        "saved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Saved At"
+        },
+        "values": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ColorValue"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/CameraId"
+          },
+          "title": "Values",
+          "type": "object"
+        }
+      },
+      "required": [
+        "reference_camera"
+      ],
+      "title": "ColorConfig",
+      "type": "object"
+    },
+    "ColorValue": {
+      "additionalProperties": false,
+      "properties": {
+        "b": {
+          "default": 0,
+          "title": "B",
+          "type": "integer"
+        },
+        "kelvin": {
+          "maximum": 10000,
+          "minimum": 2000,
+          "title": "Kelvin",
+          "type": "integer"
+        },
+        "r": {
+          "default": 0,
+          "title": "R",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kelvin"
+      ],
+      "title": "ColorValue",
+      "type": "object"
+    },
+    "ContentConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "atem_input": {
+          "default": 6,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Atem Input",
+          "type": "integer"
+        },
+        "audio_mic": {
+          "$ref": "#/$defs/MicId",
+          "default": "M5"
+        }
+      },
+      "title": "ContentConfig",
+      "type": "object"
+    },
+    "Features": {
+      "additionalProperties": false,
+      "description": "Switches from spec 5.13. Base mode is always on; bird and content default on.",
+      "properties": {
+        "bird": {
+          "default": true,
+          "title": "Bird",
+          "type": "boolean"
+        },
+        "content": {
+          "default": true,
+          "title": "Content",
+          "type": "boolean"
+        },
+        "framing_variety": {
+          "default": false,
+          "title": "Framing Variety",
+          "type": "boolean"
+        },
+        "layouts": {
+          "default": false,
+          "title": "Layouts",
+          "type": "boolean"
+        },
+        "live_transcript": {
+          "default": false,
+          "title": "Live Transcript",
+          "type": "boolean"
+        },
+        "reactions": {
+          "default": false,
+          "title": "Reactions",
+          "type": "boolean"
+        },
+        "slow_zoom": {
+          "default": false,
+          "title": "Slow Zoom",
+          "type": "boolean"
+        },
+        "turn_prediction": {
+          "default": false,
+          "title": "Turn Prediction",
+          "type": "boolean"
+        },
+        "video_confirm": {
+          "default": false,
+          "title": "Video Confirm",
+          "type": "boolean"
+        }
+      },
+      "title": "Features",
+      "type": "object"
+    },
+    "LayoutSwitches": {
+      "additionalProperties": false,
+      "properties": {
+        "pip_speaker_content": {
+          "default": false,
+          "title": "Pip Speaker Content",
+          "type": "boolean"
+        },
+        "pip_two_people": {
+          "default": false,
+          "title": "Pip Two People",
+          "type": "boolean"
+        },
+        "quad_four": {
+          "default": false,
+          "title": "Quad Four",
+          "type": "boolean"
+        },
+        "quad_three_content": {
+          "default": false,
+          "title": "Quad Three Content",
+          "type": "boolean"
+        }
+      },
+      "title": "LayoutSwitches",
+      "type": "object"
+    },
+    "MicId": {
+      "description": "RØDECaster faders 1–5. M1–M4 belong to P1–P4; M5 is laptop audio (CT3, CT5).",
+      "enum": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "title": "MicId",
+      "type": "string"
+    },
+    "Participant": {
+      "additionalProperties": false,
+      "properties": {
+        "camera": {
+          "$ref": "#/$defs/CameraId"
+        },
+        "id": {
+          "$ref": "#/$defs/ParticipantId"
+        },
+        "mic": {
+          "$ref": "#/$defs/MicId"
+        },
+        "name": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "host",
+            "guest"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "mic",
+        "camera",
+        "role"
+      ],
+      "title": "Participant",
+      "type": "object"
+    },
+    "ParticipantId": {
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "title": "ParticipantId",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ai_tracking": {
+      "items": {
+        "$ref": "#/$defs/CameraId"
+      },
+      "title": "Ai Tracking",
+      "type": "array"
+    },
+    "cameras": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CameraConfig"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CameraId"
+      },
+      "title": "Cameras",
+      "type": "object"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ColorConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "content": {
+      "$ref": "#/$defs/ContentConfig",
+      "default": {
+        "atem_input": 6,
+        "audio_mic": "M5"
+      }
+    },
+    "features": {
+      "$ref": "#/$defs/Features",
+      "default": {
+        "bird": true,
+        "content": true,
+        "framing_variety": false,
+        "layouts": false,
+        "live_transcript": false,
+        "reactions": false,
+        "slow_zoom": false,
+        "turn_prediction": false,
+        "video_confirm": false
+      }
+    },
+    "id": {
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "iso_record": {
+      "default": false,
+      "title": "Iso Record",
+      "type": "boolean"
+    },
+    "layouts": {
+      "$ref": "#/$defs/LayoutSwitches",
+      "default": {
+        "pip_speaker_content": false,
+        "pip_two_people": false,
+        "quad_four": false,
+        "quad_three_content": false
+      }
+    },
+    "name": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "participants": {
+      "items": {
+        "$ref": "#/$defs/Participant"
+      },
+      "maxItems": 4,
+      "minItems": 1,
+      "title": "Participants",
+      "type": "array"
+    },
+    "rules_override": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Rules Override",
+      "type": "object"
+    },
+    "rules_preset": {
+      "default": "standard",
+      "enum": [
+        "rolig",
+        "standard",
+        "energisk"
+      ],
+      "title": "Rules Preset",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "participants",
+    "cameras"
+  ],
+  "title": "ShowConfig",
+  "type": "object"
+}
