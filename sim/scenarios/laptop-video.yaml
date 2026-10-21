@@ -1,0 +1,14 @@
+id: laptop-video
+description: "Video med lyd på laptop holdes på content (CT3/CT5); laptop trekkes ut (CT6)."
+show: samtale
+duration_s: 60
+script:
+  - { at: 3, talk: P1, for: 50 }
+  - { at: 10, content: STATIC }
+  - { at: 15, content: VIDEO }
+  - { at: 15, laptop_audio: true, for: 20 }
+  - { at: 40, content: NO_SIGNAL }
+expect:
+  - { rule: CT5, between_s: [15, 18] }
+  - { rule: CT6, between_s: [40, 41] }
+  - { never: content_on_air_without_signal }

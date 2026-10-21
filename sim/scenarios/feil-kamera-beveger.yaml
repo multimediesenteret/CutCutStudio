@@ -1,0 +1,12 @@
+id: feil-kamera-beveger
+description: "Kamera 2 beveger seg når gjesten begynner å snakke (S1)."
+show: samtale
+duration_s: 30
+script:
+  - { at: 3, talk: P1, for: 8 }
+  - { at: 12, talk: P2, for: 12 }
+faults:
+  - { at: 11, kind: camera_moving, camera: C2, for: 4 }
+expect:
+  - { never: cut_to_moving_camera }
+  - { shot_seen: "CU:P2" }

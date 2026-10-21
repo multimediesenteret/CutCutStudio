@@ -1,0 +1,9 @@
+id: operator-overstyrer
+description: "En person kutter på ATEM-en; motoren respekterer det i 5 s (I5)."
+show: samtale
+duration_s: 30
+script:
+  - { at: 3, talk: P2, for: 25 }
+  - { at: 12, operator_cut: C1 }
+expect:
+  - { rule: MANUAL, action: hold, between_s: [12, 13.5] }

@@ -1,0 +1,11 @@
+id: panel-4
+description: "Fire personer, energisk forhåndsvalg."
+seed: 11
+show: panel-4
+preset: energisk
+duration_s: 600
+conversation: true
+expect:
+  - { min_cuts: 20 }
+  - { shot_seen: "CU:P4" }
+  - { never: cuts_faster_than_1s }

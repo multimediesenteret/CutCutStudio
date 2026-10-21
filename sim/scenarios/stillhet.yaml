@@ -1,0 +1,9 @@
+id: stillhet
+description: "Lang stillhet etter et svar går til fugleperspektiv (T8/B3)."
+show: samtale
+duration_s: 30
+script:
+  - { at: 5, talk: P2, for: 8 }
+expect:
+  - { rule: B3, between_s: [15, 20] }
+  - { program_at_end: BIRD }

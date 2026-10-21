@@ -72,6 +72,14 @@ T9_PAUSE_MS = 150
 VARIATION_PAUSE_MAX_MS = 1500
 # H4: the return shot goes to preview this long before the insert ends (preview first, 5.9).
 RETURN_PREVIEW_MS = 600
+# 5.9/10.4: a new speaker is armed on preview at half T2, but at least this long before the cut
+# can come, so preview leads program by ≥ 300 ms also with short T2 (Energisk).
+PREVIEW_LEAD_MS = 350
+# 5.9: the reserve shot goes to preview only after this long without a candidate, so it does
+# not take the PV1 slot right before the next speaker.
+IDLE_FALLBACK_MS = 1500
+# 10.4: a speaker cut shows the new shot on preview at least this long first (unless K3).
+MIN_PREVIEW_LEAD_MS = 300
 
 Timing = Literal["speaker", "insert", "soft", "now", "return"]
 
@@ -160,6 +168,7 @@ class Engine:
         self.last_wait: tuple[str, RuleId | None] | None = None
         self.vars: dict[str, str] = {}
         self._cut_rule: RuleId | None = None
+        self.idle_since: int | None = None
         self.bird_ms_total = 0
         self.content = ContentTracker()
         self.last_bird_ms = -(10**9)
@@ -571,6 +580,12 @@ class Engine:
             return None  # B1: the opening and the bird after content are not interrupted
         run = best.run_ms(self._now)
         required, rule, measures = self._required_run_ms(best.pid)
+        # H1 evidence asked of a candidate does not drop when the H1 window ends while it waits,
+        # so the candidate still gets its time on preview first.
+        cand = self.candidate
+        if cand is not None and cand.speaker == best.pid and cand.rule is RuleId.H1:
+            required = max(required, int(cand.measures.get("required_ms", 0)))
+            rule = RuleId.H1
         if shot == self.program:
             if self.insert is not None and run >= required:
                 # R3: the listener on screen starts talking; they are now the speaker
@@ -578,7 +593,8 @@ class Engine:
                 self.speaker_on_air = best.pid
                 self.speaker_on_air_since = self._now
             return None
-        if run < required // 2:
+        arm_at = min(required // 2, max(0, required - PREVIEW_LEAD_MS))
+        if run < arm_at:
             return None
         name = self.show.participant(best.pid).name
         measures |= {
@@ -742,6 +758,7 @@ class Engine:
     def _arm(self, p: Proposal, inp: Inputs) -> None:
         same = self.candidate is not None and self.candidate.shot == p.shot
         self.candidate = p
+        self.idle_since = None
         if same:
             if self.preview != p.shot:  # PV1 held it back last time; try again
                 self._set_preview(p.shot, p.rule, p.reason, p.measures)
@@ -775,6 +792,10 @@ class Engine:
         self.pv_state = PreviewState.IDLE
         self.last_wait = None
         # Preview shows the mode's reserve shot when idle (5.9), unless that is on program.
+        if self.idle_since is None:
+            self.idle_since = self._now
+        if self._now - self.idle_since < IDLE_FALLBACK_MS:
+            return
         fallback = shots.fallback_shot(self.mode, self.show, self.config.features)
         if fallback != self.program and self.preview != fallback:
             self._set_preview(fallback, RuleId.PV1, "Reservebilde på preview")
@@ -794,6 +815,10 @@ class Engine:
         current = self.speaker_on_air
         cur = self.speakers.get(current) if current is not None else None
         if p.timing == "speaker":
+            if self._ready_ms() < r.K3_max_wait_s * 1000 and (
+                self._now - self.preview_since < MIN_PREVIEW_LEAD_MS
+            ):
+                return False
             if cur is None or cur.frame.pause_ms >= r.K1_pause_ms:
                 return self._mark(p, RuleId.K1)
             if cur.frame.pause_ms >= r.K2_pause_ms or (

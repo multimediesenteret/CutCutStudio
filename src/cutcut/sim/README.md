@@ -1,0 +1,14 @@
+# `cutcut.sim` – simulatoren
+
+Kjører den ekte motoren og skallet mot syntetiske talere og falske enheter, uten utstyr. Plan: [`docs/plans/sim.md`](../../../docs/plans/sim.md).
+
+| Fil | Innhold |
+| --- | --- |
+| `voices.py` | Syntetiske talere som lager de samme målingene som `audio-capture` (`MicFrame`): manus eller en stokastisk samtale med frø (turbytter, fraser og pauser, overlapp, «mm», latter, lekkasje) |
+| `fakes.py` | Falske enheter i prosessen: ATEM via Companion (preview, TAKE, direkte kutt, operatør som kutter selv), Pearl (asynkron start, feil), kortleser og NTNU-API med fiktive testkort |
+| `scenario.py` | Scenarioformatet i `sim/scenarios/*.yaml`: manus, feil og forventninger |
+| `simulation.py` | `Simulation` (motor + skall + talere + falske enheter på falsk klokke) og `run_scenario()` |
+
+**Scenarioer** (`sim/scenarios/`): monolog, samtale, panel med 3 og 4, krysstale, stillhet, laptop med slide og med video, vertens innskudd, dempet mic, og feil (lyd borte, kamera i bevegelse, Companion nede, operatør kutter på ATEM). Alle kjøres som tester; de stokastiske samtalene sjekker også akseptansekriteriene i 10.4 som kan måles uten utstyr (`K1`/`K2` ≥ 90 %, preview ≥ 300 ms i ≥ 95 %).
+
+**Falske enheter over nett** (HTTP for Companion og Pearl, VISCA/OSC for kameraer) lages sammen med de ekte klientene i M2 og bruker tilstandsmaskinene her.

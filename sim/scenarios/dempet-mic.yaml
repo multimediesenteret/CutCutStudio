@@ -1,0 +1,10 @@
+id: dempet-mic
+description: "Programleder demper gjestens mic; ingen kutt til den gjesten (S6)."
+show: samtale
+duration_s: 30
+script:
+  - { at: 3, talk: P1, for: 8 }
+  - { at: 12, mute: P2, for: 15 }
+  - { at: 12, talk: P2, for: 10 }
+expect:
+  - { shot_not_seen: "CU:P2", after_s: 11 }

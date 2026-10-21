@@ -1,0 +1,11 @@
+id: feil-companion-nede
+description: "Companion svarer ikke; motoren klipper likevel ikke i blinde (S5 utføres i M2)."
+show: samtale
+duration_s: 30
+script:
+  - { at: 3, talk: P1, for: 8 }
+  - { at: 12, talk: P2, for: 12 }
+faults:
+  - { at: 10, kind: companion_down, for: 10 }
+expect:
+  - { never: cuts_faster_than_1s }

@@ -69,7 +69,7 @@ def test_T3_allows_cut_after_minimum_shot_length() -> None:
     h.run(4000)
     h.stop("P2")
     h.talk("P3")
-    h.run(1200)
+    h.run(1500)
     assert h.program == "CU:P3"
     assert not h.waits(RuleId.T3)
 

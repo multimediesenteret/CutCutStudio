@@ -1,0 +1,12 @@
+id: samtale-2
+description: "To personer i naturlig samtale (stokastisk, frø 42) i ti minutter."
+seed: 42
+show: samtale
+duration_s: 600
+conversation: true
+expect:
+  - { min_cuts: 20 }
+  - { max_cuts_per_10min: 120 }
+  - { shot_seen: "CU:P1" }
+  - { shot_seen: "CU:P2" }
+  - { never: cuts_faster_than_1s }
