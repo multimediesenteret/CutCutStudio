@@ -507,6 +507,48 @@
         "title": "PresetIn",
         "type": "object"
       },
+      "ProcessInfo": {
+        "additionalProperties": false,
+        "description": "One process as the supervisor last reported it (``H-PROC-*``).",
+        "properties": {
+          "last_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Reason"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "restarts_10min": {
+            "default": 0,
+            "title": "Restarts 10Min",
+            "type": "integer"
+          },
+          "running": {
+            "title": "Running",
+            "type": "boolean"
+          },
+          "uptime_s": {
+            "default": 0,
+            "title": "Uptime S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "running"
+        ],
+        "title": "ProcessInfo",
+        "type": "object"
+      },
       "PublishState": {
         "additionalProperties": false,
         "description": "Panopto, prepared only (spec 7.6).",
@@ -818,6 +860,14 @@
           "max_step_ms": {
             "title": "Max Step Ms",
             "type": "number"
+          },
+          "processes": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProcessInfo"
+            },
+            "title": "Processes",
+            "type": "array"
           },
           "skipped_ticks": {
             "title": "Skipped Ticks",

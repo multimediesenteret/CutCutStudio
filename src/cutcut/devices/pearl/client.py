@@ -57,6 +57,7 @@ class PearlHttp:
             auth=(username, password),
             verify=verify_tls,
             timeout=timeout_s,
+            trust_env=False,  # studio equipment is on the local network, never via a proxy
         )
 
     def close(self) -> None:

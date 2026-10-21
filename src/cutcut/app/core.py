@@ -155,6 +155,8 @@ def build_core(opts: CoreOptions) -> Core:
                 continue
             if msg.topic.startswith("atem."):
                 bridge.on_message(msg.topic, msg.payload)
+            elif msg.topic == "supervisor.status":
+                studio.on_supervisor(msg.payload)
             else:
                 studio.runtime.feed_bus(msg.topic, msg.payload)
 

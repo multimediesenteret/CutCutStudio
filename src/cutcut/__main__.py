@@ -50,6 +50,17 @@ def build_parser() -> argparse.ArgumentParser:
     core.add_argument("--port", type=int, default=8080)
     core.add_argument("--ui-dir", type=Path, default=None, help="bygde skjermer (ui/dist)")
 
+    sup = sub.add_parser(
+        "supervisor",
+        help="start core, atem-bridge og lyd, og start dem på nytt når de faller ut (SO-1)",
+        description="Kjøres som tjeneste i studio. Status vises under Helse i teknikervinduet.",
+    )
+    sup.add_argument("--site", type=Path, required=True, help="studio-oppsett")
+    sup.add_argument("--data", type=Path, default=None, help="database og logger")
+    sup.add_argument("--port", type=int, default=8080, help="porten core lytter på")
+    sup.add_argument("--ui-dir", type=Path, default=None, help="bygde skjermer (ui/dist)")
+    sup.add_argument("--audio-wav", type=Path, default=None, help="lyd fra fil til AU-5")
+
     audio = sub.add_parser(
         "audio",
         help="kjør audio-capture: mikrofoner til målinger på bussen (ADR-0014)",
@@ -98,6 +109,20 @@ def main(argv: Sequence[str] | None = None) -> int:
                 host=args.host,
                 port=args.port,
                 ui_dir=args.ui_dir or ui_default(),
+            )
+        )
+    if args.command == "supervisor":
+        from cutcut.app.core import default_data_dir
+        from cutcut.supervisor.main import SupervisorOptions
+        from cutcut.supervisor.main import run as run_supervisor
+
+        return run_supervisor(
+            SupervisorOptions(
+                site_dir=args.site.resolve(),
+                data_dir=(args.data or default_data_dir()).resolve(),
+                port=args.port,
+                ui_dir=args.ui_dir,
+                audio_wav=args.audio_wav,
             )
         )
     if args.command == "audio":

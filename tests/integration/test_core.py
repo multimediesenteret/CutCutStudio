@@ -57,6 +57,7 @@ class Bus:
 
     def __init__(self, port: int) -> None:
         self.ctx = zmq.Context()
+        self.port = port
         self.sock = self.ctx.socket(zmq.PUB)
         self.sock.connect(f"tcp://127.0.0.1:{port}")
         self.seq: dict[str, int] = {}
@@ -175,3 +176,40 @@ def test_core_starts_without_any_equipment(tmp_path: Path) -> None:
             assert core.bridge.readback() is None
     finally:
         core.close()
+
+
+def test_core_shows_processes_from_the_supervisor(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """SO-1: the supervisor's status reaches Helse, and a process that is down gives H-PROC."""
+    from cutcut.supervisor.report import StatusReporter
+
+    client, bus, _, _, core = rig
+    reporter = StatusReporter(port=bus.port)
+    down = [
+        {"name": "core", "running": True, "uptime_s": 12, "restarts_10min": 0},
+        {
+            "name": "atem-bridge",
+            "running": False,
+            "restarts_10min": 1,
+            "last_reason": "avsluttet med kode 1",
+        },
+    ]
+    try:
+        assert until(
+            lambda: any(a.code == "H-PROC-atem-bridge" for a in core.studio.alerts),
+            5,
+            lambda: reporter(down),
+        )
+        procs = client.get("/api/health").json()["runtime"]["processes"]
+        assert [p["name"] for p in procs] == ["core", "atem-bridge"]
+        assert procs[1]["running"] is False
+
+        up = [dict(down[0]), {**down[1], "running": True}]
+        assert until(
+            lambda: core.studio.alerts[-1].message == "atem-bridge kjører igjen",
+            5,
+            lambda: reporter(up),
+        )
+    finally:
+        reporter.close()

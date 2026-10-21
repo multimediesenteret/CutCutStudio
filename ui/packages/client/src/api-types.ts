@@ -843,6 +843,31 @@ export interface components {
             preset: "rolig" | "standard" | "energisk";
         };
         /**
+         * ProcessInfo
+         * @description One process as the supervisor last reported it (``H-PROC-*``).
+         */
+        ProcessInfo: {
+            /**
+             * Last Reason
+             * @default null
+             */
+            last_reason: string | null;
+            /** Name */
+            name: string;
+            /**
+             * Restarts 10Min
+             * @default 0
+             */
+            restarts_10min: number;
+            /** Running */
+            running: boolean;
+            /**
+             * Uptime S
+             * @default 0
+             */
+            uptime_s: number;
+        };
+        /**
          * PublishState
          * @description Panopto, prepared only (spec 7.6).
          */
@@ -959,6 +984,11 @@ export interface components {
         RuntimeInfo: {
             /** Max Step Ms */
             max_step_ms: number;
+            /**
+             * Processes
+             * @default []
+             */
+            processes: components["schemas"]["ProcessInfo"][];
             /** Skipped Ticks */
             skipped_ticks: number;
             /** Ticks */

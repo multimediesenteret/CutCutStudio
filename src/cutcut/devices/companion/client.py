@@ -32,7 +32,11 @@ class CompanionConnection:
 
 class CompanionHttp:
     def __init__(self, base_url: str, *, timeout_s: float = TIMEOUT_S) -> None:
-        self._http = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout_s)
+        self._http = httpx.Client(
+            base_url=base_url.rstrip("/"),
+            timeout=timeout_s,
+            trust_env=False,  # studio equipment is on the local network, never via a proxy
+        )
 
     def close(self) -> None:
         self._http.close()

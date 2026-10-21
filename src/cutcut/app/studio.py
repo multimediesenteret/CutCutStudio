@@ -25,6 +25,7 @@ from cutcut.app.state import (
     EngineInfo,
     Meter,
     ParticipantInfo,
+    ProcessInfo,
     RecordingInfo,
     RulesInfo,
     RuntimeInfo,
@@ -89,6 +90,8 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
+PROC_FLAP: Final = 5  # restarts in 10 minutes before H-PROC warns (spec 9.1)
+PROC_STALE_MS: Final = 10_000  # supervisor status older than this: the supervisor is gone
 
 
 @dataclass
@@ -207,6 +210,9 @@ class Studio:
             on_step=self._on_step,
         )
         self.alerts: list[AlertRecord] = []
+        self._processes: list[ProcessInfo] = []
+        self._processes_at: int | None = None
+        self._proc_state: dict[str, str] = {}
         self.decisions: deque[dict[str, Any]] = deque(maxlen=LOG_KEEP)
         self.notice: str | None = None
         self.notice_until = 0
@@ -415,6 +421,48 @@ class Studio:
         source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
         reader = getattr(source, "multiview_readback", None)
         return reader() if callable(reader) else None
+
+    # -- processes (supervisor, SO-1) ------------------------------------------------------
+
+    def on_supervisor(self, payload: dict[str, Any]) -> None:
+        """``supervisor.status`` from the bus: remember it and raise ``H-PROC-<name>``.
+
+        Yellow only (spec 8.5): the supervisor is already restarting the process. A process
+        that keeps falling over (more than 5 restarts in 10 minutes) gets its own warning so a
+        technician hears about it even when the studio works.
+        """
+        procs: list[ProcessInfo] = []
+        fields = ProcessInfo.model_fields
+        for raw in payload.get("processes") or []:
+            try:
+                procs.append(ProcessInfo.model_validate({k: raw[k] for k in fields if k in raw}))
+            except (ValueError, TypeError):
+                continue
+        self._processes, self._processes_at = procs, self.deps.clock.mono_ms()
+        for p in procs:
+            code = f"H-PROC-{p.name}"
+            state = "flapping" if p.restarts_10min > PROC_FLAP else "ok" if p.running else "down"
+            if state == self._proc_state.get(p.name, "ok"):
+                continue
+            self._proc_state[p.name] = state
+            if state == "down":
+                why = f" ({p.last_reason})" if p.last_reason else ""
+                self._alert("warn", code, f"{p.name} startes på nytt{why}")
+            elif state == "flapping":
+                self._alert(
+                    "warn",
+                    code,
+                    f"{p.name} er startet på nytt {p.restarts_10min} ganger på 10 minutter",
+                )
+            else:
+                self._alert("info", code, f"{p.name} kjører igjen")
+
+    def processes_info(self) -> list[ProcessInfo]:
+        if self._processes_at is None:
+            return []
+        if self.deps.clock.mono_ms() - self._processes_at > PROC_STALE_MS:
+            return [ProcessInfo(name="supervisor", running=False, last_reason="ingen status")]
+        return list(self._processes)
 
     def multiview_status(self) -> dict[str, Any]:
         """Rutekart, what the ATEM shows, the recommended layout, and what is wrong."""
@@ -642,6 +690,7 @@ class Studio:
                 ticks=self.runtime.stats.ticks,
                 max_step_ms=round(self.runtime.stats.max_step_ms, 2),
                 skipped_ticks=self.runtime.stats.skipped_ticks,
+                processes=self.processes_info(),
             ),
         )
 

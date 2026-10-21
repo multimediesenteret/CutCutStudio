@@ -86,10 +86,21 @@ class AlertInfo(_S):
     acknowledged: bool
 
 
+class ProcessInfo(_S):
+    """One process as the supervisor last reported it (``H-PROC-*``)."""
+
+    name: str
+    running: bool
+    uptime_s: int = 0
+    restarts_10min: int = 0
+    last_reason: str | None = None
+
+
 class RuntimeInfo(_S):
     ticks: int
     max_step_ms: float
     skipped_ticks: int
+    processes: list[ProcessInfo] = []  # empty when core runs without the supervisor
 
 
 class StudioState(_S):
