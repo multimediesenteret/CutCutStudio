@@ -6,6 +6,8 @@ frame (``change``, VI-2 and VI-3 turn that into content and movement). Published
 
 * ``vision.frame`` with every tile, 15 Hz. (``vision.tile`` with face and mouth, which the
   engine's ``video_confirm`` reads, comes with the heavy part in M4.)
+* ``vision.content`` from the laptop tile (VI-2, :mod:`cutcut.vision.content`), 5 Hz and at
+  once when the state changes;
 * ``vision.status`` once a second: fps, frame size, source, last error (``H-VID-1``).
 """
 
@@ -21,6 +23,7 @@ import numpy as np
 
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.vision.capture import Source
+from cutcut.vision.content import ContentDetector
 from cutcut.vision.tiles import Cut, Frame, cuts
 
 log = logging.getLogger(__name__)
@@ -61,6 +64,17 @@ class Vision:
         self.mv = mv
         self.meters: list[TileMeter] = []
         self._shape: tuple[int, int] | None = None
+        self.content = ContentDetector()
+        self.laptop = next(
+            (t.id for t in mv.tiles if t.camera is not None and t.camera.value == "LAPTOP"), None
+        )
+
+    def content_state(self, now_ms: int, rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+        row = next((r for r in rows if r["tile"] == self.laptop), None)
+        if row is None:
+            return None
+        state = self.content.feed(now_ms, bool(row["signal"]), float(row["change"]))
+        return {"state": state.value, "changed_ratio": self.content.changed_ratio}
 
     def measure(self, frame: Frame) -> list[dict[str, Any]]:
         h, w = frame.shape[:2]
@@ -85,10 +99,13 @@ async def run(
     max_frames: int | None = None,
     realtime: bool = True,
     on_frame: Callable[[Frame, list[dict[str, Any]]], None] | None = None,
+    clock: Callable[[], float] = time.monotonic,
 ) -> int:
     """Run until ``max_frames`` (or forever). Returns the number of frames measured."""
     vision = Vision(mv)
     frames = 0
+    last_content: dict[str, Any] | None = None
+    last_content_at = -1.0
     last_status = -1.0
     period = 1.0 / fps
     window: list[float] = []
@@ -116,6 +133,10 @@ async def run(
         if frame is not None:
             rows = vision.measure(frame)
             await publish("vision.frame", {"tiles": rows})
+            content = vision.content_state(int(clock() * 1000), rows)
+            if content is not None and (content != last_content or t0 - last_content_at >= 0.2):
+                await publish("vision.content", content)
+                last_content, last_content_at = content, t0
             if on_frame is not None:
                 on_frame(frame, rows)
             frames += 1

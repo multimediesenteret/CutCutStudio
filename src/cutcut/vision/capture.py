@@ -123,7 +123,7 @@ class OpenCvSource:
             self._cap = None
 
 
-Content = Literal["none", "desktop", "slide", "video"]
+Content = Literal["none", "desktop", "slide", "cursor", "video"]
 
 
 @dataclass
@@ -188,6 +188,13 @@ class SyntheticSource:
                 y = 10 + i * (h // 5)
                 length = (self.slide * 37 + i * 53) % (w - 20) + 10
                 area[y : y + 6, 10 : 10 + length] = 30
+            # a picture on the slide, left or right: a new slide changes well over 15 %
+            x0 = w // 2 if self.slide % 2 else 0
+            area[h // 3 : h - 4, x0 + 4 : x0 + w // 2 - 4] = (40, 120, 200)
+        elif self.content == "cursor":
+            area[:] = 235
+            cx = (self._t * 3) % max(1, w - 8)
+            area[h // 2 : h // 2 + 8, cx : cx + 8] = 0  # only the mouse moves
         else:
             area[:] = rng.integers(0, 255, size=area.shape, dtype=np.uint8)
 
