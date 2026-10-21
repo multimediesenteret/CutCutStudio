@@ -55,3 +55,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Screens served by the simulator (README command, SIM-6)
+        run: uv run cutcut sim --smoke
