@@ -100,13 +100,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     hw = sub.add_parser(
         "hwtest",
-        help="maskintest på test-PC eller i studio, med rapport (AU-6, DA-5)",
+        help="maskintest på test-PC eller i studio, med rapport (AU-6, DA-5, CA-5)",
         description="Følg instruksjonene. Rapporten (Markdown) limes inn i GitHub-issuet.",
     )
     hw.add_argument(
         "what",
-        choices=["audio", "atem"],
-        help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5)",
+        choices=["audio", "atem", "camera"],
+        help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument("--minutes", type=float, default=60.0, help="stabilitetstest (standard 60)")
@@ -114,6 +114,7 @@ def build_parser() -> argparse.ArgumentParser:
     hw.add_argument("--save-wav", action="store_true", help="lagre lyden fra mic 1 i A2")
     hw.add_argument("--api", default=None, help="CutCut som kjører (atem; standard 127.0.0.1)")
     hw.add_argument("--user", default=None, help="teknikerens brukernavn (atem)")
+    hw.add_argument("--camera", default=None, help="kameraet som testes, f.eks. C2 (camera)")
 
     trace = sub.add_parser(
         "trace",
@@ -190,6 +191,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.site is None:
                 parser.error("hwtest atem trenger --site")
             return atem_test(args.site, args.api, args.user, out)
+        if args.what == "camera":
+            from cutcut.hwtest.camera import main as camera_test
+
+            if args.site is None or args.camera is None:
+                parser.error("hwtest camera trenger --site og --camera")
+            return camera_test(args.site, args.camera, out, None)
         from cutcut.hwtest.audio import main as audio_test
 
         return audio_test(args.site, args.minutes, out, args.save_wav)

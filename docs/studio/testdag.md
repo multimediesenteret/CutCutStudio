@@ -13,6 +13,7 @@ Rekkefølgen for å få CutCut opp på test-PC-en, og deretter i studio. Hvert s
 | 7 | Companion-sidene | `docs/studio/companion.md`. Helse → `H-COMP-1` skal vise «sider v1» | DA-9 (#92) |
 | 8 | Lyd | `uv run cutcut hwtest audio --site C:\CutCut\site` (ca. 70 min) | AU-6 (#83), Q21, Q24 |
 | 9 | ATEM og Companion | `uv run cutcut hwtest atem --site C:\CutCut\site --user …` | DA-5 (#89), Q7 |
+| 9b | PTZ-kameraer, ett av gangen | `uv run cutcut hwtest camera --site C:\CutCut\site --camera C2` | CA-5 (#142), Q16 |
 | 10 | Mikrofonene: lekkasje og støy | Teknikervinduet → Oppsett → Mikrofoner · steg 5. Lagre som fasit | AU-7 (#84) |
 | 11 | Helse | Teknikervinduet → Helse: alle sjekker grønne, eller forklart | HS-2 (#98) |
 | 12 | Første klipping via preview | En prøve med to personer, AUTO på. Operatøren vurderer | DA-6 (#90), T-M2 (#105) |
