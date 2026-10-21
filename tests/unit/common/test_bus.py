@@ -11,7 +11,7 @@ import pytest
 import zmq.asyncio
 
 from cutcut.common.bus import (
-    CommandTimeout,
+    CommandTimeoutError,
     Publisher,
     SeqTracker,
     StaleWatcher,
@@ -67,7 +67,7 @@ def test_encode_decode_round_trip() -> None:
         payload={"M1": {"vad": 0.9}},
     )
     assert decode(encode(msg)) == msg
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="2 frames"):
         decode([b"x"])
 
 
@@ -111,15 +111,23 @@ async def test_invalid_messages_are_skipped(ctx: zmq.asyncio.Context) -> None:
     sub = Subscriber(ctx, bind=endpoint(port))
     raw = ctx.socket(zmq.PUB)
     raw.connect(endpoint(port))
-    pub = Publisher(ctx, "test", SystemClock(), connect=endpoint(port))
-    await wait_until_connected(pub, sub, "probe")
-    await asyncio.sleep(0.05)
+    clock = SystemClock()
+
+    def frames(topic: str) -> list[bytes]:
+        msg = BusMessage(topic=topic, source="test", ts=clock.now(), mono_ms=0, seq=0)
+        return encode(msg)
+
+    for _ in range(100):  # wait until this very socket is connected (slow joiner)
+        await raw.send_multipart(frames("probe"))
+        if await sub.recv(timeout_ms=20) is not None:
+            break
     await raw.send_multipart([b"bad", b"{not json"])
-    await pub.publish("good", {})
+    await raw.send_multipart(frames("good"))
     got = await sub.recv(timeout_ms=1000)
     while got is not None and got.topic == "probe":
         got = await sub.recv(timeout_ms=1000)
-    assert got is not None and got.topic == "good"
+    assert got is not None
+    assert got.topic == "good"
     assert sub.invalid == 1
     raw.close(0)
 
@@ -152,7 +160,7 @@ async def test_request_gets_ack_and_times_out(ctx: zmq.asyncio.Context) -> None:
             timeout_ms=500,
         )
         assert ack.payload["ok"] is True
-        with pytest.raises(CommandTimeout):
+        with pytest.raises(CommandTimeoutError):
             await request(
                 core_out,
                 core_in,
@@ -167,7 +175,7 @@ async def test_request_gets_ack_and_times_out(ctx: zmq.asyncio.Context) -> None:
 
 
 def test_two_processes_talk_over_the_bus() -> None:
-    """A separate process publishes; this process receives (spec: processes restart independently)."""
+    """A separate process publishes and this process receives (processes run independently)."""
     port = free_port()
     script = textwrap.dedent(
         f"""
@@ -188,7 +196,7 @@ def test_two_processes_talk_over_the_bus() -> None:
     async def receive() -> list[int]:
         c = zmq.asyncio.Context()
         sub = Subscriber(c, ["audio."], bind=endpoint(port))
-        proc = subprocess.Popen([sys.executable, "-c", script])  # noqa: S603 - our own script
+        proc = subprocess.Popen([sys.executable, "-c", script])  # noqa: S603, ASYNC220 - test helper
         got: list[int] = []
         try:
             while len(got) < 20:

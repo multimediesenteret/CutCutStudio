@@ -132,8 +132,8 @@ class Subscriber:
         self.sock.close(0)
 
 
-class CommandTimeout(Exception):
-    pass
+class CommandTimeoutError(Exception):
+    """No acknowledgement arrived for a bus command."""
 
 
 async def request(
@@ -165,4 +165,4 @@ async def request(
                 return msg
             if on_other is not None:
                 on_other(msg)
-    raise CommandTimeout(f"{topic} {cmd_id}: no {ack_topic} after {retries + 1} attempts")
+    raise CommandTimeoutError(f"{topic} {cmd_id}: no {ack_topic} after {retries + 1} attempts")

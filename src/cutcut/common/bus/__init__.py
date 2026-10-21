@@ -4,7 +4,7 @@ from cutcut.common.bus.tracking import SeqTracker, StaleWatcher
 from cutcut.common.bus.zmq_bus import (
     EVENTS_IN_PORT,
     EVENTS_OUT_PORT,
-    CommandTimeout,
+    CommandTimeoutError,
     Publisher,
     Subscriber,
     decode,
@@ -16,7 +16,7 @@ from cutcut.common.bus.zmq_bus import (
 __all__ = [
     "EVENTS_IN_PORT",
     "EVENTS_OUT_PORT",
-    "CommandTimeout",
+    "CommandTimeoutError",
     "Publisher",
     "SeqTracker",
     "StaleWatcher",
