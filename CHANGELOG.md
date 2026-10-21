@@ -23,3 +23,4 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - M0: implementasjonsplaner for alle 13 moduler og `milestones.md` i `docs/plans/`, forslag PL-01–PL-08, spørsmål Q27–Q36.
 - Planene godkjent (D-046); ADR-0012–0014 akseptert. Lisens Apache-2.0 (`LICENSE`, `NOTICE`). Ingen skyggerunde: M2 er nå «Studiotest» (D-049). Vercel hopper over utrulling når skjermene ikke er endret (`ignoreCommand`, D-050).
 - C-1: Python-prosjekt (`pyproject.toml`, `uv.lock`, Python 3.12), ruff, mypy strict, pytest, kommandoen `cutcut`, og CI-jobben `python` med sti-filter.
+- C-2: faste ID-er (`P1`–`P4`, `M1`–`M5`, `C1`–`C7`, `LAPTOP`, moduser, alle regel-ID-er fra spesifikasjonen) og Pydantic-modeller for show-oppsett, økt, beslutning og buss. Show-oppsettet avvises hvis deltakere deler mic eller kamera, `C5` mangler, eller ATEM-innganger kolliderer.

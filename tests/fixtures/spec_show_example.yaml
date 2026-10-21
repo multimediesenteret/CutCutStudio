@@ -1,0 +1,39 @@
+# Copied verbatim from docs/spec/01-app-spesifikasjon.md section 4. Must always validate.
+# site/<studio>/shows/podcast-standard.yaml
+id: podcast-standard
+name: "Podcast standard"
+version: 4                      # økes ved hver lagring, eldre versjoner beholdes
+participants:                   # 1–4 stk, rekkefølge = plass ved bordet
+  - { id: P1, name: "Vert",    mic: M1, camera: C1, role: host }
+  - { id: P2, name: "Gjest A", mic: M2, camera: C2, role: guest }
+  - { id: P3, name: "Gjest B", mic: M3, camera: C3, role: guest }
+cameras:
+  C1: { driver: canon_xc, ip: 10.10.10.21, atem_input: 1, presets: { tight: 1, wide: 2 }, slow_zoom: false }
+  C2: { driver: obsbot,   ip: 10.10.10.22, atem_input: 2, presets: { tight: 1, wide: 2 }, slow_zoom: false }
+  C3: { driver: obsbot,   ip: 10.10.10.23, atem_input: 3, presets: { tight: 1, wide: 2 }, slow_zoom: false }
+  C5: { driver: none,     atem_input: 5, role: bird }          # fast fugleperspektiv
+content:
+  atem_input: 6
+  audio_mic: M5                 # laptop-lyd på RØDECaster fader 5
+features:                       # grunnmodus er alltid på; dette er bryterne i 5.13
+  bird: true
+  content: true
+  video_confirm: false
+  reactions: false
+  framing_variety: false
+  slow_zoom: false
+  layouts: false
+  live_transcript: false
+  turn_prediction: false
+layouts:                        # gjelder bare når features.layouts er på
+  pip_speaker_content: false
+  pip_two_people: false
+  quad_four: false
+  quad_three_content: false
+rules_preset: standard          # rolig | standard | energisk
+rules_override:                 # bare verdier som avviker fra preset
+  T7_reaction_after_s: 18
+color:
+  reference_camera: C1
+  saved_at: 2026-10-20T09:12:00+02:00
+  values: { C2: { kelvin: 5450, r: +6, b: -4 }, C3: { kelvin: 5600, r: 0, b: +3 } }
