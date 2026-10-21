@@ -1,6 +1,6 @@
 // The technician pages behind the rail (U-7, U-8): Regi, Kameraer, Opptak, Helse, Logg,
 // Innstillinger and the Oppsett placeholder (the setup wizard comes in M3).
-import { useStudio, type Decision, type ShowDetail } from "@cutcut/client";
+import { useStudio, type Decision, type SessionRow, type ShowDetail } from "@cutcut/client";
 import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
@@ -438,12 +438,77 @@ export function Recording({ ctx }: { ctx: Ctx }) {
           <p className="muted">Ingen er logget inn.</p>
         )}
       </div>
-      <div className="panel span">
-        <div className="ph">
-          <span className="lbl">Opptak i dag</span>
-        </div>
-        <p className="muted">Oversikten over dagens opptak kommer med eksporten (A-6).</p>
+      <SessionTable ctx={ctx} />
+    </div>
+  );
+}
+
+function SessionTable({ ctx }: { ctx: Ctx }) {
+  const { cmd, state } = ctx;
+  const [rows, setRows] = useState<SessionRow[] | null>(null);
+  // Refresh when a session starts, ends or changes step.
+  const key = `${state.session?.session_id ?? ""}|${state.touch.step}`;
+  useEffect(() => {
+    let alive = true;
+    cmd
+      .sessions(1)
+      .then((r) => alive && setRows(r))
+      .catch(() => alive && setRows(null));
+    return () => {
+      alive = false;
+    };
+  }, [cmd, key]);
+  return (
+    <div className="panel span">
+      <div className="ph">
+        <span className="lbl">Opptak siste døgn</span>
+        {rows && (
+          <a className="btn" href="/api/sessions.csv?days=30" download>
+            Last ned CSV (30 dager)
+          </a>
+        )}
       </div>
+      {rows === null ? (
+        <p className="muted">Økthistorikken er ikke tilgjengelig her.</p>
+      ) : (
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Start</th>
+                <th>Bruker</th>
+                <th>Lengde</th>
+                <th>Type</th>
+                <th>Personer</th>
+                <th>Startet fra</th>
+                <th>Panopto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="muted">
+                    Ingen opptak ennå.
+                  </td>
+                </tr>
+              )}
+              {rows.map((r) => (
+                <tr key={r.session_id}>
+                  <td className="tnum">{hms(r.started_at).slice(0, 5)}</td>
+                  <td>
+                    {r.display_name} <span className="muted">({r.username})</span>
+                  </td>
+                  <td className="tnum">{clock(r.duration_s)}</td>
+                  <td>{r.video ? "Video og lyd" : "Kun lyd"}</td>
+                  <td>{r.participants}</td>
+                  <td>{r.started_by ?? "–"}</td>
+                  <td>{r.publish ?? "–"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -637,6 +702,8 @@ function csv(rows: Decision[]): string {
 
 export function LogView({ ctx }: { ctx: Ctx }) {
   const all = useDecisions(ctx.cmd);
+  // The engine makes the files; in the web simulator (fixed role) the page makes the CSV.
+  const live = !useStudio().transport.role;
   const [filter, setFilter] = useState<Filter>("all");
   const rows = all.filter((d) =>
     filter === "all"
@@ -678,9 +745,22 @@ export function LogView({ ctx }: { ctx: Ctx }) {
             </button>
           ))}
         </div>
-        <button type="button" className="btn" onClick={download} disabled={rows.length === 0}>
-          Last ned CSV
-        </button>
+        <div className="row">
+          {live ? (
+            <a className="btn" href="/api/log.csv" download>
+              Last ned CSV
+            </a>
+          ) : (
+            <button type="button" className="btn" onClick={download} disabled={rows.length === 0}>
+              Last ned CSV
+            </button>
+          )}
+          {live && ctx.role === "admin" && (
+            <a className="btn" href="/api/debug-package" download>
+              Feilsøkingspakke
+            </a>
+          )}
+        </div>
       </div>
       <div className="scroll">
         <table>

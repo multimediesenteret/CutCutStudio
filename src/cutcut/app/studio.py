@@ -11,6 +11,7 @@ import logging
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Final, Literal, Protocol
 
 from pydantic import ValidationError
@@ -40,7 +41,14 @@ from cutcut.common.config import (
 )
 from cutcut.common.ids import MicId, RuleId, is_shot
 from cutcut.common.models.decision import Decision
-from cutcut.common.models.session import RecordingStatus, ShowChoice, StartedBy, TouchStep, User
+from cutcut.common.models.session import (
+    RecordingStatus,
+    Session,
+    ShowChoice,
+    StartedBy,
+    TouchStep,
+    User,
+)
 from cutcut.common.models.show import Features, RulesPreset, ShowConfig
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
@@ -72,6 +80,35 @@ STATE_EVERY_MS: Final = 100  # 10 Hz (docs/design/gui-konsept.md)
 METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
+HISTORY_KEEP: Final = 200
+
+
+@dataclass
+class SessionRecord:
+    session: Session
+    started_at: datetime
+    ended_at: datetime | None = None
+
+
+def _history_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Flat row for the technician's table and CSV. No card number exists to leak (I8)."""
+    s = row["session"]
+    rec = s.get("recording", {})
+    show = s.get("show", {})
+    return {
+        "session_id": s["session_id"],
+        "username": s["user"]["username"],
+        "display_name": s["user"]["display_name"],
+        "started_at": row["started_at"],
+        "ended_at": row["ended_at"],
+        "duration_s": rec.get("duration_s", 0),
+        "recording": rec.get("state"),
+        "started_by": rec.get("started_by"),
+        "stopped_by": rec.get("stopped_by"),
+        "participants": int(show.get("guests", 0)) + 1,
+        "video": bool(show.get("video", True)),
+        "publish": s.get("publish", {}).get("state"),
+    }
 
 
 def _why(exc: ValueError) -> str:
@@ -128,6 +165,7 @@ class StudioDeps:
     recorder: Recorder
     store: Store | None = None
     simulator: bool = False
+    log_dir: Path | None = None  # JSON-line logs, for the debug package
 
 
 @dataclass
@@ -159,6 +197,8 @@ class Studio:
         self._last_state: dict[str, Any] = {}
         self._last_state_ms = -STATE_EVERY_MS
         self._last_meters_ms = -METERS_EVERY_MS
+        self._tracked: tuple[str, TouchStep] | None = None
+        self.history: dict[str, SessionRecord] = {}
 
     # -- configuration --------------------------------------------------------------------
 
@@ -252,7 +292,59 @@ class Studio:
         if now - self._last_state_ms >= STATE_EVERY_MS:
             self._last_state_ms = now
             self._publish_state()
+        self._track_session()
         return result
+
+    def _track_session(self) -> None:
+        """Keep the session history (spec 8.4 «Opptak i dag»): saved on every step change, so
+        a restart loses nothing that was finished."""
+        session = self.sessions.session
+        key = (session.session_id, session.touch_step) if session else None
+        if key == self._tracked:
+            return
+        wall = self.deps.clock.now()
+        if self._tracked is not None and (key is None or key[0] != self._tracked[0]):
+            self._end_tracked(self._tracked[0], wall)
+        self._tracked = key
+        if session is None:
+            return
+        record = self.history.get(session.session_id)
+        if record is None:
+            record = SessionRecord(session=session.model_copy(deep=True), started_at=wall)
+            self.history[session.session_id] = record
+            while len(self.history) > HISTORY_KEEP:
+                self.history.pop(next(iter(self.history)))
+        record.session = session.model_copy(deep=True)
+        if session.touch_step is TouchStep.DONE and record.ended_at is None:
+            record.ended_at = wall
+        self._save_record(record)
+
+    def _end_tracked(self, session_id: str, wall: datetime) -> None:
+        record = self.history.get(session_id)
+        if record is not None and record.ended_at is None:
+            record.ended_at = wall
+            self._save_record(record)
+
+    def _save_record(self, record: SessionRecord) -> None:
+        if self.deps.store is not None:
+            self.deps.store.upsert_session(record.session, record.started_at, record.ended_at)
+
+    def session_history(self, since: datetime) -> list[dict[str, Any]]:
+        """Newest first, from the database when there is one (survives restarts)."""
+        if self.deps.store is not None:
+            self.deps.store.flush()
+            rows = self.deps.store.sessions_since(since)
+        else:
+            rows = [
+                {
+                    "session": r.session.model_dump(mode="json"),
+                    "started_at": r.started_at.isoformat(),
+                    "ended_at": r.ended_at.isoformat() if r.ended_at else None,
+                }
+                for r in reversed(self.history.values())
+                if r.started_at >= since
+            ]
+        return [_history_row(r) for r in rows]
 
     def _on_step(self, result: StepResult) -> None:
         return None
