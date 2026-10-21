@@ -107,7 +107,7 @@ Multiview-oppsettet er en fast avtale mellom ATEM og videolaget: rutene må ligg
 
 ### 2.2 ATEM Mini Extreme ISO
 
-> **Merknad D-053 (2026-10-21):** NTNU-studioet har en **ATEM Television Studio HD8 ISO**, ikke Mini Extreme ISO. Innstillingene under gjelder fortsatt (1080p50, program til Pearl, multiview 2 + 8 til INOGENI over HDMI, makroer, eksport), men inngangene er SDI, «HDMI ut» leses som SDI-/HDMI-utgang, og modelltabellen lenger ned er ikke aktuell. Observert oppsett og avvik: `docs/studio/multiview.md`. Inngangskartet avgjøres i Q37–Q39.
+> **Merknad D-053 (2026-10-21):** NTNU-studioet har en **ATEM Television Studio HD8 ISO**, ikke Mini Extreme ISO. Innstillingene under gjelder fortsatt (1080p50, program til Pearl, multiview 2 + 8 til INOGENI over HDMI, makroer, eksport), men inngangene er SDI, «HDMI ut» leses som SDI-/HDMI-utgang, og modelltabellen lenger ned er ikke aktuell. Observert oppsett og avvik: `docs/studio/multiview.md`. Inngangskartet i NTNU-studioet (D-054): inngang 1–4 = `C1`–`C4`, 6 = fugleperspektiv (`C5`), 7 = `LAPTOP`; ligger i `site/ntnu-studio/`.
 
 | Innstilling | Verdi | Hvorfor |
 | --- | --- | --- |

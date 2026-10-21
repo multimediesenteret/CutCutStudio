@@ -1,0 +1,16 @@
+# NTNU-studioet (Multimediesenteret). Inngangskart bekreftet av Magnus Lian 2026-10-21 (D-054).
+# IP-adressene følger IP-planen i spesifikasjonen 2.6 og er IKKE bekreftet ennå (Q20/Q37).
+# Passord og nøkler ligger i Windows Credential Manager, aldri her.
+schema_version: 1
+studio: ntnu-studio
+atem: { ip: 10.10.10.10, model: "ATEM Television Studio HD8 ISO" }
+companion: { url: "http://127.0.0.1:8000", engine_page: 10, operator_page: 11, pages_version: 1 }
+pearl: { ip: 10.10.10.30, recorder_id: "1", username: cutcut }
+cameras:
+  C1: { ip: 10.10.10.21, model: "Canon CR-N300" }   # Camera 1 · programleder (modell: Q26)
+  C2: { ip: 10.10.10.22, model: "OBSBOT Tail 2" }   # Camera 2 · gjest 1
+  C3: { ip: 10.10.10.23, model: "OBSBOT Tail 2" }   # Camera 3 · gjest 2
+  C4: { ip: 10.10.10.24, model: "OBSBOT Tail 2" }   # Camera 4 · gjest 3
+  C5: { model: "Oversikt (Camera 6 på ATEM)" }      # fugleperspektiv / overview
+card_reader: { usb_id: "09D8:0320" }
+api_port: 8080

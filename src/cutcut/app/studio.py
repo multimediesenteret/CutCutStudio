@@ -243,6 +243,21 @@ class Studio:
         )
         return ShowConfig.model_validate(data)
 
+    def _inputs(self) -> dict[str, int]:
+        """ATEM input per tile key. The current show wins; other shows fill in seats that are
+        empty now, so the technician sees the right «Camera n» for every seat."""
+        out: dict[str, int] = {}
+        for show in [*self.deps.site.shows.values(), self.show]:
+            for p in show.participants:
+                cam = show.cameras.get(p.camera)
+                if cam is not None:
+                    out[p.id.value] = cam.atem_input
+            for cam in show.cameras.values():
+                if cam.role in ("bird", "wide"):
+                    out[cam.role.upper()] = cam.atem_input
+            out["CONTENT"] = show.content.atem_input
+        return out
+
     def _save_tuning(self) -> None:
         if self.deps.store is not None:
             value = {
@@ -426,6 +441,7 @@ class Studio:
                 version=__version__,
                 show_types={k: v.name for k, v in self.deps.show_types.types.items()},
                 show_id=self.show.id,
+                inputs=self._inputs(),
             ),
             session=session.model_copy(deep=True) if session else None,
             touch=TouchInfo(

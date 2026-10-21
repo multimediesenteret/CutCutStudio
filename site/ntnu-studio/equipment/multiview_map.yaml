@@ -1,25 +1,25 @@
 # Rutekart for multiviewen i NTNU-studioet (spesifikasjonen 6.1, plan vision.md).
-# STATUS: UTKAST fra bilde av multiview-skjermen 2026-10-21 (D-053). Ikke bekreftet mot
-# ATEM-oppsettet; videolaget (M3) bruker det ikke før Q37 og Q38 er besvart.
+# Laget fra bilde av multiview-skjermen 2026-10-21 (D-053). Inngangskartet er bekreftet av
+# Magnus Lian samme dag (D-054). Koordinatene måles på nytt i setup-hjelperen (M3).
 #
 # Mikser: ATEM Television Studio HD8 ISO. Layout: 2 store + 8 små ruter, preview til venstre.
 # Koordinater er andel av bildet (0–1): x, y, bredde, høyde. Hver rute kuttes 4 % inn på
 # alle sider før analyse (tally-ramme og navneskilt).
 schema_version: 1
-status: draft
+status: confirmed-inputs
 source: "Foto av multiview, 2026-10-21"
 switcher: "ATEM Television Studio HD8 ISO"
 layout: "2+8, preview venstre"
 tiles:
   - { id: PVW, label: "Preview", rect: [0.00, 0.00, 0.50, 0.50], source: preview }
   - { id: PGM, label: "Program", rect: [0.50, 0.00, 0.50, 0.50], source: program }
-  - { id: W1, label: "Camera 1", rect: [0.00, 0.50, 0.25, 0.25], source: input1 }
-  - { id: W2, label: "Camera 2", rect: [0.25, 0.50, 0.25, 0.25], source: input2 }
-  - { id: W3, label: "Camera 3", rect: [0.50, 0.50, 0.25, 0.25], source: input3 }
-  - { id: W4, label: "Camera 4", rect: [0.75, 0.50, 0.25, 0.25], source: input4 }
-  - { id: W5, label: "Camera 6", rect: [0.00, 0.75, 0.25, 0.25], source: input6 }
-  - { id: W6, label: "Camera 7", rect: [0.25, 0.75, 0.25, 0.25], source: input7 } # svart på bildet
-  - { id: W7, label: "Media Player 1", rect: [0.50, 0.75, 0.25, 0.25], source: mediaplayer1 }
+  - { id: W1, label: "Camera 1", rect: [0.00, 0.50, 0.25, 0.25], source: input1, camera: C1 }  # programleder
+  - { id: W2, label: "Camera 2", rect: [0.25, 0.50, 0.25, 0.25], source: input2, camera: C2 }  # gjest 1
+  - { id: W3, label: "Camera 3", rect: [0.50, 0.50, 0.25, 0.25], source: input3, camera: C3 }  # gjest 2
+  - { id: W4, label: "Camera 4", rect: [0.75, 0.50, 0.25, 0.25], source: input4, camera: C4 }  # gjest 3
+  - { id: W5, label: "Camera 6", rect: [0.00, 0.75, 0.25, 0.25], source: input6, camera: C5 }  # oversikt / fugleperspektiv
+  - { id: W6, label: "Camera 7", rect: [0.25, 0.75, 0.25, 0.25], source: input7, camera: LAPTOP }  # laptop (svart når ingen er koblet til)
+  - { id: W7, label: "Media Player 1", rect: [0.50, 0.75, 0.25, 0.25], source: mediaplayer1 }  # intern, brukes ikke i studio; CutCut kan bruke den til «Kun lyd»
   - { id: W8, label: "Opptaksstatus", rect: [0.75, 0.75, 0.25, 0.25], source: recording_status }
-# Ikke i multiviewen i dag: inngang 5 og 8, og SuperSource. Hvilken inngang som er
-# fugleperspektiv og laptop er ikke bekreftet (Q37).
+# Ikke i multiviewen: inngang 5 og 8 (ikke i bruk) og SuperSource (trengs først med
+# layouter, M4).

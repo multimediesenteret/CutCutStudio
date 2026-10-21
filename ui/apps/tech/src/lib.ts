@@ -45,19 +45,35 @@ export interface Ctx {
   go: (view: View) => void;
 }
 
-const CAM_OF: Record<string, string> = { P1: "1", P2: "2", P3: "3", P4: "4" };
+/** Fallback when the engine does not send the input map (old traces). */
+const DEFAULT_INPUT: Record<string, number> = {
+  P1: 1,
+  P2: 2,
+  P3: 3,
+  P4: 4,
+  BIRD: 5,
+  CONTENT: 6,
+  WIDE: 7,
+};
 
-/** «CAM 2 · Gjest 1», «CAM 5 · Fugleperspektiv», «IN 6 · Laptop» (D-041 display names). */
+/** «Camera 6» – the same name as the ATEM multiview, from the studio's input map (D-054). */
+export function inputName(state: StudioState, key: string): string {
+  const inputs = (state.studio as { inputs?: Record<string, number> }).inputs ?? {};
+  const n = inputs[key] ?? DEFAULT_INPUT[key];
+  return n ? `Camera ${n}` : key;
+}
+
+/** «Camera 2 · Gjest 1», «Camera 6 · Fugleperspektiv», «Camera 7 · Laptop». */
 export function shotName(state: StudioState, shot: string | null | undefined): string {
   if (!shot) return "–";
-  if (shot === "BIRD") return "CAM 5 · Fugleperspektiv";
-  if (shot === "WIDE") return "CAM 7 · Halvtotal";
-  if (shot === "CONTENT") return "IN 6 · Laptop";
+  if (shot === "BIRD") return `${inputName(state, "BIRD")} · Fugleperspektiv`;
+  if (shot === "WIDE") return `${inputName(state, "WIDE")} · Halvtotal`;
+  if (shot === "CONTENT") return `${inputName(state, "CONTENT")} · Laptop`;
   if (shot === "AUDIO_ONLY") return "Kun lyd-grafikk";
   if (shot.startsWith("CU:")) {
     const id = shot.slice(3);
     const p = state.participants.find((x) => x.id === id);
-    return `CAM ${CAM_OF[id] ?? "?"} · ${p?.name ?? id}`;
+    return `${inputName(state, id)} · ${p?.name ?? id}`;
   }
   return shot.replace(/^PIP:/, "PiP ").replace("+CONTENT", " + laptop");
 }

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException
@@ -80,9 +81,9 @@ class LiveSim:
 
 
 def build_live_sim(
-    clock: Clock, *, seed: int = 1, store: Store | None = None
+    clock: Clock, *, seed: int = 1, store: Store | None = None, site_dir: Path | None = None
 ) -> tuple[LiveSim, Auth]:
-    site = load_site(example_site_dir())
+    site = load_site(site_dir or example_site_dir())
     atem, pearl = FakeAtem(), FakePearl()
     deps = StudioDeps(
         site=site,

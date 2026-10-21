@@ -21,6 +21,9 @@ class StudioInfo(_S):
     version: str
     show_types: dict[str, str]
     show_id: str
+    # ATEM input per multiview tile key (P1–P4, BIRD, WIDE, CONTENT), so the screens can
+    # use the same «Camera n» names as the ATEM multiview (D-054).
+    inputs: dict[str, int]
 
 
 class TouchInfo(_S):

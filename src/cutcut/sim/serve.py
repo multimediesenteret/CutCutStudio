@@ -35,10 +35,11 @@ class SimOptions:
     port: int = DEFAULT_PORT
     seed: int = 1
     ui_dir: Path | None = None
+    site_dir: Path | None = None  # default: the fictional site/example
 
 
 def build_sim_app(opts: SimOptions) -> FastAPI:
-    sim, auth = build_live_sim(SystemClock(), seed=opts.seed)
+    sim, auth = build_live_sim(SystemClock(), seed=opts.seed, site_dir=opts.site_dir)
     return create_app(
         sim.studio,
         auth,
@@ -52,7 +53,8 @@ def build_sim_app(opts: SimOptions) -> FastAPI:
 def banner(opts: SimOptions) -> str:
     base = f"http://{opts.host}:{opts.port}"
     lines = [
-        "CutCut Studio – simulator (ingen ekte utstyr)",
+        "CutCut Studio – simulator (ingen ekte utstyr)"
+        + (f" · oppsett {opts.site_dir}" if opts.site_dir else ""),
         f"  Touch:     {base}/touch/",
         f"  Tekniker:  {base}/tech/",
         f"  API:       {base}/api/docs",

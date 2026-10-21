@@ -957,6 +957,10 @@ export interface components {
         };
         /** StudioInfo */
         StudioInfo: {
+            /** Inputs */
+            inputs: {
+                [key: string]: number;
+            };
             /** Name */
             name: string;
             /** Show Id */
