@@ -16,3 +16,5 @@ build/
 *.mp4
 .env
 *.secret
+playwright-report/
+test-results/

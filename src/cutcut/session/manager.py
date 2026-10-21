@@ -157,6 +157,18 @@ class SessionManager:
         self._go(TouchStep.IDLE, now)
         return []
 
+    def again(self, now: int, wall: datetime) -> list[Action]:
+        """«Ta et nytt opptak» on the done screen: same user and choice, a new session."""
+        if self.session is None or self.step is not TouchStep.DONE:
+            raise SessionError("Det er ikke noe ferdig opptak å fortsette fra.")
+        user, show = self.session.user, self.session.show
+        self._logout(now)
+        actions = self.login(user, now, wall, "touch")
+        if self.session is not None:
+            self.session.show = show
+            self.session.mode = self.mode()
+        return actions
+
     # -- show choice ----------------------------------------------------------------------
 
     def set_show(self, choice: ShowChoice, now: int) -> list[Action]:

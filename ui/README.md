@@ -21,4 +21,5 @@ pnpm types            # generer klienttyper etter endring i API-et (docs/referen
 pnpm lint && pnpm typecheck && pnpm test
 pnpm build            # bygger til ui/dist/{touch,tech}, som motoren serverer
 pnpm --filter @cutcut/touch dev   # utvikling mot motor/simulator på 127.0.0.1:8080
+pnpm build && pnpm e2e            # Playwright mot `uv run cutcut sim` (CUTCUT_CHROMIUM=sti for egen Chromium)
 ```

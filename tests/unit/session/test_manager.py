@@ -159,6 +159,34 @@ def test_new_recording_from_done_screen() -> None:
     assert m.step is TouchStep.COUNTDOWN
 
 
+def test_again_from_done_keeps_user_and_choice_in_a_new_session() -> None:
+    m = SessionManager()
+    m.login(KARI, 0, WALL)
+    m.set_show(ShowChoice(guests=2, video=False), 0)
+    m.start(0, "touch")
+    m.tick(COUNTDOWN_MS)
+    now = COUNTDOWN_MS + 800
+    m.pearl_status(RecordingStatus.STARTED, now)
+    m.stop(now + 5000, "touch")
+    m.pearl_status(RecordingStatus.STOPPED, now + 5500)
+    assert m.step is TouchStep.DONE
+    first = m.session.session_id if m.session else ""
+    m.again(now + 6000, WALL.replace(minute=9))
+    assert m.step is TouchStep.READY
+    assert m.session is not None
+    assert m.session.user == KARI
+    assert m.session.show == ShowChoice(guests=2, video=False)
+    assert m.session.session_id != first
+    assert m.session.recording.duration_s == 0
+
+
+def test_again_only_from_done() -> None:
+    m = SessionManager()
+    m.login(KARI, 0, WALL)
+    with pytest.raises(SessionError):
+        m.again(0, WALL)
+
+
 def test_technician_can_move_touch_to_any_step() -> None:
     m = SessionManager()
     m.login(KARI, 0, WALL)

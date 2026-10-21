@@ -2030,6 +2030,28 @@
         ]
       }
     },
+    "/api/touch/again": {
+      "post": {
+        "description": "«Ta et nytt opptak» on the done screen: back to ready for the same user.",
+        "operationId": "again_api_touch_again_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Again",
+        "tags": [
+          "session"
+        ]
+      }
+    },
     "/api/touch/step": {
       "post": {
         "operationId": "touch_step_api_touch_step_post",

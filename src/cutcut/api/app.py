@@ -215,6 +215,12 @@ def create_app(
         studio.touch_step(body.step, me.role, me.actor)
         return Ok()
 
+    @app.post("/api/touch/again", tags=["session"])
+    async def again(me: Who) -> Ok:
+        """«Ta et nytt opptak» on the done screen: back to ready for the same user."""
+        studio.again(me.role, me.actor)
+        return Ok()
+
     @app.post("/api/touch/touched", tags=["session"])
     async def touched(me: Who) -> Ok:
         studio.touched()

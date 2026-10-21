@@ -368,6 +368,10 @@ class Studio:
         self.apply(self._guard(self.sessions.move_to, step, self.now))
         self._audit(role, actor, "touch_step", step=step.value)
 
+    def again(self, role: Role, actor: str) -> None:
+        self.apply(self._guard(self.sessions.again, self.now, self.deps.clock.now()))
+        self._audit(role, actor, "session_again")
+
     def touched(self) -> None:
         self.sessions.touched(self.now)
 
