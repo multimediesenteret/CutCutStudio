@@ -68,6 +68,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     audio.add_argument("--wav", type=Path, help="spill av en 48 kHz multitrack-WAV (fake)")
     audio.add_argument("--vad-model", type=Path, default=None, help="Silero VAD (.onnx)")
+    audio.add_argument(
+        "--site", type=Path, default=None, help="studio-oppsett (lekkasje fra baseline.yaml)"
+    )
 
     trace = sub.add_parser(
         "trace",
@@ -128,7 +131,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "audio":
         from cutcut.audio.main import main as audio_main
 
-        return audio_main(args.wav, args.vad_model)
+        return audio_main(args.wav, args.vad_model, args.site)
     if args.command == "trace":
         from cutcut.sim.trace import default_trace_dir, write_all
 

@@ -96,7 +96,12 @@ def specs(opts: SupervisorOptions) -> list[ProcessSpec]:
         ),
     ]
     if opts.audio_wav is not None:
-        out.append(ProcessSpec("audio-capture", [*py, "audio", "--wav", str(opts.audio_wav)]))
+        out.append(
+            ProcessSpec(
+                "audio-capture",
+                [*py, "audio", "--wav", str(opts.audio_wav), "--site", str(opts.site_dir)],
+            )
+        )
     return out
 
 

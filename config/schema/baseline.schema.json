@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "AudioBaseline": {
+      "additionalProperties": false,
+      "description": "Leakage between mics, measured in setup step 5 (one person talks at a time).\n\n``leak_db[A][B]`` is how much quieter A's voice is on B's mic than on A's own, in dB\n(negative; typically −15 to −30 in a small studio). Missing pairs use the default.",
+      "properties": {
+        "leak_db": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "$ref": "#/$defs/MicId"
+            },
+            "type": "object"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/MicId"
+          },
+          "title": "Leak Db",
+          "type": "object"
+        },
+        "noise_floor_db": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/MicId"
+          },
+          "title": "Noise Floor Db",
+          "type": "object"
+        },
+        "rodecaster_firmware": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rodecaster Firmware"
+        }
+      },
+      "title": "AudioBaseline",
+      "type": "object"
+    },
+    "MicId": {
+      "description": "RØDECaster faders 1–5. M1–M4 belong to P1–P4; M5 is laptop audio (CT3, CT5).",
+      "enum": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "title": "MicId",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approved_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approved At"
+    },
+    "approved_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Approved By"
+    },
+    "audio": {
+      "$ref": "#/$defs/AudioBaseline"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    }
+  },
+  "title": "Baseline",
+  "type": "object"
+}

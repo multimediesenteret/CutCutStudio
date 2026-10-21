@@ -17,12 +17,17 @@ from cutcut.common.clock import SystemClock
 log = logging.getLogger(__name__)
 
 
-def main(wav: Path | None, vad_model: Path | None) -> int:
+def main(wav: Path | None, vad_model: Path | None, site_dir: Path | None = None) -> int:
     if wav is None:
         print("Ekte lydkort (ASIO) kommer i AU-5. Bruk --wav for å spille av en fil.")
         return 2
     backend = WavBackend(wav)
-    analyzer = Analyzer(vad_model=vad_model)
+    leak_db = None
+    if site_dir is not None:
+        from cutcut.common.config import load_site
+
+        leak_db = load_site(site_dir).baseline.audio.leak_db or None
+    analyzer = Analyzer(vad_model=vad_model, leak_db=leak_db)
 
     async def go() -> None:
         ctx = zmq.asyncio.Context.instance()
@@ -32,6 +37,7 @@ def main(wav: Path | None, vad_model: Path | None) -> int:
         finally:
             pub.close()
 
-    print(f"audio-capture: {wav.name}, VAD {analyzer.vad_name}")
+    matrix = "målt (baseline.yaml)" if leak_db else "standard"
+    print(f"audio-capture: {wav.name}, VAD {analyzer.vad_name}, lekkasje {matrix}")
     asyncio.run(go())
     return 0
