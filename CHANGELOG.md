@@ -42,4 +42,5 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - SIM-6: `uv run cutcut sim` starter motor, simulator og begge skjermer på http://127.0.0.1:8080 (`/touch/`, `/tech/`, `/api/docs`). `--smoke` starter, sjekker helse og skjermer og avslutter; CI kjører den.
 - SIM-7: `uv run cutcut trace` lagrer simulerte økter (kort, valg, opptak, samtale, slides, ferdig) som JSON for web-simulatoren i `ui/apps/simulator/public/traces/`. Forløpene er deterministiske, og CI feiler hvis de er utdaterte.
 - U-3: klienten for skjermene: `WsTransport` kobler til igjen for alltid (250 ms → 5 s) og viser siste tilstand mens den venter, `ReplayTransport` spiller av forløp fra `cutcut trace` med pause, fart, hopp og løkke. Testet mot det ekte forløpet.
+- U-2: felles komponenter i `@cutcut/design`: hold-knapp (2 s, berøring, mus og tastatur; slipper du tidlig skjer ingenting), mic-stripe og nivåmåler som bare bruker `transform`, setebrikke, statuslys og statusrad.
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).

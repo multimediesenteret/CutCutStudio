@@ -1,0 +1,75 @@
+/* Mechanics of the shared components (U-2). Sizes are set by each app. */
+.cc-dot {
+  display: inline-block;
+  flex: none;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: var(--pvw);
+}
+.cc-dot.warn {
+  background: var(--wait);
+}
+.cc-dot.err {
+  background: var(--pgm);
+}
+.cc-dot.off {
+  background: var(--faint);
+}
+.cc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cc-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+}
+.cc-level {
+  display: inline-block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line-2);
+}
+.cc-level i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pc, var(--pvw));
+  transform-origin: left;
+  transform: scaleX(var(--lv, 0));
+}
+.cc-hold {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+.cc-hold-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--pgm);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.cc-hold:not(.hold) .cc-hold-fill {
+  transition: transform 0.25s;
+}
+.cc-hold-label {
+  position: relative;
+}
+.cc-hold.hold .cc-hold-label {
+  color: #fff;
+}
+.cc-seat,
+.cc-mic {
+  position: relative;
+}
