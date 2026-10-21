@@ -5,6 +5,12 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-6: kameraene i `core` og helsesjekkene `H-CAM-*` og `H-CAM-MOVE`.
+  - Posisjonen leses hvert 2. sekund. Et kamera som beveger seg, holdes utenfor (`S1`).
+  - Et kamera som flytter seg uten at CutCut ba om det og uten AI-tracking, gir rødt `H-CAM-MOVE`.
+  - Hvert kamera sjekkes hvert 10. sekund: svar under 200 ms og manuell hvitbalanse og eksponering.
+  - AI-tracking slås av på alle kameraer ved oppstart.
+  - Nye kameraadresser fra teknikervinduet tas i bruk uten omstart.
 - CA-4: Canon CR-N300 over VISCA til Canons XC-liste finnes (Q6).
   - Status, posisjon og presets virker; hvitbalanse og eksponering venter på XC.
   - Riktig driver velges per kamera fra `devices.yaml`.

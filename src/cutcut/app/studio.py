@@ -47,7 +47,7 @@ from cutcut.common.config import (
     Site,
     effective_rules,
 )
-from cutcut.common.ids import MicId, RuleId, is_shot
+from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import (
@@ -76,6 +76,7 @@ from cutcut.core.inputs import (
 )
 from cutcut.core.runtime import CoreRuntime, Executor
 from cutcut.devices.atem.macros import check as macro_check
+from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
 from cutcut.health import checks as health_checks
 from cutcut.session.manager import (
@@ -202,6 +203,7 @@ class StudioDeps:
     atem: AtemReader | None = None  # atem-bridge client in studio; None: the executor reads
     system: System | None = None  # PC numbers for H-PC-*; None: no PC checks
     data_dir: Path = Path(".")  # the disk H-PC-1 watches
+    cameras: CameraService | None = None  # PTZ cameras in core (CA-6); None: no H-CAM checks
 
 
 @dataclass
@@ -654,7 +656,50 @@ class Studio:
         system = self.deps.system
         if system is not None:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
+        cams = self.deps.cameras
+        if cams is not None and cams.guards:
+            for cam in sorted(cams.guards, key=lambda c: c.value):
+                checks.append(
+                    health_checks.camera(f"H-CAM-{cam.value}", self._camera_reading(cam), now)
+                )
+            checks.append(
+                health_checks.camera_move(
+                    lambda: [self._camera_reading(c)() for c in list(cams.guards)], now
+                )
+            )
         return checks
+
+    def camera_name(self, cam: CameraId) -> str:
+        """«Camera 2», by the ATEM input as on the screens."""
+        for show in [self.show, *self.deps.site.shows.values()]:
+            c = show.cameras.get(cam)
+            if c is not None:
+                return f"Camera {c.atem_input}"
+        return cam.value
+
+    def _camera_reading(self, cam: CameraId) -> Callable[[], health_checks.CameraReading]:
+        def read() -> health_checks.CameraReading:
+            svc = self.deps.cameras
+            g = svc.guards.get(cam) if svc is not None else None
+            name = self.camera_name(cam)
+            if svc is None or g is None:
+                return health_checks.CameraReading(name, read=False, online=False, steered=False)
+            t = svc.clock()
+            st = g.st
+            moved = svc.unexpected.get(cam)
+            return health_checks.CameraReading(
+                name=name,
+                read=st.status is not None,
+                online=bool(st.status and st.status.online),
+                steered=st.ok,
+                mode=st.status.mode if st.status else "",
+                answer_ms=st.answer_ms,
+                last_error=st.last_error,
+                since_start_s=t - svc.started if svc.started is not None else 0.0,
+                moved_by_itself_s=None if moved is None else t - moved,
+            )
+
+        return read
 
     def atem_status(self) -> dict[str, Any]:
         """What CutCut reads from the ATEM, in ATEM terms (setup screen, machine test DA-5)."""

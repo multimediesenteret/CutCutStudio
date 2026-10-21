@@ -43,6 +43,8 @@ from cutcut.common.platform.secrets import SecretMissingError, SecretStore
 from cutcut.common.platform.system import PsutilSystem
 from cutcut.common.store import Store
 from cutcut.devices.atem.bridge import AtemBridgeClient, site_input_map
+from cutcut.devices.cameras.guarded import on_air
+from cutcut.devices.cameras.service import CameraService
 from cutcut.devices.companion.client import CompanionHttp
 from cutcut.devices.companion.executor import CompanionExecutor
 from cutcut.devices.pearl.client import PearlHttp
@@ -73,6 +75,7 @@ class Core:
     companion: CompanionExecutor
     pearl: PearlRecorder
     store: Store
+    cameras: CameraService | None = None
     _closers: list[Any] = field(default_factory=list)
 
     def close(self) -> None:
@@ -129,6 +132,10 @@ def build_core(opts: CoreOptions) -> Core:
         fallback=bridge,
     )
     pearl = PearlRecorder(_pearl_api(dev, opts.secrets), recorder_id=dev.pearl.recorder_id)
+    # PTZ cameras: what is on air comes from the ATEM read-back, never from the engine (I2)
+    cameras = CameraService.from_devices(
+        dev, lambda: on_air(bridge.readback(), list(site.devices.cameras))
+    )
 
     studio = Studio(
         StudioDeps(
@@ -143,12 +150,15 @@ def build_core(opts: CoreOptions) -> Core:
             atem=bridge,
             system=PsutilSystem(),
             data_dir=opts.data_dir,
+            cameras=cameras,
         )
     )
+    cameras.on_moving = studio.runtime.feed_cameras_moving  # S1, from the position read-back
 
     def on_devices(new: Devices) -> None:
         companion.api = CompanionHttp(str(new.companion.url))
         pearl.api = _pearl_api(new, opts.secrets)
+        cameras.reconfigure(new)
         log.info("Nye utstyrsadresser tatt i bruk (ATEM: ved neste omstart av atem-bridge)")
 
     studio.on_devices = on_devices
@@ -177,10 +187,18 @@ def build_core(opts: CoreOptions) -> Core:
         auth,
         ui_dir=opts.ui_dir,
         before_tick=before_tick,
-        background=[bus_reader],
+        background=[bus_reader, cameras.run],
     )
-    core = Core(app, studio, bridge, companion, pearl, store)
-    core._closers += [companion.close, pearl.close, pub.close, sub.close, store.close, ctx.term]
+    core = Core(app, studio, bridge, companion, pearl, store, cameras)
+    core._closers += [
+        companion.close,
+        pearl.close,
+        cameras.close,
+        pub.close,
+        sub.close,
+        store.close,
+        ctx.term,
+    ]
     return core
 
 

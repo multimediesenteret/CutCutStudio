@@ -9,6 +9,8 @@ studio and in the simulator. Every check only reads: none presses a button or mo
 | ``H-PRL-1`` | Pearl answers, no error, storage | 5 s | red offline or < 15 min |
 | ``H-ATEM-1`` | ATEM program/preview readable | 1 s | red |
 | ``H-COMP-1`` | Companion API and page version | 5 s | red |
+| ``H-CAM-<C>`` | PTZ camera answers under 200 ms, in manual | 10 s | yellow |
+| ``H-CAM-MOVE`` | no camera moved without CutCut asking | 2 s | red |
 """
 
 from __future__ import annotations
@@ -453,3 +455,77 @@ def companion(
         return _result("H-COMP-1", "green", value, "Companion svarer.", now, expected=expected)
 
     return FuncCheck("H-COMP-1", 5.0, run)
+
+
+# -- H-CAM: PTZ cameras (CA-6) ---------------------------------------------------------------
+
+CAM_ANSWER_MS = 200  # spec 8.5: «Svar under 200 ms»
+CAM_START_GRACE_S = 15.0  # the first status read is still under way
+CAM_MOVE_RED_S = 10.0  # H-CAM-MOVE stays red this long after the camera moved by itself
+
+
+@dataclass(frozen=True)
+class CameraReading:
+    name: str  # «Camera 2» as on the screens
+    read: bool  # a status has been read at least once
+    online: bool
+    steered: bool  # the circuit breaker is closed: CutCut can steer it
+    mode: str = ""
+    answer_ms: float | None = None
+    last_error: str | None = None
+    since_start_s: float = 0.0
+    moved_by_itself_s: float | None = None  # seconds since it moved without being asked
+
+
+def camera(cid: str, get: Callable[[], CameraReading], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-CAM-<camera>``: the camera answers fast, and is in manual white balance and
+    exposure as set up. Yellow when not: the picture still comes over SDI/HDMI, only the
+    steering (presets, framing) is missing."""
+
+    def run() -> CheckResult:
+        r = get()
+        expected = f"svar under {CAM_ANSWER_MS} ms, manuell"
+        if not r.read:
+            if r.since_start_s < CAM_START_GRACE_S:
+                return _result(cid, "green", "starter", f"Spør {r.name} for første gang.", now)
+            return _result(cid, "yellow", "ukjent", f"{r.name} har ikke svart ennå.", now)
+        if not r.online or not r.steered:
+            why = f" ({r.last_error})" if r.last_error else ""
+            msg = (
+                f"{r.name} svarer ikke{why}. Bildet kommer fortsatt, "
+                "men CutCut kan ikke styre kameraet."
+            )
+            return _result(cid, "yellow", "svarer ikke", msg, now, expected=expected)
+        if r.answer_ms is not None and r.answer_ms > CAM_ANSWER_MS:
+            msg = f"{r.name} svarer tregt ({r.answer_ms:.0f} ms)."
+            return _result(
+                cid, "yellow", f"{r.answer_ms:.0f} ms", msg, now, expected=expected, level="working"
+            )
+        if r.mode != "manuell":
+            msg = f"{r.name} står i {r.mode}. Sett manuell hvitbalanse og eksponering i setup."
+            return _result(cid, "yellow", r.mode, msg, now, expected=expected, level="as_agreed")
+        value = f"{r.answer_ms:.0f} ms" if r.answer_ms is not None else "svarer"
+        return _result(cid, "green", value, f"{r.name} svarer og står i manuell.", now)
+
+    return FuncCheck(cid, 10.0, run)
+
+
+def camera_move(get: Callable[[], list[CameraReading]], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-CAM-MOVE``: red when a camera moved without CutCut asking and without AI-tracking
+    (spec 8.5): someone turned it by hand, or tracking is on when it should not be."""
+
+    def run() -> CheckResult:
+        bad = [
+            r.name
+            for r in get()
+            if r.moved_by_itself_s is not None and r.moved_by_itself_s < CAM_MOVE_RED_S
+        ]
+        if bad:
+            names = " og ".join(bad)
+            msg = f"{names} har flyttet seg uten at CutCut ba om det. Sjekk kameraet og presetene."
+            return _result(
+                "H-CAM-MOVE", "red", names, msg, now, expected="står stille", level="as_agreed"
+            )
+        return _result("H-CAM-MOVE", "green", "i ro", "Ingen kameraer har flyttet seg selv.", now)
+
+    return FuncCheck("H-CAM-MOVE", 2.0, run, level="as_agreed")
