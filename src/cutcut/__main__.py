@@ -37,6 +37,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--smoke", action="store_true", help="start, sjekk helse og skjermer, avslutt (CI)"
     )
 
+    audio = sub.add_parser(
+        "audio",
+        help="kjør audio-capture: mikrofoner til målinger på bussen (ADR-0014)",
+        description="Leser multitrack fra RØDECaster (eller en WAV-fil) og sender audio.frame.",
+    )
+    audio.add_argument("--wav", type=Path, help="spill av en 48 kHz multitrack-WAV (fake)")
+    audio.add_argument("--vad-model", type=Path, default=None, help="Silero VAD (.onnx)")
+
     trace = sub.add_parser(
         "trace",
         help="skriv simulerte forløp som JSON for web-simulatoren (Vercel)",
@@ -63,6 +71,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             site_dir=args.site,
         )
         return smoke(opts) if args.smoke else serve(opts)
+    if args.command == "audio":
+        from cutcut.audio.main import main as audio_main
+
+        return audio_main(args.wav, args.vad_model)
     if args.command == "trace":
         from cutcut.sim.trace import default_trace_dir, write_all
 

@@ -10,7 +10,8 @@ build/
 *.log
 /data/
 # ONNX model files at the repo root only (src/cutcut/common/models is code)
-/models/
+/models/*
+!/models/manifest.yaml
 /recordings/
 *.wav
 *.mp4
