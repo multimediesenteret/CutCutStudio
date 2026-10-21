@@ -179,15 +179,15 @@ def health_step(rig: Rig, seconds: float) -> None:
 def test_lost_audio_opens_an_alert_that_goes_away_by_itself(rig: Rig) -> None:
     c = rig.client
     health_step(rig, 2)
-    checks = c.get("/api/health/checks").json()
-    assert [(x["id"], x["status"]) for x in checks] == [("H-AUD-1", "green")]
+    checks = {x["id"]: x["status"] for x in c.get("/api/health/checks").json()}
+    assert checks["H-AUD-1"] == "green"
     assert c.get("/api/health").json()["health"]["status"] == "green"
 
     c.post("/api/sim/fault", json={"kind": "audio_lost", "on": True})
     health_step(rig, 4)
     body = c.get("/api/health").json()
     assert body["status"] == "error"
-    assert body["health"]["checks"][0]["status"] == "red"
+    assert {x["id"]: x["status"] for x in body["health"]["checks"]}["H-AUD-1"] == "red"
     assert [a["code"] for a in rig.state()["alerts"]].count("H-AUD-1") == 1
 
     c.post("/api/sim/fault", json={"kind": "audio_lost", "on": False})

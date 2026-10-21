@@ -1,15 +1,26 @@
 """The health catalogue (spec 8.5), built from small getters so it runs the same in the
-studio and in the simulator. HS-1 has the audio stream; HS-2 adds the rest one device at a
-time.
+studio and in the simulator. Every check only reads: none presses a button or moves a camera.
+
+| ID | What | Every | Red/yellow |
+| --- | --- | --- | --- |
+| ``H-AUD-1`` | audio-capture measurements arrive | 1 s | red after 2 s |
+| ``H-PROC-*`` | processes, from the supervisor | 1–2 s | yellow |
+| ``H-PC-1/2/3`` | disk, memory, CPU | 30 s | yellow; disk red under 2 GB |
+| ``H-PRL-1`` | Pearl answers, no error, storage | 5 s | red offline or < 15 min |
+| ``H-ATEM-1`` | ATEM program/preview readable | 1 s | red |
+| ``H-COMP-1`` | Companion API and page version | 5 s | red |
 """
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 
+from cutcut.common.platform.system import SystemSnapshot
 from cutcut.health.engine import FuncCheck
-from cutcut.health.model import CheckResult
+from cutcut.health.model import CheckLevel, CheckResult
 
 AUDIO_RED_MS = 2_000  # S4: two seconds without measurements (spec 5.7)
 
@@ -38,3 +49,265 @@ def audio_stream(age_ms: Callable[[], int | None], now: Callable[[], datetime]) 
         )
 
     return FuncCheck("H-AUD-1", 1.0, run)
+
+
+def _result(
+    cid: str,
+    status: str,
+    value: str,
+    message: str,
+    now: Callable[[], datetime],
+    *,
+    expected: str | None = None,
+    level: CheckLevel = "connected",
+    for_user: bool = False,
+) -> CheckResult:
+    return CheckResult(
+        id=cid,
+        status=status,  # type: ignore[arg-type]
+        value=value,
+        expected=expected,
+        message=message,
+        ts=now(),
+        level=level,
+        for_user=for_user,
+    )
+
+
+# -- H-PROC: processes, from the supervisor (SO-1) ---------------------------------------------
+
+PROC_FLAP = 5  # restarts in 10 minutes (spec 9.1)
+
+
+@dataclass(frozen=True)
+class ProcessReading:
+    name: str
+    running: bool
+    restarts_10min: int = 0
+    last_reason: str | None = None
+
+
+def process(
+    name: str, get: Callable[[], ProcessReading | None], now: Callable[[], datetime]
+) -> FuncCheck:
+    """``H-PROC-<name>``: yellow while the supervisor restarts it, or when it keeps falling
+    over. The studio keeps working (spec 8.5: «Gult; supervisor restarter»)."""
+    cid = f"H-PROC-{name}"
+
+    def run() -> CheckResult:
+        p = get()
+        if p is None:
+            return _result(cid, "yellow", "ukjent", f"Ingen status for {name}.", now)
+        if not p.running:
+            why = f" ({p.last_reason})" if p.last_reason else ""
+            return _result(cid, "yellow", "nede", f"{name} startes på nytt{why}.", now)
+        if p.restarts_10min > PROC_FLAP:
+            msg = f"{name} er startet på nytt {p.restarts_10min} ganger på 10 minutter."
+            return _result(
+                cid, "yellow", f"{p.restarts_10min} omstarter", msg, now, expected="høyst 5"
+            )
+        return _result(cid, "green", "kjører", f"{name} kjører.", now)
+
+    return FuncCheck(cid, 1.0, run, level="working")
+
+
+def supervisor(age_ms: Callable[[], int], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-PROC-supervisor``: the supervisor itself still reports (every 2 s)."""
+
+    def run() -> CheckResult:
+        age = age_ms()
+        if age > 10_000:
+            return _result(
+                "H-PROC-supervisor",
+                "yellow",
+                f"{age // 1000} s siden",
+                "Supervisor sender ikke status. Prosessene startes ikke på nytt om de faller ut.",
+                now,
+                expected="hvert 2. s",
+            )
+        return _result("H-PROC-supervisor", "green", "sender", "Supervisor passer på.", now)
+
+    return FuncCheck("H-PROC-supervisor", 2.0, run, level="working")
+
+
+# -- H-PC: the PC ------------------------------------------------------------------------------
+
+DISK_YELLOW_GB = 20.0
+DISK_RED_GB = 2.0  # the database and logs need room to write
+MEMORY_YELLOW_PCT = 90.0
+CPU_YELLOW_PCT = 85.0
+
+
+def pc(snapshot: Callable[[], SystemSnapshot], now: Callable[[], datetime]) -> list[FuncCheck]:
+    """``H-PC-1`` disk, ``H-PC-2`` memory, ``H-PC-3`` CPU, every 30 s (spec 8.5).
+
+    GPU temperature and the NTP clock come with the test PC (Q8, Q20)."""
+
+    def disk() -> CheckResult:
+        s = snapshot()
+        value = f"{s.disk_free_gb:.0f} GB ledig ({s.disk_free_percent:.0f} %)"
+        expected = f"over {DISK_YELLOW_GB:.0f} GB"
+        if s.disk_free_gb < DISK_RED_GB:
+            msg = "Disken er nesten full. Logg og database kan slutte å skrive."
+            return _result("H-PC-1", "red", value, msg, now, expected=expected, level="working")
+        if s.disk_free_gb < DISK_YELLOW_GB:
+            msg = "Lite plass igjen på disken."
+            return _result("H-PC-1", "yellow", value, msg, now, expected=expected, level="working")
+        return _result("H-PC-1", "green", value, "Nok plass på disken.", now, expected=expected)
+
+    def memory() -> CheckResult:
+        s = snapshot()
+        value = f"{s.memory_percent:.0f} % brukt"
+        expected = f"under {MEMORY_YELLOW_PCT:.0f} %"
+        if s.memory_percent >= MEMORY_YELLOW_PCT:
+            msg = "Minnet er nesten fullt."
+            return _result("H-PC-2", "yellow", value, msg, now, expected=expected, level="working")
+        return _result("H-PC-2", "green", value, "Nok minne.", now, expected=expected)
+
+    def cpu() -> CheckResult:
+        s = snapshot()
+        value = f"{s.cpu_percent:.0f} %"
+        expected = f"under {CPU_YELLOW_PCT:.0f} %"
+        if s.cpu_percent >= CPU_YELLOW_PCT:
+            msg = "Prosessoren er nesten fullt belastet. Motoren kan bli treg."
+            return _result("H-PC-3", "yellow", value, msg, now, expected=expected, level="working")
+        return _result("H-PC-3", "green", value, "Prosessoren har nok kapasitet.", now)
+
+    return [
+        FuncCheck("H-PC-1", 30.0, disk, level="working"),
+        FuncCheck("H-PC-2", 30.0, memory, level="working"),
+        FuncCheck("H-PC-3", 30.0, cpu, level="working"),
+    ]
+
+
+# -- H-PRL-1: Pearl ----------------------------------------------------------------------------
+
+PEARL_MBPS = 20.0  # assumed total recording bitrate until measured in the machine test (DA-5)
+STORAGE_YELLOW_MIN = 60  # spec 8.5: over 60 min
+STORAGE_RED_MIN = 15
+
+
+@dataclass(frozen=True)
+class PearlReading:
+    online: bool
+    error: str | None = None
+    free_bytes: int | None = None  # main storage; None: unknown
+
+
+def storage_minutes(free_bytes: int) -> int:
+    return int(free_bytes * 8 / (PEARL_MBPS * 1e6) / 60)
+
+
+def pearl(get: Callable[[], PearlReading], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-PRL-1``: Pearl answers, has no error, and has room for an hour of recording.
+
+    An offline Pearl is red for the user too: nothing would be recorded. That a recording
+    stops by itself is the session's own alarm (``H-PRL-2``, I7)."""
+
+    def run() -> CheckResult:
+        p = get()
+        if not p.online:
+            return _result(
+                "H-PRL-1",
+                "red",
+                "svarer ikke",
+                "Pearl svarer ikke. Opptak kan ikke startes.",
+                now,
+                for_user=True,
+            )
+        if p.free_bytes is not None:
+            minutes = storage_minutes(p.free_bytes)
+            value = f"{minutes} min ledig"
+            expected = f"over {STORAGE_YELLOW_MIN} min"
+            if minutes < STORAGE_RED_MIN:
+                msg = "Pearl er nesten full. Et opptak nå kan stoppe av seg selv."
+                return _result("H-PRL-1", "red", value, msg, now, expected=expected, for_user=True)
+            if minutes < STORAGE_YELLOW_MIN:
+                msg = "Lite plass på Pearl. Flytt eller slett gamle opptak."
+                return _result("H-PRL-1", "yellow", value, msg, now, expected=expected)
+        if p.error:
+            return _result("H-PRL-1", "yellow", "feil", f"Pearl melder: {p.error}", now)
+        value = f"{storage_minutes(p.free_bytes)} min ledig" if p.free_bytes else "svarer"
+        return _result("H-PRL-1", "green", value, "Pearl er klar.", now)
+
+    return FuncCheck("H-PRL-1", 5.0, run)
+
+
+# -- H-ATEM-1 ---------------------------------------------------------------------------------
+
+ATEM_GRACE_S = 15.0  # atem-bridge needs a few seconds to connect after start
+
+
+def atem(
+    connected: Callable[[], bool], uptime_s: Callable[[], float], now: Callable[[], datetime]
+) -> FuncCheck:
+    """``H-ATEM-1``: program and preview can be read (spec 8.5). Red, also for the user."""
+
+    def run() -> CheckResult:
+        if connected():
+            return _result("H-ATEM-1", "green", "tilkoblet", "ATEM svarer.", now)
+        if uptime_s() < ATEM_GRACE_S:
+            return _result("H-ATEM-1", "green", "kobler til", "Kobler til ATEM …", now)
+        return _result(
+            "H-ATEM-1",
+            "red",
+            "ikke tilkoblet",
+            "ATEM svarer ikke. CutCut kan ikke klippe.",
+            now,
+            for_user=True,
+        )
+
+    return FuncCheck("H-ATEM-1", 1.0, run)
+
+
+# -- H-COMP-1 ---------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CompanionReading:
+    reachable: bool
+    pages_version: int | None = None  # None with pages_read: the pages are not imported
+    pages_read: bool = False  # False in the simulator: nothing to read
+    error: str | None = None
+
+
+def companion(
+    read: Callable[[], CompanionReading], expected_version: int, now: Callable[[], datetime]
+) -> FuncCheck:
+    """``H-COMP-1``: Companion's HTTP API answers and has CutCut's pages in the right version.
+
+    ``read`` may block on the network; it runs in a worker thread. Red when down (cuts then
+    go straight to the ATEM, ``S5``) or when the pages are another version (buttons would do
+    the wrong thing). Not for the user: the reserve keeps the studio working."""
+
+    async def run() -> CheckResult:
+        r = await asyncio.to_thread(read)
+        expected = f"svarer, sider v{expected_version}"
+        if not r.reachable:
+            why = f" ({r.error})" if r.error else ""
+            msg = f"Companion svarer ikke{why}. Kutt går rett til ATEM (S5)."
+            return _result("H-COMP-1", "red", "svarer ikke", msg, now, expected=expected)
+        if r.pages_read and r.pages_version is None:
+            return _result(
+                "H-COMP-1",
+                "red",
+                "ingen CutCut-sider",
+                "CutCut-sidene er ikke importert i Companion (cutcut-pages).",
+                now,
+                expected=expected,
+                level="as_agreed",
+            )
+        if r.pages_version is not None and r.pages_version != expected_version:
+            return _result(
+                "H-COMP-1",
+                "red",
+                f"sider v{r.pages_version}",
+                "Companion har feil versjon av CutCut-sidene. Importer cutcut-pages på nytt.",
+                now,
+                expected=expected,
+                level="as_agreed",
+            )
+        value = f"sider v{r.pages_version}" if r.pages_version is not None else "svarer"
+        return _result("H-COMP-1", "green", value, "Companion svarer.", now, expected=expected)
+
+    return FuncCheck("H-COMP-1", 5.0, run)

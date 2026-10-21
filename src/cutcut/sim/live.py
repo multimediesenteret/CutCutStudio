@@ -8,7 +8,7 @@ or break things – exactly what the Vercel control panel will do.
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Literal
 
@@ -22,6 +22,7 @@ from cutcut.common.config import example_site_dir, load_rule_presets, load_show_
 from cutcut.common.ids import CameraId, ParticipantId
 from cutcut.common.models.session import User
 from cutcut.common.platform.secrets import FakeSecretStore
+from cutcut.common.platform.system import FakeSystem
 from cutcut.common.store import Store
 from cutcut.core.inputs import ContentState
 from cutcut.setup.multiview import readback_from_map
@@ -111,6 +112,7 @@ def build_live_sim(
         recorder=pearl,
         store=store,
         simulator=True,
+        system=FakeSystem(),
     )
     studio = Studio(deps)
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})
@@ -150,6 +152,8 @@ class FaultIn(_In):
         "ntnu_down",
         "card_reader_down",
         "multiview_wrong",
+        "pearl_offline",
+        "disk_full",
     ]
     on: bool
     camera: CameraId | None = None
@@ -169,6 +173,9 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                 "companion_online": sim.atem.companion_online,
                 "moving": sorted(c.value for c in sim.moving),
                 "multiview_wrong": sim.mv_wrong,
+                "pearl_online": sim.pearl.online,
+                "disk_full": sim.studio.deps.system is not None
+                and sim.studio.deps.system.snapshot(Path(".")).disk_free_gb < 2,
                 "test_cards": ["04A1B2C3", "04D4E5F6"],
             }
 
@@ -227,6 +234,16 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                     sim.card_reader.connected = not body.on
                 case "multiview_wrong":
                     sim.multiview_wrong(body.on)
+                case "pearl_offline":
+                    sim.pearl.online = not body.on
+                case "disk_full":
+                    system = sim.studio.deps.system
+                    if isinstance(system, FakeSystem):
+                        system.value = replace(
+                            system.value,
+                            disk_free_gb=1.2 if body.on else 400.0,
+                            disk_free_percent=0.5 if body.on else 80.0,
+                        )
             return {"ok": True}
 
     return add

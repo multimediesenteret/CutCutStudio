@@ -56,6 +56,7 @@ from cutcut.common.models.session import (
 )
 from cutcut.common.models.show import Features, RulesPreset, ShowConfig
 from cutcut.common.models.site import Devices
+from cutcut.common.platform.system import System
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
 from cutcut.core.inputs import (
@@ -68,8 +69,8 @@ from cutcut.core.inputs import (
     SetShadow,
 )
 from cutcut.core.runtime import CoreRuntime, Executor
-from cutcut.health import HealthEngine, HealthEvent
-from cutcut.health.checks import audio_stream
+from cutcut.health import HealthCheck, HealthEngine, HealthEvent
+from cutcut.health import checks as health_checks
 from cutcut.session.manager import (
     DONE_LOGOUT_MS,
     Action,
@@ -93,7 +94,6 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
-PROC_FLAP: Final = 5  # restarts in 10 minutes before H-PROC warns (spec 9.1)
 PROC_STALE_MS: Final = 10_000  # supervisor status older than this: the supervisor is gone
 
 
@@ -185,6 +185,8 @@ class StudioDeps:
     simulator: bool = False
     log_dir: Path | None = None  # JSON-line logs, for the debug package
     atem: AtemReader | None = None  # atem-bridge client in studio; None: the executor reads
+    system: System | None = None  # PC numbers for H-PC-*; None: no PC checks
+    data_dir: Path = Path(".")  # the disk H-PC-1 watches
 
 
 @dataclass
@@ -215,14 +217,13 @@ class Studio:
         self.alerts: list[AlertRecord] = []
         clock = self.deps.clock
         self.health = HealthEngine(
-            [audio_stream(self.runtime.audio_age_ms, clock.now)],
+            self._health_checks(),
             mono_s=lambda: clock.mono_ms() / 1000,
             now=clock.now,
             on_event=self._on_health,
         )
         self._processes: list[ProcessInfo] = []
         self._processes_at: int | None = None
-        self._proc_state: dict[str, str] = {}
         self.decisions: deque[dict[str, Any]] = deque(maxlen=LOG_KEEP)
         self.notice: str | None = None
         self.notice_until = 0
@@ -443,7 +444,57 @@ class Studio:
                     a.acknowledged = True
             return
         level: Literal["warn", "error"] = "error" if r.status == "red" else "warn"
-        self._alert(level, r.id, r.message, for_user=r.for_user and r.status == "red", log_it=False)
+        # The touch screen reads the live check (state.health), not the alert, so the user is
+        # not held back during the 30 s the technician's issue stays open after a fix.
+        self._alert(level, r.id, r.message, log_it=False)
+
+    def _health_checks(self) -> list[HealthCheck]:
+        clock = self.deps.clock
+        now = clock.now
+        self._proc_checks: set[str] = set()
+        checks: list[HealthCheck] = [
+            health_checks.audio_stream(self.runtime.audio_age_ms, now),
+            health_checks.pearl(self._pearl_reading, now),
+            health_checks.atem(
+                lambda: self.runtime.atem is not None,
+                lambda: (clock.mono_ms() - self._started_ms) / 1000,
+                now,
+            ),
+            health_checks.companion(
+                self._companion_reading, self.devices.companion.pages_version, now
+            ),
+        ]
+        system = self.deps.system
+        if system is not None:
+            checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
+        return checks
+
+    def _pearl_reading(self) -> health_checks.PearlReading:
+        rec = self.deps.recorder
+        status = getattr(rec, "status", None)
+        if callable(status):  # PearlRecorder (studio)
+            st = status()
+            main = next((x for x in st.storages if x.id == "main"), None)
+            return health_checks.PearlReading(
+                st.online, st.last_error, main.free_bytes if main else None
+            )
+        minutes = getattr(rec, "storage_minutes", None)  # FakePearl (simulator)
+        free = None
+        if isinstance(minutes, int):
+            free = int(minutes * 60 * health_checks.PEARL_MBPS * 1e6 / 8)
+        return health_checks.PearlReading(bool(getattr(rec, "online", True)), None, free)
+
+    def _companion_reading(self) -> health_checks.CompanionReading:
+        """Runs in a worker thread (it may wait on Companion's HTTP API)."""
+        ex = self.deps.executor
+        api = getattr(ex, "api", None)
+        if api is not None and hasattr(api, "pages_version"):  # CompanionExecutor (studio)
+            try:
+                version = api.pages_version()
+            except Exception as exc:
+                return health_checks.CompanionReading(False, error=type(exc).__name__)
+            return health_checks.CompanionReading(True, version, pages_read=True)
+        return health_checks.CompanionReading(bool(getattr(ex, "companion_online", True)))
 
     def health_info(self) -> HealthInfo:
         return HealthInfo(status=self.health.overall(), checks=self.health.results())
@@ -451,12 +502,9 @@ class Studio:
     # -- processes (supervisor, SO-1) ------------------------------------------------------
 
     def on_supervisor(self, payload: dict[str, Any]) -> None:
-        """``supervisor.status`` from the bus: remember it and raise ``H-PROC-<name>``.
+        """``supervisor.status`` from the bus: remember it; ``H-PROC-<name>`` checks read it.
 
-        Yellow only (spec 8.5): the supervisor is already restarting the process. A process
-        that keeps falling over (more than 5 restarts in 10 minutes) gets its own warning so a
-        technician hears about it even when the studio works.
-        """
+        A check is added for each process the first time the supervisor reports it."""
         procs: list[ProcessInfo] = []
         fields = ProcessInfo.model_fields
         for raw in payload.get("processes") or []:
@@ -464,24 +512,30 @@ class Studio:
                 procs.append(ProcessInfo.model_validate({k: raw[k] for k in fields if k in raw}))
             except (ValueError, TypeError):
                 continue
+        first = self._processes_at is None
         self._processes, self._processes_at = procs, self.deps.clock.mono_ms()
+        now = self.deps.clock.now
+        if first:
+            self.health.add(health_checks.supervisor(self._supervisor_age_ms, now))
         for p in procs:
-            code = f"H-PROC-{p.name}"
-            state = "flapping" if p.restarts_10min > PROC_FLAP else "ok" if p.running else "down"
-            if state == self._proc_state.get(p.name, "ok"):
-                continue
-            self._proc_state[p.name] = state
-            if state == "down":
-                why = f" ({p.last_reason})" if p.last_reason else ""
-                self._alert("warn", code, f"{p.name} startes på nytt{why}")
-            elif state == "flapping":
-                self._alert(
-                    "warn",
-                    code,
-                    f"{p.name} er startet på nytt {p.restarts_10min} ganger på 10 minutter",
-                )
-            else:
-                self._alert("info", code, f"{p.name} kjører igjen")
+            if f"H-PROC-{p.name}" not in self._proc_checks:
+                self._proc_checks.add(f"H-PROC-{p.name}")
+                self.health.add(health_checks.process(p.name, self._process_reading(p.name), now))
+
+    def _supervisor_age_ms(self) -> int:
+        at = self._processes_at
+        return 0 if at is None else self.deps.clock.mono_ms() - at
+
+    def _process_reading(self, name: str) -> Callable[[], health_checks.ProcessReading | None]:
+        def read() -> health_checks.ProcessReading | None:
+            if self._supervisor_age_ms() > PROC_STALE_MS:
+                return None  # the supervisor is gone; H-PROC-supervisor says so
+            p = next((x for x in self._processes if x.name == name), None)
+            if p is None:
+                return None
+            return health_checks.ProcessReading(p.name, p.running, p.restarts_10min, p.last_reason)
+
+        return read
 
     def processes_info(self) -> list[ProcessInfo]:
         if self._processes_at is None:

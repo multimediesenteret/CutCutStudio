@@ -41,7 +41,9 @@ function firstName(state: StudioState): string {
 /** What the user is told when something blocks recording: one sentence, no technique. */
 function blocking(state: StudioState): string | null {
   const a = state.alerts.find((x) => x.for_user && x.level === "error" && !x.acknowledged);
-  if (a) return "Noe er galt i studio. Teknikeren er varslet.";
+  // Health checks marked for the user (Pearl, ATEM) block only while they are red right now.
+  const red = state.health?.checks.some((c) => c.for_user && c.status === "red");
+  if (a || red) return "Noe er galt i studio. Teknikeren er varslet.";
   if (!state.engine.audio_ok) return "Noe er galt med lyden. Teknikeren er varslet.";
   return null;
 }
