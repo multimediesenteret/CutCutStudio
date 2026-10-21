@@ -4,7 +4,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Hvor vi er
 
-- **Fase:** M1 Simulator. M0-planene er godkjent (D-046).
+- **Fase:** M2 Studiotest (M1 ferdig 2026-10-21). Issues #78–#105 i milepælen «M2 Studiotest».
 - **Milepæl:** M1. Issues ligger i GitHub-milepælen «M1 Simulator».
 - **Spesifikasjon:** v1 med endringer fra beslutningsloggen; repoet er fasit (D-040).
 - **Vercel:** web-simulatoren er forsiden på https://cutcutstudio2026.vercel.app (U-9, U-10). Konseptet ligger som arkiv på `/concept/`. Utrulling hoppes over når ingen skjermfiler er endret (D-050).

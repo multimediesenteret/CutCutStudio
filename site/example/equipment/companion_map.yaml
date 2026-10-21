@@ -25,3 +25,14 @@ layouts:
 layout_off: { row: 1, col: 4 }
 take_cut: { row: 3, col: 0 }
 take_mix: { row: 3, col: 1 }
+# Side 11 «OPERATØR» (spec 7.1): direkte programkutt for nødbruk og «Kun lyd»-grafikken.
+# Motoren bruker dem for overstyring og modus A; mangler en knapp, går kuttet via atem-bridge.
+operator_direct:
+  C1: { row: 2, col: 0 }
+  C2: { row: 2, col: 1 }
+  C3: { row: 2, col: 2 }
+  C4: { row: 2, col: 3 }
+  C5: { row: 2, col: 4 }
+  LAPTOP: { row: 2, col: 5 }
+  C7: { row: 2, col: 6 }
+operator_audio_only: { row: 3, col: 0 }

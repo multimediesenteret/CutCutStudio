@@ -99,6 +99,10 @@ class CompanionMap(_Strict):
     take_cut: CompanionButton = CompanionButton(row=3, col=0)
     take_mix: CompanionButton = CompanionButton(row=3, col=1)
     layout_off: CompanionButton = CompanionButton(row=1, col=4)
+    # Operator page (11): direct program cuts for emergencies and the «Kun lyd» graphic.
+    # When a button is missing, the executor uses atem-bridge instead (S5).
+    operator_direct: dict[SourceId, CompanionButton] = Field(default_factory=dict)
+    operator_audio_only: CompanionButton | None = None
 
     @model_validator(mode="after")
     def _valid(self) -> Self:
@@ -109,4 +113,9 @@ class CompanionMap(_Strict):
         buttons += [self.take_cut, self.take_mix, self.layout_off]
         if len({(b.row, b.col) for b in buttons}) != len(buttons):
             raise ValueError("two actions share the same Companion button")
+        operator = list(self.operator_direct.values())
+        if self.operator_audio_only is not None:
+            operator.append(self.operator_audio_only)
+        if len({(b.row, b.col) for b in operator}) != len(operator):
+            raise ValueError("two operator actions share the same Companion button")
         return self

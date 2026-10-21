@@ -9,6 +9,7 @@ requires-python = ">=3.12,<3.13"
 authors = [{ name = "NTNU Multimediesenteret", email = "magnus.lian@ntnu.no" }]
 dependencies = [
     "fastapi>=0.115,<1",
+    "httpx>=0.27,<1",
     "keyring>=25,<26",
     "psutil>=6,<8",
     "pydantic>=2.9,<3",
@@ -28,7 +29,6 @@ dev = [
     "mypy>=1.13",
     "ruff>=0.8",
     "types-psutil>=7.2.2.20260906",
-    "httpx>=0.27,<1",
 ]
 
 [build-system]
