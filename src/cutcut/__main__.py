@@ -85,6 +85,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--check", action="store_true", help="skriv ingenting; feil hvis filene er utdaterte"
     )
 
+    vis = sub.add_parser(
+        "vision",
+        help="kjør videolaget: multiview inn, målinger per rute på bussen (VI-1)",
+        description="Leser multiviewen fra INOGENI (eller en fil) og deler den i ruter.",
+    )
+    vis.add_argument("--site", type=Path, required=True, help="studio-oppsett (rutekartet)")
+    vis.add_argument("--device", type=int, default=None, help="capture-enhet (standard 0)")
+    vis.add_argument("--file", type=Path, default=None, help="videofil i stedet for enhet")
+    vis.add_argument("--synthetic", action="store_true", help="tegnet multiview (demo, test)")
+
     hw = sub.add_parser(
         "hwtest",
         help="maskintest på test-PC eller i studio, med rapport (AU-6, DA-5)",
@@ -162,6 +172,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         from cutcut.audio.main import main as audio_main
 
         return audio_main(args.wav, args.vad_model, args.site)
+    if args.command == "vision":
+        from cutcut.vision.main import main as vision_main
+
+        return vision_main(args.site, args.device, args.file, args.synthetic)
     if args.command == "hwtest":
         from cutcut.app.core import default_data_dir
 

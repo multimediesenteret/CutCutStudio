@@ -5,6 +5,13 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- VI-1: videolaget `cutcut vision`.
+  - Leser multiviewen fra INOGENI, en videofil eller en tegnet multiview, med 15 bilder/s.
+  - Deler bildet i ruter etter rutekartet, 4 % inn.
+  - Sender `vision.frame` (signal, lysstyrke, endring per rute) og `vision.status`.
+  - `core` viser `H-VID-1`.
+  - Ny ekstra `vision` (OpenCV).
+- M3: 24 issues opprettet fra planene.
 - SO-5: `installer/setup-pc.ps1` sjekker Windows-oppsettet (9.2) i 12 punkter, og retter det som er trygt med `-Fix`.
   - Notert drivere til `versions.yaml`.
   - Rapport i Markdown og JSON.
