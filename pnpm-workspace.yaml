@@ -1,0 +1,5 @@
+packages:
+  - "ui/packages/*"
+  - "ui/apps/*"
+onlyBuiltDependencies:
+  - esbuild
