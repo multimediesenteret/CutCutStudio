@@ -698,14 +698,22 @@ class Engine:
         """T8/B3: nobody talks → the mode's silence shot, after the release time H3."""
         r = self.rules
         silence = self.speakers.silence_ms(self._now)
+        # H3: the shot stands at least the release time after the speaker stops
         needed = max(r.T8_silence_s, r.H3_release_s, r.B3_silence_s) * 1000
+        release_rule = RuleId.H3
         if self.speakers.speaking() or silence < needed:
             return None
         shot = shots.silence_shot(self.mode, self.show, self.config.features)
         if shot is None:
             return None
         rule = RuleId.B3 if self.config.features.bird and shot in (BIRD, WIDE) else RuleId.T8
-        return Proposal(shot, rule, "soft", f"Stillhet i {_sec(silence)}", {"silence_ms": silence})
+        return Proposal(
+            shot,
+            rule,
+            "soft",
+            f"Stillhet i {_sec(silence)} (etter release {release_rule.value})",
+            {"silence_ms": silence},
+        )
 
     # -- filters (5.7, 5.11) ---------------------------------------------------------------
 
@@ -796,15 +804,17 @@ class Engine:
                 return self._mark(p, RuleId.K3)
             return False
         if p.timing == "insert":
-            return cur is None or cur.frame.pause_ms >= r.K4_pause_ms
+            if cur is None or cur.frame.pause_ms >= r.K4_pause_ms:
+                return self._mark(p, RuleId.K4)
+            return False
         if p.timing == "return":
             # K4: back when the speaker starts a new phrase, or straight away if nobody talks
             return cur is None or cur.speaking or not self.speakers.speaking()
         if p.timing == "soft" and cur is not None and cur.speaking:
             # T9: wait briefly for a short pause in the current speaker
-            if cur.frame.pause_ms >= T9_PAUSE_MS:
-                return True
-            return self._ready_ms() >= r.T9_max_wait_pause_ms
+            if cur.frame.pause_ms >= T9_PAUSE_MS or self._ready_ms() >= r.T9_max_wait_pause_ms:
+                return self._mark(p, RuleId.T9)
+            return False
         return True
 
     def _ready_ms(self) -> int:
@@ -817,7 +827,7 @@ class Engine:
     # -- taking ---------------------------------------------------------------------------
 
     def _take(self, p: Proposal) -> None:
-        rule = self._cut_rule if p.timing == "speaker" else None
+        rule = self._cut_rule
         self._cut_rule = None
         measures = dict(p.measures)
         measures["preview_ms"] = self._now - self.preview_since
@@ -842,7 +852,7 @@ class Engine:
         if p.rule is RuleId.MANUAL:
             self.manual_preview = None
         reason = p.reason if rule is None else f"{p.reason}; kuttpunkt {rule.value}"
-        if rule is not None:
+        if rule is not None and rule.value.startswith("K"):
             measures["cut_point"] = float(rule.value[1:])
         self._decide("cut", p.shot, p.rule, reason, measures)
 
@@ -859,7 +869,7 @@ class Engine:
         self.candidate = None
         self.insert = None
         self.pv_state = PreviewState.IDLE
-        self._decide("cut", shot, rule, reason)
+        self._decide("cut", shot, rule, f"{reason} (direkte, {RuleId.PV4.value})")
 
     def _set_program(self, shot: str) -> None:
         if shot != self.program:

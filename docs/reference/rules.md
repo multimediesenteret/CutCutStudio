@@ -1,0 +1,63 @@
+# Regelverdier per forhåndsvalg
+
+Generert av `tools/traceability.py` fra `config/defaults/rules.yaml`.
+Ikke rediger for hånd.
+
+| Verdi | Rolig | Standard | Energisk |
+| --- | --- | --- | --- |
+| `T1_vad_threshold` | 0,7 | 0,6 | 0,5 |
+| `T1_dominance_db` | 9 | 6 | 4 |
+| `T2_confirm_ms` | 1200 | 800 | 500 |
+| `T2_mouth_factor` | 0,6 | 0,6 | 0,6 |
+| `T3_min_shot_s` | 4 | 2,5 | 1,8 |
+| `T3_guest_extra_s` | 1 | 1 | 1 |
+| `T4_ignore_interrupt_s` | 1,5 | 1 | 0,7 |
+| `T4_host_backchannel_s` | 1,5 | 1,5 | 1,5 |
+| `T5_crosstalk_s` | 1,5 | 1 | 0,8 |
+| `T6_pingpong_switches` | 3 | 4 | 5 |
+| `T6_window_s` | 10 | 10 | 10 |
+| `T7_reaction_after_s` | 25 | 15 | 10 |
+| `T7_reaction_shot_s` | 2,5 | 2,5 | 2,5 |
+| `T8_silence_s` | 4 | 3 | 2 |
+| `T9_max_wait_pause_ms` | 300 | 300 | 0 |
+| `T12_host_weight` | 1,1 | 1,1 | 1,1 |
+| `B1_open_s` | 5 | 4 | 3 |
+| `B1_after_content_s` | 4 | 3 | 2 |
+| `B2_crosstalk_s` | 1,5 | 1 | 0,8 |
+| `B3_silence_s` | 4 | 3 | 2 |
+| `B4_laugh_min_s` | 2 | 2 | 2 |
+| `B4_laugh_max_s` | 4 | 4 | 4 |
+| `B5_min_s` | 3 | 3 | 3 |
+| `B5_max_s` | 5 | 5 | 5 |
+| `B5_max_share` | 0,1 | 0,15 | 0,2 |
+| `B5_min_gap_s` | 60 | 45 | 30 |
+| `CT1_active_s` | 2 | 2 | 2 |
+| `CT2_hold_s` | 8 | 6 | 4 |
+| `CT3_video_max_s` | 60 | 60 | 60 |
+| `CT4_return_after_s` | 8 | 6 | 4 |
+| `CT4_revisit_enabled` | av | av | av |
+| `CT4_revisit_s` | 4 | 4 | 4 |
+| `CT4_revisit_every_s` | 45 | 45 | 45 |
+| `L_min_s` | 8 | 6 | 5 |
+| `L_no_repeat_s` | 45 | 30 | 20 |
+| `L1_speaker_s` | 4 | 4 | 4 |
+| `L1_content_recent_s` | 20 | 20 | 20 |
+| `L3_window_s` | 10 | 10 | 10 |
+| `S1_still_s` | 0,5 | 0,5 | 0,5 |
+| `S3_min_cut_gap_s` | 1 | 1 | 1 |
+| `S4_audio_lost_s` | 2 | 2 | 2 |
+| `S6_mix_window_s` | 0,5 | 0,5 | 0,5 |
+| `PV1_min_preview_s` | 0,5 | 0,5 | 0,5 |
+| `K1_pause_ms` | 400 | 300 | 200 |
+| `K2_pause_ms` | 300 | 250 | 200 |
+| `K2_falling_pause_ms` | 200 | 150 | 120 |
+| `K3_max_wait_s` | 2 | 1,5 | 1 |
+| `K4_pause_ms` | 350 | 250 | 200 |
+| `H1_factor` | 1,8 | 1,5 | 1,3 |
+| `H1_window_s` | 6 | 5 | 4 |
+| `H2_no_return_s` | 6 | 4 | 3 |
+| `H3_release_s` | 1,5 | 1 | 0,7 |
+| `manual_quiet_s` | 5 | 5 | 5 |
+| `R1_speaker_min_s` | 6 | 6 | 6 |
+| `R1_shot_s` | 2,5 | 2,5 | 2,5 |
+| `R2_min_gap_s` | 20 | 20 | 20 |

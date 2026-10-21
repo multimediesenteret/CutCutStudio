@@ -44,3 +44,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 ## Tester
 
 `tests/rules/`: én test som slår til og én som ikke gjør det per regel-ID, tabelltester for modusene, og egenskapstester (hypothesis) som sjekker at `S1`, `S3`, `H2` og determinisme holder for tilfeldige samtaler. Ytelse: `step` under 2 ms i snitt.
+
+## Sporbarhet
+
+`uv run python tools/traceability.py` skriver `docs/reference/traceability.md` (regel → kode → antall tester) og `docs/reference/rules.md` (alle regelverdier per forhåndsvalg). CI feiler hvis en implementert regel mangler test eller kode, eller hvis de genererte filene er utdaterte (spesifikasjonen 12.1). Regler for senere milepæler står i `PLANNED` i skriptet.

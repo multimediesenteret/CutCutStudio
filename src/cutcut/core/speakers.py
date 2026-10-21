@@ -10,9 +10,12 @@ from collections import deque
 from dataclasses import dataclass, field
 
 from cutcut.common.config.rules import RuleParams
-from cutcut.common.ids import MicId, ParticipantId
+from cutcut.common.ids import MicId, ParticipantId, RuleId
 from cutcut.common.models.show import ShowConfig
 from cutcut.core.inputs import SILENT, MicFrame
+
+# Rule IDs this module implements (spec 12.1: every rule ID exists as a constant in code).
+IMPLEMENTS = (RuleId.T1, RuleId.T12, RuleId.S6, RuleId.T6)
 
 # Gaps shorter than this inside speech (breaths, plosives) do not end a speaking run.
 # Kept below K2/K4 pauses so a real phrase pause is still visible to the cut-point rules.

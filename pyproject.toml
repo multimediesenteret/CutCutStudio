@@ -55,7 +55,7 @@ known-first-party = ["cutcut"]
 strict = true
 python_version = "3.12"
 mypy_path = "src"
-files = ["src", "tests"]
+files = ["src", "tests", "tools"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
