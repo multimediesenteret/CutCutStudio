@@ -20,6 +20,7 @@ class StudioInfo(_S):
     simulator: bool
     version: str
     show_types: dict[str, str]
+    show_id: str
 
 
 class TouchInfo(_S):
@@ -64,6 +65,7 @@ class RecordingInfo(_S):
 class RulesInfo(_S):
     preset: Literal["rolig", "standard", "energisk"]
     features: dict[str, bool]
+    overrides: dict[str, float]
 
 
 class AlertInfo(_S):

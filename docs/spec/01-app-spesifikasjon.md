@@ -992,6 +992,8 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 | `POST /preview` `{"shot": "CU:P2"}` | Legg et bilde på preview; motoren tar det på neste kuttpunkt |
 | `POST /features` `{"reactions": true}` | Slå brytere av eller på (5.13) |
 | `POST /content` `{"enabled": false}` | Slå content av eller på |
+| `POST /preset` `{"preset": "rolig"}` | Bytt forhåndsvalg (Rolig, Standard, Energisk) |
+| `POST /rules/overrides` `{"T2_confirm_ms": 1000}` | Finjuster enkeltverdier oppå forhåndsvalget; `null` nullstiller. Gjelder fra neste tikk og overlever omstart (admin, ADR-0011) |
 | `GET /shows`, `GET /shows/{id}`, `PUT /shows/{id}` | Les og lagre show-oppsett (validert) |
 | `POST /setup/mic-test/{P}` | Start mic-test for en deltaker |
 | `POST /setup/color-match` | Kjør fargematching mot referansekamera |

@@ -1,7 +1,32 @@
 // Typed command helpers over the transport (spec 10.1). One place for every call the screens make.
+import type { components } from "./api-types";
 import type { Transport } from "./transport";
 
 export type Preset = "rolig" | "standard" | "energisk";
+export type Role = "touch" | "operator" | "admin";
+
+export interface RulesDetail {
+  preset: Preset;
+  values: Record<string, number | boolean>;
+  preset_values: Record<string, number | boolean>;
+  overrides: Record<string, number>;
+  limits: Record<string, { type: string; min: number | null; max: number | null }>;
+  ids: string[];
+}
+
+export interface CameraConfig {
+  driver: string;
+  ip?: string | null;
+  atem_input: number;
+  role?: string;
+}
+
+export interface ShowDetail {
+  id: string;
+  name: string;
+  cameras: Record<string, CameraConfig>;
+  participants: { id: string; name: string; mic: string; camera: string; role: string }[];
+}
 
 export function commands(t: Transport) {
   return {
@@ -22,6 +47,12 @@ export function commands(t: Transport) {
     preview: (shot: string) => t.send("POST", "/api/preview", { shot }),
     content: (enabled: boolean) => t.send("POST", "/api/content", { enabled }),
     preset: (preset: Preset) => t.send("POST", "/api/preset", { preset }),
+    overrides: (changes: Record<string, number | null>) =>
+      t.send("POST", "/api/rules/overrides", changes),
+    rules: () => t.get<RulesDetail>("/api/rules"),
+    me: () => t.get<{ role: Role; actor: string }>("/api/me"),
+    log: (since = 0) => t.get<components["schemas"]["Decision"][]>(`/api/log?since=${since}`),
+    show: (id: string) => t.get<ShowDetail>(`/api/shows/${encodeURIComponent(id)}`),
     features: (changes: Record<string, boolean>) => t.send("POST", "/api/features", changes),
     shadow: (on: boolean) => t.send("POST", "/api/shadow", { on }),
     ack: (alertId: number) => t.send("POST", `/api/alerts/${alertId}/ack`),
