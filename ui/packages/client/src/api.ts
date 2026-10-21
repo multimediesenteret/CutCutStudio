@@ -54,6 +54,7 @@ export function commands(t: Transport) {
     touched: () => t.send("POST", "/api/touch/touched"),
     again: () => t.send("POST", "/api/touch/again"),
     startWithoutCard: () => t.send("POST", "/api/touch/start"),
+    heartbeat: () => t.send("POST", "/api/touch/heartbeat"),
     setLoginMode: (mode: "open" | "card") => t.send("PUT", "/api/settings/login", { mode }),
     startSession: (username: string, displayName?: string) =>
       t.send("POST", "/api/session", { username, display_name: displayName }),

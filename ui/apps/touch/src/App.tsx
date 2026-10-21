@@ -48,6 +48,17 @@ function useNightlyReload(idle: boolean) {
   }, [idle]);
 }
 
+/** «I am alive» every 5 s, for the kiosk guard and H-PROC-touch (SO-6). Never in a replay. */
+function useHeartbeat(send: () => Promise<unknown>, live: boolean) {
+  useEffect(() => {
+    if (!live) return;
+    const beat = () => void send().catch(() => undefined);
+    beat();
+    const t = setInterval(beat, 5_000);
+    return () => clearInterval(t);
+  }, [send, live]);
+}
+
 export function App() {
   const { transport } = useStudio();
   const state = useSnapshot((s) => s.state);
@@ -84,6 +95,7 @@ export function App() {
       },
     };
   }, [transport, toast]);
+  useHeartbeat(act.cmd.heartbeat, !transport.role);
 
   const notice = state?.touch.notice ?? null;
   useEffect(() => {

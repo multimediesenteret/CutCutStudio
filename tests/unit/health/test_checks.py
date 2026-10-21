@@ -174,3 +174,19 @@ def test_H_AUD_1_says_why_when_audio_capture_knows() -> None:
     r = asyncio.run(check.run())
     assert r.status == "red"
     assert "fant ikke «RODECaster»" in r.message
+
+
+def test_touch_heartbeat_and_H_PROC_touch(rig: Rig) -> None:
+    """SO-6: the touch screen beats every 5 s; the kiosk guard and H-PROC-touch read it."""
+    c = rig.client
+    assert c.get("/api/touch/heartbeat").json() == {"age_ms": None}
+    got = settle(rig, 2)
+    assert "H-PROC-touch" not in got  # no touch screen yet (e.g. development): no check
+    assert c.post("/api/touch/heartbeat").status_code == 200
+    got = settle(rig, 6)
+    assert got["H-PROC-touch"] == "green"
+    assert c.get("/api/touch/heartbeat").json()["age_ms"] >= 5000
+    got = settle(rig, 30)  # Edge hung: no more beats
+    assert got["H-PROC-touch"] == "yellow"
+    c.post("/api/touch/heartbeat")
+    assert settle(rig, 6)["H-PROC-touch"] == "green"

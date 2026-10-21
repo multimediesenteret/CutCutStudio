@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-6: kiosk for touch-skjermen.
+  - `installer/kiosk/setup-kiosk.ps1` lager kiosk-brukeren, automatisk innlogging og en oppgave i Oppgaveplanlegger.
+  - `kiosk-vakt.ps1` starter Edge i kiosk-modus og starter den på nytt når den er borte eller siden har hengt i 30 s.
+  - Touch-skjermen sender hjerteslag hvert 5. sekund (`/api/touch/heartbeat`), og `H-PROC-touch` vises i Helse.
+  - Veiledning i `docs/studio/kiosk.md`.
 - SO-2: Windows-tjenesten `CutCut` med WinSW 2.12 (`installer/install-services.ps1`, maler i `installer/winsw/`).
   - Starter automatisk med Windows, og på nytt etter krasj (5, 10, 30 s).
   - Valgfri Companion-tjeneste.

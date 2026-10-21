@@ -12,6 +12,7 @@ on:
       - "src/cutcut/audio/main.py"
       - "installer/**"
       - "src/cutcut/supervisor/**"
+      - "src/cutcut/api/**"
       - ".github/workflows/windows-service.yml"
   push:
     branches: [main]
@@ -21,6 +22,7 @@ on:
       - "src/cutcut/audio/main.py"
       - "installer/**"
       - "src/cutcut/supervisor/**"
+      - "src/cutcut/api/**"
       - ".github/workflows/windows-service.yml"
   workflow_dispatch:
 
@@ -76,6 +78,20 @@ jobs:
           $c = $h.runtime.processes | Where-Object { $_.name -eq "core" }
           if ($c.restarts_10min -lt 1) { throw "supervisor meldte ikke omstarten" }
           Write-Host "core startet på nytt etter drap ($($c.restarts_10min) omstart)"
+      - name: PowerShell scripts parse, and the kiosk guard decides right (dry run)
+        shell: pwsh
+        run: |
+          foreach ($f in Get-ChildItem -Recurse installer -Filter *.ps1) {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) { $errors | ForEach-Object { Write-Host "::error file=$($f.FullName)::$($_.Message)" }; throw "syntaksfeil i $($f.Name)" }
+          }
+          $hb = Invoke-RestMethod -Uri "http://127.0.0.1:8090/api/touch/heartbeat"
+          if ($null -ne $hb.age_ms) { throw "ingen touch-skjerm skulle ha meldt seg" }
+          $out = & .\installer\kiosk\kiosk-vakt.ps1 -Api "http://127.0.0.1:8090" -Url "http://127.0.0.1:8090/touch/" -Once -DryRun -Edge "C:\finnes-ikke\msedge.exe" *>&1 | Out-String
+          Write-Host $out
+          if ($out -notmatch "ville startet Edge") { throw "vakten ville ikke startet Edge" }
+          & .\installer\kiosk\setup-kiosk.ps1 -DryRun
       - name: Stopping the service leaves no process behind
         shell: pwsh
         run: |

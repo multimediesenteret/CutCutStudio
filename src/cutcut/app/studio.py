@@ -256,6 +256,7 @@ class Studio:
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
         self.mic_check: MicCheck | None = None
+        self._touch_seen: int | None = None
         self.on_audio_config: Callable[[dict[str, Any]], None] | None = None  # core: the bus
         self.runtime.on_audio = self._on_audio_frame
         self._check: dict[str, dict[str, int | bool]] = {}
@@ -1061,6 +1062,19 @@ class Studio:
 
     def touched(self) -> None:
         self.sessions.touched(self.now)
+
+    def touch_heartbeat(self) -> None:
+        """The touch screen says it is alive (every 5 s). The kiosk guard reloads Edge when it
+        stops (SO-6); ``H-PROC-touch`` is added the first time a touch screen reports."""
+        first = self._touch_seen is None
+        self._touch_seen = self.now
+        if first:
+            self.health.add(
+                health_checks.touch_screen(self.touch_heartbeat_age, self.deps.clock.now)
+            )
+
+    def touch_heartbeat_age(self) -> int | None:
+        return None if self._touch_seen is None else self.now - self._touch_seen
 
     def help(self, role: Role, actor: str) -> None:
         self.apply(self.sessions.help(self.now))

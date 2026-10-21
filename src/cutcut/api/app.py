@@ -370,6 +370,17 @@ def create_app(
         studio.again(me.role, me.actor)
         return Ok()
 
+    @app.post("/api/touch/heartbeat", tags=["status"])
+    async def touch_heartbeat(me: Who) -> Ok:
+        """The touch screen is alive (every 5 s, SO-6)."""
+        studio.touch_heartbeat()
+        return Ok()
+
+    @app.get("/api/touch/heartbeat", tags=["status"])
+    async def touch_heartbeat_age() -> dict[str, int | None]:
+        """For the kiosk guard on the same PC: how long since the touch screen was heard."""
+        return {"age_ms": studio.touch_heartbeat_age()}
+
     @app.post("/api/touch/touched", tags=["session"])
     async def touched(me: Who) -> Ok:
         studio.touched()

@@ -140,6 +140,24 @@ def supervisor(age_ms: Callable[[], int], now: Callable[[], datetime]) -> FuncCh
     return FuncCheck("H-PROC-supervisor", 2.0, run, level="working")
 
 
+TOUCH_STALE_MS = 30_000
+
+
+def touch_screen(age_ms: Callable[[], int | None], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-PROC-touch``: the touch screen in the studio sends its heartbeat (spec 8.5). Yellow:
+    the kiosk guard reloads Edge by itself (SO-6)."""
+
+    def run() -> CheckResult:
+        age = age_ms()
+        if age is None or age > TOUCH_STALE_MS:
+            value = "ingen kontakt" if age is None else f"{age // 1000} s siden"
+            msg = "Touch-skjermen svarer ikke. Kiosk-vakten laster den på nytt."
+            return _result("H-PROC-touch", "yellow", value, msg, now, expected="hvert 5. s")
+        return _result("H-PROC-touch", "green", "svarer", "Touch-skjermen er i gang.", now)
+
+    return FuncCheck("H-PROC-touch", 5.0, run, level="working")
+
+
 # -- H-PC: the PC ------------------------------------------------------------------------------
 
 DISK_YELLOW_GB = 20.0
