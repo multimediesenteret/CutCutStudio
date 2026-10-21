@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-4: Canon CR-N300 over VISCA til Canons XC-liste finnes (Q6).
+  - Status, posisjon og presets virker; hvitbalanse og eksponering venter på XC.
+  - Riktig driver velges per kamera fra `devices.yaml`.
 - CA-3: OBSBOT over OSC.
   - Manuell hvitbalanse i kelvin, manuell eksponering (lukkertid og ISO) og AI-tracking av og på.
   - Verdier kameraet ikke tar, avvises uten å telle mot kretsbryteren.
