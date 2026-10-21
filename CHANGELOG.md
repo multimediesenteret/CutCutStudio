@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-7 (andre del): mic-sjekk i Oppsett (setup steg 5).
+  - Én og én snakker. CutCut sjekker at stemmen er sterkest på riktig kanal, og måler lekkasje til de andre mikrofonene og støy i stillhet.
+  - «Lagre som fasit» skriver `baseline.yaml` og sender den nye lekkasjematrisen til `audio-capture` med en gang (`audio.config`).
+  - Kan ikke kjøres under opptak, og bare admin kan kjøre den.
 - AU-7 (første del): lydsjekk under nedtellingen 3-2-1.
   - Bordplanen viser grønn hake for hver som blir hørt, og rødt merke for en mic som er dempet på mikseren.
   - Brukeren får én setning med fadernummeret («Skyv fader 2 opp»).

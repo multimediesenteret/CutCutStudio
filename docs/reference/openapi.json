@@ -2622,6 +2622,94 @@
         ]
       }
     },
+    "/api/setup/mics": {
+      "delete": {
+        "operationId": "mic_reset_api_setup_mics_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mic Reset",
+        "tags": [
+          "setup"
+        ]
+      },
+      "get": {
+        "description": "Setup step 5: what has been measured, and what is saved as fasit (AU-7).",
+        "operationId": "mics_api_setup_mics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mics Api Setup Mics Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Mics",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/mics/{what}": {
+      "post": {
+        "description": "Measure one mic (``M1`` … ``M5``: a person talks for 6 s) or ``noise`` (3 s quiet).",
+        "operationId": "mic_measure_api_setup_mics__what__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "what",
+            "required": true,
+            "schema": {
+              "title": "What",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Mic Measure Api Setup Mics  What  Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mic Measure",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
     "/api/setup/multiview": {
       "get": {
         "description": "Rutekart against shows and ATEM, plus the recommended layout (D-055).",

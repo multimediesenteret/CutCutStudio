@@ -83,6 +83,9 @@ class LeakMeasurer:
             if mic != talker:
                 self._diffs[talker][mic].append(db - own)
 
+    def reset(self, talker: MicId) -> None:
+        self._diffs.pop(talker, None)
+
     def frames(self, talker: MicId) -> int:
         row = self._diffs.get(talker)
         return max((len(v) for v in row.values()), default=0) if row else 0

@@ -9,7 +9,7 @@ Egen prosess (ADR-0014, PL-02) som leser multitrack fra RØDECaster og sender ba
 | `vad.py` | Silero VAD (studio, ekstra `silero` + `models/silero_vad.onnx`) og energi-VAD (tester, reserve) |
 | `analyzer.py` | 10 ms-blokker → `audio.frame`: `vad`, `level_db`, `dominance_db`, `pause_ms`, `phrase_end`, `pitch_falling`, `leak`, `in_main_mix` per mic |
 | `phrase.py` | Frasegrenser (AU-3, spesifikasjonen 5.10): tonehøyde med YIN (64–500 Hz, bare mens mic-en snakker), energifall og pause. `phrase_end` etter 250 ms pause, eller 150 ms når tonen falt eller stemmen døde ut |
-| `leak.py` | Lekkasje (AU-4): en aktiv mic som ikke er minst 6 dB over lekkasjen forutsagt fra en høyere, aktiv mic, merkes `leak`. Matrisen måles i setup steg 5 (`LeakMeasurer`) og lagres i `baseline.yaml` (`audio.leak_db`); før det brukes −18 dB |
+| `leak.py` | Lekkasje (AU-4): en aktiv mic som ikke er minst 6 dB over lekkasjen forutsagt fra en høyere, aktiv mic, merkes `leak`. Matrisen måles i setup steg 5 (`cutcut.setup.mic_check`, Oppsett → Mikrofoner), lagres i `baseline.yaml` (`audio.leak_db`) og kommer som `audio.config` til en `audio-capture` som kjører; før det brukes −18 dB |
 | `mainmix.py` | `S6` (AU-4): hovedmiksen (kanal 1–2) sammenlignes med hver mic på nivåkurven over 0,5 s. Følger ikke hovedmiksen stavelsene i 0,5 s, er mic-en dempet (`in_main_mix = false`); ett godt vindu gir den tilbake. Ingenting dømmes før hovedmiksen har hatt lyd |
 | `backend.py` | `fake` spiller en 48 kHz multitrack-WAV (tester, demo) |
 | `device.py` | Lydkortet (AU-5). Se detaljene under tabellen |

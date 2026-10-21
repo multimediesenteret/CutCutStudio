@@ -84,6 +84,7 @@ class CoreRuntime:
         self._mics: dict[MicId, MicFrame] = {}
         self._last_audio_ms: int | None = None
         self.audio_status: dict[str, Any] = {}
+        self.on_audio: Callable[[dict[MicId, MicFrame]], None] | None = None
         self._content: ContentState | None = None
         self._vision: dict[SourceId, TileFrame] = {}
         self._last_vision_ms: int | None = None
@@ -116,6 +117,8 @@ class CoreRuntime:
     def feed_audio(self, mics: dict[MicId, MicFrame]) -> None:
         self._mics = mics
         self._last_audio_ms = self.clock.mono_ms()
+        if self.on_audio is not None:  # the setup mic check listens along (AU-7)
+            self.on_audio(mics)
 
     def feed_content(self, state: ContentState | None) -> None:
         self._content = state

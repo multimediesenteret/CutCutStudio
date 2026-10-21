@@ -387,6 +387,140 @@ function Multiview() {
   );
 }
 
+interface MicResultJson {
+  level_db: number;
+  right_channel: boolean;
+  loudest_other: string | null;
+  leak_db: Record<string, number>;
+  worst_leak_db: number | null;
+}
+
+interface MicStatus {
+  mics: string[];
+  running: { kind: "talk" | "noise"; mic: string | null; left_ms: number } | null;
+  results: Record<string, MicResultJson>;
+  noise_floor_db: Record<string, number>;
+  message: string | null;
+  done: boolean;
+  simulator: boolean;
+  saved: {
+    leak_db: Record<string, Record<string, number>>;
+    noise_floor_db: Record<string, number>;
+  };
+}
+
+const MIC_WHO: Record<string, string> = {
+  M1: "Programleder",
+  M2: "Gjest 1",
+  M3: "Gjest 2",
+  M4: "Gjest 3",
+  M5: "Laptop",
+};
+
+const db = (v: number | null | undefined) =>
+  v === null || v === undefined ? "–" : `${v.toFixed(1).replace(".", ",")} dB`;
+
+/** Setup step 5 (AU-7): right channel, leakage and noise floor, saved as fasit. */
+function Mics({ ctx }: { ctx: Ctx }) {
+  const { transport } = useStudio();
+  const [st, setSt] = useState<MicStatus | null>(null);
+  const load = useCallback(() => {
+    transport
+      .get<MicStatus>("/api/setup/mics")
+      .then(setSt)
+      .catch(() => setSt(null));
+  }, [transport]);
+  useEffect(load, [load]);
+  const running = st?.running;
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(load, 400);
+    return () => clearInterval(id);
+  }, [running, load]);
+  if (!st) return null;
+  const measure = (what: string) =>
+    ctx.run(transport.send("POST", `/api/setup/mics/${what}`).then(load));
+  const busy = running !== null;
+  return (
+    <div className="panel">
+      <div className="ph">
+        <span className="lbl">Mikrofoner · steg 5</span>
+        <span className="muted small">Én og én snakker. Mikseren endres ikke</span>
+      </div>
+      <p className="muted">
+        Be hver person si noen setninger i sin mikrofon mens CutCut lytter i 6 sekunder. CutCut
+        sjekker at stemmen er sterkest på riktig kanal, og måler hvor mye den lekker til de andre
+        mikrofonene. Mål også støyen i et stille rom. Lagret som fasit brukes målingene straks av
+        lydanalysen.
+      </p>
+      {st.message && (
+        <p role="status">
+          <b>{st.message}</b>
+          {running && ` (${Math.ceil(running.left_ms / 1000)} s)`}
+        </p>
+      )}
+      <table>
+        <thead>
+          <tr>
+            <th>Mic</th>
+            <th>Hvem</th>
+            <th>Nivå</th>
+            <th>Kanal</th>
+            <th>Mest lekkasje til andre</th>
+            <th>Støy</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {st.mics.map((m) => {
+            const r = st.results[m];
+            return (
+              <tr key={m}>
+                <td className="mono">{m}</td>
+                <td>{MIC_WHO[m] ?? m}</td>
+                <td className="tnum">{r ? db(r.level_db) : "–"}</td>
+                <td>
+                  {r ? (
+                    <span className={`hst ${r.right_channel ? "" : "err"}`}>
+                      <i />
+                      {r.right_channel ? "Riktig" : `Sterkest på ${r.loudest_other}`}
+                    </span>
+                  ) : (
+                    <span className="muted">ikke målt</span>
+                  )}
+                </td>
+                <td className="tnum">{r ? db(r.worst_leak_db) : "–"}</td>
+                <td className="tnum">{db(st.noise_floor_db[m])}</td>
+                <td>
+                  <button type="button" className="btn" disabled={busy} onClick={() => measure(m)}>
+                    {r ? "Mål på nytt" : "Mål"}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div className="row" style={{ display: "flex", gap: 10, marginTop: 12 }}>
+        <button type="button" className="btn" disabled={busy} onClick={() => measure("noise")}>
+          Mål støy (3 s stille)
+        </button>
+        <button
+          type="button"
+          className="btn"
+          disabled={busy || Object.keys(st.results).length === 0}
+          onClick={() => measure("save")}
+        >
+          Lagre som fasit
+        </button>
+        {st.simulator && (
+          <span className="muted small">Simulator: lagres bare i minnet, ikke i baseline.yaml</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function Setup({ ctx }: { ctx: Ctx }) {
   return (
     <div className="grid2">
@@ -395,6 +529,9 @@ export function Setup({ ctx }: { ctx: Ctx }) {
       </div>
       <div className="span">
         <Multiview />
+      </div>
+      <div className="span">
+        <Mics ctx={ctx} />
       </div>
       <div className="panel span">
         <span className="lbl">Resten av veiviseren</span>
