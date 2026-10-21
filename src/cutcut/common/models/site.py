@@ -6,7 +6,7 @@ Shows live in ``site/<studio>/shows/*.yaml`` (models.show). Secrets are never he
 from __future__ import annotations
 
 from ipaddress import IPv4Address
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
@@ -33,6 +33,10 @@ class PearlDevice(_Strict):
     ip: IPv4Address
     recorder_id: str = "1"
     username: str = "cutcut"  # password in Windows Credential Manager (pearl_password)
+    scheme: Literal["https", "http"] = "https"
+    # Pearl ships with a self-signed certificate. On the closed studio network the address is
+    # fixed; set to true once a trusted certificate is installed on the Pearl.
+    verify_tls: bool = False
 
 
 class CameraDevice(_Strict):

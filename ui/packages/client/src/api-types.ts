@@ -878,12 +878,32 @@ export interface components {
             /** Duration S */
             duration_s: number;
             /**
+             * Error
+             * @default null
+             */
+            error: string | null;
+            /**
+             * Firmware
+             * @default null
+             */
+            firmware: string | null;
+            /**
+             * Online
+             * @default true
+             */
+            online: boolean;
+            /**
              * Pearl
              * @enum {string}
              */
             pearl: "idle" | "starting" | "started" | "stopped" | "error" | "disabled";
             /** Started By */
             started_by: ("touch" | "tech" | "streamdeck") | null;
+            /**
+             * Storage Free Pct
+             * @default null
+             */
+            storage_free_pct: number | null;
         };
         /** RecordingState */
         RecordingState: {

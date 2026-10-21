@@ -5,6 +5,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SE-2, SE-3: Pearl-klient mot REST API v2.0 og Pearl som opptaker: start og stopp er idempotente og blokkerer aldri motoren, status leses hvert 2. sekund, «Starter …» holdes til Pearl bekrefter, en Pearl som ikke svarer avvises straks, og et opptak som stopper av seg selv meldes, aldri stoppes (I7). Teknikervinduet viser forbindelse, ledig lagring, fastvare og siste feil. Falsk Pearl over HTTP for tester (SIM-3, del 2).
 - DA-3, DA-4: Companion-klient og -utfører: motorens beslutninger blir knappetrykk på side 10 (preview, layout, TAKE) og 11 (direkte kutt, «Kun lyd»), `regi_*`-variabler maks 5 per sekund, kø der siste preview vinner uten å gå forbi en TAKE, kretsbryter etter 3 feil, og `S5`-reservekutt via atem-bridge når Companion er nede. Falsk Companion over HTTP for tester (SIM-3, del 1).
 - Spesifikasjon v1, teknisk referanse og evaluering (`docs/spec/`, 2026-10-21).
 - ADR-0001–0012, AGENTS.md, åpne spørsmål, innsamlingsmaler og prototype.

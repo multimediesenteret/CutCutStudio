@@ -150,10 +150,24 @@
           "title": "Recorder Id",
           "type": "string"
         },
+        "scheme": {
+          "default": "https",
+          "enum": [
+            "https",
+            "http"
+          ],
+          "title": "Scheme",
+          "type": "string"
+        },
         "username": {
           "default": "cutcut",
           "title": "Username",
           "type": "string"
+        },
+        "verify_tls": {
+          "default": false,
+          "title": "Verify Tls",
+          "type": "boolean"
         }
       },
       "required": [
