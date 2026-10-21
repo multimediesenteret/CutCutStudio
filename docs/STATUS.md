@@ -27,6 +27,14 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
   - supervisor (SO-1).
 
   Maskintester på test-PC og i studio gjenstår.
+- M2 videre (merget, testet mot falske enheter og i Windows-CI):
+  - lyd: frasegrenser, lekkasje og S6, ASIO/WASAPI, lydsjekk og mic-sjekk (AU-3–AU-7);
+  - helse og morgensjekk (HS-1, HS-2, HS-4);
+  - Companion-sider og makrosjekk (DA-7, DA-9);
+  - maskintester (`cutcut hwtest audio|atem`);
+  - Windows-tjeneste, kiosk og `setup-pc.ps1` (SO-2, SO-5, SO-6).
+
+  Resten av M2 venter på test-PC og studio. Rekkefølgen står i `docs/studio/testdag.md`.
 - Innlogging (D-057): studioet bruker Start-knappen («Gjest») til appen har vært testet en stund. Kortleser og NTNU-API (SE-4, SE-5) er flyttet til M4.
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
