@@ -1,6 +1,6 @@
 # Status
 
-Oppdatert: 2026-10-21 · av: Magnus Lian (med Claude)
+Oppdatert: 2026-10-21 · av: Multimediesenteret (med Claude)
 
 ## Hvor vi er
 
@@ -12,6 +12,8 @@ Oppdatert: 2026-10-21 · av: Magnus Lian (med Claude)
 
 - Spesifikasjon, teknisk referanse og evaluering.
 - Arkitekturbeslutninger ADR-0001–0012 (0012 er forslag).
+- `AGENTS.md` som startpunkt, `docs/stack.md`, `docs/RELEASE.md`, `docs/publishing.md`.
+- Git-identitet og CI-sjekk `commit-identity` for Vercel Hobby.
 
 ## Pågår
 
@@ -24,4 +26,5 @@ Ingen.
 ## Neste steg
 
 1. Agent: implementasjonsplaner (se første oppgave i `AGENTS.md`).
-2. NTNU: opptak og klippeliste (Q1–Q2), studioinventar (`docs/intake/studio-inventar.md`), kontaktpersoner og lisens (Q11–Q12).
+2. Eier: beskytt `main` på GitHub (se `docs/RELEASE.md`), koble Vercel-prosjektet når docs-siden finnes.
+3. NTNU: opptak og klippeliste (Q1–Q2), studioinventar (`docs/intake/studio-inventar.md`), kontaktpersoner og lisens (Q11–Q12).

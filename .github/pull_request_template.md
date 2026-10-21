@@ -11,6 +11,8 @@
 - [ ] Bryter ingen av I1–I8
 - [ ] Tester for hver regel-ID som er endret
 - [ ] Kjører mot simulatoren uten utstyr
-- [ ] `docs/STATUS.md` oppdatert
+- [ ] Dokumentasjon oppdatert etter tabellen i `AGENTS.md` 8 (minst `docs/STATUS.md`)
+- [ ] `CHANGELOG.md` under `[Unreleased]` hvis brukeren merker endringen
+- [ ] Alle commits har forfatter `Multimediesenteret <magnus.lian@ntnu.no>`, uten `Co-authored-by`
 - [ ] Ingen hemmeligheter eller kortnummer i kode, logg eller testdata
 - [ ] Trenger maskintest i studio: ja / nei (skript: `tools/hw-test/…`)

@@ -33,3 +33,5 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q18 | Fastvareversjoner på alt utstyr (fylles i `docs/intake/studio-inventar.md`) | Tekniker | Åpen | |
 | Q19 | Skal OBSBOT og Canon blandes i samme show? (Avgjør hvor viktig fargematching er) | NTNU | Åpen | |
 | Q20 | Hvilken GPU har regi-PC-en? (Avgjør CUDA/TensorRT eller DirectML for videolaget) | NTNU | Åpen | |
+| Q21 | Lyd med ASIO på Windows: har `sounddevice` sin PortAudio ASIO-støtte (`SD_ENABLE_ASIO`), eller trengs egen PortAudio-bygg med Steinbergs ASIO SDK? Bekreftes med maskintest mot RØDECaster | Agent + tekniker | Åpen | |
+| Q22 | Vercel: passer Hobby-planen (personlig, ikke-kommersiell) for NTNU-prosjektet, eller skal docs-siden på Pro eller GitHub Pages? | NTNU | Åpen | |

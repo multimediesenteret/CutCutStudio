@@ -1,0 +1,48 @@
+name: commit-identity
+
+# Every commit must be authored and committed by the Vercel account owner,
+# without Co-authored-by trailers (Vercel Hobby). See AGENTS.md section 3.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check author, committer and trailers
+        env:
+          EXPECTED_NAME: Multimediesenteret
+          EXPECTED_EMAIL: magnus.lian@ntnu.no
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="$HEAD"
+          else
+            RANGE="$BASE..$HEAD"
+          fi
+          bad=0
+          for c in $(git rev-list --no-merges $RANGE); do
+            an=$(git log -1 --format='%an' $c); ae=$(git log -1 --format='%ae' $c)
+            cn=$(git log -1 --format='%cn' $c); ce=$(git log -1 --format='%ce' $c)
+            if [ "$an" != "$EXPECTED_NAME" ] || [ "$ae" != "$EXPECTED_EMAIL" ]; then
+              echo "::error::$c author is '$an <$ae>'"; bad=1
+            fi
+            if [ "$ce" != "$EXPECTED_EMAIL" ] && [ "$ce" != "noreply@github.com" ]; then
+              echo "::error::$c committer is '$cn <$ce>'"; bad=1
+            fi
+            if git log -1 --format='%B' $c | grep -qi '^co-authored-by:'; then
+              echo "::error::$c has a Co-authored-by trailer"; bad=1
+            fi
+          done
+          if [ $bad -ne 0 ]; then
+            echo "Fix with: git rebase -r <base> --exec 'git commit --amend --no-edit --reset-author' (after ./tools/setup-git.sh), and remove Co-authored-by lines."
+            exit 1
+          fi
+          echo "All commits OK."

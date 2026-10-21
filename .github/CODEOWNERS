@@ -1,4 +1,2 @@
-# Erstatt med riktige GitHub-brukere/team (Q12).
-*                @multimediesenteret/cutcut-maintainers
-/AGENTS.md       @multimediesenteret/cutcut-maintainers
-/docs/adr/       @multimediesenteret/cutcut-maintainers
+# Eier av all kode og dokumentasjon. Endres bare av eier.
+*    @Multimediesenteret

@@ -12,7 +12,10 @@ Ingen kode ennå. Første steg er implementasjonsplaner (se `docs/STATUS.md`).
 
 | Hva | Hvor |
 | --- | --- |
-| Regler for AI-agenter | [`AGENTS.md`](AGENTS.md) |
+| **Start her** (agenter og mennesker) | [`AGENTS.md`](AGENTS.md) |
+| Stack og utviklingsmiljø | [`docs/stack.md`](docs/stack.md) |
+| Versjonering og release | [`docs/RELEASE.md`](docs/RELEASE.md) |
+| Publisering (Vercel, Windows-pakke) | [`docs/publishing.md`](docs/publishing.md) |
 | Spesifikasjonen (fasit) | [`docs/spec/`](docs/spec/) – start med `01-app-spesifikasjon.md` |
 | Status og neste steg | [`docs/STATUS.md`](docs/STATUS.md) |
 | Åpne spørsmål og hvem som svarer | [`docs/open-questions.md`](docs/open-questions.md) |
@@ -24,3 +27,7 @@ Ingen kode ennå. Første steg er implementasjonsplaner (se `docs/STATUS.md`).
 ## Kjøre lokalt
 
 Kommer i milepæl M1 (simulator). Målet er at `uv sync && uv run cutcut sim` starter motor, simulator og begge skjermer på under 10 minutter fra ren klone.
+
+## Bidra
+
+Kjør `tools/setup-git.sh` (eller `.ps1`) etter kloning. Alle commits skal ha forfatter `Multimediesenteret <magnus.lian@ntnu.no>` (se `AGENTS.md` 3).
