@@ -1,0 +1,30 @@
+{
+  "name": "cutcut-ui",
+  "private": true,
+  "description": "CutCut Studio screens (touch, technician, web simulator). See docs/plans/ui.md.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm --filter \"./ui/apps/*\" run build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "format": "prettier --write ui",
+    "format:check": "prettier --check ui",
+    "types": "openapi-typescript docs/reference/openapi.json -o ui/packages/client/src/api-types.ts",
+    "types:check": "pnpm types && git diff --exit-code ui/packages/client/src/api-types.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "eslint-plugin-react-hooks": "^6.1.0",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.9.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}

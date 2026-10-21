@@ -1,0 +1,57 @@
+name: ui
+
+# Lint, types, tests and build for the screens (ui/). Runs only when UI-related files change,
+# to save Actions minutes on the free plan (D-050). Linux only: the UI is static files.
+
+on:
+  pull_request:
+    paths:
+      - "ui/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "eslint.config.js"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - "docs/reference/openapi.json"
+      - ".github/workflows/ui.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ui/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "eslint.config.js"
+      - ".prettierrc.json"
+      - ".prettierignore"
+      - "docs/reference/openapi.json"
+      - ".github/workflows/ui.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ui-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: API types match docs/reference/openapi.json
+        run: pnpm types:check
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build

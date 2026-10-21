@@ -1,0 +1,155 @@
+/* CutCut Studio – design tokens (docs/design/farger.md, spec 12.5).
+   Copied from the GUI concept (concept/assets/tokens.css), which stays the visual reference.
+   Status colours carry meaning; participant colours only mark who. System fonts only, so the
+   Windows app needs nothing from the network: Segoe UI Variable + Cascadia Mono. */
+:root {
+  --bg: #edf0f4;
+  --surface: #ffffff;
+  --surface-2: #f5f7fa;
+  --line: #d5dbe3;
+  --line-2: #e4e8ee;
+  --ink: #111821;
+  --muted: #59636f;
+  --faint: #8a939e;
+  --pgm: #d7262e;
+  --pgm-soft: #fbe4e5;
+  --pvw: #1f8a4c;
+  --pvw-soft: #ddf1e5;
+  --wait: #b67600;
+  --wait-soft: #fbefd6;
+  --eye: #2f6fd6;
+  --eye-soft: #e2ebfb;
+  --bleed: #8a93a0;
+  --p1: #d12e8a;
+  --p2: #0a93b5;
+  --p3: #6f4bd8;
+  --p4: #e0640f;
+  --cam-bg1: #2a323c;
+  --cam-bg2: #141a21;
+  --cam-skin: #5b6573;
+  --cam-table: #3a4552;
+  --shadow: 0 1px 2px rgba(17, 24, 33, 0.06), 0 4px 16px rgba(17, 24, 33, 0.06);
+  --f-ui:
+    "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    sans-serif;
+  --f-display:
+    "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    sans-serif;
+  --f-mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0f14;
+    --surface: #131920;
+    --surface-2: #19212a;
+    --line: #26313c;
+    --line-2: #1e2731;
+    --ink: #e6ebf0;
+    --muted: #97a3b0;
+    --faint: #66727f;
+    --pgm: #ff4d55;
+    --pgm-soft: #3a1a1d;
+    --pvw: #3ccf7d;
+    --pvw-soft: #14301f;
+    --wait: #f0b03c;
+    --wait-soft: #372b13;
+    --eye: #7ea6ff;
+    --eye-soft: #1a2844;
+    --bleed: #6b7480;
+    --p1: #ff5cb8;
+    --p2: #3fcfea;
+    --p3: #a68bff;
+    --p4: #ff9442;
+    --cam-bg1: #1e252d;
+    --cam-bg2: #0c1015;
+    --cam-skin: #465160;
+    --cam-table: #2a333e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0f14;
+  --surface: #131920;
+  --surface-2: #19212a;
+  --line: #26313c;
+  --line-2: #1e2731;
+  --ink: #e6ebf0;
+  --muted: #97a3b0;
+  --faint: #66727f;
+  --pgm: #ff4d55;
+  --pgm-soft: #3a1a1d;
+  --pvw: #3ccf7d;
+  --pvw-soft: #14301f;
+  --wait: #f0b03c;
+  --wait-soft: #372b13;
+  --eye: #7ea6ff;
+  --eye-soft: #1a2844;
+  --bleed: #6b7480;
+  --p1: #ff5cb8;
+  --p2: #3fcfea;
+  --p3: #a68bff;
+  --p4: #ff9442;
+  --cam-bg1: #1e252d;
+  --cam-bg2: #0c1015;
+  --cam-skin: #465160;
+  --cam-table: #2a333e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+[hidden] {
+  display: none !important;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-ui);
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+.mono,
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.mono {
+  font-family: var(--f-mono);
+}
+:focus-visible {
+  outline: 2px solid var(--eye);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.p1 {
+  --pc: var(--p1);
+}
+.p2 {
+  --pc: var(--p2);
+}
+.p3 {
+  --pc: var(--p3);
+}
+.p4 {
+  --pc: var(--p4);
+}
