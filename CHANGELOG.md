@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-2: OBSBOT Tail 2 over VISCA.
+  - Status, posisjon, presets med fart, absolutt pan/tilt og zoom, og små justeringer.
+  - Kommandoene er testet byte for byte mot tabellen i 7.3, og driveren mot et falskt kamera over UDP.
+  - En funksjon kameraet ikke har, teller ikke mot kretsbryteren.
 - CA-1: kameragrensesnittet og `GuardedCamera`.
   - Felles `CameraDriver` (7.3) for OBSBOT og Canon.
   - Kamera på program eller preview flyttes eller fargejusteres aldri (I2, `PV2`). Hva som er på lufta, leses fra ATEM, ikke fra motoren, og sjekkes igjen rett før sending.

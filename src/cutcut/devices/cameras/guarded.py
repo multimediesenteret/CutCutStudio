@@ -35,6 +35,7 @@ from cutcut.devices.cameras.base import (
     PTZPosition,
     RecallPreset,
     StorePreset,
+    Unsupported,
     ZoomTo,
     moves_or_colours,
     send,
@@ -87,6 +88,7 @@ class GuardStatus:
     refused: int = 0
     clamped: int = 0
     dropped: int = 0
+    unsupported: int = 0
     last_error: str | None = None
     last_refused: str | None = None
     open_until: float = 0.0
@@ -203,6 +205,11 @@ class GuardedCamera:
             return True
         try:
             await asyncio.wait_for(send(self.driver, cmd), self.timeout_s)
+        except Unsupported as e:  # the camera answered fine; it just has no such function
+            self.st.unsupported += 1
+            self.st.last_error = f"{cmd.kind}: {e}"
+            log.info("%s: %s", self.id, self.st.last_error)
+            return True
         except Exception as e:
             self._failed(f"{cmd.kind}: {self._why(e)}")
             return True
