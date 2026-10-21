@@ -67,6 +67,7 @@ from cutcut.core.inputs import (
     EngineConfig,
     ManualCut,
     ManualPreview,
+    MicFrame,
     SetAuto,
     SetContentEnabled,
     SetLock,
@@ -87,6 +88,7 @@ from cutcut.session.manager import (
     SessionManager,
 )
 from cutcut.setup import multiview as mv
+from cutcut.setup.mic_check import MicCheck, write_baseline
 
 log = logging.getLogger(__name__)
 
@@ -253,6 +255,9 @@ class Studio:
         self._mv_errors = ""
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
+        self.mic_check: MicCheck | None = None
+        self.on_audio_config: Callable[[dict[str, Any]], None] | None = None  # core: the bus
+        self.runtime.on_audio = self._on_audio_frame
         self._check: dict[str, dict[str, int | bool]] = {}
         self._check_step: TouchStep = TouchStep.IDLE
         self._check_ms = self.now
@@ -468,6 +473,68 @@ class Studio:
             self._mv_checked = True
             self._check_multiview()
         return result
+
+    # -- setup step 5: the microphones (AU-7) --------------------------------------------------
+
+    def _studio_mics(self) -> list[MicId]:
+        mics = {p.mic for show in self.deps.site.shows.values() for p in show.participants}
+        return sorted(mics, key=lambda m: m.value)
+
+    def _mic_check(self) -> MicCheck:
+        if self.mic_check is None:
+            self.mic_check = MicCheck(self._studio_mics())
+        return self.mic_check
+
+    def _on_audio_frame(self, mics: dict[MicId, MicFrame]) -> None:
+        if self.mic_check is not None and self.mic_check.running is not None:
+            self.mic_check.feed({m: f.level_db for m, f in mics.items()}, self.now)
+
+    def mic_check_status(self) -> dict[str, Any]:
+        status = self._mic_check().status(self.now)
+        status["saved"] = self.deps.site.baseline.audio.model_dump(mode="json")
+        status["simulator"] = self.deps.simulator
+        return status
+
+    def mic_check_start(self, what: str, role: Role, actor: str) -> dict[str, Any]:
+        if self.sessions.recording:
+            raise CommandError("Mic-sjekken kan ikke kjøres under opptak.")
+        check = self._mic_check()
+        if what == "noise":
+            check.start_noise(self.now)
+        else:
+            try:
+                check.start_talk(MicId(what), self.now)
+            except ValueError as exc:
+                raise CommandError(str(exc)) from exc
+        self._audit(role, actor, "mic_check", what=what)
+        return self.mic_check_status()
+
+    def mic_check_reset(self, role: Role, actor: str) -> None:
+        self.mic_check = None
+        self._audit(role, actor, "mic_check_reset")
+
+    def mic_check_save(self, role: Role, actor: str) -> dict[str, Any]:
+        """Approve: write baseline.yaml and give audio-capture the new leakage at once."""
+        check = self._mic_check()
+        if not check.results:
+            raise CommandError("Mål minst én mikrofon først.")
+        wrong = [r.mic.value for r in check.results.values() if not r.right_channel]
+        if wrong:
+            raise CommandError(f"Feil kanal på {', '.join(wrong)}. Rett det og mål på nytt.")
+        site = self.deps.site
+        new = check.baseline(site.baseline, actor, self.deps.clock.now())
+        if not self.deps.simulator:  # the simulator runs on files in the repo: never write
+            write_baseline(site.root / "baseline.yaml", new)
+        self.deps.site = site.model_copy(update={"baseline": new})
+        if self.on_audio_config is not None:
+            leak = {
+                s.value: {d.value: v for d, v in row.items()}
+                for s, row in new.audio.leak_db.items()
+            }
+            self.on_audio_config({"leak_db": leak})
+        self._audit(role, actor, "mic_check_save", mics=sorted(r.value for r in check.results))
+        self._alert("info", "SETUP-5", f"Mikrofonene er målt og lagret som fasit av {actor}.")
+        return self.mic_check_status()
 
     # -- audio check during the countdown (AU-7) ------------------------------------------------
 

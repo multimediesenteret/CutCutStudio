@@ -253,6 +253,26 @@ def create_app(
         require(me, "operator")
         return studio.check_multiview_now(me.role, me.actor)
 
+    @app.get("/api/setup/mics", tags=["setup"])
+    async def mics(me: Who) -> dict[str, Any]:
+        """Setup step 5: what has been measured, and what is saved as fasit (AU-7)."""
+        require(me, "admin")
+        return studio.mic_check_status()
+
+    @app.post("/api/setup/mics/{what}", tags=["setup"])
+    async def mic_measure(what: str, me: Who) -> dict[str, Any]:
+        """Measure one mic (``M1`` … ``M5``: a person talks for 6 s) or ``noise`` (3 s quiet)."""
+        require(me, "admin")
+        if what == "save":
+            return studio.mic_check_save(me.role, me.actor)
+        return studio.mic_check_start(what, me.role, me.actor)
+
+    @app.delete("/api/setup/mics", tags=["setup"])
+    async def mic_reset(me: Who) -> Ok:
+        require(me, "admin")
+        studio.mic_check_reset(me.role, me.actor)
+        return Ok()
+
     @app.get("/api/shows", tags=["config"])
     async def shows(me: Who) -> list[dict[str, Any]]:
         require(me, "operator")

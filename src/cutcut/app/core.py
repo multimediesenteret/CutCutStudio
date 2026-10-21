@@ -146,6 +146,7 @@ def build_core(opts: CoreOptions) -> Core:
         log.info("Nye utstyrsadresser tatt i bruk (ATEM: ved neste omstart av atem-bridge)")
 
     studio.on_devices = on_devices
+    studio.on_audio_config = lambda cfg: send("audio.config", cfg)  # setup step 5 → audio-capture
 
     def before_tick() -> None:
         studio.runtime.feed_atem(bridge.readback())
