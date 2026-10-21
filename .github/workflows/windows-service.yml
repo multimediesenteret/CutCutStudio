@@ -1,0 +1,85 @@
+name: windows-service
+
+# SO-2: installs the real Windows service with WinSW on a Windows runner and checks that it
+# comes up, restarts a killed core, and leaves nothing behind when stopped. Runs only when the
+# installer or the supervisor change (Windows minutes cost more, D-050).
+
+on:
+  pull_request:
+    paths:
+      - "installer/**"
+      - "src/cutcut/supervisor/**"
+      - ".github/workflows/windows-service.yml"
+  push:
+    branches: [main]
+    paths:
+      - "installer/**"
+      - "src/cutcut/supervisor/**"
+      - ".github/workflows/windows-service.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: windows-service-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  service:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Install the CutCut service
+        shell: pwsh
+        run: |
+          .\installer\install-services.ps1 -Root "$env:RUNNER_TEMP\CutCut" -App "$env:GITHUB_WORKSPACE" -Site "$env:GITHUB_WORKSPACE\site\example" -Port 8090
+          Get-Service CutCut | Format-List Name, Status, StartType
+          if ((Get-Service CutCut).StartType -ne "Automatic") { throw "Tjenesten starter ikke automatisk" }
+      - name: Comes up, and a killed core comes back
+        shell: pwsh
+        run: |
+          function Wait-Health([int]$seconds) {
+            $deadline = (Get-Date).AddSeconds($seconds)
+            while ((Get-Date) -lt $deadline) {
+              try {
+                $h = Invoke-RestMethod -Uri "http://127.0.0.1:8090/api/health" -TimeoutSec 2
+                if ($h.runtime.processes | Where-Object { $_.name -eq "core" -and $_.running }) { return $h }
+              } catch { }
+              Start-Sleep -Seconds 1
+            }
+            throw "core svarte ikke innen $seconds s"
+          }
+          function Get-Core {
+            Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*-m cutcut core*" }
+          }
+          $h = Wait-Health 120
+          $h.runtime.processes | Format-Table name, running, uptime_s, restarts_10min
+          $core = @(Get-Core)
+          if ($core.Count -ne 1) { throw "forventet én core, fant $($core.Count)" }
+          Stop-Process -Id $core[0].ProcessId -Force
+          Start-Sleep -Seconds 3
+          $h = Wait-Health 60
+          $c = $h.runtime.processes | Where-Object { $_.name -eq "core" }
+          if ($c.restarts_10min -lt 1) { throw "supervisor meldte ikke omstarten" }
+          Write-Host "core startet på nytt etter drap ($($c.restarts_10min) omstart)"
+      - name: Stopping the service leaves no process behind
+        shell: pwsh
+        run: |
+          Stop-Service CutCut
+          Start-Sleep -Seconds 5
+          $left = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*-m cutcut*" }
+          if ($left) { $left | Format-Table ProcessId, CommandLine; throw "prosesser ble igjen" }
+          .\installer\install-services.ps1 -Root "$env:RUNNER_TEMP\CutCut" -Uninstall
+          if (Get-Service CutCut -ErrorAction SilentlyContinue) { throw "tjenesten ble ikke fjernet" }
+      - name: Service logs
+        if: always()
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse "$env:RUNNER_TEMP\CutCut\data\logs" -ErrorAction SilentlyContinue |
+            ForEach-Object { Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 60 -ErrorAction SilentlyContinue }

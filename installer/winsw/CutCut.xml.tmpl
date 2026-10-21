@@ -1,0 +1,30 @@
+<!--
+  Windows-tjenesten «CutCut» (SO-2, spesifikasjonen 9.1, docs/plans/supervisor-ops.md).
+  Laget av installer/install-services.ps1 fra denne malen; {{…}} fylles inn der.
+  WinSW 2.12 (MIT). Tjenesten starter supervisor, som starter og passer på core,
+  atem-bridge og audio-capture. Krasjer supervisor selv, starter Windows den på nytt.
+-->
+<service>
+  <id>CutCut</id>
+  <name>CutCut Studio</name>
+  <description>Automatisk regi i podkaststudioet (supervisor: core, atem-bridge, audio-capture).</description>
+  <executable>{{PYTHON}}</executable>
+  <arguments>-m cutcut supervisor --site "{{SITE}}" --data "{{DATA}}" --port {{PORT}}{{UI_ARG}}</arguments>
+  <workingdirectory>{{WORKDIR}}</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>false</delayedAutoStart>
+  <!-- Krasj: ny start etter 5, 10 og 30 s (plan, lag 2). Telleren nullstilles etter en time. -->
+  <onfailure action="restart" delay="5 sec"/>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  <!-- Stopp: Ctrl+C først, så supervisor rekker å stoppe barna; Job Object tar resten. -->
+  <stoptimeout>20 sec</stoptimeout>
+  <logpath>{{DATA}}\logs\service</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+  <env name="PYTHONUNBUFFERED" value="1"/>
+  <env name="PYTHONUTF8" value="1"/>
+</service>
