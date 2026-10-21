@@ -24,6 +24,7 @@ from cutcut.app.studio import CommandError, Studio
 from cutcut.common.ids import Shot
 from cutcut.common.models.session import ShowChoice, TouchStep, User
 from cutcut.common.models.show import RulesPreset
+from cutcut.health.model import CheckResult
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +93,14 @@ def create_app(
 ) -> FastAPI:
     @contextlib.asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-        tasks = [asyncio.create_task(_loop(studio, before_tick))] if run_loop else []
+        tasks = (
+            [
+                asyncio.create_task(_loop(studio, before_tick)),
+                asyncio.create_task(studio.health.loop()),
+            ]
+            if run_loop
+            else []
+        )
         tasks += [asyncio.create_task(job()) for job in background]  # e.g. the bus reader
         try:
             yield
@@ -127,11 +135,25 @@ def create_app(
         """Same as the status page, for NTNU monitoring (spec 8.5). No sign-in needed."""
         state = studio.state()
         levels = {a.level for a in state.alerts}
-        overall = "error" if "error" in levels else "warn" if "warn" in levels else "ok"
+        health = state.health.status
+        overall = (
+            "error"
+            if "error" in levels or health == "red"
+            else "warn"
+            if "warn" in levels or health == "yellow"
+            else "ok"
+        )
         if not state.engine.audio_ok:
             overall = "error"
-        dump = state.model_dump(mode="json", include={"engine", "recording", "runtime", "alerts"})
+        dump = state.model_dump(
+            mode="json", include={"engine", "recording", "runtime", "alerts", "health"}
+        )
         return {"status": overall, "version": __version__, **dump}
+
+    @app.get("/api/health/checks", tags=["status"])
+    async def health_checks() -> list[CheckResult]:
+        """Latest result of every check (spec 10.1). No sign-in needed, like /api/health."""
+        return studio.health.results()
 
     @app.get("/api/state", tags=["status"])
     async def get_state(me: Who) -> StudioState:

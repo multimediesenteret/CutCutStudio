@@ -99,6 +99,12 @@ class CoreRuntime:
         """The newest mic measurements (read-only use: meters for the screens)."""
         return self._mics
 
+    def audio_age_ms(self) -> int | None:
+        """How long since the last audio measurement, or since start if none came yet (the
+        same grace as S4). For ``H-AUD-1``."""
+        last = self._last_audio_ms if self._last_audio_ms is not None else self._started_ms
+        return self.clock.mono_ms() - last
+
     # -- feeding --------------------------------------------------------------------------
 
     def feed_audio(self, mics: dict[MicId, MicFrame]) -> None:

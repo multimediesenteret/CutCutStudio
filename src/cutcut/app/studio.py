@@ -23,6 +23,7 @@ from cutcut.app.hub import Hub
 from cutcut.app.state import (
     AlertInfo,
     EngineInfo,
+    HealthInfo,
     Meter,
     ParticipantInfo,
     ProcessInfo,
@@ -67,6 +68,8 @@ from cutcut.core.inputs import (
     SetShadow,
 )
 from cutcut.core.runtime import CoreRuntime, Executor
+from cutcut.health import HealthEngine, HealthEvent
+from cutcut.health.checks import audio_stream
 from cutcut.session.manager import (
     DONE_LOGOUT_MS,
     Action,
@@ -210,6 +213,13 @@ class Studio:
             on_step=self._on_step,
         )
         self.alerts: list[AlertRecord] = []
+        clock = self.deps.clock
+        self.health = HealthEngine(
+            [audio_stream(self.runtime.audio_age_ms, clock.now)],
+            mono_s=lambda: clock.mono_ms() / 1000,
+            now=clock.now,
+            on_event=self._on_health,
+        )
         self._processes: list[ProcessInfo] = []
         self._processes_at: int | None = None
         self._proc_state: dict[str, str] = {}
@@ -422,6 +432,22 @@ class Studio:
         reader = getattr(source, "multiview_readback", None)
         return reader() if callable(reader) else None
 
+    # -- health (spec 8.5, HS-1) -------------------------------------------------------------
+
+    def _on_health(self, ev: HealthEvent) -> None:
+        """An issue opens or changes: an alert. It closes (30 s green): its alerts go away."""
+        r = ev.result
+        if ev.kind == "resolved":
+            for a in self.alerts:
+                if a.code == r.id:
+                    a.acknowledged = True
+            return
+        level: Literal["warn", "error"] = "error" if r.status == "red" else "warn"
+        self._alert(level, r.id, r.message, for_user=r.for_user and r.status == "red", log_it=False)
+
+    def health_info(self) -> HealthInfo:
+        return HealthInfo(status=self.health.overall(), checks=self.health.results())
+
     # -- processes (supervisor, SO-1) ------------------------------------------------------
 
     def on_supervisor(self, payload: dict[str, Any]) -> None:
@@ -587,13 +613,19 @@ class Studio:
                     self.hub.publish("touch", {"notice": msg})
 
     def _alert(
-        self, level: Literal["info", "warn", "error"], code: str, msg: str, for_user: bool = False
+        self,
+        level: Literal["info", "warn", "error"],
+        code: str,
+        msg: str,
+        for_user: bool = False,
+        log_it: bool = True,
     ) -> None:
         self._alert_seq += 1
         rec = AlertRecord(self._alert_seq, level, code, msg, self.deps.clock.now(), for_user)
         self.alerts.append(rec)
         del self.alerts[:-50]
-        log.log(logging.ERROR if level == "error" else logging.INFO, msg, extra={"check": code})
+        if log_it:  # health checks log their own start and end
+            log.log(logging.ERROR if level == "error" else logging.INFO, msg, extra={"check": code})
         self.hub.publish("alert", self._alert_info(rec).model_dump(mode="json"))
 
     @staticmethod
@@ -692,6 +724,7 @@ class Studio:
                 skipped_ticks=self.runtime.stats.skipped_ticks,
                 processes=self.processes_info(),
             ),
+            health=self.health_info(),
         )
 
     def _publish_state(self) -> None:

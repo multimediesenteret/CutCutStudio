@@ -50,6 +50,86 @@
         "title": "AlertInfo",
         "type": "object"
       },
+      "CheckResult": {
+        "additionalProperties": false,
+        "properties": {
+          "expected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Expected"
+          },
+          "for_user": {
+            "default": false,
+            "title": "For User",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "level": {
+            "default": "connected",
+            "enum": [
+              "connected",
+              "working",
+              "as_agreed"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Since"
+          },
+          "status": {
+            "enum": [
+              "green",
+              "yellow",
+              "red"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "value",
+          "message",
+          "ts"
+        ],
+        "title": "CheckResult",
+        "type": "object"
+      },
       "CompanionButton": {
         "additionalProperties": false,
         "properties": {
@@ -275,6 +355,32 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthInfo": {
+        "additionalProperties": false,
+        "description": "The health checks (spec 8.5): worst open issue and the latest result of each check.",
+        "properties": {
+          "checks": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "status": {
+            "default": "green",
+            "enum": [
+              "green",
+              "yellow",
+              "red"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthInfo",
         "type": "object"
       },
       "LiveMessage": {
@@ -1117,6 +1223,13 @@
           "engine": {
             "$ref": "#/components/schemas/EngineInfo"
           },
+          "health": {
+            "$ref": "#/components/schemas/HealthInfo",
+            "default": {
+              "checks": [],
+              "status": "green"
+            }
+          },
           "participants": {
             "items": {
               "$ref": "#/components/schemas/ParticipantInfo"
@@ -1542,6 +1655,32 @@
           }
         },
         "summary": "Health",
+        "tags": [
+          "status"
+        ]
+      }
+    },
+    "/api/health/checks": {
+      "get": {
+        "description": "Latest result of every check (spec 10.1). No sign-in needed, like /api/health.",
+        "operationId": "health_checks_api_health_checks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CheckResult"
+                  },
+                  "title": "Response Health Checks Api Health Checks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health Checks",
         "tags": [
           "status"
         ]
