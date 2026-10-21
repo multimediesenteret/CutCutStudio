@@ -13,6 +13,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 | --- | --- |
 | `inputs.py` | Inndata og kommandoer |
 | `intents.py` | Ønsker til utstyret |
+| `content.py` | Content-tilstand fra laptop-ruta og laptop-lyd (`CT1`–`CT6`) |
 | `speakers.py` | Hvem snakker: `T1`, `T12`, `S6`, krysstale, latter og turbytter (`T6`) |
 | `shots.py` | Bildeutvalg per modus (5.1) og bilde ↔ ATEM-kilde |
 | `engine.py` | Prioritetsrekkefølgen (5.2), preview-tilstander (5.9), kuttpunkt (5.10), hold (5.11), sikkerhet (5.7), overstyring |
@@ -25,8 +26,8 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 | `PV1`, `PV4`, preview-tilstander | Ferdig. `PV2` håndheves i kameradriverne (M3), `PV3` med videolaget (M4) |
 | `K1`–`K4`, `H1`–`H4` | Ferdig |
 | `S1`–`S4`, `S6` | Ferdig. `S5` (Companion nede) avgjøres i skallet ved utføring |
-| `B2`–`B5` | Ferdig. `B1` (åpning) kommer med content i K-8 |
-| `CT1`–`CT6` | K-8 |
+| `B1`–`B5` | Ferdig |
+| `CT1`–`CT6` | Ferdig (`content.py`): aktiv etter 2 s, ny slide, video og laptop-lyd, retur via kort fugleperspektiv, tapt signal kuttes bort straks |
 | Overstyring (`MANUAL`): manuelt kutt, AUTO, LÅS, manuell preview, endring på ATEM av en person (I5), Kun lyd (`A`) | Ferdig |
 
 ## Valg som ikke står eksplisitt i spesifikasjonen
@@ -34,6 +35,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 - **Vertens innskudd og krysstale:** når verten snakker over gjesten på lufta, regnes det ikke som krysstale (`T5`) før det har vart `T4_host_backchannel_s` (1,5 s). Det følger av 5.12, ellers ville et «mm» på 1,2 s gitt kutt til fugleperspektiv.
 - **`T9`:** gjelder kutt som ikke skyldes ny taler (krysstale, stillhet, ping-pong): vent inntil 300 ms på en pause på minst 150 ms hos taleren.
 - **Reaksjonsbilde (`T7`) og fugleperspektiv (`B5`)** veksler i lange svar. Retur (`H4`) legges på preview 0,6 s før innslaget er ferdig, og tas ikke hvis lytteren på skjermen har begynt å snakke (`R3`).
+- **Åpning `B1`:** `StartShow` (opptak startet) gir fugleperspektiv i `B1_open_s` og så verten. Taler-reglene avbryter ikke åpningen eller det korte fugleperspektivet etter content.
 - **`T3` ved retur** bruker grunnverdien uten gjestetillegget, så et reaksjonsbilde på 2,5 s ikke blir 3,5 s.
 
 ## Tester
