@@ -27,6 +27,7 @@ from cutcut.common.store import Store
 from cutcut.core.inputs import ContentState
 from cutcut.setup.multiview import readback_from_map
 from cutcut.sim.fakes import FakeAtem, FakeCardReader, FakeNtnuApi, FakePearl
+from cutcut.sim.vision import SimVision
 from cutcut.sim.voices import Conversation, Voices
 
 SIM_PIN = "1234"
@@ -45,6 +46,7 @@ class LiveSim:
     audio_lost: bool = False
     moving: set[CameraId] = field(default_factory=set)
     mv_wrong: bool = False
+    vision: SimVision | None = None  # cutcut sim --vision
 
     def __post_init__(self) -> None:
         self._voices_for_show()
@@ -69,6 +71,14 @@ class LiveSim:
         rt.feed_content(self.content)
         rt.feed_atem(self.atem.readback())
         rt.feed_cameras_moving(frozenset(self.moving))
+        if self.vision is not None:
+            rb = self.atem.readback()
+            self.vision.tick(
+                now,
+                rb.program if rb else None,
+                rb.preview if rb else None,
+                {c.value for c in self.moving},
+            )
 
     def multiview_wrong(self, on: bool) -> None:
         """Someone changed the ATEM multiview: windows 1 and 2 swapped, safe area on."""
@@ -97,7 +107,12 @@ class LiveSim:
 
 
 def build_live_sim(
-    clock: Clock, *, seed: int = 1, store: Store | None = None, site_dir: Path | None = None
+    clock: Clock,
+    *,
+    seed: int = 1,
+    store: Store | None = None,
+    site_dir: Path | None = None,
+    vision: bool = False,
 ) -> tuple[LiveSim, Auth]:
     site = load_site(site_dir or example_site_dir())
     atem, pearl = FakeAtem(), FakePearl()
@@ -117,7 +132,11 @@ def build_live_sim(
     studio = Studio(deps)
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})
     auth = Auth(site.staff, secrets, dev_admin=True)
-    return LiveSim(studio, atem, pearl, seed=seed), auth
+    sim = LiveSim(studio, atem, pearl, seed=seed)
+    if vision and site.multiview is not None:
+        sim.vision = SimVision(site.multiview, studio.runtime)
+        studio.on_vision_want = lambda: sim.vision.want(studio.now) if sim.vision else None
+    return sim, auth
 
 
 class _In(BaseModel):

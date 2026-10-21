@@ -787,6 +787,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/vision/thumb/{source}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vision Thumb
+         * @description The newest cut-out of a camera window (C1…, LAPTOP) or PVW/PGM, as JPEG (D-056).
+         */
+        get: operations["vision_thumb_api_vision_thumb__source__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1249,6 +1269,11 @@ export interface components {
             skipped_ticks: number;
             /** Ticks */
             ticks: number;
+            /**
+             * Vision
+             * @default false
+             */
+            vision: boolean;
         };
         /**
          * SeatAudio
@@ -2738,6 +2763,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Ok"];
+                };
+            };
+        };
+    };
+    vision_thumb_api_vision_thumb__source__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

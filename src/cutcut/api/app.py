@@ -259,6 +259,15 @@ def create_app(
         require(me, "operator")
         return studio.atem_status()
 
+    @app.get("/api/vision/thumb/{source}", tags=["status"], response_class=Response)
+    async def vision_thumb(source: str, me: Who) -> Response:
+        """The newest cut-out of a camera window (C1…, LAPTOP) or PVW/PGM, as JPEG (D-056)."""
+        require(me, "operator")
+        data = studio.vision_thumb(source)
+        if data is None:
+            raise HTTPException(404, "Ingen bilder fra videolaget nå")
+        return Response(data, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
+
     @app.get("/api/setup/mics", tags=["setup"])
     async def mics(me: Who) -> dict[str, Any]:
         """Setup step 5: what has been measured, and what is saved as fasit (AU-7)."""

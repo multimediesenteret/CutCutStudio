@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- D-056: kamerabilder i teknikervinduet.
+  - Oversikt og Kameraer viser utsnitt av multiviewen (kameraer, laptop) i stedet for tegningene, oppdatert to ganger i sekundet.
+  - Videolaget lager bildene bare mens noen ser (`vision.want`), og sender dem som `vision.thumbs`.
+  - Nytt endepunkt `GET /api/vision/thumb/{kilde}`, og `runtime.vision` i tilstanden.
+  - `cutcut sim --vision` kjører en tegnet multiview som følger den falske ATEM-en.
 - VI-3: bevegelse og programbekreftelse fra multiviewen.
   - Et kamera som panorerer, holdes utenfor (`S1`) til det har stått stille i 0,5 s (`V5`). En person som gestikulerer, teller ikke.
   - Programruta gjenkjennes og sammenlignes med ATEM (`H-VID-3`).

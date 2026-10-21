@@ -10,6 +10,7 @@ import {
 import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
+import { LivePicture } from "../live";
 import { hms, isCut, isError, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
 
 const PRESETS = [
@@ -358,7 +359,11 @@ export function Cameras({ ctx }: { ctx: Ctx }) {
                 </span>
               </div>
               <div className="pic">
-                <ShotPicture shot={shot} participants={state.participants.length} />
+                <LivePicture
+                  live={!!state.runtime.vision}
+                  source={id}
+                  fallback={<ShotPicture shot={shot} participants={state.participants.length} />}
+                />
               </div>
               <div className="kv">
                 <span>Modell</span>

@@ -1,6 +1,7 @@
 // Overview on one page (D-037): multiview, last 60 s, on air and preview, mics, decisions.
 import { useSnapshot, useStudio, type Decision, type StudioState } from "@cutcut/client";
 import { LevelBar, ShotPicture, levelFromDb, participantColor, seconds } from "@cutcut/design";
+import { LivePicture } from "../live";
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { historyFor, WINDOW, type History } from "../history";
 import { useDecisions, useRules } from "../hooks";
@@ -135,11 +136,17 @@ function Multiview({ ctx }: { ctx: Ctx }) {
               aria-label={`Klipp til ${inputName(state, t.key)} · ${name}`}
               onClick={() => run(cmd.cut(t.shot))}
             >
-              <TilePicture
-                shot={t.shot}
-                participants={state.participants.length}
-                talking={talkingKey.split(",").includes(t.key)}
-                dark={isDarkKey}
+              <LivePicture
+                live={!!state.runtime.vision}
+                source={t.key === "BIRD" ? "C5" : t.key === "CONTENT" ? "LAPTOP" : p?.camera}
+                fallback={
+                  <TilePicture
+                    shot={t.shot}
+                    participants={state.participants.length}
+                    talking={talkingKey.split(",").includes(t.key)}
+                    dark={isDarkKey}
+                  />
+                }
               />
               {(pgm === t.key || pvw === t.key) && (
                 <span className="st">{pgm === t.key ? "PGM" : "PVW"}</span>

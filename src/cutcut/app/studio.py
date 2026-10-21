@@ -8,6 +8,7 @@ the studio (real devices) and in ``cutcut sim`` (fake devices and synthetic talk
 from __future__ import annotations
 
 import asyncio
+import base64
 import logging
 from collections import deque
 from collections.abc import Callable
@@ -259,6 +260,8 @@ class Studio:
         self.mic_check: MicCheck | None = None
         self._touch_seen: int | None = None
         self._video_check = False
+        self.on_vision_want: Callable[[], None] | None = None  # core: «vision.want» on the bus
+        self._want_sent = -10_000
         self._pgm_apart_since: int | None = None
         self.on_audio_config: Callable[[dict[str, Any]], None] | None = None  # core: the bus
         self.runtime.on_audio = self._on_audio_frame
@@ -1037,6 +1040,7 @@ class Studio:
                 max_step_ms=round(self.runtime.stats.max_step_ms, 2),
                 skipped_ticks=self.runtime.stats.skipped_ticks,
                 processes=self.processes_info(),
+                vision=self.vision_live(),
             ),
             health=self.health_info(),
         )
@@ -1135,6 +1139,23 @@ class Studio:
                 self.deps.clock.now,
             )
         )
+
+    def vision_live(self) -> bool:
+        """The video layer delivers pictures (the screens show cut-outs instead of drawings)."""
+        ms = self.runtime.vision_frame_ms
+        return ms is not None and self.now - ms <= 2_000
+
+    def vision_thumb(self, source: str) -> bytes | None:
+        """The newest cut-out of ``source`` (C1…, LAPTOP, PVW, PGM), and ask the video layer to
+        keep sending them for a while (D-056: only while someone looks)."""
+        if self.on_vision_want is not None and self.now - self._want_sent >= 2_000:
+            self._want_sent = self.now
+            self.on_vision_want()
+        ms = self.runtime.vision_thumbs_ms
+        data = self.runtime.vision_thumbs.get(source)
+        if data is None or ms is None or self.now - ms > 3_000:
+            return None
+        return base64.b64decode(data)
 
     def _pgm_seen(self) -> str | None:
         src = self.runtime.vision_pgm.get("source")
