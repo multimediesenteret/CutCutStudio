@@ -1,6 +1,85 @@
 {
   "components": {
     "schemas": {
+      "AlertInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledged": {
+            "title": "Acknowledged",
+            "type": "boolean"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "for_user": {
+            "title": "For User",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "level": {
+            "enum": [
+              "info",
+              "warn",
+              "error"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "ts": {
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "code",
+          "message",
+          "ts",
+          "for_user",
+          "acknowledged"
+        ],
+        "title": "AlertInfo",
+        "type": "object"
+      },
+      "CompanionButton": {
+        "additionalProperties": false,
+        "properties": {
+          "col": {
+            "maximum": 7,
+            "minimum": 0,
+            "title": "Col",
+            "type": "integer"
+          },
+          "page": {
+            "maximum": 99,
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "row": {
+            "maximum": 7,
+            "minimum": 0,
+            "title": "Row",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "row",
+          "col"
+        ],
+        "title": "CompanionButton",
+        "type": "object"
+      },
       "ContentIn": {
         "additionalProperties": false,
         "properties": {
@@ -15,6 +94,176 @@
         "title": "ContentIn",
         "type": "object"
       },
+      "Decision": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "cut",
+              "wait",
+              "hold",
+              "preview"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "blocked_by": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuleId"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "companion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompanionButton"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "correlation_id": {
+            "default": "",
+            "title": "Correlation Id",
+            "type": "string"
+          },
+          "measures": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Measures",
+            "type": "object"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          },
+          "mono_ms": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Mono Ms",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/RuleId"
+          },
+          "shadow": {
+            "default": false,
+            "title": "Shadow",
+            "type": "boolean"
+          },
+          "shot": {
+            "title": "Shot",
+            "type": "string"
+          },
+          "ts": {
+            "format": "date-time",
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ts",
+          "mode",
+          "action",
+          "shot",
+          "rule",
+          "reason"
+        ],
+        "title": "Decision",
+        "type": "object"
+      },
+      "EngineInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "audio_ok": {
+            "title": "Audio Ok",
+            "type": "boolean"
+          },
+          "auto": {
+            "title": "Auto",
+            "type": "boolean"
+          },
+          "content_active": {
+            "title": "Content Active",
+            "type": "boolean"
+          },
+          "content_enabled": {
+            "title": "Content Enabled",
+            "type": "boolean"
+          },
+          "lock": {
+            "title": "Lock",
+            "type": "boolean"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "paused": {
+            "title": "Paused",
+            "type": "boolean"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview"
+          },
+          "program": {
+            "title": "Program",
+            "type": "string"
+          },
+          "program_ms": {
+            "title": "Program Ms",
+            "type": "integer"
+          },
+          "pv_state": {
+            "enum": [
+              "IDLE",
+              "ARMED",
+              "READY"
+            ],
+            "title": "Pv State",
+            "type": "string"
+          },
+          "shadow": {
+            "title": "Shadow",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "program",
+          "preview",
+          "pv_state",
+          "auto",
+          "lock",
+          "shadow",
+          "paused",
+          "content_enabled",
+          "content_active",
+          "audio_ok",
+          "program_ms"
+        ],
+        "title": "EngineInfo",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -26,6 +275,77 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "LiveMessage": {
+        "additionalProperties": false,
+        "description": "Messages on ``/ws``. ``state`` carries changed top-level keys of ``StudioState``\n(all of them when ``full`` is true); ``meters`` maps mic id to ``Meter``.",
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "title": "Data",
+            "type": "object"
+          },
+          "full": {
+            "default": false,
+            "title": "Full",
+            "type": "boolean"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "state",
+              "meters",
+              "decision",
+              "alert",
+              "touch",
+              "session",
+              "health",
+              "vision"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "seq",
+          "data"
+        ],
+        "title": "LiveMessage",
+        "type": "object"
+      },
+      "LiveSchemas": {
+        "additionalProperties": false,
+        "description": "Not sent as such: lists the payload models so they appear in the API description.",
+        "properties": {
+          "alert": {
+            "$ref": "#/components/schemas/AlertInfo"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "message": {
+            "$ref": "#/components/schemas/LiveMessage"
+          },
+          "meter": {
+            "$ref": "#/components/schemas/Meter"
+          },
+          "state": {
+            "$ref": "#/components/schemas/StudioState"
+          }
+        },
+        "required": [
+          "state",
+          "meter",
+          "decision",
+          "alert",
+          "message"
+        ],
+        "title": "LiveSchemas",
         "type": "object"
       },
       "LoginIn": {
@@ -48,6 +368,51 @@
         ],
         "title": "LoginIn",
         "type": "object"
+      },
+      "Meter": {
+        "additionalProperties": false,
+        "properties": {
+          "level_db": {
+            "title": "Level Db",
+            "type": "number"
+          },
+          "muted": {
+            "default": false,
+            "title": "Muted",
+            "type": "boolean"
+          },
+          "speaking": {
+            "default": false,
+            "title": "Speaking",
+            "type": "boolean"
+          },
+          "vad": {
+            "title": "Vad",
+            "type": "number"
+          }
+        },
+        "required": [
+          "level_db",
+          "vad"
+        ],
+        "title": "Meter",
+        "type": "object"
+      },
+      "Mode": {
+        "description": "Engine mode (spec 5.1): N1–N4 by participants, NxC with content, A audio only.",
+        "enum": [
+          "N1",
+          "N2",
+          "N3",
+          "N4",
+          "N1C",
+          "N2C",
+          "N3C",
+          "N4C",
+          "A"
+        ],
+        "title": "Mode",
+        "type": "string"
       },
       "Ok": {
         "properties": {
@@ -74,6 +439,55 @@
         "title": "OnIn",
         "type": "object"
       },
+      "ParticipantInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "camera": {
+            "title": "Camera",
+            "type": "string"
+          },
+          "color": {
+            "enum": [
+              "magenta",
+              "cyan",
+              "lilla",
+              "oransje"
+            ],
+            "title": "Color",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "mic": {
+            "title": "Mic",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "host",
+              "guest"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "mic",
+          "camera",
+          "color"
+        ],
+        "title": "ParticipantInfo",
+        "type": "object"
+      },
       "PresetIn": {
         "additionalProperties": false,
         "properties": {
@@ -93,6 +507,37 @@
         "title": "PresetIn",
         "type": "object"
       },
+      "PublishState": {
+        "additionalProperties": false,
+        "description": "Panopto, prepared only (spec 7.6).",
+        "properties": {
+          "folder": {
+            "default": "Mine opptak",
+            "title": "Folder",
+            "type": "string"
+          },
+          "state": {
+            "default": "disabled",
+            "enum": [
+              "pending",
+              "uploading",
+              "done",
+              "failed",
+              "disabled"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "target": {
+            "const": "panopto",
+            "default": "panopto",
+            "title": "Target",
+            "type": "string"
+          }
+        },
+        "title": "PublishState",
+        "type": "object"
+      },
       "RecordingIn": {
         "additionalProperties": false,
         "properties": {
@@ -109,6 +554,289 @@
           "action"
         ],
         "title": "RecordingIn",
+        "type": "object"
+      },
+      "RecordingInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_s": {
+            "title": "Duration S",
+            "type": "integer"
+          },
+          "pearl": {
+            "enum": [
+              "idle",
+              "starting",
+              "started",
+              "stopped",
+              "error",
+              "disabled"
+            ],
+            "title": "Pearl",
+            "type": "string"
+          },
+          "started_by": {
+            "anyOf": [
+              {
+                "enum": [
+                  "touch",
+                  "tech",
+                  "streamdeck"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started By"
+          }
+        },
+        "required": [
+          "pearl",
+          "duration_s",
+          "started_by"
+        ],
+        "title": "RecordingInfo",
+        "type": "object"
+      },
+      "RecordingState": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_s": {
+            "default": 0,
+            "minimum": 0,
+            "title": "Duration S",
+            "type": "integer"
+          },
+          "started_by": {
+            "anyOf": [
+              {
+                "enum": [
+                  "touch",
+                  "tech",
+                  "streamdeck"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started By"
+          },
+          "state": {
+            "$ref": "#/components/schemas/RecordingStatus",
+            "default": "idle"
+          },
+          "stopped_by": {
+            "anyOf": [
+              {
+                "enum": [
+                  "touch",
+                  "tech",
+                  "streamdeck"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stopped By"
+          }
+        },
+        "title": "RecordingState",
+        "type": "object"
+      },
+      "RecordingStatus": {
+        "description": "Pearl recorder states (spec 7.4) plus ``idle`` before anything happened.",
+        "enum": [
+          "idle",
+          "starting",
+          "started",
+          "stopped",
+          "error",
+          "disabled"
+        ],
+        "title": "RecordingStatus",
+        "type": "string"
+      },
+      "RuleId": {
+        "description": "Every rule ID in the specification (section 5–6). Each must have tests (spec 12.1).\n\n``MANUAL`` marks operator overrides (spec 5.2 step 1), which have no rule ID in the spec.",
+        "enum": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "T7",
+          "T8",
+          "T9",
+          "T12",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "CT1",
+          "CT2",
+          "CT3",
+          "CT4",
+          "CT5",
+          "CT6",
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "S1",
+          "S2",
+          "S3",
+          "S4",
+          "S5",
+          "S6",
+          "PV1",
+          "PV2",
+          "PV3",
+          "PV4",
+          "K1",
+          "K2",
+          "K3",
+          "K4",
+          "H1",
+          "H2",
+          "H3",
+          "H4",
+          "R1",
+          "R2",
+          "R3",
+          "F1",
+          "F2",
+          "F3",
+          "Z1",
+          "Z2",
+          "Z3",
+          "AT1",
+          "AT2",
+          "AT3",
+          "AT4",
+          "AT5",
+          "AT6",
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "MANUAL"
+        ],
+        "title": "RuleId",
+        "type": "string"
+      },
+      "RulesInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "features": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "title": "Features",
+            "type": "object"
+          },
+          "preset": {
+            "enum": [
+              "rolig",
+              "standard",
+              "energisk"
+            ],
+            "title": "Preset",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preset",
+          "features"
+        ],
+        "title": "RulesInfo",
+        "type": "object"
+      },
+      "RuntimeInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "max_step_ms": {
+            "title": "Max Step Ms",
+            "type": "number"
+          },
+          "skipped_ticks": {
+            "title": "Skipped Ticks",
+            "type": "integer"
+          },
+          "ticks": {
+            "title": "Ticks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ticks",
+          "max_step_ms",
+          "skipped_ticks"
+        ],
+        "title": "RuntimeInfo",
+        "type": "object"
+      },
+      "Session": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/Mode",
+            "default": "N2"
+          },
+          "publish": {
+            "$ref": "#/components/schemas/PublishState",
+            "default": {
+              "folder": "Mine opptak",
+              "state": "disabled",
+              "target": "panopto"
+            }
+          },
+          "recording": {
+            "$ref": "#/components/schemas/RecordingState",
+            "default": {
+              "duration_s": 0,
+              "started_by": null,
+              "state": "idle",
+              "stopped_by": null
+            }
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "show": {
+            "$ref": "#/components/schemas/ShowChoice",
+            "default": {
+              "guests": 1,
+              "laptop": false,
+              "type": "podcast",
+              "video": true
+            }
+          },
+          "touch_step": {
+            "$ref": "#/components/schemas/TouchStep",
+            "default": "ready"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "session_id",
+          "user"
+        ],
+        "title": "Session",
         "type": "object"
       },
       "SessionIn": {
@@ -150,6 +878,36 @@
           "shot"
         ],
         "title": "ShotIn",
+        "type": "object"
+      },
+      "ShowChoice": {
+        "additionalProperties": false,
+        "description": "What the user picks on the touch ready screen (D-036).",
+        "properties": {
+          "guests": {
+            "default": 1,
+            "maximum": 3,
+            "minimum": 0,
+            "title": "Guests",
+            "type": "integer"
+          },
+          "laptop": {
+            "default": false,
+            "title": "Laptop",
+            "type": "boolean"
+          },
+          "type": {
+            "default": "podcast",
+            "title": "Type",
+            "type": "string"
+          },
+          "video": {
+            "default": true,
+            "title": "Video",
+            "type": "boolean"
+          }
+        },
+        "title": "ShowChoice",
         "type": "object"
       },
       "ShowIn": {
@@ -202,6 +960,150 @@
         "title": "StepIn",
         "type": "object"
       },
+      "StudioInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "show_types": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Show Types",
+            "type": "object"
+          },
+          "simulator": {
+            "title": "Simulator",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "simulator",
+          "version",
+          "show_types"
+        ],
+        "title": "StudioInfo",
+        "type": "object"
+      },
+      "StudioState": {
+        "additionalProperties": false,
+        "properties": {
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/AlertInfo"
+            },
+            "title": "Alerts",
+            "type": "array"
+          },
+          "engine": {
+            "$ref": "#/components/schemas/EngineInfo"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/ParticipantInfo"
+            },
+            "title": "Participants",
+            "type": "array"
+          },
+          "recording": {
+            "$ref": "#/components/schemas/RecordingInfo"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RulesInfo"
+          },
+          "runtime": {
+            "$ref": "#/components/schemas/RuntimeInfo"
+          },
+          "session": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Session"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "studio": {
+            "$ref": "#/components/schemas/StudioInfo"
+          },
+          "touch": {
+            "$ref": "#/components/schemas/TouchInfo"
+          }
+        },
+        "required": [
+          "studio",
+          "session",
+          "touch",
+          "engine",
+          "participants",
+          "recording",
+          "rules",
+          "alerts",
+          "runtime"
+        ],
+        "title": "StudioState",
+        "type": "object"
+      },
+      "TouchInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "countdown_ms": {
+            "title": "Countdown Ms",
+            "type": "integer"
+          },
+          "default_show": {
+            "$ref": "#/components/schemas/ShowChoice"
+          },
+          "done_logout_ms": {
+            "title": "Done Logout Ms",
+            "type": "integer"
+          },
+          "help": {
+            "title": "Help",
+            "type": "boolean"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice"
+          },
+          "step": {
+            "enum": [
+              "idle",
+              "ready",
+              "countdown",
+              "rec",
+              "done"
+            ],
+            "title": "Step",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step",
+          "countdown_ms",
+          "notice",
+          "help",
+          "default_show",
+          "done_logout_ms"
+        ],
+        "title": "TouchInfo",
+        "type": "object"
+      },
       "TouchStep": {
         "description": "Touch flow (D-036): rest → ready → countdown → recording → done.",
         "enum": [
@@ -213,6 +1115,28 @@
         ],
         "title": "TouchStep",
         "type": "string"
+      },
+      "User": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "username": {
+            "pattern": "^[a-z0-9._-]{1,64}$",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "display_name"
+        ],
+        "title": "User",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
@@ -1093,9 +2017,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Get State Api State Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/StudioState"
                 }
               }
             },

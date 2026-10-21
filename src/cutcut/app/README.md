@@ -5,6 +5,7 @@
 | Fil | Innhold |
 | --- | --- |
 | `studio.py` | `Studio`: tikk, kommandoer med revisjonslogg, tilstand for skjermene, live endring av forhåndsvalg og brytere (ADR-0011) |
+| `state.py` | Typede modeller for tilstanden og live-meldingene (`StudioState`, `Meter`, `LiveMessage`). De står i `docs/reference/openapi.json`, og skjermenes typer genereres derfra |
 | `hub.py` | Fordeling av live-meldinger til skjermene, med begrenset kø per klient |
 
 Antall personer på klar-skjermen velger show-oppsettet med det antallet deltakere fra `site/<studio>/shows/`.

@@ -13,7 +13,20 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Final, Literal, Protocol
 
+from cutcut import __version__
 from cutcut.app.hub import Hub
+from cutcut.app.state import (
+    AlertInfo,
+    EngineInfo,
+    Meter,
+    ParticipantInfo,
+    RecordingInfo,
+    RulesInfo,
+    RuntimeInfo,
+    StudioInfo,
+    StudioState,
+    TouchInfo,
+)
 from cutcut.common.clock import Clock
 from cutcut.common.config import RulePresets, ShowTypes, Site, effective_rules
 from cutcut.common.ids import MicId, RuleId, is_shot
@@ -33,6 +46,7 @@ from cutcut.core.inputs import (
 )
 from cutcut.core.runtime import CoreRuntime, Executor
 from cutcut.session.manager import (
+    DONE_LOGOUT_MS,
     Action,
     Alert,
     EngineCommand,
@@ -48,7 +62,13 @@ log = logging.getLogger(__name__)
 STATE_EVERY_MS: Final = 100  # 10 Hz (docs/design/gui-konsept.md)
 METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
-PARTICIPANT_COLORS: Final = {"P1": "magenta", "P2": "cyan", "P3": "lilla", "P4": "oransje"}
+Color = Literal["magenta", "cyan", "lilla", "oransje"]
+PARTICIPANT_COLORS: Final[dict[str, Color]] = {
+    "P1": "magenta",
+    "P2": "cyan",
+    "P3": "lilla",
+    "P4": "oransje",
+}
 
 Role = Literal["touch", "operator", "admin"]
 
@@ -164,7 +184,7 @@ class Studio:
             self.notice = None
         if now - self._last_meters_ms >= METERS_EVERY_MS:
             self._last_meters_ms = now
-            self.hub.publish("meters", self.meters())
+            self.hub.publish("meters", {k: m.model_dump() for k, m in self.meters().items()})
         if now - self._last_state_ms >= STATE_EVERY_MS:
             self._last_state_ms = now
             self._publish_state()
@@ -203,99 +223,105 @@ class Studio:
         self.alerts.append(rec)
         del self.alerts[:-50]
         log.log(logging.ERROR if level == "error" else logging.INFO, msg, extra={"check": code})
-        self.hub.publish("alert", self._alert_json(rec))
+        self.hub.publish("alert", self._alert_info(rec).model_dump(mode="json"))
 
     @staticmethod
-    def _alert_json(a: AlertRecord) -> dict[str, Any]:
-        return {
-            "id": a.id,
-            "level": a.level,
-            "code": a.code,
-            "message": a.message,
-            "ts": a.ts.isoformat(),
-            "for_user": a.for_user,
-            "acknowledged": a.acknowledged,
-        }
+    def _alert_info(a: AlertRecord) -> AlertInfo:
+        return AlertInfo(
+            id=a.id,
+            level=a.level,
+            code=a.code,
+            message=a.message,
+            ts=a.ts.isoformat(),
+            for_user=a.for_user,
+            acknowledged=a.acknowledged,
+        )
 
     # -- state for the screens ------------------------------------------------------------
 
-    def meters(self) -> dict[str, Any]:
+    def meters(self) -> dict[str, Meter]:
         frames = self.runtime.latest_mics
         sp = self.engine.speakers
-        out: dict[str, Any] = {}
+        out: dict[str, Meter] = {}
         for p in self.show.participants:
             f = frames.get(p.mic)
             t = sp.get(p.id)
-            out[p.mic.value] = {
-                "level_db": round(f.level_db, 1) if f else -90.0,
-                "vad": round(f.vad, 2) if f else 0.0,
-                "speaking": t.speaking,
-                "muted": t.muted,
-            }
+            out[p.mic.value] = Meter(
+                level_db=round(f.level_db, 1) if f else -90.0,
+                vad=round(f.vad, 2) if f else 0.0,
+                speaking=t.speaking,
+                muted=t.muted,
+            )
         laptop = frames.get(MicId.M5)
-        out["M5"] = {
-            "level_db": round(laptop.level_db, 1) if laptop else -90.0,
-            "vad": round(laptop.vad, 2) if laptop else 0.0,
-        }
+        out["M5"] = Meter(
+            level_db=round(laptop.level_db, 1) if laptop else -90.0,
+            vad=round(laptop.vad, 2) if laptop else 0.0,
+            speaking=bool(laptop and laptop.vad >= self.engine.rules.T1_vad_threshold),
+        )
         return out
 
-    def state(self) -> dict[str, Any]:
+    def state(self) -> StudioState:
         e, s, now = self.engine, self.sessions, self.now
-        session = s.session.model_dump(mode="json") if s.session else None
-        return {
-            "studio": {
-                "name": self.deps.site.devices.studio,
-                "simulator": self.deps.simulator,
-                "show_types": {k: v.name for k, v in self.deps.show_types.types.items()},
-            },
-            "session": session,
-            "touch": {
-                "step": s.step.value,
-                "countdown_ms": s.countdown_left_ms(now),
-                "notice": self.notice,
-                "help": s.help_requested,
-                "default_show": s.default_show.model_dump(),
-            },
-            "engine": {
-                "mode": e.mode.value,
-                "program": e.program,
-                "preview": e.preview,
-                "pv_state": e.pv_state.value,
-                "auto": e.auto,
-                "lock": e.lock,
-                "shadow": e.shadow,
-                "paused": e.paused,
-                "content_enabled": e.content_enabled,
-                "content_active": e.content.active,
-                "audio_ok": not e.s4_paused,
-            },
-            "participants": [
-                {
-                    "id": p.id.value,
-                    "name": p.name,
-                    "role": p.role,
-                    "mic": p.mic.value,
-                    "camera": p.camera.value,
-                    "color": PARTICIPANT_COLORS[p.id.value],
-                }
+        session = s.session
+        return StudioState(
+            studio=StudioInfo(
+                name=self.deps.site.devices.studio,
+                simulator=self.deps.simulator,
+                version=__version__,
+                show_types={k: v.name for k, v in self.deps.show_types.types.items()},
+            ),
+            session=session.model_copy(deep=True) if session else None,
+            touch=TouchInfo(
+                step=s.step.value,
+                countdown_ms=s.countdown_left_ms(now),
+                notice=self.notice,
+                help=s.help_requested,
+                default_show=s.default_show,
+                done_logout_ms=max(0, DONE_LOGOUT_MS - (now - s.step_since))
+                if s.step is TouchStep.DONE
+                else 0,
+            ),
+            engine=EngineInfo(
+                mode=e.mode.value,
+                program=e.program,
+                preview=e.preview,
+                pv_state=e.pv_state.value,
+                auto=e.auto,
+                lock=e.lock,
+                shadow=e.shadow,
+                paused=e.paused,
+                content_enabled=e.content_enabled,
+                content_active=e.content.active,
+                audio_ok=not e.s4_paused,
+                program_ms=max(0, now - e.program_since),
+            ),
+            participants=[
+                ParticipantInfo(
+                    id=p.id.value,
+                    name=p.name,
+                    role=p.role,
+                    mic=p.mic.value,
+                    camera=p.camera.value,
+                    color=PARTICIPANT_COLORS[p.id.value],
+                )
                 for p in self.show.participants
             ],
-            "recording": {
-                "pearl": self.deps.recorder.state.value,
-                "duration_s": session["recording"]["duration_s"] if session else 0,
-                "started_by": session["recording"]["started_by"] if session else None,
-            },
-            "rules": {"preset": self.preset, "features": self.features.model_dump()},
-            "alerts": [self._alert_json(a) for a in self.alerts if not a.acknowledged][-20:],
-            "runtime": {
-                "ticks": self.runtime.stats.ticks,
-                "max_step_ms": round(self.runtime.stats.max_step_ms, 2),
-                "skipped_ticks": self.runtime.stats.skipped_ticks,
-            },
-        }
+            recording=RecordingInfo(
+                pearl=self.deps.recorder.state.value,
+                duration_s=session.recording.duration_s if session else 0,
+                started_by=session.recording.started_by if session else None,
+            ),
+            rules=RulesInfo(preset=self.preset, features=self.features.model_dump()),
+            alerts=[self._alert_info(a) for a in self.alerts if not a.acknowledged][-20:],
+            runtime=RuntimeInfo(
+                ticks=self.runtime.stats.ticks,
+                max_step_ms=round(self.runtime.stats.max_step_ms, 2),
+                skipped_ticks=self.runtime.stats.skipped_ticks,
+            ),
+        )
 
     def _publish_state(self) -> None:
-        state = self.state()
+        state = self.state().model_dump(mode="json")
         changed = {k: v for k, v in state.items() if self._last_state.get(k) != v}
         if changed:
             self._last_state = state
