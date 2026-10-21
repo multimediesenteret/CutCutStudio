@@ -84,6 +84,10 @@ class CoreRuntime:
         self._mics: dict[MicId, MicFrame] = {}
         self._last_audio_ms: int | None = None
         self.audio_status: dict[str, Any] = {}
+        self.vision_frame: dict[str, Any] = {}
+        self.vision_frame_ms: int | None = None
+        self.vision_status: dict[str, Any] = {}
+        self.vision_status_ms: int | None = None
         self.on_audio: Callable[[dict[MicId, MicFrame]], None] | None = None
         self._content: ContentState | None = None
         self._vision: dict[SourceId, TileFrame] = {}
@@ -147,6 +151,12 @@ class CoreRuntime:
                 self.feed_tile(*messages.tile(payload))
             elif topic == "atem.state":
                 self.feed_atem(messages.atem_readback(payload))
+            elif topic == "vision.frame":
+                self.vision_frame = dict(payload)  # VI-1: the screens and H-VID-1, not rules
+                self.vision_frame_ms = self.clock.mono_ms()
+            elif topic == "vision.status":
+                self.vision_status = dict(payload)
+                self.vision_status_ms = self.clock.mono_ms()
             elif topic == "audio.status":
                 self.audio_status = dict(payload)  # for H-AUD-1's message, not for decisions
             elif topic == "cameras.moving":

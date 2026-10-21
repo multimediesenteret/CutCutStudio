@@ -295,3 +295,22 @@ def test_missing_layout_macros_block_the_layout_switch_DA7(
     r = client.post("/api/features", json={"layouts": True})
     assert r.status_code == 409
     assert "Makro 11 PIP_P2_CONTENT mangler" in r.json()["detail"]
+
+
+def test_core_hears_the_video_layer_H_VID_1(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """VI-1: vision.status and vision.frame reach core; H-VID-1 appears once vision reports."""
+    client, bus, _, _, core = rig
+    assert not any(r.id == "H-VID-1" for r in core.studio.health.results())
+
+    def send() -> None:
+        bus.send("vision.status", "vision", {"source": "syntetisk", "fps": 15, "frames": 30})
+        bus.send("vision.frame", "vision", {"tiles": [{"tile": "W1", "signal": True}]})
+
+    def check() -> str | None:
+        rows = client.get("/api/health/checks").json()
+        return next((r["status"] for r in rows if r["id"] == "H-VID-1"), None)
+
+    assert until(lambda: check() == "green", 10, send)
+    assert core.studio.runtime.vision_frame["tiles"][0]["tile"] == "W1"

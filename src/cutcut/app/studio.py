@@ -258,6 +258,7 @@ class Studio:
         self.history: dict[str, SessionRecord] = {}
         self.mic_check: MicCheck | None = None
         self._touch_seen: int | None = None
+        self._video_check = False
         self.on_audio_config: Callable[[dict[str, Any]], None] | None = None  # core: the bus
         self.runtime.on_audio = self._on_audio_frame
         self._check: dict[str, dict[str, int | bool]] = {}
@@ -469,6 +470,7 @@ class Studio:
             self._publish_state()
         self._track_session()
         self._audio_check(now)
+        self._maybe_add_video_check()
         if not self._mv_checked and (
             self._mv_readback() is not None or now - self._started_ms >= MULTIVIEW_STARTUP_WAIT_MS
         ):
@@ -1101,6 +1103,19 @@ class Studio:
         if first:
             self.health.add(
                 health_checks.touch_screen(self.touch_heartbeat_age, self.deps.clock.now)
+            )
+
+    def _maybe_add_video_check(self) -> None:
+        """``H-VID-1`` from the first time the video layer reports (not before: M3, optional)."""
+        if not self._video_check and self.runtime.vision_status_ms is not None:
+            self._video_check = True
+            rt = self.runtime
+            self.health.add(
+                health_checks.video(
+                    lambda: None if rt.vision_frame_ms is None else self.now - rt.vision_frame_ms,
+                    lambda: rt.vision_status,
+                    self.deps.clock.now,
+                )
             )
 
     def touch_heartbeat_age(self) -> int | None:

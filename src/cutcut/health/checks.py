@@ -142,6 +142,49 @@ def supervisor(age_ms: Callable[[], int], now: Callable[[], datetime]) -> FuncCh
     return FuncCheck("H-PROC-supervisor", 2.0, run, level="working")
 
 
+VIDEO_STALE_MS = 2_000
+VIDEO_MIN_FPS = 10
+
+
+def video(
+    frame_age_ms: Callable[[], int | None],
+    status: Callable[[], dict[str, object]],
+    now: Callable[[], datetime],
+) -> FuncCheck:
+    """``H-VID-1``: the video layer gets pictures from the capture card at full rate, with
+    signal (spec 8.5). Yellow: the engine cuts on sound alone meanwhile (6.6)."""
+
+    def run() -> CheckResult:
+        age = frame_age_ms()
+        st = status()
+        expected = f"minst {VIDEO_MIN_FPS} bilder/s"
+        if age is None or age > VIDEO_STALE_MS:
+            why = st.get("last_error") or "ingen bilder"
+            return _result(
+                "H-VID-1",
+                "yellow",
+                "ingen bilder",
+                f"Videolaget får ikke bilder ({why}). Motoren klipper på lyd.",
+                now,
+                expected=expected,
+            )
+        fps = int(str(st.get("fps") or 0))
+        if fps < VIDEO_MIN_FPS:
+            return _result(
+                "H-VID-1",
+                "yellow",
+                f"{fps} bilder/s",
+                "Videolaget får for få bilder. Sjekk USB 3-porten til INOGENI.",
+                now,
+                expected=expected,
+            )
+        return _result(
+            "H-VID-1", "green", f"{fps} bilder/s", "Videolaget får bilder.", now, expected=expected
+        )
+
+    return FuncCheck("H-VID-1", 2.0, run, level="working")
+
+
 TOUCH_STALE_MS = 30_000
 
 
