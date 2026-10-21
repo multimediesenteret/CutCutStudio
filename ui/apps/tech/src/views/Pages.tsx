@@ -724,7 +724,7 @@ export function Health({ ctx }: { ctx: Ctx }) {
           <span>{state.studio.version}</span>
         </div>
       </div>
-      <Checks health={state.health} />
+      <Checks health={state.health} ctx={ctx} />
       <Processes processes={rt.processes ?? []} />
       {state.studio.simulator && <SimPanel ctx={ctx} />}
     </div>
@@ -733,11 +733,17 @@ export function Health({ ctx }: { ctx: Ctx }) {
 
 type Health = NonNullable<StudioState["health"]>;
 
+const MORNING_REASON = {
+  oppstart: "Oppstartssjekk",
+  morgen: "Morgensjekk",
+  manuell: "Full sjekk",
+} as const;
+
 const CHECK_TEXT = { green: "OK", yellow: "Avvik", red: "Feil" } as const;
 const CHECK_CLS = { green: "", yellow: "warn", red: "err" } as const;
 
 /** The health checks (spec 8.5): latest result of each, worst first. */
-function Checks({ health }: { health: Health | undefined }) {
+function Checks({ health, ctx }: { health: Health | undefined; ctx: Ctx }) {
   const rank = { red: 0, yellow: 1, green: 2 } as const;
   const checks = [...(health?.checks ?? [])].sort(
     (a, b) => rank[a.status] - rank[b.status] || a.id.localeCompare(b.id),
@@ -752,6 +758,15 @@ function Checks({ health }: { health: Health | undefined }) {
           {CHECK_TEXT[status]}
         </span>
         <span className="muted small">Et avvik lukkes etter 30 s grønt</span>
+        {health?.morning && (
+          <span className="muted small">
+            {MORNING_REASON[health.morning.reason]} kl. {health.morning.ts.slice(11, 16)}:{" "}
+            {health.morning.failed.length === 0 ? "alt grønt" : health.morning.failed.join(", ")}
+          </span>
+        )}
+        <button type="button" className="btn" onClick={() => ctx.run(ctx.cmd.morningCheck())}>
+          Kjør alle nå
+        </button>
       </div>
       {checks.length === 0 ? (
         <p className="muted small">Sjekkene har ikke kjørt ennå.</p>

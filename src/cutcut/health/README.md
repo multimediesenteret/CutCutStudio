@@ -34,4 +34,8 @@ Touch-skjermen leser sjekkene direkte, ikke varslene. Den sperrer start bare men
 
 `GET /api/health` (samlet status for NTNUs overvåkning) og `GET /api/health/checks` krever ikke innlogging.
 
+**Morgensjekk (HS-4):** hele katalogen og multiview-sjekken (D-056) kjøres 20 s etter oppstart og hver morgen kl. 07:00 etter PC-ens klokke. Starter studioet etter 07:00, teller oppstartssjekken som dagens morgensjekk. Teknikeren kan også trykke «Kjør alle nå» (`POST /api/health/morning-check`).
+- Hvileskjermen viser resultatet som en liten prikk: grønn, eller gul når teknikeren har noe å se på. Brukeren får aldri detaljene.
+- Teknikervinduet viser hvilke sjekker som ikke var grønne.
+
 Sjekker trykker aldri knapper og flytter aldri noe. Slikt finnes bare i setup-hjelperen.

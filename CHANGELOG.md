@@ -5,6 +5,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- HS-4: oppstarts- og morgensjekk.
+  - Hele katalogen og multiview-sjekken kjøres 20 s etter oppstart og kl. 07:00, og kan startes med «Kjør alle nå».
+  - Resultatet vises som en prikk på hvileskjermen (grønn eller gul) og med navn i teknikervinduet.
 - HS-2 (første del): helsesjekker for prosesser, PC, Pearl, ATEM og Companion.
   - `H-PROC-*` fra supervisor og `H-PC-1/2/3` (disk, minne, CPU).
   - `H-PRL-1`: Pearl svarer, ingen feil, plass i minutter.

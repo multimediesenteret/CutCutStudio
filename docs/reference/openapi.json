@@ -369,6 +369,17 @@
             "title": "Checks",
             "type": "array"
           },
+          "morning": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MorningCheck"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "status": {
             "default": "green",
             "enum": [
@@ -519,6 +530,49 @@
         ],
         "title": "Mode",
         "type": "string"
+      },
+      "MorningCheck": {
+        "additionalProperties": false,
+        "description": "The whole catalogue, run at start-up and every morning at 07:00 (spec 8.5, HS-4).",
+        "properties": {
+          "failed": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failed",
+            "type": "array"
+          },
+          "reason": {
+            "enum": [
+              "oppstart",
+              "morgen",
+              "manuell"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "green",
+              "yellow",
+              "red"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "ts": {
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ts",
+          "reason",
+          "status"
+        ],
+        "title": "MorningCheck",
+        "type": "object"
       },
       "Ok": {
         "properties": {
@@ -1227,6 +1281,7 @@
             "$ref": "#/components/schemas/HealthInfo",
             "default": {
               "checks": [],
+              "morning": null,
               "status": "green"
             }
           },
@@ -1681,6 +1736,30 @@
           }
         },
         "summary": "Health Checks",
+        "tags": [
+          "status"
+        ]
+      }
+    },
+    "/api/health/morning-check": {
+      "post": {
+        "description": "Run the whole catalogue now («Kjør morgensjekk», technician).",
+        "operationId": "morning_check_api_health_morning_check_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Morning Check Api Health Morning Check Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Morning Check",
         "tags": [
           "status"
         ]
