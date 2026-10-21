@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Installerer (eller fjerner) Windows-tjenestene for CutCut Studio med WinSW (SO-2).
 

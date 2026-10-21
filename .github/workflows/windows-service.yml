@@ -92,6 +92,11 @@ jobs:
           Write-Host $out
           if ($out -notmatch "ville startet Edge") { throw "vakten ville ikke startet Edge" }
           & .\installer\kiosk\setup-kiosk.ps1 -DryRun
+          # The studio PC runs Windows PowerShell 5.1, which reads files without a BOM as ANSI.
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\kiosk\setup-kiosk.ps1 -DryRun
+          if ($LASTEXITCODE -ne 0) { throw "setup-kiosk.ps1 feiler i Windows PowerShell 5.1" }
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\install-services.ps1 -DryRun -Root "$env:RUNNER_TEMP\CutCut2"
+          if ($LASTEXITCODE -ne 0) { throw "install-services.ps1 feiler i Windows PowerShell 5.1" }
       - name: Stopping the service leaves no process behind
         shell: pwsh
         run: |
