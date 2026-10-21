@@ -21,6 +21,8 @@ Rekkefølgen for å få CutCut opp på test-PC-en, og deretter i studio. Hvert s
 
 ## Hvis noe går galt
 
+Fullstendige runbooks ligger i [`docs/runbooks/`](../runbooks/README.md).
+
 - **Ingen lyd:** Helse viser `H-AUD-1` med grunnen fra `audio-capture`. Vanligst: ASIO-driveren mangler, eller RØDECaster står ikke i multitrack-modus.
 - **ATEM svarer ikke:** sjekk IP under Oppsett, og at `atem-bridge` kjører under Helse → Prosesser. Er ATEM-adressen endret, startes `atem-bridge` på nytt neste gang supervisor starter den.
 - **Touch er svart:** kiosk-vakten starter Edge på nytt etter 30 s. Loggen ligger i `C:\Users\cutcut-kiosk\AppData\Local\CutCut\kiosk-vakt.log`.
