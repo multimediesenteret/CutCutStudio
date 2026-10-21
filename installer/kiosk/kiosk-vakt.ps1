@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Kiosk-vakten (SO-6): holder touch-skjermen i gang i kiosk-brukerens økt.
 

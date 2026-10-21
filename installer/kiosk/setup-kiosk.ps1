@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Gjør regi-PC-en klar som kiosk for touch-skjermen (SO-6, spesifikasjonen 8.2 og 9.2).
 
