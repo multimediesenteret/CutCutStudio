@@ -7,7 +7,10 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12,<3.13"
 authors = [{ name = "NTNU Multimediesenteret", email = "magnus.lian@ntnu.no" }]
-dependencies = []
+dependencies = [
+    "pydantic>=2.9,<3",
+    "ruamel-yaml>=0.18,<0.19",
+]
 
 [project.scripts]
 cutcut = "cutcut.__main__:main"

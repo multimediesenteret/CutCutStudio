@@ -5,7 +5,7 @@ Felles grunnmur for alle moduler: modeller, konfig, klokke, logging, lagring, me
 | | |
 | --- | --- |
 | Plan | [`docs/plans/common.md`](../../../docs/plans/common.md) |
-| Status | C-1: tom pakke. Innholdet bygges i C-2 til C-8 |
+| Status | C-2: `ids.py` (faste ID-er, bilder, moduser, regel-ID-er) og `models/` (show, økt, beslutning, buss). C-3 til C-8 gjenstår |
 | Inn | YAML fra `config/defaults/` og `site/<studio>/` |
 | Ut | Pydantic-modeller og tjenester brukt av alle andre moduler |
 | Regel-ID-er | Ingen (regler ligger i `core`) |
