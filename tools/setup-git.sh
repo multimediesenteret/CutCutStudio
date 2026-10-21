@@ -3,4 +3,5 @@
 set -e
 git config user.name "Multimediesenteret"
 git config user.email "magnus.lian@ntnu.no"
+git config core.hooksPath tools/git-hooks
 echo "git identity: $(git config user.name) <$(git config user.email)>"

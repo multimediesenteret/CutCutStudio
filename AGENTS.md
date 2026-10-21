@@ -48,7 +48,7 @@ user.email = magnus.lian@ntnu.no
 Grunnen er at web-delene publiseres på Vercel Hobby, som blokkerer utrulling når en commit har en forfatter som ikke er kontoeieren. Gjelder både mennesker og agenter.
 
 - Kjør `tools/setup-git.sh` (Linux/macOS) eller `tools/setup-git.ps1` (Windows) etter kloning. Det setter identiteten lokalt i repoet.
-- Ikke legg til `Co-authored-by:`-linjer i commit-meldinger. Vercel kan regne dem som ekstra bidragsytere.
+- Ikke legg til `Co-authored-by:`-linjer i commit-meldinger. Vercel kan regne dem som ekstra bidragsytere. Tre sperrer: `.claude/settings.json` slår av Claude Codes medforfatter-linje (`attribution`), `tools/setup-git.*` aktiverer en `commit-msg`-hook som fjerner slike linjer, og CI-jobben `commit-identity` stopper pull requests som likevel har dem.
 - CI-jobben `commit-identity` feiler hvis en commit i en pull request har en annen forfatter eller committer.
 - Har du laget en commit med feil identitet: `git commit --amend --reset-author --no-edit` (siste commit), eller `git rebase -r <base> --exec "git commit --amend --no-edit --reset-author"` for flere.
 

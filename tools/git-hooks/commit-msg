@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Removes Co-authored-by trailers (Vercel Hobby blocks extra contributors). See AGENTS.md 3.
+msg="$1"
+tmp="$msg.tmp"
+grep -vi '^co-authored-by:' "$msg" > "$tmp" && mv "$tmp" "$msg"
+exit 0
