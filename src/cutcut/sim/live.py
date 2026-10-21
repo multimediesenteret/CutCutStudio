@@ -128,6 +128,7 @@ class TalkIn(_In):
     participant: ParticipantId
     on: bool
     dominance_db: float = 12.0
+    muted: bool | None = None  # fader down on the RØDECaster (S6, AU-7)
 
 
 class OnIn(_In):
@@ -183,6 +184,8 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
         async def talk(body: TalkIn) -> dict[str, bool]:
             if body.participant not in sim.voices.voices:
                 raise HTTPException(409, f"{body.participant.value} er ikke med i oppsettet")
+            if body.muted is not None:
+                sim.voices.voices[body.participant].muted = body.muted
             if body.on:
                 sim.voices.talk(body.participant, sim.studio.now, body.dominance_db)
             else:

@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-7 (første del): lydsjekk under nedtellingen 3-2-1.
+  - Bordplanen viser grønn hake for hver som blir hørt, og rødt merke for en mic som er dempet på mikseren.
+  - Brukeren får én setning med fadernummeret («Skyv fader 2 opp»).
+  - Teknikeren får et `LYDSJEKK`-varsel om hvem som ikke ble hørt, var dempet eller var for høy.
+  - Simulatoren kan dempe en stemme (`muted` i `/api/sim/talk`).
 - AU-5: `audio-capture` leser RØDECaster via ASIO, med WASAPI eksklusiv som reserve.
   - Lydkortet åpnes på nytt hvert 5. sekund når det mangler eller stopper.
   - `audio.status` hvert sekund (også når kortet er borte), og `H-AUD-1` sier hvorfor.

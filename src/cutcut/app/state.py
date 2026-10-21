@@ -27,6 +27,15 @@ class StudioInfo(_S):
     inputs: dict[str, int]
 
 
+class SeatAudio(_S):
+    """The audio check during the 3-2-1 countdown, per participant (AU-7)."""
+
+    id: str
+    heard: bool = False  # spoke for at least 0.3 s on their own mic
+    muted: bool = False  # spoke, but is not in the RØDECaster main mix (fader down, S6)
+    loud: bool = False  # close to clipping
+
+
 class TouchInfo(_S):
     step: Literal["idle", "ready", "countdown", "rec", "done"]
     countdown_ms: int
@@ -36,6 +45,7 @@ class TouchInfo(_S):
     done_logout_ms: int
     # How users sign in (D-057): «open» = a Start button, no card; «card» = NTNU card + API.
     login: Literal["open", "card"] = "open"
+    audio_check: list[SeatAudio] = []
 
 
 class EngineInfo(_S):

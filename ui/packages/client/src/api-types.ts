@@ -1165,6 +1165,29 @@ export interface components {
             /** Ticks */
             ticks: number;
         };
+        /**
+         * SeatAudio
+         * @description The audio check during the 3-2-1 countdown, per participant (AU-7).
+         */
+        SeatAudio: {
+            /**
+             * Heard
+             * @default false
+             */
+            heard: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Loud
+             * @default false
+             */
+            loud: boolean;
+            /**
+             * Muted
+             * @default false
+             */
+            muted: boolean;
+        };
         /** Session */
         Session: {
             /** @default N2 */
@@ -1303,6 +1326,11 @@ export interface components {
         };
         /** TouchInfo */
         TouchInfo: {
+            /**
+             * Audio Check
+             * @default []
+             */
+            audio_check: components["schemas"]["SeatAudio"][];
             /** Countdown Ms */
             countdown_ms: number;
             default_show: components["schemas"]["ShowChoice"];
