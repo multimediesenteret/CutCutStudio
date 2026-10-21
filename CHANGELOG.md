@@ -36,3 +36,4 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - K-10: sporbarhet regel → kode → test i `docs/reference/traceability.md` og regelverdier per forhåndsvalg i `docs/reference/rules.md`, generert av `tools/traceability.py`. CI feiler hvis en regel mangler test.
 - Simulator (SIM-1, SIM-2, SIM-5): syntetiske talere med stokastisk samtale, falske enheter i prosessen, 14 scenarioer i `sim/scenarios/` som kjøres som tester, og akseptansekriterier fra 10.4 målt på simulerte samtaler.
 - Motoren legger nå ny taler på preview minst 300 ms før kuttet (10.4), legger reservebildet på preview først etter 1,5 s uten kandidat, og holder `H1`-kravet for en kandidat som venter.
+- SE-1: økt-tilstandsmaskinen for touch-flyten (hvile → klar → nedtelling → opptak → ferdig) med utlogging etter 30 s eller 3 min, «Starter…» til Pearl bekrefter, og alarm hvis opptaket stopper av seg selv.
