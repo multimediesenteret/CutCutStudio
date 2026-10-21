@@ -36,7 +36,17 @@ Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 
 ## Kjøre lokalt
 
-Kommer i milepæl M1 (simulator). Målet er at `uv sync && uv run cutcut sim` starter motor, simulator og begge skjermer på under 10 minutter fra ren klone.
+Krever [`uv`](https://docs.astral.sh/uv/) (henter selv Python 3.12).
+
+```bash
+./tools/setup-git.sh       # git-identitet (AGENTS.md 3)
+uv sync                    # Python og avhengigheter, låst i uv.lock
+uv run pytest              # tester
+uv run ruff check . && uv run ruff format --check . && uv run mypy   # kvalitet, som i CI
+uv run cutcut --version
+```
+
+Målet for M1 er at `uv run cutcut sim` starter motor, simulator og begge skjermer på under 10 minutter fra ren klone (kommer i SIM-6).
 
 ## Bidra
 

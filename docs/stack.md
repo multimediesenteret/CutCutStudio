@@ -63,15 +63,16 @@ Koden utvikles på Linux (agentens skymiljø, utviklernes maskiner) og kjøres i
 - **Windows-ting bak adaptere.** ASIO-lyd, WinSW, kiosk, Credential Manager og DirectShow-capture har et grensesnitt i `src/cutcut/common/platform/` med en Windows-implementasjon og en falsk implementasjon for test og simulator.
 - **Simulatoren er standard.** `cutcut sim` (kommer i M1) starter motoren med simulert lyd, simulerte enheter og begge skjermer.
 
-### Kom i gang (fylles ut i M1)
+### Kom i gang
 
 ```bash
 git clone https://github.com/multimediesenteret/cutcutstudio
 cd cutcutstudio
 ./tools/setup-git.sh          # git-identitet, se AGENTS.md 3
-uv sync                       # Python og avhengigheter
-corepack enable && pnpm install
-uv run cutcut sim             # motor + simulator + skjermer
+uv sync                       # Python 3.12 og avhengigheter (uv.lock)
+uv run pytest                 # tester
+uv run ruff check . && uv run ruff format --check . && uv run mypy
+# kommer i M1: corepack enable && pnpm install (U-1), uv run cutcut sim (SIM-6)
 ```
 
 ## CI (GitHub Actions)
@@ -79,7 +80,7 @@ uv run cutcut sim             # motor + simulator + skjermer
 | Jobb | Når | Hva |
 | --- | --- | --- |
 | `commit-identity` | Hver PR og push | Alle commits har forfatter og committer `Multimediesenteret <magnus.lian@ntnu.no>` |
-| `python` | Fra M1 | ruff, mypy, pytest (unit, rules, integration) på `ubuntu-latest` og `windows-latest` |
+| `python` | Når Python-filer endres (sti-filter) | ruff format og lint, mypy strict, pytest på `ubuntu-latest` per PR; `windows-latest` bare på `main`, ukentlig og manuelt (sparer minutter, D-050). Fil: `.github/workflows/python.yml` |
 | `ui` | Fra M1 | lint, typesjekk, Vitest, Playwright |
 | `docs` | Fra M1 | Genererte filer i `docs/reference/` uten avvik; sporbarhet regel → test; README-kommandoer kjører |
 | `security` | Ukentlig og per PR | `pip-audit`, `pnpm audit`, søk etter testkortets nummer i logg og database (I8) |
