@@ -279,6 +279,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rules/overrides": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rule Overrides
+         * @description Fine-tune single rule values on top of the preset; ``null`` resets one (ADR-0011).
+         */
+        post: operations["rule_overrides_api_rules_overrides_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/session": {
         parameters: {
             query?: never;
@@ -744,6 +764,10 @@ export interface components {
             features: {
                 [key: string]: boolean;
             };
+            /** Overrides */
+            overrides: {
+                [key: string]: number;
+            };
             /**
              * Preset
              * @enum {string}
@@ -858,6 +882,8 @@ export interface components {
         StudioInfo: {
             /** Name */
             name: string;
+            /** Show Id */
+            show_id: string;
             /** Show Types */
             show_types: {
                 [key: string]: string;
@@ -1400,6 +1426,41 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    rule_overrides_api_rules_overrides_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

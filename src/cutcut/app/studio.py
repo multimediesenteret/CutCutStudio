@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Final, Literal, Protocol
 
+from pydantic import ValidationError
+
 from cutcut import __version__
 from cutcut.app.hub import Hub
 from cutcut.app.state import (
@@ -28,11 +30,18 @@ from cutcut.app.state import (
     TouchInfo,
 )
 from cutcut.common.clock import Clock
-from cutcut.common.config import RulePresets, ShowTypes, Site, effective_rules
+from cutcut.common.config import (
+    ConfigError,
+    RuleParams,
+    RulePresets,
+    ShowTypes,
+    Site,
+    effective_rules,
+)
 from cutcut.common.ids import MicId, RuleId, is_shot
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.session import RecordingStatus, ShowChoice, StartedBy, TouchStep, User
-from cutcut.common.models.show import RulesPreset, ShowConfig
+from cutcut.common.models.show import Features, RulesPreset, ShowConfig
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
 from cutcut.core.inputs import (
@@ -62,6 +71,17 @@ log = logging.getLogger(__name__)
 STATE_EVERY_MS: Final = 100  # 10 Hz (docs/design/gui-konsept.md)
 METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
+TUNING_KEY: Final = "studio.tuning"
+
+
+def _why(exc: ValueError) -> str:
+    """One readable line from a validation error, e.g. «T2_confirm_ms: Input should be …»."""
+    if isinstance(exc, ValidationError):
+        err = exc.errors()[0]
+        return f"{'.'.join(str(x) for x in err['loc'])}: {err['msg']}"
+    return str(exc).splitlines()[0]
+
+
 Color = Literal["magenta", "cyan", "lilla", "oransje"]
 PARTICIPANT_COLORS: Final[dict[str, Color]] = {
     "P1": "magenta",
@@ -120,6 +140,8 @@ class Studio:
         self.show = self._show_for(self.sessions.default_show.participants)
         self.preset: RulesPreset = self.show.rules_preset
         self.features = self.show.features
+        self.overrides: dict[str, float] = {}
+        self._load_tuning()
         engine = self._make_engine(self.show)
         self.runtime = CoreRuntime(
             engine,
@@ -146,10 +168,52 @@ class Studio:
                 return show
         raise CommandError(f"Studioet har ikke oppsett for {participants} personer.")
 
-    def _make_engine(self, show: ShowConfig) -> Engine:
+    def _merged(self, show: ShowConfig) -> ShowConfig:
+        """The show with the technician's preset, switches and fine tuning applied."""
+        return self._merged_with(show, self.preset, self.features, self.overrides)
+
+    def _load_tuning(self) -> None:
+        """Preset, switches and fine tuning survive a restart (the studio runs unattended)."""
+        if self.deps.store is None:
+            return
+        saved = self.deps.store.get_kv(TUNING_KEY)
+        if not isinstance(saved, dict):
+            return
+        try:
+            preset = saved.get("preset", self.preset)
+            features = self.features.model_copy(update=saved.get("features", {}))
+            overrides = {str(k): v for k, v in saved.get("overrides", {}).items()}
+            effective_rules(
+                self._merged_with(self.show, preset, features, overrides), self.deps.presets
+            )
+        except (ValueError, ConfigError) as exc:
+            log.warning("Lagret tuning ble ikke brukt: %s", exc)
+            return
+        self.preset, self.features, self.overrides = preset, features, overrides
+
+    @staticmethod
+    def _merged_with(
+        show: ShowConfig, preset: RulesPreset, features: Features, overrides: dict[str, float]
+    ) -> ShowConfig:
         data = show.model_dump()
-        data.update(rules_preset=self.preset, features=self.features.model_dump())
-        merged = ShowConfig.model_validate(data)
+        data.update(
+            rules_preset=preset,
+            features=features.model_dump(),
+            rules_override={**show.rules_override, **overrides},
+        )
+        return ShowConfig.model_validate(data)
+
+    def _save_tuning(self) -> None:
+        if self.deps.store is not None:
+            value = {
+                "preset": self.preset,
+                "features": self.features.model_dump(),
+                "overrides": self.overrides,
+            }
+            self.deps.store.put_kv(TUNING_KEY, value, self.deps.clock.now())
+
+    def _make_engine(self, show: ShowConfig) -> Engine:
+        merged = self._merged(show)
         rules = effective_rules(merged, self.deps.presets)
         return Engine(
             EngineConfig.from_show(merged, rules),
@@ -269,6 +333,7 @@ class Studio:
                 simulator=self.deps.simulator,
                 version=__version__,
                 show_types={k: v.name for k, v in self.deps.show_types.types.items()},
+                show_id=self.show.id,
             ),
             session=session.model_copy(deep=True) if session else None,
             touch=TouchInfo(
@@ -311,7 +376,11 @@ class Studio:
                 duration_s=session.recording.duration_s if session else 0,
                 started_by=session.recording.started_by if session else None,
             ),
-            rules=RulesInfo(preset=self.preset, features=self.features.model_dump()),
+            rules=RulesInfo(
+                preset=self.preset,
+                features=self.features.model_dump(),
+                overrides=dict(self.overrides),
+            ),
             alerts=[self._alert_info(a) for a in self.alerts if not a.acknowledged][-20:],
             runtime=RuntimeInfo(
                 ticks=self.runtime.stats.ticks,
@@ -426,13 +495,31 @@ class Studio:
         self._reconfigure()
         self._audit(role, actor, "preset", preset=preset)
 
+    def set_overrides(self, changes: dict[str, float | None], role: Role, actor: str) -> None:
+        """Fine tuning of single rule values on top of the preset (ADR-0011). ``None`` resets
+        a value to the preset. Out-of-range values are refused and nothing changes."""
+        updated = dict(self.overrides)
+        for name, value in changes.items():
+            if value is None:
+                updated.pop(name, None)
+            else:
+                updated[name] = value
+        try:
+            self.deps.presets.get(self.preset).with_overrides(
+                {**self.show.rules_override, **updated}
+            )
+        except ValueError as exc:
+            raise CommandError(f"Ugyldig regelverdi: {_why(exc)}") from exc
+        self.overrides = updated
+        self._reconfigure()
+        self._audit(role, actor, "rules_override", **{k: v for k, v in changes.items()})
+
     def _reconfigure(self) -> None:
         """ADR-0011: switches and presets change live, from the next tick."""
-        data = self.show.model_dump()
-        data.update(rules_preset=self.preset, features=self.features.model_dump())
-        merged = ShowConfig.model_validate(data)
+        merged = self._merged(self.show)
         rules = effective_rules(merged, self.deps.presets)
         self.engine.set_config(EngineConfig.from_show(merged, rules))
+        self._save_tuning()
 
     def _check_shot(self, shot: str) -> None:
         if not is_shot(shot):
@@ -441,8 +528,21 @@ class Studio:
             raise CommandError(f"{shot[3:]} er ikke med i dette oppsettet.")
 
     def rules_info(self) -> dict[str, Any]:
+        """Everything the tuning screen needs: current and preset values, overrides, limits."""
+        props = RuleParams.model_json_schema()["properties"]
+        limits = {
+            name: {
+                "type": p.get("type"),
+                "min": p.get("minimum", p.get("exclusiveMinimum")),
+                "max": p.get("maximum", p.get("exclusiveMaximum")),
+            }
+            for name, p in props.items()
+        }
         return {
             "preset": self.preset,
             "values": self.engine.rules.model_dump(),
+            "preset_values": self.deps.presets.get(self.preset).model_dump(),
+            "overrides": dict(self.overrides),
+            "limits": limits,
             "ids": [r.value for r in RuleId],
         }

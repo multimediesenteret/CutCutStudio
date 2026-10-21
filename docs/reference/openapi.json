@@ -746,6 +746,13 @@
             "title": "Features",
             "type": "object"
           },
+          "overrides": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Overrides",
+            "type": "object"
+          },
           "preset": {
             "enum": [
               "rolig",
@@ -758,7 +765,8 @@
         },
         "required": [
           "preset",
-          "features"
+          "features",
+          "overrides"
         ],
         "title": "RulesInfo",
         "type": "object"
@@ -967,6 +975,10 @@
             "title": "Name",
             "type": "string"
           },
+          "show_id": {
+            "title": "Show Id",
+            "type": "string"
+          },
           "show_types": {
             "additionalProperties": {
               "type": "string"
@@ -987,7 +999,8 @@
           "name",
           "simulator",
           "version",
-          "show_types"
+          "show_types",
+          "show_id"
         ],
         "title": "StudioInfo",
         "type": "object"
@@ -1765,6 +1778,59 @@
         "summary": "Rules",
         "tags": [
           "config"
+        ]
+      }
+    },
+    "/api/rules/overrides": {
+      "post": {
+        "description": "Fine-tune single rule values on top of the preset; ``null`` resets one (ADR-0011).",
+        "operationId": "rule_overrides_api_rules_overrides_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "title": "Body",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rule Overrides",
+        "tags": [
+          "tuning"
         ]
       }
     },

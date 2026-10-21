@@ -7,6 +7,8 @@ export interface Transport {
   stop(): void;
   /** Same commands as REST (spec 10.2). Throws CommandError with a Norwegian message. */
   send(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<void>;
+  /** Read something that is not in the live state (rules, shows, log history). */
+  get<T>(path: string): Promise<T>;
 }
 
 export class CommandError extends Error {
@@ -17,7 +19,7 @@ export class CommandError extends Error {
   }
 }
 
-async function rest(base: string, method: string, path: string, body?: unknown): Promise<void> {
+async function rest(base: string, method: string, path: string, body?: unknown): Promise<Response> {
   const res = await fetch(`${base}${path}`, {
     method,
     headers: body === undefined ? undefined : { "content-type": "application/json" },
@@ -34,6 +36,7 @@ async function rest(base: string, method: string, path: string, body?: unknown):
     }
     throw new CommandError(msg, res.status);
   }
+  return res;
 }
 
 /** The real engine over WebSocket, reconnecting forever with backoff (the screen never goes
@@ -97,7 +100,12 @@ export class WsTransport implements Transport {
     this.ws?.close();
   }
 
-  send(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<void> {
-    return rest(this.base, method, path, body);
+  async send(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<void> {
+    await rest(this.base, method, path, body);
+  }
+
+  async get<T>(path: string): Promise<T> {
+    const res = await rest(this.base, "GET", path);
+    return (await res.json()) as T;
   }
 }

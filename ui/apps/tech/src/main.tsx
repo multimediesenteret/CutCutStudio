@@ -1,11 +1,13 @@
 import { Store, StudioContext, WsTransport } from "@cutcut/client";
 import "@cutcut/design/tokens.css";
+import "@cutcut/design/components.css";
+import "./tech.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 
 const store = new Store();
-const transport = new WsTransport("state,meters,decision,alert,health".split(","));
+const transport = new WsTransport(["state", "meters", "decision", "alert", "touch", "session"]);
 transport.start(store);
 
 const root = document.getElementById("root");

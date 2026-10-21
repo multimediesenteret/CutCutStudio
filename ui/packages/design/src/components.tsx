@@ -43,8 +43,17 @@ export function StatusRow({ children }: { children: ReactNode }): ReactElement {
 }
 
 /** Microphone level 0–1 drawn with transform only, so a meter never causes layout (12.5). */
-export function LevelBar({ level, color }: { level: number; color?: string }): ReactElement {
-  const v = Math.max(0, Math.min(1, Math.round(level * 50) / 50));
+export function LevelBar({
+  level,
+  color,
+  steps = 50,
+}: {
+  level: number;
+  color?: string;
+  /** Resolution of the bar; fewer steps mean fewer repaints. */
+  steps?: number;
+}): ReactElement {
+  const v = Math.max(0, Math.min(1, Math.round(level * steps) / steps));
   const style = { "--lv": String(v), "--pc": color } as CSSProperties;
   return (
     <span className="cc-level" style={style} aria-hidden="true">

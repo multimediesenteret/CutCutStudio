@@ -284,6 +284,13 @@ def create_app(
         studio.set_features(body, me.role, me.actor)
         return Ok()
 
+    @app.post("/api/rules/overrides", tags=["tuning"])
+    async def rule_overrides(body: dict[str, float | None], me: Who) -> Ok:
+        """Fine-tune single rule values on top of the preset; ``null`` resets one (ADR-0011)."""
+        require(me, "admin")
+        studio.set_overrides(body, me.role, me.actor)
+        return Ok()
+
     @app.post("/api/preset", tags=["tuning"])
     async def preset(body: PresetIn, me: Who) -> Ok:
         require(me, "operator")

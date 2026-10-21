@@ -158,6 +158,55 @@ def test_features_and_preset_change_live(rig: Rig) -> None:
     assert rig.client.post("/api/features", json={"nope": True}).status_code == 409
 
 
+def test_fine_tuning_changes_live_and_resets_to_preset(rig: Rig) -> None:
+    c = rig.client
+    assert c.post("/api/rules/overrides", json={"T2_confirm_ms": 1100}).status_code == 200
+    rules = c.get("/api/rules").json()
+    assert rules["values"]["T2_confirm_ms"] == 1100
+    assert rules["preset_values"]["T2_confirm_ms"] == 800
+    assert rules["limits"]["T2_confirm_ms"] == {"type": "integer", "min": 100, "max": 5000}
+    rig.run(150)
+    assert rig.state()["rules"]["overrides"] == {"T2_confirm_ms": 1100}
+    # The override survives a preset change: it is fine tuning on top of any preset.
+    c.post("/api/preset", json={"preset": "rolig"})
+    assert c.get("/api/rules").json()["values"]["T2_confirm_ms"] == 1100
+    r = c.post("/api/rules/overrides", json={"T2_confirm_ms": 50})
+    assert r.status_code == 409
+    assert "T2_confirm_ms" in r.json()["detail"]
+    assert c.post("/api/rules/overrides", json={"nope": 1}).status_code == 409
+    assert c.post("/api/rules/overrides", json={"T2_confirm_ms": None}).status_code == 200
+    assert c.get("/api/rules").json()["values"]["T2_confirm_ms"] == 1200  # rolig
+
+
+def test_tuning_survives_a_restart(tmp_path: Path) -> None:
+    """The studio runs unattended: a restart keeps the technician's preset and tuning."""
+    first = Rig(tmp_path)
+    first.client.post("/api/preset", json={"preset": "energisk"})
+    first.client.post("/api/features", json={"bird": False})
+    first.client.post("/api/rules/overrides", json={"T3_min_shot_s": 3.5})
+    first.store.close()
+    second = Rig(tmp_path)
+    try:
+        s = second.state()
+        assert s["rules"]["preset"] == "energisk"
+        assert s["rules"]["features"]["bird"] is False
+        assert s["rules"]["overrides"] == {"T3_min_shot_s": 3.5}
+        assert second.client.get("/api/rules").json()["values"]["T3_min_shot_s"] == 3.5
+    finally:
+        second.store.close()
+
+
+def test_broken_saved_tuning_is_ignored(tmp_path: Path) -> None:
+    first = Rig(tmp_path)
+    first.store.put_kv("studio.tuning", {"overrides": {"T2_confirm_ms": -5}}, first.clock.now())
+    first.store.close()
+    second = Rig(tmp_path)
+    try:
+        assert second.state()["rules"]["overrides"] == {}
+    finally:
+        second.store.close()
+
+
 def test_roles_touch_cannot_override(tmp_path: Path) -> None:
     rig = Rig(tmp_path, dev_admin=False)
     try:
