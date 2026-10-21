@@ -28,7 +28,7 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q13 | Hvilket kamera er fugleperspektiv, og har det IP-styring? | NTNU | Åpen | |
 | Q14 | Står laptopen alltid på inngang 6, eller kan det komme flere content-kilder? | NTNU | Åpen | |
 | Q15 | Montering og kabellengde til touch-skjermen (trengs forlenger for skjermsignal og USB?) | NTNU | Åpen | |
-| Q16 | Virker OSC `SetAiEnable` på studioets OBSBOT-fastvare, og hvor rolig er tracking med fart «lat»? | Tekniker (hw-test) | Åpen | |
+| Q16 | Virker OSC `SetAiEnable` på studioets OBSBOT-fastvare, og hvor rolig er tracking med fart «lat»? | Tekniker (hw-test) | Åpen | `SetAiEnable` står ikke i OBSBOTs OSC-tabeller i `site/ntnu-studio/equipment/obsbot/`; driveren bruker adressen fra spesifikasjonen til maskintesten (CA-5) har svart |
 | Q17 | Hvor lenge skal opptak ligge på Pearl og ATEM-disken før lokal sletting? | NTNU | Åpen | |
 | Q18 | Fastvareversjoner på alt utstyr (fylles i `docs/intake/studio-inventar.md`) | Tekniker | Åpen | |
 | Q19 | Skal OBSBOT og Canon blandes i samme show? (Avgjør hvor viktig fargematching er) | NTNU | Åpen | |
