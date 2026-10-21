@@ -650,6 +650,29 @@ class Studio:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
         return checks
 
+    def atem_status(self) -> dict[str, Any]:
+        """What CutCut reads from the ATEM, in ATEM terms (setup screen, machine test DA-5)."""
+        source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
+        raw_fn = getattr(source, "raw", None)
+        status_fn = getattr(source, "status", None)
+        raw = raw_fn() if callable(raw_fn) else None
+        st = status_fn() if callable(status_fn) else None
+        macros = self._atem_macros()
+        rb = self.runtime.atem
+        return {
+            "connected": raw is not None if callable(raw_fn) else rb is not None,
+            "model": getattr(st, "model", None),
+            "last_error": getattr(st, "last_error", None),
+            "program_input": raw.program_input if raw else None,
+            "preview_input": raw.preview_input if raw else None,
+            "program": rb.program.value if rb else None,
+            "preview": rb.preview.value if rb else None,
+            "video_mode": raw.multiview.video_mode if raw and raw.multiview else None,
+            "recording": raw.recording if raw else None,
+            "macros": {str(k): v for k, v in sorted((macros or {}).items())},
+            "macro_problems": macro_check(macros) if macros is not None else [],
+        }
+
     def _atem_macros(self) -> dict[int, str] | None:
         source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
         read = getattr(source, "macros", None)

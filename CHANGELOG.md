@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- DA-5: `cutcut hwtest atem` er maskintesten for ATEM og Companion, med samme rapport som lydtesten.
+  - B1: ATEM, modell og format. B2: multiview. B3: makroer. B4: Companion-sider og -tilkobling.
+  - B5: hver preview-knapp, med ATEM lest tilbake og tid målt. B6: TAKE CUT, bare med bekreftelse.
+  - Nytt endepunkt `GET /api/setup/atem` viser hva CutCut leser fra ATEM.
 - AU-6: `cutcut hwtest audio` er maskintesten for RØDECaster.
   - Sju steg: lydkort, kanalkart, synkronitet, stabilitet, USB ut og inn, dempet mic (Q24) og WASAPI-reserve.
   - Rapport i Markdown og JSON som kan limes rett inn i issuet.

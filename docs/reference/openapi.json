@@ -2622,6 +2622,30 @@
         ]
       }
     },
+    "/api/setup/atem": {
+      "get": {
+        "description": "What CutCut reads from the ATEM, in ATEM input numbers (machine test DA-5).",
+        "operationId": "atem_api_setup_atem_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Atem Api Setup Atem Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Atem",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
     "/api/setup/mics": {
       "delete": {
         "operationId": "mic_reset_api_setup_mics_delete",

@@ -24,3 +24,22 @@ Varer ca. 70 minutter med standard stabilitetstest. Med `--minutes 5` går det r
 - **Hoppe over:** svar `h` ved en instruksjon for å hoppe over steget.
 - **Ingen lyd lagres** med mindre du ber om det: `--save-wav` lagrer 5 s fra mic 1 til feilsøking.
 - **Rapporten** havner i `C:\ProgramData\CutCut\data\hwtest\`, eller i mappen du gir med `--out`.
+
+## ATEM og Companion (DA-5)
+
+Kjøres med CutCut i gang (tjenesten), Companion i gang og CutCut-sidene importert:
+
+```powershell
+uv run cutcut hwtest atem --site C:\CutCut\site --user tekniker1
+```
+
+| Steg | Hva skjer | Svarer på |
+| --- | --- | --- |
+| B1 ATEM | Tilkoblet via atem-bridge, modell, videoformat (1080p50) | Q7 |
+| B2 Multiview | Sjekken mot rutekartet (`H-MV`) | |
+| B3 Makroer | Layoutmakroene i 7.2 finnes med riktig navn | |
+| B4 Companion | Svarer, sidene har riktig versjon, ATEM-tilkoblingen i Companion er OK | |
+| B5 Preview-knapper | Trykker hver preview-knapp på side 10. ATEM skal vise riktig inngang, og vi måler hvor fort | |
+| B6 TAKE | TAKE CUT. **Endrer program**: bare med bekreftelse, når ingen sender | |
+
+Motoren låses (LÅS) mens knappene trykkes, og låses opp etterpå.
