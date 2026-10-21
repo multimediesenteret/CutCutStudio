@@ -9,6 +9,7 @@ requires-python = ">=3.12,<3.13"
 authors = [{ name = "NTNU Multimediesenteret", email = "magnus.lian@ntnu.no" }]
 dependencies = [
     "pydantic>=2.9,<3",
+    "pyzmq>=26,<28",
     "ruamel-yaml>=0.18,<0.19",
 ]
 
