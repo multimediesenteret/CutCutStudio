@@ -62,6 +62,8 @@ main{padding:16px 20px 20px;min-width:0}
 .mv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .tile{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:8px;overflow:hidden;background:var(--cam-bg2);border:3px solid transparent;cursor:pointer;padding:0}
 .tile svg{position:absolute;inset:0;width:100%;height:100%}
+.tile .mouth{opacity:0}.tile.talk .mouth{opacity:1}
+.panel{contain:layout paint}
 .tile .cap{position:absolute;left:6px;bottom:6px;display:flex;align-items:center;gap:6px;background:rgba(10,14,19,.72);color:#fff;border-radius:6px;padding:3px 8px 3px 6px;font-size:12px;font-weight:600}
 .tile .cap i{width:10px;height:10px;border-radius:50%;background:var(--pc,var(--bleed))}
 .tile .st{position:absolute;right:6px;top:6px;font-size:11px;font-weight:800;letter-spacing:.08em;padding:2px 7px;border-radius:4px;color:#fff;display:none}
@@ -76,7 +78,7 @@ main{padding:16px 20px 20px;min-width:0}
 .shot{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1.1;display:flex;align-items:center;gap:10px;margin:2px 0}
 .shot i{width:16px;height:16px;border-radius:50%;background:var(--pc,var(--bleed));flex:none}
 .age{height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}
-.age i{display:block;height:100%;background:var(--pgm);width:0}
+.age i{display:block;height:100%;background:var(--pgm);transform-origin:left;transform:scaleX(0)}
 .age.ok i{background:var(--pvw)}
 .line{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;padding:8px 10px;border-radius:8px;font-size:13px}
 .line b{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
@@ -91,7 +93,7 @@ main{padding:16px 20px 20px;min-width:0}
 .mic .nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mic .nm small{display:block;font-weight:400;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
 .meter{position:relative;height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
-.meter i{position:absolute;inset:0 auto 0 0;background:var(--pc);border-radius:5px;width:0;transition:width .08s}
+.meter i{position:absolute;inset:0;background:var(--pc);border-radius:5px;transform-origin:left;transform:scaleX(0)}
 .meter .th{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.4;left:60%}
 .state{text-align:center;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 4px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
 .state.talk{background:var(--pvw-soft);color:var(--pvw)} .state.conf{background:var(--wait-soft);color:var(--wait)}
@@ -314,16 +316,21 @@ let logF='all';document.querySelectorAll('#logFilter button').forEach(b=>b.oncli
 $('colors').innerHTML=PEOPLE.map((p,i)=>`<div style="--pc:var(${p.color})"><span class="seat">${i+1}</span><span><b>${i===0?'Programleder':p.name}</b><br><span class="muted">${p.colorName}</span></span></div>`).join('');
 
 // helpers
-let colorsCache=null;
+let colorsCache=null,tlSize=null;
 function cols(){if(colorsCache)return colorsCache;const cs=getComputedStyle(document.documentElement),c=k=>cs.getPropertyValue(k).trim();colorsCache={p:PEOPLE.map(p=>c(p.color)),bleed:c('--bleed'),wait:c('--wait'),eye:c('--eye'),grid:c('--line-2'),muted:c('--muted'),ink:c('--ink'),pgm:c('--pgm'),track:c('--surface-2'),font:c('--f-ui')};return colorsCache}
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{colorsCache=null;lastTiles={};setThemeBtn()});
+const _c=new WeakMap();
+const setT=(el,v)=>{if(_c.get(el)!==v){_c.set(el,v);el.textContent=v}};
+const setH=(el,v)=>{if(_c.get(el)!==v){_c.set(el,v);el.innerHTML=v}};
+const setCls=(el,v)=>{if(el.className!==v)el.className=v};
+const setSX=(el,v)=>{v=Math.round(v*100)/100;if(_c.get(el)!==v){_c.set(el,v);el.style.transform=`scaleX(${v})`}};
 const shotName=k=>{if(!k)return '–';if(k==='BIRD')return 'CAM 5 · Fugleperspektiv';if(k==='CONTENT')return 'IN 6 · Laptop';if(k==='AUDIO')return 'MP 1 · Kun lyd-grafikk';const p=PEOPLE[+k[1]-1];return `CAM ${k[1]} · ${p.id==='P1'?'Programleder':p.name}`};
 const pcOf=k=>k&&k[0]==='P'?`var(${PEOPLE[+k[1]-1].color})`:k==='BIRD'?'var(--wait)':k==='CONTENT'?'var(--eye)':'var(--bleed)';
 const healthOf=s=>{const st={};HEALTH.forEach(h=>st[h.id]='ok');Object.keys(s.faults).forEach(k=>st[FAULTS[k].health]=FAULTS[k].sev);return st};
 let lastTiles={},lastLogKey='',lastView='';
 
 function drawTL(s){
-  const cv=$('tl'),r=cv.getBoundingClientRect();if(r.width<10)return;
+  const cv=$('tl'),r=tlSize;if(!r||r.width<10)return;
   const dpr=Math.min(2,devicePixelRatio||1);const W=Math.round(r.width*dpr),Hh=Math.round(r.height*dpr);if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh}
   const ctx=cv.getContext('2d'),C=cols(),n=s.session.n;ctx.setTransform(dpr,0,0,dpr,0,0);const w=r.width,h=r.height;ctx.clearRect(0,0,w,h);
   const left=96,rows=n+1,gap=6,axis=18,rh=Math.max(14,(h-axis-gap*(rows-1))/rows);
@@ -331,10 +338,12 @@ function drawTL(s){
   for(let r2=0;r2<rows;r2++){const y=r2*(rh+gap);ctx.fillStyle=C.track;ctx.fillRect(left,y,w-left,rh);
     if(r2<n){ctx.fillStyle=C.p[r2];ctx.fillRect(0,y+3,4,rh-6);ctx.fillText(r2===0?'Programleder':PEOPLE[r2].name,10,y+rh/2)}else{ctx.fillStyle=C.ink;ctx.fillText('Program',10,y+rh/2)}}
   const N=600,sw=(w-left)/N,off=N-H.length,py=(rows-1)*(rh+gap);
-  for(let k=0;k<H.length;k++){const x=left+(off+k)*sw,sm=H[k];
-    for(let i=0;i<n;i++){const v=sm.m[i];if(!v)continue;ctx.fillStyle=v===2?C.p[i]:C.bleed;const y=i*(rh+gap);ctx.fillRect(x,v===2?y:y+rh*.62,Math.ceil(sw)+.5,v===2?rh:rh*.38)}
-    const p=sm.p;ctx.fillStyle=p&&p[0]==='P'?C.p[+p[1]-1]:p==='CONTENT'?C.eye:p==='AUDIO'?C.bleed:C.wait;ctx.fillRect(x,py,Math.ceil(sw)+.5,rh);
-    if(k>0&&H[k-1].p!==p){ctx.fillStyle=C.ink;ctx.fillRect(x-1,0,2,py+rh)}}
+  const X=k=>left+(off+k)*sw;
+  for(let i=0;i<n;i++){const y=i*(rh+gap);let k=0;while(k<H.length){const v=H[k].m[i];let e=k+1;while(e<H.length&&H[e].m[i]===v)e++;
+    if(v){ctx.fillStyle=v===2?C.p[i]:C.bleed;ctx.fillRect(X(k),v===2?y:y+rh*.62,X(e)-X(k)+.5,v===2?rh:rh*.38)}k=e}}
+  {let k=0;while(k<H.length){const p=H[k].p;let e=k+1;while(e<H.length&&H[e].p===p)e++;
+    ctx.fillStyle=p&&p[0]==='P'?C.p[+p[1]-1]:p==='CONTENT'?C.eye:p==='AUDIO'?C.bleed:C.wait;ctx.fillRect(X(k),py,X(e)-X(k)+.5,rh);
+    if(k>0){ctx.fillStyle=C.ink;ctx.fillRect(X(k)-1,0,2,py+rh)}k=e}}
   ctx.fillStyle=C.muted;ctx.font=`500 11px ${C.font}`;ctx.textBaseline='alphabetic';
   [60,45,30,15,0].forEach(sec=>{const x=left+(w-left)*(1-sec/60);ctx.textAlign=sec===0?'right':sec===60?'left':'center';ctx.fillText(sec?`−${sec} s`:'nå',x,h-3)});ctx.textAlign='left';
 }
@@ -342,37 +351,37 @@ function drawTL(s){
 function renderAll(force){
   const s=S;if(!s)return;const se=s.session,ph=se.phase,rec=ph==='rec';
   // top bar
-  $('user').innerHTML=se.user?`<span class="av">${se.user.first[0]}</span><span>${se.user.name}<small>${se.n} ${se.n===1?'person':'personer'} · ${se.mode==='audio'?'kun lyd':'video'} · ${{idle:'',ready:'velger oppsett',countdown:'starter',rec:'tar opp',done:'ferdig'}[ph]}</small></span>`:'<span class="muted">Ingen innlogget</span>';
-  $('recpill').innerHTML=rec?`<span class="pill rec"><span class="d"></span>OPPTAK <span class="tnum">${clock(s.t-se.recStart)}</span> · Pearl${s.rec.iso?' + ISO':''}</span>`:`<span class="pill"><span class="d" style="background:var(--faint)"></span>Ikke opptak</span>`;
+  setH($('user'),se.user?`<span class="av">${se.user.first[0]}</span><span>${se.user.name}<small>${se.n} ${se.n===1?'person':'personer'} · ${se.mode==='audio'?'kun lyd':'video'} · ${{idle:'',ready:'velger oppsett',countdown:'starter',rec:'tar opp',done:'ferdig'}[ph]}</small></span>`:'<span class="muted">Ingen innlogget</span>');
+  setH($('recpill'),rec?`<span class="pill rec"><span class="d"></span>OPPTAK <span class="tnum">${clock(s.t-se.recStart)}</span> · Pearl${s.rec.iso?' + ISO':''}</span>`:`<span class="pill"><span class="d" style="background:var(--faint)"></span>Ikke opptak</span>`);
   const rb=$('recbtn');const want=rec?'stop':'start';if(rb.dataset.m!==want){rb.dataset.m=want;rb.innerHTML=rec?'<button class="btn" id="stopRec">Stopp opptak</button>':'<button class="btn red" id="startRec">Start opptak</button>';
     if(rec)$('stopRec').onclick=()=>{const b=$('stopRec');if(b.dataset.c){sim.cmd('stop','tekniker')}else{b.dataset.c=1;b.textContent='Bekreft stopp';b.classList.add('red');setTimeout(()=>{if(b.isConnected){delete b.dataset.c;b.textContent='Stopp opptak';b.classList.remove('red')}},3000)}};else $('startRec').onclick=()=>sim.cmd('tech-rec')}
   const hs=healthOf(s),errs=Object.values(hs).filter(v=>v==='err').length,warns=Object.values(hs).filter(v=>v==='warn').length;
-  const hp=$('healthpill');hp.className='pill'+(errs?' err':warns?' warn':'');hp.innerHTML=`<span class="d"></span>${errs?errs+' feil':warns?warns+' advarsel':'Alt OK'}`;
-  const hb=$('hbadge');hb.hidden=!(errs||warns);hb.textContent=errs||warns;hb.className='badge'+(errs?'':' warn');
-  $('helpBanner').classList.toggle('on',!!s.helpAt);if(s.helpAt)$('helpTxt').textContent=`${se.user?se.user.first:'Brukeren'} ba om hjelp fra touch-skjermen for ${Math.round((s.t-s.helpAt)/1000)} s siden.`;
+  const hp=$('healthpill');setCls(hp,'pill'+(errs?' err':warns?' warn':''));setH(hp,`<span class="d"></span>${errs?errs+' feil':warns?warns+' advarsel':'Alt OK'}`);
+  const hb=$('hbadge');hb.hidden=!(errs||warns);setT(hb,String(errs||warns));setCls(hb,'badge'+(errs?'':' warn'));
+  $('helpBanner').classList.toggle('on',!!s.helpAt);if(s.helpAt)setT($('helpTxt'),`${se.user?se.user.first:'Brukeren'} ba om hjelp fra touch-skjermen for ${Math.round((s.t-s.helpAt)/1000)} s siden.`);
   if(view==='oversikt'){
     const n=se.n,audio=se.mode==='audio'&&rec;
     TILES.forEach(t=>{const el=tileEls[t.k],used=t.k[0]==='P'?+t.k[1]<=n:t.k==='CONTENT'?s.laptop:true;
       el.classList.toggle('off',!used||audio);el.classList.toggle('pgm',s.pgm===t.k);el.classList.toggle('pvw',s.pvw===t.k&&s.pgm!==t.k);el.classList.toggle('dead',t.k==='P3'&&!!s.faults['cam3-off']);
-      el.querySelector('.st').textContent=s.pgm===t.k?'PGM':'PVW';
-      const key=t.k+(t.k==='BIRD'?n:'')+(t.k==='CONTENT'?s.slide:'')+(t.k[0]==='P'&&s.mics[+t.k[1]-1].state==='snakker'?'t':'')+(document.documentElement.getAttribute('data-theme')||'');
+      setT(el.querySelector('.st'),s.pgm===t.k?'PGM':'PVW');el.classList.toggle('talk',t.k[0]==='P'&&s.mics[+t.k[1]-1].state==='snakker');
+      const key=t.k+(t.k==='BIRD'?n:'')+(t.k==='CONTENT'?s.slide:'')+(document.documentElement.getAttribute('data-theme')||'');
       if(lastTiles[t.k]!==key){el.querySelector('.pic').innerHTML=V.shot(t.k,s);lastTiles[t.k]=key}});
-    $('mvnote').textContent=audio?'Kun lyd: kameraene brukes ikke':!rec?'Ingen opptak: motoren står på total':s.auto?'AUTO på':'AUTO av';
-    $('mode').textContent=audio?'A':'N'+n+(s.laptop&&s.features.content?'C':'');
-    const sh=$('shot');sh.style.setProperty('--pc',pcOf(s.pgm));sh.querySelector('span').textContent=shotName(s.pgm);
-    const R=PRESETS[s.preset],minShot=R.minShot*1000;$('ageTxt').textContent=fmt1(s.age/1000)+' s';
-    $('age').classList.toggle('ok',s.age>=minShot);$('age').firstElementChild.style.width=Math.min(100,s.age/minShot*100)+'%';
-    $('pvw').textContent=s.pvw?`${shotName(s.pvw)} · ${s.pvState}`:'Ingen kandidat';$('next').textContent=s.next;
-    const a=$('auto');a.className='btn'+(s.auto?' on':'');a.textContent=s.auto?'Auto på':'Auto av';
-    const l=$('lock');l.className='btn'+(s.lock?' warn':'');l.textContent=s.lock?'Låst':'Lås bildet';
+    setT($('mvnote'),audio?'Kun lyd: kameraene brukes ikke':!rec?'Ingen opptak: motoren står på total':s.auto?'AUTO på':'AUTO av');
+    setT($('mode'),audio?'A':'N'+n+(s.laptop&&s.features.content?'C':''));
+    const sh=$('shot');if(sh.dataset.k!==s.pgm){sh.dataset.k=s.pgm;sh.style.setProperty('--pc',pcOf(s.pgm));sh.querySelector('span').textContent=shotName(s.pgm)}
+    const R=PRESETS[s.preset],minShot=R.minShot*1000;setT($('ageTxt'),fmt1(s.age/1000)+' s');
+    $('age').classList.toggle('ok',s.age>=minShot);setSX($('age').firstElementChild,Math.min(1,s.age/minShot));
+    setT($('pvw'),s.pvw?`${shotName(s.pvw)} · ${s.pvState}`:'Ingen kandidat');setT($('next'),s.next);
+    const a=$('auto');setCls(a,'btn'+(s.auto?' on':''));setT(a,s.auto?'Auto på':'Auto av');
+    const l=$('lock');setCls(l,'btn'+(s.lock?' warn':''));setT(l,s.lock?'Låst':'Lås bildet');
     document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('sel',b.dataset.p===s.preset));
     micEls.forEach((d,i)=>{const m=s.mics[i],used=i<n;d.hidden=!used;if(!used)return;
-      d.querySelector('.meter i').style.width=Math.max(0,Math.min(100,(m.lvl+60)/60*100))+'%';
-      const st=d.querySelector('.state');st.textContent=m.state;st.className='state'+(m.state==='snakker'?' talk':m.state==='bekrefter'?' conf':m.state==='lekkasje'?' bleed':m.state==='dempet'||m.state==='ingen lyd'?' err':'');
+      setSX(d.querySelector('.meter i'),Math.max(0,Math.min(1,(m.lvl+60)/60)));
+      const st=d.querySelector('.state');setT(st,m.state);setCls(st,'state'+(m.state==='snakker'?' talk':m.state==='bekrefter'?' conf':m.state==='lekkasje'?' bleed':m.state==='dempet'||m.state==='ingen lyd'?' err':''));
       d.classList.toggle('onpgm',s.pgm==='P'+(i+1))});
     const lk=s.log.length+'|'+(s.log[0]?s.log[0].t:'');if(lk!==lastLogKey||force){lastLogKey=lk;
       $('log').innerHTML=s.log.slice(0,30).map(e=>`<li><span class="t">${clock(e.t)}</span><span class="to" style="--pc:${pcOf(e.to)}">${e.to?`<i></i>→ ${shotName(e.to)}`:'Innstilling'} ${e.rule&&e.rule!=='—'?`<span class="tag">${e.rule==='M'?'manuell':e.rule}</span>`:''}</span><span class="why">${e.why}</span></li>`).join('')}
-    $('tx').innerHTML=s.features.live_transcript?s.tx.slice(0,3).map(x=>`<div style="--pc:var(${PEOPLE[x.who].color})"><span class="mono muted" style="font-size:11px">${clock(x.t)}</span><span class="w"><i></i>${x.who===0?'Programl.':PEOPLE[x.who].name}</span><span>${x.text}</span></div>`).join('')||'<span class="muted">Live tekst vises her når noen snakker (ca. 3 s forsinket).</span>':'<span class="muted">Live tekst er av (bryter under Regi).</span>';
+    setH($('tx'),s.features.live_transcript?s.tx.slice(0,3).map(x=>`<div style="--pc:var(${PEOPLE[x.who].color})"><span class="mono muted" style="font-size:11px">${clock(x.t)}</span><span class="w"><i></i>${x.who===0?'Programl.':PEOPLE[x.who].name}</span><span>${x.text}</span></div>`).join('')||'<span class="muted">Live tekst vises her når noen snakker (ca. 3 s forsinket).</span>':'<span class="muted">Live tekst er av (bryter under Regi).</span>');
     drawTL(s);
   }
   if(view==='regi'){document.querySelectorAll('#presets2 button').forEach(b=>b.classList.toggle('sel',b.dataset.p===s.preset));document.querySelectorAll('#feats .sw').forEach(b=>b.setAttribute('aria-checked',!!s.features[b.dataset.k]));
@@ -393,7 +402,7 @@ function renderAll(force){
   lastView=view;
 }
 sim.on((s,h)=>{S=s;H=sim.hist;renderAll(false)});
-addEventListener('resize',()=>S&&drawTL(S));
+new ResizeObserver(es=>{const r=es[0].contentRect;tlSize={width:r.width,height:r.height};S&&drawTL(S)}).observe($('tl'));
 const h0=(location.hash||'').slice(1);if(TITLES[h0])go(h0);else go('oversikt');
 addEventListener('hashchange',()=>{const h=(location.hash||'').slice(1);if(TITLES[h]&&h!==view)go(h)});
 })();

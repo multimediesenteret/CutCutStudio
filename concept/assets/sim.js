@@ -93,9 +93,9 @@ class Sim{
     this.insert=null;this.prevShot=null;this.lastCutT=-1e9;this.nextSlideAt=20000;this.slideFlash=0;this.txSeen=new Set();this.txQ=[];
     try{this.ch=new BroadcastChannel('cutcut-concept');this.ch.onmessage=e=>this.onMsg(e.data)}catch(e){this.ch=null}
     this.started=performance.now();
-    if(!this.ch)this.leader=true;
+    if(!this.ch)this.leader=true;else this.post({type:'hello',from:this.id});
     this.last=performance.now();
-    setInterval(()=>this.loop(),50);
+    this.sent={};setInterval(()=>this.loop(),100);
   }
   on(fn){this.listeners.add(fn);fn(this.s,this.hist)}
   emit(){this.listeners.forEach(fn=>fn(this.s,this.hist))}
@@ -104,19 +104,26 @@ class Sim{
     if(!m||m.from===this.id)return;
     if(m.type==='state'){
       if(this.leader&&m.from<this.id)this.leader=false;
-      if(!this.leader){this.lastHeard=performance.now();const prevT=this.s.t;this.s=m.state;
-        if(m.state.sample&&Math.floor(m.state.t/100)!==Math.floor(prevT/100)){this.hist.push(m.state.sample);if(this.hist.length>600)this.hist.shift()}
-        this.emit()}
+      if(!this.leader){this.lastHeard=performance.now();const old=this.s,ns=m.state;
+        ['log','tx','sessions'].forEach(k=>{if(!(k in ns))ns[k]=old[k]});
+        if(m.samples)m.samples.forEach(x=>{this.hist.push(x);if(this.hist.length>600)this.hist.shift()});
+        this.s=ns;if(!document.hidden)this.emit()}
     } else if(m.type==='cmd'&&this.leader){this.apply(m.cmd,m.arg)}
+    else if(m.type==='hello'&&this.leader){this.forceFull=true}
   }
   cmd(c,a){if(this.leader)this.apply(c,a);else this.post({type:'cmd',from:this.id,cmd:c,arg:a})}
   loop(){
     const now=performance.now();
     if(!this.leader&&now-this.started>700&&now-this.lastHeard>1200)this.leader=true;
     if(!this.leader){this.last=now;return}
-    let dt=Math.min(150,now-this.last);this.last=now;
+    let dt=Math.min(1000,now-this.last);this.last=now;
     while(dt>0){const d=Math.min(30,dt);this.step(d);dt-=d}
-    this.s.v++;this.post({type:'state',from:this.id,state:this.s});this.emit();
+    this.s.v++;
+    if(this.ch){const st={...this.s},keys={log:this.s.log[0],tx:this.s.tx[0],sessions:this.s.sessions[0]};
+      for(const k in keys){if(this.sent[k]===keys[k]&&this.sent[k+'n']===this.s[k].length)delete st[k];else{this.sent[k]=keys[k];this.sent[k+'n']=this.s[k].length}}
+      if(this.forceFull){this.forceFull=false;st.log=this.s.log;st.tx=this.s.tx;st.sessions=this.s.sessions}
+      this.post({type:'state',from:this.id,state:st,samples:this.newSamples});}
+    this.newSamples=[];if(!document.hidden)this.emit();
   }
   get P(){return [...Array(this.s.session.n).keys()]}
   log(to,rule,why){this.s.log.unshift({t:this.s.t,to,rule,why});if(this.s.log.length>60)this.s.log.pop()}
@@ -196,7 +203,7 @@ class Sim{
     this.overlapT=nOver>=2?this.overlapT+dt:0;this.silT=actives.length?0:this.silT+dt;
     s.age+=dt;
     // sample for timeline (10 Hz)
-    if(Math.floor(t/100)!==Math.floor((t-dt)/100)){s.sample={m:PEOPLE.map((_,i)=>i>=se.n?0:isAct(i)&&s.mics[i].run>=R.confirm?2:(s.mics[i].vad>R.vad?1:0)),p:s.pgm,rec:se.phase==='rec'};this.hist.push(s.sample);if(this.hist.length>600)this.hist.shift()}
+    if(Math.floor(t/100)!==Math.floor((t-dt)/100)){s.sample={m:PEOPLE.map((_,i)=>i>=se.n?0:isAct(i)&&s.mics[i].run>=R.confirm?2:(s.mics[i].vad>R.vad?1:0)),p:s.pgm};this.hist.push(s.sample);if(this.hist.length>600)this.hist.shift();(this.newSamples||(this.newSamples=[])).push(s.sample)}
     // transcript
     if(s.features.live_transcript&&talking){for(const e of this.events){if(e.k!=='tale'||t<e.s||this.txSeen.has(e))continue;this.txSeen.add(e);if(Math.random()<.65)this.txQ.push({at:e.s+3200,who:e.who,text:pick(LINES[e.who===0?'host':'guest'])})}
       while(this.txQ.length&&this.txQ[0].at<=t){const x=this.txQ.shift();if(x.who<se.n){s.tx.unshift({t:x.at-3200,who:x.who,text:x.text});if(s.tx.length>8)s.tx.pop()}}}

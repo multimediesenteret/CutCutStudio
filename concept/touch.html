@@ -90,6 +90,7 @@ h2{font-family:var(--f-display);font-weight:600;font-size:34px;margin:0;color:va
 #rec .right{flex:1;display:flex;flex-direction:column;gap:18px;min-width:0}
 .onair{position:relative;flex:none;width:100%;aspect-ratio:16/9;border-radius:28px;overflow:hidden;background:var(--cam-bg2);border:4px solid var(--pgm)}
 .onair svg{position:absolute;inset:0;width:100%;height:100%}
+.onair .mouth{opacity:0}
 .onair .tag{position:absolute;left:28px;bottom:26px;display:flex;align-items:center;gap:16px;background:rgba(10,14,19,.72);color:#fff;border-radius:18px;padding:14px 26px 14px 18px;font-family:var(--f-display);font-size:38px;font-weight:600}
 .onair .tag i{width:30px;height:30px;border-radius:50%;background:var(--pc,var(--bleed))}
 .who{width:100%;display:flex;align-items:center;gap:22px;height:120px;border-radius:22px;background:var(--surface);border:2px solid var(--line-2);padding:0 26px;position:relative;overflow:hidden}
@@ -98,7 +99,7 @@ h2{font-family:var(--f-display);font-weight:600;font-size:34px;margin:0;color:va
 .who b{font-family:var(--f-display);font-size:32px;font-weight:600;display:block}
 .who span{font-size:21px;color:var(--muted)}
 .who .lv{width:150px;height:14px;border-radius:7px;background:var(--line-2);overflow:hidden}
-.who .lv i{display:block;height:100%;width:0;background:var(--pc);border-radius:7px;transition:width .08s}
+.who .lv i{display:block;height:100%;background:var(--pc);border-radius:7px;transform-origin:left;transform:scaleX(0)}
 .who.talk{border-color:var(--pc);box-shadow:inset 8px 0 0 var(--pc)}
 .who.lead .num{box-shadow:0 0 0 4px var(--surface),0 0 0 7px var(--pc)}
 .who.muted span{color:var(--wait)}
@@ -243,20 +244,21 @@ function buildWho(n){$('whoList').innerHTML='';whoEls=PEOPLE.slice(0,n).map((p,i
   d.innerHTML=`<span class="num">${i+1}</span><span class="nm"><b>${i===0?'Programleder':p.name}</b><span>${p.colorName} mikrofon</span></span><span class="lv"><i></i></span>`;$('whoList').appendChild(d);return d});whoN=n}
 
 let lastPhase='',lastMap='',lastShot='',lastN=-1;
+const _c=new WeakMap();const setT=(el,v)=>{if(_c.get(el)!==v){_c.set(el,v);el.textContent=v}};const setH=(el,v)=>{if(_c.get(el)!==v){_c.set(el,v);el.innerHTML=v}};
 const levels=s=>s.mics.map(m=>Math.max(0,Math.min(1,(m.lvl+50)/38)));
 function render(s){
   S=s;const se=s.session,ph=se.phase;
   document.querySelectorAll('section.scr').forEach(x=>x.classList.toggle('on',x.id===ph));
-  const now=new Date();$('clock').textContent=now.toTimeString().slice(0,5);
+  setT($('clock'),new Date().toTimeString().slice(0,5));
   $('recpill').style.display=ph==='rec'?'flex':'none';
-  if(ph==='rec')$('rectime').textContent=clock(s.t-se.recStart);
+  if(ph==='rec')setT($('rectime'),clock(s.t-se.recStart));
   const errs=Object.keys(s.faults).filter(k=>FAULTS[k].sev==='err');
   if(ph==='idle'){
-    $('idleStatus').innerHTML=errs.length?`<span class="chip"><span class="dot err"></span>Teknikeren er varslet om en feil</span>`:`<span class="chip"><span class="dot"></span>Studio klart</span><span class="chip">Kamera, lyd og opptak er sjekket</span>`;
+    setH($('idleStatus'),errs.length?`<span class="chip"><span class="dot err"></span>Teknikeren er varslet om en feil</span>`:`<span class="chip"><span class="dot"></span>Studio klart</span><span class="chip">Kamera, lyd og opptak er sjekket</span>`);
   }
   if(ph==='ready'){
     if(lastPhase!=='ready'){helpSent=false;$('help').classList.remove('sent');$('helpTxt').textContent='Trenger du hjelp?'}
-    $('hello').textContent=`Hei, ${se.user?se.user.first:''}!`;
+    setT($('hello'),`Hei, ${se.user?se.user.first:''}!`);
     seatEls.forEach((b,i)=>{b.classList.toggle('on',i<se.n);b.setAttribute('aria-pressed',i<se.n)});
     $('mVideo').classList.toggle('on',se.mode==='video');$('mAudio').classList.toggle('on',se.mode==='audio');
     const key=se.n+'|'+document.documentElement.getAttribute('data-theme');if(key!==lastMap){$('map').innerHTML=V.seatMap(se.n);lastMap=key}
@@ -264,14 +266,14 @@ function render(s){
     $('readyWarn').hidden=!blocking;if(blocking)$('readyWarnTxt').textContent=FAULTS[blocking].touch;
     $('start').disabled=!!blocking;
   } else lastMap='';
-  if(ph==='countdown'){$('cnum').textContent=Math.max(1,Math.ceil((se.countdownEnd-s.t)/1000));$('cmap').innerHTML=V.seatMap(se.n,{levels:levels(s)})}
+  if(ph==='countdown'){setT($('cnum'),String(Math.max(1,Math.ceil((se.countdownEnd-s.t)/1000))));const lq=levels(s).map(v=>Math.round(v*4)/4);setH($('cmap'),V.seatMap(se.n,{levels:lq}))}
   if(ph==='rec'){
     if(whoN!==se.n)buildWho(se.n);
-    $('recmeta').innerHTML=`<span class="chip">${se.mode==='audio'?'Kun lyd':'Video og lyd'}</span><span class="chip">Lagres i Panopto: ${se.user?se.user.user:''}</span><span class="chip">${s.auto?'Klipper automatisk':'Tekniker klipper'}</span>`;
+    setH($('recmeta'),`<span class="chip">${se.mode==='audio'?'Kun lyd':'Video og lyd'}</span><span class="chip">Lagres i Panopto: ${se.user?se.user.user:''}</span><span class="chip">${s.auto?'Klipper automatisk':'Tekniker klipper'}</span>`);
     const lv=levels(s);
-    whoEls.forEach((d,i)=>{const m=s.mics[i];d.classList.toggle('talk',m.state==='snakker');d.classList.toggle('muted',m.state==='dempet');d.querySelector('.lv i').style.width=(lv[i]*100)+'%';
-      d.querySelector('.nm span').textContent=m.state==='dempet'?'dempet på mikseren':m.state==='snakker'?'snakker':`${PEOPLE[i].colorName} mikrofon`});
-    const k=s.pgm+'|'+(s.pgm[0]==='P'?s.mics[+s.pgm[1]-1].state==='snakker':'')+'|'+s.slide;
+    whoEls.forEach((d,i)=>{const m=s.mics[i];d.classList.toggle('talk',m.state==='snakker');d.classList.toggle('muted',m.state==='dempet');const bar=d.querySelector('.lv i'),sx=Math.round(lv[i]*50)/50;if(_c.get(bar)!==sx){_c.set(bar,sx);bar.style.transform=`scaleX(${sx})`}
+      setT(d.querySelector('.nm span'),m.state==='dempet'?'dempet på mikseren':m.state==='snakker'?'snakker':`${PEOPLE[i].colorName} mikrofon`)});
+    const k=s.pgm+'|'+s.slide+'|'+(document.documentElement.getAttribute('data-theme')||'');
     if(k!==lastShot){$('onairPic').innerHTML=V.shot(s.pgm,s,{faces:false});lastShot=k;
       const tag=$('onairTag'),p=s.pgm[0]==='P'?PEOPLE[+s.pgm[1]-1]:null;
       tag.style.setProperty('--pc',p?`var(${p.color})`:'var(--bleed)');
@@ -280,8 +282,8 @@ function render(s){
   if(ph==='done'){
     $('doneTitle').textContent=`Takk, ${se.user?se.user.first:''}! Opptaket er lagret.`;
     const left=Math.max(0,Math.ceil((30000-(s.t-se.doneAt))/1000));
-    $('doneFacts').innerHTML=`<span class="chip tnum">${clock(se.recEnd-se.recStart)}</span><span class="chip">${se.mode==='audio'?'Kun lyd':'Video og lyd'}</span><span class="chip">${se.n} ${se.n===1?'person':'personer'}</span>`;
-    $('doneInfo').textContent=`Opptaket kommer i Panopto-kontoen din (${se.user?se.user.user:''}) innen omtrent en time. Du logges ut om ${left} s.`;
+    setH($('doneFacts'),`<span class="chip tnum">${clock(se.recEnd-se.recStart)}</span><span class="chip">${se.mode==='audio'?'Kun lyd':'Video og lyd'}</span><span class="chip">${se.n} ${se.n===1?'person':'personer'}</span>`);
+    setT($('doneInfo'),`Opptaket kommer i Panopto-kontoen din (${se.user?se.user.user:''}) innen omtrent en time. Du logges ut om ${left} s.`);
   }
   lastPhase=ph;
 }

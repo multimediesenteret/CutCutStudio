@@ -63,3 +63,23 @@ Konseptet bruker bare det som også virker i Edge kiosk og WebView2 uten nett:
 - **Input:** pointer events (touch og mus likt), ingen hover-avhengighet, ingen `alert`/`confirm`.
 - **Tilstand:** i appen kommer all tilstand fra motoren over WebSocket (spesifikasjonen 12.5). `BroadcastChannel` og `localStorage` brukes bare i konseptet (tema lagres i appen i motorens konfig).
 - **Ingen service worker, ingen ekstern innlogging, ingen sporing.**
+
+## Ytelse
+
+Skjermene skal være lette og kjappe; de står på hele dagen, og touch-PC-en gjør også klippingen.
+
+| Krav | Grense | Målt i konseptet (21.10.2026) |
+| --- | --- | --- |
+| Oppdateringsfrekvens for tilstand | 10 Hz (målere kan tegnes raskere lokalt) | 10 Hz |
+| CPU i hovedtråden, touch | under 30 ms per sekund | 14 ms/s (før: 112) |
+| CPU i hovedtråden, tekniker | under 50 ms per sekund | 27 ms/s (før: 148) |
+| Layout-beregninger | under 15 per sekund | touch 2, tekniker 10 |
+
+Slik holdes det lavt:
+
+- Bare endrede verdier skrives til siden (tekst og klasser sammenlignes først).
+- Målere og fremdriftsstriper flyttes med `transform: scaleX()`, som ikke trigger ny layout.
+- Tidslinjen tegnes på canvas i sammenhengende biter, ikke én strek per sample; størrelsen leses med `ResizeObserver`, ikke hver gang.
+- Kamerabilder tegnes bare på nytt når kilden endres; «snakker»-markøren er en CSS-klasse.
+- Motoren sender bare endringer (logg og tekst bare når de er nye), ikke hele tilstanden hver gang.
+- Ingen animasjoner annet enn `transform` og `opacity`.

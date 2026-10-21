@@ -13,7 +13,7 @@ function person(i,opts={}){
   <ellipse cx="80" cy="92" rx="38" ry="26" fill="var(--cam-skin)"/>
   <circle cx="80" cy="44" r="15" fill="var(--cam-skin)"/>
   <rect x="61" y="25" width="38" height="40" rx="3" fill="none" stroke="var(${p.color})" stroke-width="1.6" ${opts.faces===false?'opacity="0"':''}/>
-  ${talk?`<rect x="74" y="51" width="12" height="3" rx="1.5" fill="var(${p.color})"/>`:''}
+  <rect class="mouth" x="74" y="51" width="12" height="3" rx="1.5" fill="var(${p.color})" opacity="${talk}"/>
   </svg>`;
 }
 function bird(n){
