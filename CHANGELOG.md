@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-7: nattlig vedlikehold i `core`.
+  - Gamle rader slettes etter oppbevaringstiden. Før ble databasen aldri ryddet.
+  - En kopi av `cutcut.db` legges i `data\backup\`, og de 7 nyeste beholdes.
+  - Kjøres mellom 03 og 05, aldri under en økt, og tar igjen en natt PC-en var av.
 - VI-4: `cutcut hwtest vision` er maskintesten for capture-kortet.
   - Sjekker format, bilder per sekund og at rutekartet passer.
   - Måler forsinkelsen fra ATEM til PC ved å bytte preview, aldri program.

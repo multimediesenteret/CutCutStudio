@@ -8,6 +8,7 @@
 | `state.py` | Typede modeller for tilstanden og live-meldingene (`StudioState`, `Meter`, `LiveMessage`). De står i `docs/reference/openapi.json`, og skjermenes typer genereres derfra |
 | `core.py` | `cutcut core`: samme `Studio` koblet til ekte utstyr – Companion (med atem-bridge som reservevei), ATEM via bussen, Pearl og lyd. `core` binder bussen (5560 inn, 5561 ut). Starter selv om noe utstyr mangler |
 | `devices.py` | Utstyrsadresser som kan endres i teknikervinduet |
+| `maintenance.py` | Nattlig vedlikehold (SO-7): gamle rader slettes etter oppbevaringstiden, og en konsistent kopi av `cutcut.db` legges i `data\backup\` (7 beholdes). Kl. 03–05, aldri under en økt; har PC-en vært av om natten, tas kopien ved første rolige stund |
 | `export.py` | CSV av logg og økter, og feilsøkingspakken (zip uten hemmeligheter, personliste eller kortnummer) |
 | `hub.py` | Fordeling av live-meldinger til skjermene, med begrenset kø per klient |
 

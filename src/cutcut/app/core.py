@@ -19,6 +19,7 @@ import asyncio
 import contextlib
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,7 @@ from fastapi import FastAPI
 from cutcut.api.app import create_app
 from cutcut.api.auth import Auth
 from cutcut.app import devices as device_settings
+from cutcut.app.maintenance import Maintenance
 from cutcut.app.studio import Studio, StudioDeps
 from cutcut.common.bus.zmq_bus import (
     EVENTS_IN_PORT,
@@ -154,6 +156,12 @@ def build_core(opts: CoreOptions) -> Core:
         )
     )
     cameras.on_moving = studio.runtime.feed_cameras_moving  # S1, from the position read-back
+    upkeep = Maintenance(
+        store,
+        opts.data_dir / "backup",
+        lambda: datetime.now().astimezone(),
+        lambda: studio.sessions.session is not None,
+    )
 
     def on_devices(new: Devices) -> None:
         companion.api = CompanionHttp(str(new.companion.url))
@@ -187,7 +195,7 @@ def build_core(opts: CoreOptions) -> Core:
         auth,
         ui_dir=opts.ui_dir,
         before_tick=before_tick,
-        background=[bus_reader, cameras.run],
+        background=[bus_reader, cameras.run, upkeep.run],
     )
     core = Core(app, studio, bridge, companion, pearl, store, cameras)
     core._closers += [

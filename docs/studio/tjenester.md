@@ -34,6 +34,7 @@ Sjekk:
 
 - **Stoppe og starte:** `Stop-Service CutCut` og `Start-Service CutCut`. Opptak på Pearl stoppes aldri av dette (I7), men motoren klipper ikke mens tjenesten står.
 - **Logg:** tjenestens egen logg ligger i `C:\CutCut\data\logs\service`, og CutCut-loggen i `C:\CutCut\data\logs`.
+- **Kopi av databasen:** hver natt i `C:\CutCut\data\backup\` (de 7 nyeste). Slik settes en kopi tilbake: `Stop-Service CutCut`, kopier filen til `C:\CutCut\data\cutcut.db`, `Start-Service CutCut`.
 - **Fjerne:** `.\installer\install-services.ps1 -Root C:\CutCut -Uninstall`.
 
 ## Companion (Q35)
