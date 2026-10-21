@@ -177,6 +177,7 @@ version = "0.1.0.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "keyring" },
     { name = "psutil" },
     { name = "pydantic" },
@@ -187,7 +188,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "httpx" },
     { name = "hypothesis" },
     { name = "mypy" },
     { name = "pytest" },
@@ -199,6 +199,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115,<1" },
+    { name = "httpx", specifier = ">=0.27,<1" },
     { name = "keyring", specifier = ">=25,<26" },
     { name = "psutil", specifier = ">=6,<8" },
     { name = "pydantic", specifier = ">=2.9,<3" },
@@ -209,7 +210,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "httpx", specifier = ">=0.27,<1" },
     { name = "hypothesis", specifier = ">=6.112" },
     { name = "mypy", specifier = ">=1.13" },
     { name = "pytest", specifier = ">=8.3" },
