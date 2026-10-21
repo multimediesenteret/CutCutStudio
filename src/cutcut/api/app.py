@@ -17,6 +17,7 @@ from starlette.websockets import WebSocketDisconnect
 from cutcut import __version__
 from cutcut.api.auth import COOKIE, SESSION_S, Auth, Identity, require
 from cutcut.app.hub import TOPICS
+from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
 from cutcut.common.ids import Shot
 from cutcut.common.models.session import ShowChoice, TouchStep, User
@@ -120,22 +121,15 @@ def create_app(
     async def health() -> dict[str, Any]:
         """Same as the status page, for NTNU monitoring (spec 8.5). No sign-in needed."""
         state = studio.state()
-        errors = [a for a in state["alerts"] if a["level"] == "error"]
-        warns = [a for a in state["alerts"] if a["level"] == "warn"]
-        overall = "error" if errors else "warn" if warns else "ok"
-        if not state["engine"]["audio_ok"]:
+        levels = {a.level for a in state.alerts}
+        overall = "error" if "error" in levels else "warn" if "warn" in levels else "ok"
+        if not state.engine.audio_ok:
             overall = "error"
-        return {
-            "status": overall,
-            "version": __version__,
-            "engine": state["engine"],
-            "recording": state["recording"],
-            "runtime": state["runtime"],
-            "alerts": state["alerts"],
-        }
+        dump = state.model_dump(mode="json", include={"engine", "recording", "runtime", "alerts"})
+        return {"status": overall, "version": __version__, **dump}
 
     @app.get("/api/state", tags=["status"])
-    async def get_state(me: Who) -> dict[str, Any]:
+    async def get_state(me: Who) -> StudioState:
         return studio.state()
 
     @app.get("/api/session", tags=["session"])
@@ -311,14 +305,24 @@ def create_app(
         client = studio.hub.connect(topics)
         try:
             await websocket.send_json(
-                {"type": "state", "seq": 0, "data": studio.state(), "full": True}
+                {
+                    "type": "state",
+                    "seq": 0,
+                    "full": True,
+                    "data": studio.state().model_dump(mode="json"),
+                }
             )
             while True:
                 msg = await client.queue.get()
                 if client.resync:
                     client.resync = False
                     await websocket.send_json(
-                        {"type": "state", "seq": msg["seq"], "data": studio.state(), "full": True}
+                        {
+                            "type": "state",
+                            "seq": msg["seq"],
+                            "full": True,
+                            "data": studio.state().model_dump(mode="json"),
+                        }
                     )
                     continue
                 await websocket.send_json(msg)
@@ -329,6 +333,23 @@ def create_app(
 
     if extra_routes is not None:
         extra_routes(app, who)
+
+    def custom_openapi() -> dict[str, Any]:
+        """Add the live (WebSocket) payload models, so the UI types can be generated."""
+        if app.openapi_schema:
+            return app.openapi_schema
+        from fastapi.openapi.utils import get_openapi
+        from pydantic.json_schema import models_json_schema
+
+        schema = get_openapi(title=app.title, version=app.version, routes=app.routes)
+        _, defs = models_json_schema(
+            [(LiveSchemas, "serialization")], ref_template="#/components/schemas/{model}"
+        )
+        schema.setdefault("components", {}).setdefault("schemas", {}).update(defs["$defs"])
+        app.openapi_schema = schema
+        return schema
+
+    app.openapi = custom_openapi  # type: ignore[method-assign]
 
     if ui_dir is not None and ui_dir.is_dir():
         app.mount("/", StaticFiles(directory=ui_dir, html=True), name="ui")
