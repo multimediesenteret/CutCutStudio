@@ -16,6 +16,7 @@ Klienter mot utstyret. Ingen av dem bestemmer noe; de gjør det motoren har best
 | `cameras/osc.py` | OSC 1.0 over UDP (int, float, tekst), sendt uten svar; OBSBOT kvitterer ikke for innstillinger | CA-3 |
 | `cameras/canon_xc.py` | Canon CR-N300 over VISCA til Canons XC-kommandoliste finnes (Q6): status, posisjon og presets virker; hvitbalanse og eksponering svarer `Unsupported` | CA-4 |
 | `cameras/factory.py` | Riktig driver per kamera i `devices.yaml` etter modellnavn; ingen driver for kamera uten IP (fast fugleperspektiv over HDMI) eller modeller som kommer i fase 2 | CA-4 |
+| `cameras/service.py` | Alle PTZ-kameraer i `core`: én `GuardedCamera` per kamera med driver, AI-tracking av ved start (`AT6`), posisjon hvert 2. s (kamera som endrer posisjon, er i bevegelse for `S1`; flyttet uten at CutCut ba om det og uten tracking gir `H-CAM-MOVE`), status hvert 10. s (`H-CAM-*`). Nye adresser fra teknikervinduet gir ny driver | CA-6 |
 | `pearl/client.py` | REST API v2.0: opptaksstatus, start/stopp per opptaker, lagring, fastvare; Basic-autentisering, passord fra Credential Manager | SE-2 |
 | `pearl/recorder.py` | Pearl som opptaker for studioet: start/stopp i kø og idempotent, status hvert 2. s, «starter» holdes til Pearl bekrefter, svarer den ikke avvises start straks; stopper aldri selv (I7) | SE-2, SE-3 |
 

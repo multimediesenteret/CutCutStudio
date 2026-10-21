@@ -29,7 +29,7 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `L2` | Planlagt: M4 – layouts | – | 0 |
 | `L3` | Planlagt: M4 – layouts | – | 0 |
 | `L4` | Planlagt: M4 – layouts | – | 0 |
-| `S1` | Implementert | `src/cutcut/core/engine.py` | 4 |
+| `S1` | Implementert | `src/cutcut/core/engine.py` | 5 |
 | `S2` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `S3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `S4` | Implementert | `src/cutcut/core/engine.py` | 2 |

@@ -28,8 +28,10 @@ from cutcut.common.ids import CameraId, RuleId, SourceId
 from cutcut.common.models.site import CameraLimits
 from cutcut.core.inputs import AtemReadback
 from cutcut.devices.cameras.base import (
+    AutoTracking,
     CameraCommand,
     CameraDriver,
+    CameraStatus,
     MoveTo,
     Nudge,
     PTZPosition,
@@ -94,6 +96,12 @@ class GuardStatus:
     open_until: float = 0.0
     queue: int = 0
     position: PTZPosition | None = None
+    position_at: float | None = None
+    moved_by_us_at: float | None = None  # last command that changed the picture (H-CAM-MOVE)
+    tracking: bool = False  # AI-tracking turned on by CutCut
+    status: CameraStatus | None = None
+    status_at: float | None = None
+    answer_ms: float | None = None  # how long the last status read took (H-CAM-*)
 
 
 @dataclass
@@ -107,6 +115,7 @@ class GuardedCamera:
     _queue: deque[CameraCommand] = field(default_factory=deque, init=False)
     _wake: asyncio.Event | None = field(default=None, init=False)
     _fails: int = field(default=0, init=False)
+    _lock: asyncio.Lock | None = field(default=None, init=False)
     st: GuardStatus = field(default_factory=GuardStatus, init=False)
 
     @property
@@ -199,10 +208,23 @@ class GuardedCamera:
             return False
         cmd = self._queue.popleft()
         self.st.queue = len(self._queue)
-        why = self.blocked(cmd)  # the ATEM may have cut since it was queued
-        if why is not None:
-            self._refuse(cmd, why)
-            return True
+        async with self._io():
+            # checked again here, with the camera to ourselves: the ATEM may have cut since
+            # the command was queued, or while a health poll had the camera
+            why = self.blocked(cmd)
+            if why is not None:
+                self._refuse(cmd, why)
+                return True
+            return await self._send(cmd)
+
+    def _io(self) -> asyncio.Lock:
+        """One conversation with the camera at a time: commands and the health polls share
+        the same socket."""
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        return self._lock
+
+    async def _send(self, cmd: CameraCommand) -> bool:
         try:
             await asyncio.wait_for(send(self.driver, cmd), self.timeout_s)
         except (Unsupported, ValueError) as e:  # no such function, or a value it cannot take:
@@ -214,20 +236,49 @@ class GuardedCamera:
         except Exception as e:
             self._failed(f"{cmd.kind}: {self._why(e)}")
             return True
+        self._answered()
+        self.st.sent += 1
+        if isinstance(cmd, AutoTracking):
+            self.st.tracking = cmd.on
+        if moves_or_colours(cmd):
+            self.st.moved_by_us_at = self.clock()
+            await self._position()
+        return True
+
+    def _answered(self) -> None:
         self._fails = 0
         self.st.ok = True
-        self.st.sent += 1
-        if moves_or_colours(cmd):
-            await self.refresh()
-        return True
 
     async def refresh(self) -> PTZPosition | None:
         """Read where the camera points (for the limits, ``S1`` and ``H-CAM-MOVE``)."""
+        async with self._io():
+            return await self._position()
+
+    async def _position(self) -> PTZPosition | None:
         try:
             self.st.position = await asyncio.wait_for(self.driver.position(), self.timeout_s)
         except Exception as e:
             self._failed(f"posisjon: {self._why(e)}")
+        else:
+            self.st.position_at = self.clock()
+            self._answered()
         return self.st.position
+
+    async def read_status(self) -> CameraStatus:
+        """Ask the camera how it is (``H-CAM-*``), and time the answer."""
+        async with self._io():
+            t0 = time.perf_counter()
+            try:
+                st = await asyncio.wait_for(self.driver.status(), self.timeout_s)
+            except Exception as e:
+                self._failed(f"status: {self._why(e)}")
+                st = CameraStatus(online=False, last_error=self.st.last_error)
+            else:
+                self.st.answer_ms = round((time.perf_counter() - t0) * 1000, 1)
+                if st.online:
+                    self._answered()
+            self.st.status, self.st.status_at = st, self.clock()
+            return st
 
     def _why(self, e: Exception) -> str:
         if isinstance(e, TimeoutError):
