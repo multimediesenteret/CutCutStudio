@@ -11,14 +11,19 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 
 ## Vercel
 
-**Hva publiseres:** nå GUI-konseptet i `concept/` (begge skjermene på simulerte data, ingen byggesteg). Fra M1 erstattes det av web-simulatoren beskrevet i `docs/simulator.md`.
+**Hva publiseres:** GUI-konseptet på `/concept/` (forsiden peker dit til U-10 er godkjent) og web-simulatoren på `/sim/`: de ekte skjermene som spiller av forløp fra den ekte motoren (`docs/simulator.md`).
 
 **Oppsett** (gjøres av eier, ikke av agent):
 
 - Repoet `multimediesenteret/CutCutStudio` er koblet til Vercel-prosjektet `cutcutstudio2026`: gren `main` til produksjon, pull requests til forhåndsvisning.
 - **Nå (konsept):** Vercel-prosjektet `multimediesenteret/cutcutstudio2026` (https://cutcutstudio2026.vercel.app) bygger fra repo-roten med Framework Preset «Other» og ingen byggekommando. `vercel.json` i roten sender `/` til `/concept/`, `/touch` og `/tech` til hver skjerm, og alle andre stier til konseptet, så resten av repoet (dokumentasjon, utstyrsfiler) ikke kan åpnes fra nettsiden.
-- **Fra M1:** byggekommando og ut-mappe for simulatoren (forslag: `pnpm --filter simulator build`, ut-mappe `ui/apps/simulator/dist/`). Agenten dokumenterer det her når det finnes.
-- **Bygg bare når skjermene endres (D-050):** `ignoreCommand` i `vercel.json` kjører `git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json`. Har siste commit ikke endret noen av dem, hoppes utrullingen over (avslutningskode 0). Ellers, eller hvis forrige commit mangler, bygges det som vanlig. Det sparer utrullinger på Hobby (100 per døgn) når bare dokumentasjon eller Python-kode endres.
+- **Bygg (U-9):** `vercel.json` setter alt, så innstillingene i Vercel-prosjektet trenger ikke endres:
+  - installering: `pnpm install --frozen-lockfile`
+  - bygg: `pnpm --filter "@cutcut/simulator..." run build && node ui/scripts/vercel-out.mjs`
+  - ut-mappe: `.vercel-out/` med `concept/` og `sim/`. Ingenting annet fra repoet publiseres.
+  - CI-jobben `ui` bygger det samme og tester `/sim/` med Playwright før merge.
+- **U-10 (eier godkjenner):** forsiden `/` byttes fra `/concept/` til `/sim/` ved å endre første omdirigering i `vercel.json`. `concept/` beholdes som arkiv.
+- **Bygg bare når skjermene endres (D-050):** `ignoreCommand` i `vercel.json` kjører `git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json package.json pnpm-lock.yaml`. Har siste commit ikke endret noen av dem, hoppes utrullingen over (avslutningskode 0). Ellers, eller hvis forrige commit mangler, bygges det som vanlig. Det sparer utrullinger på Hobby (100 per døgn) når bare dokumentasjon eller Python-kode endres.
 - Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
 
 **Hobby-planen har to begrensninger som styrer hvordan vi jobber:**

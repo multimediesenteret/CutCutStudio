@@ -7,7 +7,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 - **Fase:** M1 Simulator. M0-planene er godkjent (D-046).
 - **Milepæl:** M1. Issues ligger i GitHub-milepælen «M1 Simulator».
 - **Spesifikasjon:** v1 med endringer fra beslutningsloggen; repoet er fasit (D-040).
-- **Vercel:** GUI-konseptet fra `concept/` på https://cutcutstudio2026.vercel.app. Erstattes av web-simulatoren i M1 (U-9, U-10). Utrulling hoppes over når ingen skjermfiler er endret (D-050).
+- **Vercel:** GUI-konseptet på https://cutcutstudio2026.vercel.app (`/concept/`) og web-simulatoren på `/sim/` (U-9). Forsiden byttes til simulatoren i U-10 når eier godkjenner. Utrulling hoppes over når ingen skjermfiler er endret (D-050).
 
 ## Ferdig
 
@@ -19,7 +19,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Pågår
 
-- M1: grunnmuren (C-1–C-8), regimotoren (K-1–K-10), simulatoren (SIM-1, -2, -5, -6: `uv run cutcut sim`), økt (SE-1) og API (A-1–A-5) er merget. Skjermene: arbeidsområde (U-1), komponenter (U-2), klient (U-3) touch-skjermen (U-4, U-5) og teknikervinduet (U-6–U-8) er ferdige og testes ende til ende mot simulatoren i CI. Neste: web-simulator på Vercel (U-9, U-10), eksport (A-6), arkitekturdokumentasjon (D-1).
+- M1: grunnmuren (C-1–C-8), regimotoren (K-1–K-10), simulatoren (SIM-1, -2, -5, -6: `uv run cutcut sim`), økt (SE-1) og API (A-1–A-5) er merget. Skjermene: arbeidsområde (U-1), komponenter (U-2), klient (U-3) touch-skjermen (U-4, U-5) og teknikervinduet (U-6–U-8) er ferdige og testes ende til ende mot simulatoren i CI. Web-simulatoren (U-9) ligger på `/sim/`. Neste: U-10 (forsiden til simulatoren, venter på eierens godkjenning), eksport (A-6), arkitekturdokumentasjon (D-1).
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn

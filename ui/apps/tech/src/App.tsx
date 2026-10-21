@@ -1,6 +1,6 @@
 // Technician window (spec 8.4, D-037, D-045). Reads the live state from the engine and sends
 // commands; every change is audited on the server with who did it.
-import { CommandError, commands, useSnapshot, useStudio, type Role } from "@cutcut/client";
+import { commands, useSnapshot, useStudio, type Role } from "@cutcut/client";
 import {
   Icon,
   Logo,
@@ -27,15 +27,20 @@ export function App() {
   const [role, setRole] = useState<Role | "unknown">("unknown");
 
   const checkMe = useCallback(() => {
+    if (transport.role) {
+      setRole(transport.role);
+      return;
+    }
     cmd
       .me()
       .then((me) => setRole(me.role))
       .catch((e: unknown) => {
         // 401: not signed in from another machine. Anything else: try again shortly.
-        if (e instanceof CommandError && (e.status === 401 || e.status === 403)) setRole("touch");
+        const status = (e as { status?: unknown } | null)?.status;
+        if (status === 401 || status === 403) setRole("touch");
         else setTimeout(checkMe, 3000);
       });
-  }, [cmd]);
+  }, [cmd, transport]);
   useEffect(checkMe, [checkMe]);
 
   if (role === "unknown") return null;

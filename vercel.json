@@ -1,26 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter \"@cutcut/simulator...\" run build && node ui/scripts/vercel-out.mjs",
+  "outputDirectory": ".vercel-out",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json package.json pnpm-lock.yaml",
   "redirects": [
-    {
-      "source": "/",
-      "destination": "/concept/",
-      "permanent": false
-    },
-    {
-      "source": "/touch",
-      "destination": "/concept/touch.html",
-      "permanent": false
-    },
-    {
-      "source": "/tech",
-      "destination": "/concept/tech.html",
-      "permanent": false
-    },
-    {
-      "source": "/((?!concept/).*)",
-      "destination": "/concept/",
-      "permanent": false
-    }
+    { "source": "/", "destination": "/concept/", "permanent": false },
+    { "source": "/touch", "destination": "/concept/touch.html", "permanent": false },
+    { "source": "/tech", "destination": "/concept/tech.html", "permanent": false },
+    { "source": "/sim", "destination": "/sim/", "permanent": false },
+    { "source": "/((?!concept/|sim/).*)", "destination": "/concept/", "permanent": false }
   ]
 }

@@ -48,7 +48,7 @@ Krav til koden for at trinn 2 skal virke: regelmotoren i `src/cutcut/core/` har 
 ## Publisering
 
 - Vercel-prosjekt koblet til `main` (produksjon) og pull requests (forhåndsvisning). Se `docs/publishing.md`.
-- Byggekommando og mappe dokumenteres i `docs/publishing.md` når de finnes.
+- Byggekommando og mappe står i `docs/publishing.md`. Simulatoren ligger på `/sim/`: begge skjermene i hver sin ramme, ett felles forløp, og et lite panel for å velge forløp, pause, fart og hoppe. Hver skjerm kan også åpnes alene (`/sim/touch.html`, `/sim/tech.html`).
 - Før M1 publiseres GUI-konseptet i `concept/` på Vercel.
 
 ## Forhold til GUI-konseptet

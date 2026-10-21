@@ -1,8 +1,11 @@
 // How a screen talks to the engine. The apps do not know which transport they use – that is the
 // whole difference between the studio and the web simulator (ADR-0013, docs/plans/ui.md).
+import type { Role } from "./api";
 import type { ServerMessage, Store } from "./store";
 
 export interface Transport {
+  /** Set when the role is fixed by the transport (the web simulator shows everything). */
+  readonly role?: Role;
   start(store: Store): void;
   stop(): void;
   /** Same commands as REST (spec 10.2). Throws CommandError with a Norwegian message. */
@@ -17,6 +20,15 @@ export class CommandError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+/** The message of an error, also across iframes (where `instanceof Error` is false). */
+export function errorMessage(e: unknown, fallback = "Noe gikk galt. Prøv igjen."): string {
+  if (typeof e === "object" && e !== null && "message" in e) {
+    const m = (e as { message: unknown }).message;
+    if (typeof m === "string" && m) return m;
+  }
+  return fallback;
 }
 
 async function rest(base: string, method: string, path: string, body?: unknown): Promise<Response> {

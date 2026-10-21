@@ -7,12 +7,12 @@ import { useDecisions, useRules } from "../hooks";
 import { hms, isCut, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
 
 const TILES = [
-  { key: "P1", cam: "CAM 1", shot: "CU:P1" },
-  { key: "P2", cam: "CAM 2", shot: "CU:P2" },
-  { key: "P3", cam: "CAM 3", shot: "CU:P3" },
-  { key: "P4", cam: "CAM 4", shot: "CU:P4" },
-  { key: "BIRD", cam: "CAM 5", shot: "BIRD" },
-  { key: "CONTENT", cam: "IN 6", shot: "CONTENT" },
+  { key: "P1", cam: "CAM 1", shot: "CU:P1", seat: "Programleder" },
+  { key: "P2", cam: "CAM 2", shot: "CU:P2", seat: "Gjest 1" },
+  { key: "P3", cam: "CAM 3", shot: "CU:P3", seat: "Gjest 2" },
+  { key: "P4", cam: "CAM 4", shot: "CU:P4", seat: "Gjest 3" },
+  { key: "BIRD", cam: "CAM 5", shot: "BIRD", seat: "Fugleperspektiv" },
+  { key: "CONTENT", cam: "IN 6", shot: "CONTENT", seat: "Laptop" },
 ] as const;
 
 const PRESETS = [
@@ -118,9 +118,7 @@ function Multiview({ ctx }: { ctx: Ctx }) {
               : true;
           const off = !used || audioOnly;
           const p = state.participants.find((x) => x.id === t.key);
-          const name =
-            p?.name ??
-            (t.key === "BIRD" ? "Fugleperspektiv" : t.key === "CONTENT" ? "Laptop" : t.key);
+          const name = p?.name ?? t.seat;
           const cls = [
             "tile",
             off && "off",

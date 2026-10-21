@@ -23,6 +23,7 @@ const STEP_MS = 50;
 const LOOP_PAUSE_MS = 3000;
 
 export class ReplayTransport implements Transport {
+  readonly role = "admin" as const;
   private store: Store | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
   private index = 0;
@@ -107,6 +108,11 @@ export class ReplayTransport implements Transport {
       if (m[1].full) key = i;
     }
     store.reset();
+    // Decisions are history, not state: keep the ones before the keyframe for the log.
+    for (let i = 0; i < key; i++) {
+      const m = msgs[i];
+      if (m && m[1].type === "decision") store.apply(m[1]);
+    }
     this.index = key;
     this.t = t;
     this.endedAt = null;
