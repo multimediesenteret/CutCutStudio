@@ -14,6 +14,7 @@ class BusMessage(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     topic: str = Field(pattern=r"^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$")
+    source: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,31}$")  # process name, e.g. "audio-capture"
     ts: datetime
     mono_ms: int = Field(ge=0)
     seq: int = Field(ge=0)
