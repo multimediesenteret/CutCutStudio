@@ -97,7 +97,8 @@ async function main(): Promise<void> {
   await commands();
 }
 
-for (const sig of ["SIGINT", "SIGTERM"] as const) {
+// SIGBREAK is how the supervisor asks politely on Windows (CTRL_BREAK_EVENT).
+for (const sig of ["SIGINT", "SIGTERM", "SIGBREAK"] as const) {
   process.on(sig, () => {
     void atem.disconnect().finally(() => process.exit(0));
   });

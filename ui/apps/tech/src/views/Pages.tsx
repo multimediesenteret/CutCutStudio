@@ -1,6 +1,12 @@
 // The technician pages behind the rail (U-7, U-8): Regi, Kameraer, Opptak, Helse, Logg,
 // Innstillinger and the Oppsett placeholder (the setup wizard comes in M3).
-import { useStudio, type Decision, type SessionRow, type ShowDetail } from "@cutcut/client";
+import {
+  useStudio,
+  type Decision,
+  type SessionRow,
+  type ShowDetail,
+  type StudioState,
+} from "@cutcut/client";
 import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
@@ -710,7 +716,61 @@ export function Health({ ctx }: { ctx: Ctx }) {
           <span>{state.studio.version}</span>
         </div>
       </div>
+      <Processes processes={rt.processes ?? []} />
       {state.studio.simulator && <SimPanel ctx={ctx} />}
+    </div>
+  );
+}
+
+type Proc = NonNullable<StudioState["runtime"]["processes"]>[number];
+
+function uptime(s: number): string {
+  if (s < 60) return `${s} s`;
+  if (s < 3600) return `${Math.floor(s / 60)} min`;
+  const h = Math.floor(s / 3600);
+  return h < 48 ? `${h} t` : `${Math.floor(h / 24)} d`;
+}
+
+/** What the supervisor reports (SO-1): each process, how long it has run, restarts. */
+function Processes({ processes }: { processes: Proc[] }) {
+  return (
+    <div className="panel">
+      <div className="ph">
+        <span className="lbl">Prosesser</span>
+        <span className="muted small">Supervisor starter dem på nytt selv</span>
+      </div>
+      {processes.length === 0 ? (
+        <p className="muted small">Ingen status fra supervisor (kjører uten tjenesten).</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Prosess</th>
+              <th>Status</th>
+              <th>Oppe</th>
+              <th title="Omstarter siste 10 minutter">Omstart</th>
+            </tr>
+          </thead>
+          <tbody>
+            {processes.map((p) => (
+              <tr key={p.name}>
+                <td className="mono">{p.name}</td>
+                <td>
+                  <span
+                    className={`hst ${!p.running ? "err" : (p.restarts_10min ?? 0) > 5 ? "warn" : ""}`}
+                    title={p.last_reason ?? undefined}
+                  >
+                    <i />
+                    {p.running ? "Kjører" : "Startes"}
+                  </span>
+                </td>
+                <td className="tnum">{p.running ? uptime(p.uptime_s ?? 0) : "–"}</td>
+                <td className="tnum">{p.restarts_10min ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

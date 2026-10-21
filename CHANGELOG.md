@@ -5,6 +5,14 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-1: `cutcut supervisor` starter `core`, `atem-bridge` og `audio-capture` og holder dem i gang.
+  - Ny start etter 1, 2, 5, 10 og 30 s.
+  - En prosess som henger, stoppes og startes på nytt.
+  - Varsel `H-PROC-<prosess>` når en prosess er nede, og når den startes på nytt mer enn 5 ganger på 10 minutter.
+  - Barna dør med supervisor (Job Object på Windows), så en foreldreløs `core` aldri holder porten.
+  - Teknikervinduet viser prosessene under Helse.
+  - `atem-bridge` får ATEM-adressen fra teknikervinduet ved hver start.
+
 - `cutcut core`: studioet med ekte utstyr i én prosess – Companion-klipping med atem-bridge som reservevei, ATEM-tilbakelesing og multiview over bussen, Pearl som opptaker, lyd fra `audio-capture`, lagrede utstyrsadresser fra første tilkobling, og nye adresser tatt i bruk uten omstart (Companion, Pearl). Testet ende til ende mot falsk Companion, falsk Pearl og bussmeldinger som fra atem-bridge og audio-capture.
 - AU-1, AU-2: `audio-capture` i `src/cutcut/audio/`: kanalkart fra RØDECaster-oppsettet, nivå, dominans, pause og VAD per mic hvert 10. ms som `audio.frame`, Silero VAD (valgfri ekstra `silero`, modellen lastes ned og sjekkes mot SHA-256 med `tools/fetch_models.py`) med energi-VAD som reserve, WAV-avspilling og `cutcut audio`. Motoren klipper riktig på målingene fra syntetisk multitrack.
 - DA-1, DA-2: `bridges/atem/` (Node, `atem-connection`, ZeroMQ) sender ATEM-tilstand og multiview som `atem.state` og tar imot kutt og makroer; `core` oversetter inngangsnumre til kilder fra studio-oppsettet, leser multiviewen til `H-MV`-sjekken og bruker broen som reservevei for kutt når Companion er nede. Felles kontraktfil i `tests/fixtures/atem/` testes fra begge sider.
@@ -60,3 +68,6 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - Oppsett i teknikervinduet (admin): IP-adresser for ATEM, Pearl, Companion og kameraene kan endres, valideres (gyldig adresse, ingen dobbel), overlever omstart og kan lastes ned som `devices.yaml` (`/api/settings/devices`).
 - Multiview-sjekk (`H-MV-*`, `/api/setup/multiview`): rutekartet sjekkes mot show-oppsettet og mot det ATEM viser ved oppstart og med «Sjekk nå» (D-056), med varsel under Helse og et anbefalt 2 + 8-oppsett tegnet side om side med det som står i dag. Rutekartet har eget skjema (`config/schema/multiview_map.schema.json`).
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).
+
+### Fixed
+- Companion og Pearl kontaktes alltid direkte, aldri via en proxy satt i Windows.
