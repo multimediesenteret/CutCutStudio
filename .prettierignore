@@ -1,2 +1,3 @@
 ui/**/dist
 ui/packages/client/src/api-types.ts
+ui/apps/simulator/public/traces
