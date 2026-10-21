@@ -6,6 +6,7 @@ Kjører den ekte motoren og skallet mot syntetiske talere og falske enheter, ute
 | --- | --- |
 | `voices.py` | Syntetiske talere som lager de samme målingene som `audio-capture` (`MicFrame`): manus eller en stokastisk samtale med frø (turbytter, fraser og pauser, overlapp, «mm», latter, lekkasje) |
 | `fakes.py` | Falske enheter i prosessen: ATEM via Companion (preview, TAKE, direkte kutt, operatør som kutter selv), Pearl (asynkron start, feil), kortleser og NTNU-API med fiktive testkort |
+| `vision.py` | Tegnet videolag til `cutcut sim --vision`: multiviewen følger falsk ATEM (program, preview, panorering) og går gjennom den samme koden som `cutcut vision`, så teknikervinduet viser utsnitt (D-056) og Helse viser `H-VID-1`/`H-VID-3` |
 | `scenario.py` | Scenarioformatet i `sim/scenarios/*.yaml`: manus, feil og forventninger |
 | `simulation.py` | `Simulation` (motor + skall + talere + falske enheter på falsk klokke) og `run_scenario()` |
 

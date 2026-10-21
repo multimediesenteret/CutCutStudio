@@ -97,6 +97,8 @@ class CoreRuntime:
         self._moving_vision: frozenset[CameraId] = frozenset()
         self._moving_vision_ms: int | None = None
         self.vision_pgm: dict[str, Any] = {}
+        self.vision_thumbs: dict[str, str] = {}  # source → base64 JPEG (D-056)
+        self.vision_thumbs_ms: int | None = None
         self._commands: list[Command] = []
         self._last_snapshot_ms = -SNAPSHOT_EVERY_MS
         self._stop = asyncio.Event()
@@ -171,6 +173,9 @@ class CoreRuntime:
                 self.vision_frame_ms = self.clock.mono_ms()
             elif topic == "vision.moving":
                 self.feed_vision_moving(messages.cameras_moving(payload))
+            elif topic == "vision.thumbs":
+                self.vision_thumbs = {k: str(v) for k, v in dict(payload.get("thumbs", {})).items()}
+                self.vision_thumbs_ms = self.clock.mono_ms()
             elif topic == "vision.pgm":
                 self.vision_pgm = dict(payload)
             elif topic == "vision.status":

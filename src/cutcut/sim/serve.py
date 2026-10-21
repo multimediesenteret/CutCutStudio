@@ -36,10 +36,13 @@ class SimOptions:
     seed: int = 1
     ui_dir: Path | None = None
     site_dir: Path | None = None  # default: the fictional site/example
+    vision: bool = False  # a drawn video layer (D-056 cut-outs, H-VID-*)
 
 
 def build_sim_app(opts: SimOptions) -> FastAPI:
-    sim, auth = build_live_sim(SystemClock(), seed=opts.seed, site_dir=opts.site_dir)
+    sim, auth = build_live_sim(
+        SystemClock(), seed=opts.seed, site_dir=opts.site_dir, vision=opts.vision
+    )
     return create_app(
         sim.studio,
         auth,

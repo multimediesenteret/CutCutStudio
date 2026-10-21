@@ -114,6 +114,7 @@ class RuntimeInfo(_S):
     max_step_ms: float
     skipped_ticks: int
     processes: list[ProcessInfo] = []  # empty when core runs without the supervisor
+    vision: bool = False  # the video layer delivers pictures: cut-outs instead of drawings
 
 
 class MorningCheck(_S):

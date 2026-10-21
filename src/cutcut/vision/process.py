@@ -10,12 +10,16 @@ frame (``change``, VI-2 and VI-3 turn that into content and movement). Published
   once when the state changes;
 * ``vision.moving`` – cameras that move or moved in the last 0.5 s (VI-3, ``S1``), 5 Hz;
 * ``vision.pgm`` – which camera the program window shows (VI-3), 5 Hz;
+* ``vision.thumbs`` – small JPEGs of the camera, preview and program windows for the
+  technician window (D-056), at most 2 per second and only while someone looks (core asks
+  with ``vision.want``);
 * ``vision.status`` once a second: fps, frame size, source, last error (``H-VID-1``).
 """
 
 from __future__ import annotations
 
 import asyncio
+import base64
 import logging
 import time
 from collections.abc import Awaitable, Callable
@@ -34,6 +38,9 @@ log = logging.getLogger(__name__)
 FPS: Final = 15.0
 SIGNAL_LEVEL: Final = 10.0  # mean of 0–255 below this: black, no signal
 CHANGE_DIFF: Final = 25  # a pixel changed if it moved this much (0–255)
+THUMB_EVERY_S: Final = 0.5
+THUMB_SMALL: Final = (480, 270)
+THUMB_BIG: Final = (960, 540)
 FLAT_STD: Final = 6.0  # a picture with less spread than this is flat (black, graphic)
 SAMPLE: Final = 4  # measure every 4th pixel each way: 16× less work, same answer
 
@@ -98,6 +105,25 @@ class Vision:
         source, score = match_program(thumb(area), cams)
         return {"source": source, "score": score}
 
+    def thumbnails(self, frame: Frame) -> dict[str, str]:
+        """JPEG (base64) per window that shows a CutCut source, plus PVW and PGM (D-056)."""
+        try:
+            import cv2
+        except ImportError:  # the «vision» extra is not installed: drawings instead
+            return {}
+        out: dict[str, str] = {}
+        for m in self.meters:
+            t = m.cut.tile
+            key = t.camera.value if t.camera is not None else t.id
+            if t.camera is None and t.id not in ("PVW", "PGM"):
+                continue
+            size = THUMB_BIG if t.id in ("PVW", "PGM") else THUMB_SMALL
+            small = cv2.resize(m.cut.of(frame), size, interpolation=cv2.INTER_AREA)
+            ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])
+            if ok:
+                out[key] = base64.b64encode(jpg.tobytes()).decode("ascii")
+        return out
+
     def content_state(self, now_ms: int, rows: list[dict[str, Any]]) -> dict[str, Any] | None:
         row = next((r for r in rows if r["tile"] == self.laptop), None)
         if row is None:
@@ -129,6 +155,7 @@ async def run(
     realtime: bool = True,
     on_frame: Callable[[Frame, list[dict[str, Any]]], None] | None = None,
     clock: Callable[[], float] = time.monotonic,
+    want_thumbs: Callable[[], bool] = lambda: False,
 ) -> int:
     """Run until ``max_frames`` (or forever). Returns the number of frames measured."""
     vision = Vision(mv)
@@ -136,6 +163,7 @@ async def run(
     last_content: dict[str, Any] | None = None
     last_content_at = -1.0
     last_slow = -1.0
+    last_thumbs = -1.0
     last_status = -1.0
     period = 1.0 / fps
     window: list[float] = []
@@ -174,6 +202,11 @@ async def run(
                 pgm = vision.program(frame)
                 if pgm is not None:
                     await publish("vision.pgm", pgm)
+            if t0 - last_thumbs >= THUMB_EVERY_S and want_thumbs():
+                last_thumbs = t0
+                thumbs = vision.thumbnails(frame)
+                if thumbs:
+                    await publish("vision.thumbs", {"thumbs": thumbs})
             if on_frame is not None:
                 on_frame(frame, rows)
             frames += 1

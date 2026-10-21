@@ -36,6 +36,9 @@ def build_parser() -> argparse.ArgumentParser:
     sim.add_argument(
         "--smoke", action="store_true", help="start, sjekk helse og skjermer, avslutt (CI)"
     )
+    sim.add_argument(
+        "--vision", action="store_true", help="tegnet videolag: kamerabilder i teknikervinduet"
+    )
 
     core = sub.add_parser(
         "core",
@@ -136,6 +139,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             seed=args.seed,
             ui_dir=args.ui_dir or default_ui_dir(),
             site_dir=args.site,
+            vision=args.vision,
         )
         return smoke(opts) if args.smoke else serve(opts)
     if args.command == "core":
