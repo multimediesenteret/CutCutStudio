@@ -343,7 +343,7 @@ export function Cameras({ ctx }: { ctx: Ctx }) {
             >
               <div className="ph">
                 <b>
-                  CAM {id.slice(1)} ·{" "}
+                  Camera {c.atem_input} ·{" "}
                   {p?.name ?? (c.role === "bird" ? "Fugleperspektiv" : (c.role ?? ""))}
                 </b>
                 <span className={`hst ${live === "Klar" ? "" : "warn"}`}>
@@ -530,7 +530,7 @@ const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; came
   { kind: "companion_down", label: "Companion nede (S5)", on: (s) => !s.companion_online },
   {
     kind: "camera_moving",
-    label: "CAM 2 beveger seg (S1)",
+    label: "Gjest 1-kameraet beveger seg (S1)",
     on: (s) => s.moving.includes("C2"),
     camera: "C2",
   },

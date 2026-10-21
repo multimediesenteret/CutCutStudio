@@ -138,9 +138,15 @@ STORIES: Final[dict[str, Story]] = {
 }
 
 
+def trace_site_dir() -> Path | None:
+    """The web simulator shows the real NTNU studio layout (D-054), when the repo has it."""
+    path = Path(__file__).resolve().parents[3] / "site" / "ntnu-studio"
+    return path if (path / "devices.yaml").exists() else None
+
+
 def record(story: Story, *, seed: int = 1) -> dict[str, Any]:
     clock = FakeClock()
-    sim, _ = build_live_sim(clock, seed=seed)
+    sim, _ = build_live_sim(clock, seed=seed, site_dir=trace_site_dir())
     studio = sim.studio
     client = studio.hub.connect()
     messages: list[list[Any]] = []

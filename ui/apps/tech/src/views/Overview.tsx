@@ -4,15 +4,15 @@ import { LevelBar, ShotPicture, levelFromDb, participantColor, seconds } from "@
 import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { historyFor, WINDOW, type History } from "../history";
 import { useDecisions, useRules } from "../hooks";
-import { hms, isCut, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
+import { hms, inputName, isCut, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
 
 const TILES = [
-  { key: "P1", cam: "CAM 1", shot: "CU:P1", seat: "Programleder" },
-  { key: "P2", cam: "CAM 2", shot: "CU:P2", seat: "Gjest 1" },
-  { key: "P3", cam: "CAM 3", shot: "CU:P3", seat: "Gjest 2" },
-  { key: "P4", cam: "CAM 4", shot: "CU:P4", seat: "Gjest 3" },
-  { key: "BIRD", cam: "CAM 5", shot: "BIRD", seat: "Fugleperspektiv" },
-  { key: "CONTENT", cam: "IN 6", shot: "CONTENT", seat: "Laptop" },
+  { key: "P1", shot: "CU:P1", seat: "Programleder" },
+  { key: "P2", shot: "CU:P2", seat: "Gjest 1" },
+  { key: "P3", shot: "CU:P3", seat: "Gjest 2" },
+  { key: "P4", shot: "CU:P4", seat: "Gjest 3" },
+  { key: "BIRD", shot: "BIRD", seat: "Fugleperspektiv" },
+  { key: "CONTENT", shot: "CONTENT", seat: "Laptop" },
 ] as const;
 
 const PRESETS = [
@@ -132,7 +132,7 @@ function Multiview({ ctx }: { ctx: Ctx }) {
               className={cls.filter(Boolean).join(" ")}
               style={{ "--pc": person ? participantColor(t.key) : undefined } as CSSProperties}
               disabled={off}
-              aria-label={`Klipp til ${t.cam} · ${name}`}
+              aria-label={`Klipp til ${inputName(state, t.key)} · ${name}`}
               onClick={() => run(cmd.cut(t.shot))}
             >
               <TilePicture
@@ -146,7 +146,7 @@ function Multiview({ ctx }: { ctx: Ctx }) {
               )}
               <span className="cap">
                 <i />
-                {t.cam} · {name}
+                {inputName(state, t.key)} · {name}
               </span>
             </button>
           );

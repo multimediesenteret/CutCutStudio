@@ -51,4 +51,5 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - D-1: `docs/architecture/` med prosesser, M1-oppsettet, lyd-til-kutt, touch-flyten, datalagring og skjermene som Mermaid; runbook-mal i `docs/runbooks/_mal.md`; README «Kjøre lokalt» oppdatert.
 - U-10: forsiden på Vercel er nå web-simulatoren; `/touch` og `/tech` går til simulatorens skjermer, og konseptet ligger som arkiv på `/concept/`.
 - Multiview-oppsettet i studio er dokumentert fra foto (`docs/studio/multiview.md`), med utkast til rutekart i `site/ntnu-studio/equipment/multiview_map.yaml`. Mikseren er ATEM Television Studio HD8 ISO (D-053); nye spørsmål Q37–Q39.
+- Studio-oppsett for NTNU-studioet i `site/ntnu-studio/` med inngangskartet (Camera 1–4 = deltakerne, Camera 6 = oversikt, Camera 7 = laptop, D-054). `uv run cutcut sim --site site/ntnu-studio` kjører simulatoren med det, og web-simulatoren bruker det. Teknikervinduet viser kameraene med samme navn som ATEM-multiviewen («Camera 6 · Fugleperspektiv»).
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).

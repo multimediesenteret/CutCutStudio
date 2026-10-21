@@ -28,6 +28,12 @@ def build_parser() -> argparse.ArgumentParser:
     sim.add_argument("--seed", type=int, default=1, help="frø for syntetisk samtale")
     sim.add_argument("--ui-dir", type=Path, default=None, help="bygde skjermer (ui/dist)")
     sim.add_argument(
+        "--site",
+        type=Path,
+        default=None,
+        help="studio-oppsett, f.eks. site/ntnu-studio (standard: det fiktive site/example)",
+    )
+    sim.add_argument(
         "--smoke", action="store_true", help="start, sjekk helse og skjermer, avslutt (CI)"
     )
 
@@ -54,6 +60,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             port=args.port,
             seed=args.seed,
             ui_dir=args.ui_dir or default_ui_dir(),
+            site_dir=args.site,
         )
         return smoke(opts) if args.smoke else serve(opts)
     if args.command == "trace":

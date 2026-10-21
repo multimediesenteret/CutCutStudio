@@ -1,0 +1,12 @@
+# NTNU-studioet, 1 person(er). Inngangskart D-054: Camera 1–4 = deltakerne, Camera 6 = oversikt, Camera 7 = laptop.
+schema_version: 1
+id: solo
+name: "Solo"
+version: 1
+participants:
+  - { id: P1, name: "Programleder", mic: M1, camera: C1, role: host }
+cameras:
+  C1: { driver: canon_xc, ip: 10.10.10.21, atem_input: 1, presets: { tight: 1, wide: 2 } }
+  C5: { driver: none, atem_input: 6, role: bird }
+content: { atem_input: 7, audio_mic: M5 }
+rules_preset: standard

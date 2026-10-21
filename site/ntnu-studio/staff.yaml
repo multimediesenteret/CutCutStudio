@@ -1,0 +1,5 @@
+# Godkjente teknikere for NTNU-studioet. Listen fylles inn når Q33 er besvart.
+# Bare brukernavn, aldri kortnummer eller PIN.
+schema_version: 1
+operators: []
+admins: []

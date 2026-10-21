@@ -971,6 +971,13 @@
       "StudioInfo": {
         "additionalProperties": false,
         "properties": {
+          "inputs": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Inputs",
+            "type": "object"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -1000,7 +1007,8 @@
           "simulator",
           "version",
           "show_types",
-          "show_id"
+          "show_id",
+          "inputs"
         ],
         "title": "StudioInfo",
         "type": "object"

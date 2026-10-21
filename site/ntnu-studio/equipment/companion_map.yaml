@@ -1,0 +1,27 @@
+# Companion side 10 «REGI» for NTNU-studioet (spec 7.1). Samme knappekart som eksempelet; knappene peker på kamera-ID-er, ikke ATEM-innganger.
+schema_version: 1
+preview:
+  C1: { row: 0, col: 0 }
+  C2: { row: 0, col: 1 }
+  C3: { row: 0, col: 2 }
+  C4: { row: 0, col: 3 }
+  C5: { row: 0, col: 4 }
+  LAPTOP: { row: 0, col: 5 }
+  C7: { row: 0, col: 6 }
+  SUPERSOURCE: { row: 0, col: 7 }
+layouts:
+  "PIP:P1+CONTENT": { row: 1, col: 0 }
+  "PIP:P2+CONTENT": { row: 1, col: 1 }
+  "PIP:P3+CONTENT": { row: 1, col: 2 }
+  "PIP:P4+CONTENT": { row: 1, col: 3 }
+  "PIP:P1+P2": { row: 2, col: 0 }
+  "PIP:P1+P3": { row: 2, col: 1 }
+  "PIP:P1+P4": { row: 2, col: 2 }
+  "PIP:P2+P3": { row: 2, col: 3 }
+  "PIP:P2+P4": { row: 2, col: 4 }
+  "PIP:P3+P4": { row: 2, col: 5 }
+  QUAD4: { row: 2, col: 6 }
+  QUAD3C: { row: 2, col: 7 }
+layout_off: { row: 1, col: 4 }
+take_cut: { row: 3, col: 0 }
+take_mix: { row: 3, col: 1 }

@@ -18,8 +18,8 @@ test("overview: manual cut from the multiview, AUTO, decisions", async ({ page }
   await expect(page.getByText("SIMULATOR")).toBeVisible();
   await expect(page.getByText("Testkort A")).toBeVisible();
 
-  await page.getByRole("button", { name: "Klipp til CAM 2 · Gjest 1" }).click();
-  await expect(page.locator(".shot")).toHaveText("CAM 2 · Gjest 1");
+  await page.getByRole("button", { name: "Klipp til Camera 2 · Gjest 1" }).click();
+  await expect(page.locator(".shot")).toHaveText("Camera 2 · Gjest 1");
   await expect(page.locator(".log")).toContainText("manuell");
 
   await page.getByRole("button", { name: "Auto på" }).click();
