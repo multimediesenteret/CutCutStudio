@@ -248,9 +248,21 @@ export function Countdown({ state }: { state: StudioState }) {
   const levels = useLevels(state).map((l) => Math.round(l.level * 4) / 4);
   const left = Math.max(1, Math.ceil(state.touch.countdown_ms / 1000));
   const starting = state.touch.countdown_ms === 0;
+  const check = new Map((state.touch.audio_check ?? []).map((c) => [c.id, c]));
+  const checks = state.participants.map((p) => {
+    const c = check.get(p.id);
+    return c?.muted ? "muted" : c?.heard ? "heard" : null;
+  });
+  const muted = state.participants.filter((p) => check.get(p.id)?.muted);
   return (
     <section className="scr" id="countdown">
       <h2>{starting ? "Starter opptaket …" : "Snakk litt, så sjekker vi lyden"}</h2>
+      {muted.length > 0 && (
+        <p className="hint" role="status">
+          {muted.map((p) => p.name).join(", ")}: mikrofonen er skrudd ned. Skyv fader{" "}
+          {muted.map((p) => p.mic.slice(1)).join(", ")} opp på mikseren.
+        </p>
+      )}
       <div className="big" aria-live="polite">
         {starting ? "…" : left}
       </div>
@@ -259,6 +271,7 @@ export function Countdown({ state }: { state: StudioState }) {
           participants={participantsOf(state)}
           names={SEATS.map((s) => s.title)}
           levels={levels}
+          checks={checks}
         />
       </div>
     </section>

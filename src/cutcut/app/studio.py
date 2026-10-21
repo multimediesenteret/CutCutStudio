@@ -32,6 +32,7 @@ from cutcut.app.state import (
     RecordingInfo,
     RulesInfo,
     RuntimeInfo,
+    SeatAudio,
     StudioInfo,
     StudioState,
     TouchInfo,
@@ -100,7 +101,10 @@ HISTORY_KEEP: Final = 200
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
 MORNING_HOUR: Final = 7  # spec 8.5: «hver morgen kl. 07:00» (local time)
-STARTUP_CHECK_MS: Final = 20_000  # after start: let the devices connect first
+STARTUP_CHECK_MS: Final = 20_000
+HEARD_MS: Final = 300  # audio check: this much speech on a mic counts as heard
+LOUD_DB: Final = -3.0  # audio check: peaks above this are close to clipping
+VOICED_DB: Final = -50.0  # after start: let the devices connect first
 PROC_STALE_MS: Final = 10_000  # supervisor status older than this: the supervisor is gone
 
 
@@ -249,6 +253,9 @@ class Studio:
         self._mv_errors = ""
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
+        self._check: dict[str, dict[str, int | bool]] = {}
+        self._check_step: TouchStep = TouchStep.IDLE
+        self._check_ms = self.now
 
     # -- configuration --------------------------------------------------------------------
 
@@ -454,12 +461,79 @@ class Studio:
             self._last_state_ms = now
             self._publish_state()
         self._track_session()
+        self._audio_check(now)
         if not self._mv_checked and (
             self._mv_readback() is not None or now - self._started_ms >= MULTIVIEW_STARTUP_WAIT_MS
         ):
             self._mv_checked = True
             self._check_multiview()
         return result
+
+    # -- audio check during the countdown (AU-7) ------------------------------------------------
+
+    def _audio_check(self, now: int) -> None:
+        """While 3-2-1 counts down, note who was heard, who is muted on the mixer, who is too
+        loud. The seat map shows it live; when recording starts, the result is reported."""
+        step = self.sessions.step
+        dt, self._check_ms = now - self._check_ms, now
+        if step is TouchStep.COUNTDOWN and self._check_step is not TouchStep.COUNTDOWN:
+            self._check = {
+                p.id.value: {"ms": 0, "muted": False, "loud": False} for p in self.show.participants
+            }
+        if step is TouchStep.COUNTDOWN:
+            frames = self.runtime.latest_mics
+            for p in self.show.participants:
+                f = frames.get(p.mic)
+                c = self._check.get(p.id.value)
+                if f is None or c is None:
+                    continue
+                voiced = f.vad >= 0.5 and f.level_db > VOICED_DB and not f.leak
+                if voiced:
+                    c["ms"] = int(c["ms"]) + dt
+                    if not f.in_main_mix:
+                        c["muted"] = True
+                if f.level_db > LOUD_DB:
+                    c["loud"] = True
+        elif self._check_step is TouchStep.COUNTDOWN and step is TouchStep.REC:
+            self._report_audio_check()
+        self._check_step = step
+
+    def audio_check_info(self) -> list[SeatAudio]:
+        return [
+            SeatAudio(
+                id=pid,
+                heard=int(c["ms"]) >= HEARD_MS,
+                muted=bool(c["muted"]),
+                loud=bool(c["loud"]),
+            )
+            for pid, c in self._check.items()
+        ]
+
+    def _report_audio_check(self) -> None:
+        names = {p.id.value: p.name for p in self.show.participants}
+        faders = {p.id.value: p.mic.value[1:] for p in self.show.participants}  # M2 = fader 2
+        info = self.audio_check_info()
+        muted = [s for s in info if s.muted]
+        if muted:
+            who = ", ".join(names[s.id] for s in muted)
+            which = ", ".join(faders[s.id] for s in muted)
+            self.notice = f"{who}: mikrofonen er skrudd ned på mikseren. Skyv fader {which} opp."
+            self.notice_until = self.now + 8_000
+            self.hub.publish("touch", {"notice": self.notice})
+        parts = []
+        silent = [names[s.id] for s in info if not s.heard and not s.muted]
+        if silent:
+            parts.append("ikke hørt: " + ", ".join(silent))
+        if muted:
+            parts.append("dempet på mikseren: " + ", ".join(names[s.id] for s in muted))
+        loud = [names[s.id] for s in info if s.loud]
+        if loud:
+            parts.append("for høyt (nær klipping): " + ", ".join(loud))
+        if parts:
+            level: Literal["info", "warn"] = "warn" if muted else "info"
+            self._alert(level, "LYDSJEKK", "Lydsjekk: " + "; ".join(parts))
+        else:
+            log.info("Lydsjekk: alle hørt", extra={"check": "LYDSJEKK"})
 
     # -- multiview (D-055) ---------------------------------------------------------------
 
@@ -823,6 +897,7 @@ class Studio:
                 if s.step is TouchStep.DONE
                 else 0,
                 login=self.login_mode,
+                audio_check=self.audio_check_info(),
             ),
             engine=EngineInfo(
                 mode=e.mode.value,

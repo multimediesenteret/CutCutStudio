@@ -1064,6 +1064,36 @@
         "title": "RuntimeInfo",
         "type": "object"
       },
+      "SeatAudio": {
+        "additionalProperties": false,
+        "description": "The audio check during the 3-2-1 countdown, per participant (AU-7).",
+        "properties": {
+          "heard": {
+            "default": false,
+            "title": "Heard",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "loud": {
+            "default": false,
+            "title": "Loud",
+            "type": "boolean"
+          },
+          "muted": {
+            "default": false,
+            "title": "Muted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "SeatAudio",
+        "type": "object"
+      },
       "Session": {
         "additionalProperties": false,
         "properties": {
@@ -1353,6 +1383,14 @@
       "TouchInfo": {
         "additionalProperties": false,
         "properties": {
+          "audio_check": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SeatAudio"
+            },
+            "title": "Audio Check",
+            "type": "array"
+          },
           "countdown_ms": {
             "title": "Countdown Ms",
             "type": "integer"

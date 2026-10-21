@@ -497,6 +497,12 @@ h2 {
   color: var(--pgm);
   font-variant-numeric: tabular-nums;
 }
+#countdown .hint {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--pgm);
+  max-width: 900px;
+}
 #countdown .map {
   width: 540px;
   height: 378px;

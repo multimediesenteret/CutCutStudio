@@ -192,14 +192,19 @@ const MAP_POS: [number, number][] = [
 ];
 
 /** Top-down seating map: presenter at the mixer, guests clockwise (rodecaster-standardoppsett). */
+export type SeatCheck = "heard" | "muted" | null;
+
 export function SeatMap({
   participants,
   names,
   levels = [],
+  checks = [],
 }: {
   participants: number;
   names: string[];
   levels?: number[];
+  /** The audio check (AU-7): a green tick when heard, a red mark when muted on the mixer. */
+  checks?: SeatCheck[];
 }): ReactElement {
   return (
     <svg viewBox="0 0 600 420" role="img" aria-label={`Bordplan med ${participants} plasser`}>
@@ -262,6 +267,35 @@ export function SeatMap({
             >
               {i + 1}
             </text>
+            {on && checks[i] && (
+              <g aria-label={checks[i] === "heard" ? "Hørt" : "Dempet på mikseren"}>
+                <circle
+                  cx={x + 27}
+                  cy={y - 27}
+                  r="16"
+                  fill={checks[i] === "heard" ? "var(--pvw)" : "var(--pgm)"}
+                  stroke="var(--bg)"
+                  strokeWidth="3"
+                />
+                {checks[i] === "heard" ? (
+                  <path
+                    d={`M${x + 20} ${y - 27} l5 5 l9 -10`}
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ) : (
+                  <path
+                    d={`M${x + 27} ${y - 35} v9 M${x + 27} ${y - 20} v0.5`}
+                    stroke="#fff"
+                    strokeWidth="3.4"
+                    strokeLinecap="round"
+                  />
+                )}
+              </g>
+            )}
             <text
               x={x}
               y={y + (i === 2 ? -48 : 62)}
