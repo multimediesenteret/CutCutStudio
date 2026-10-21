@@ -10,7 +10,7 @@
 | MINOR | Ny funksjon eller bryter, bakoverkompatibel |
 | PATCH | Feilretting uten ny funksjon |
 
-- **Før første release:** `0.x.y`. Milepælene gir `0.1.0` (M1 Simulator), `0.2.0` (M2 Skyggemodus), `1.0.0` (M3 Grunnmodus i drift). M4-bryterne kommer som `1.x`.
+- **Før første release:** `0.x.y`. Milepælene gir `0.1.0` (M1 Simulator), `0.2.0` (M2 Studiotest), `1.0.0` (M3 Grunnmodus i drift). M4-bryterne kommer som `1.x`.
 - **Forhåndsversjoner** til studiotest: `vX.Y.Z-rc.N`.
 - **Konfig** har egen `schema_version` med migreringsskript (spesifikasjonen 12.3).
 - **Spesifikasjonen** har egen versjon (v1, v2 …) i `docs/spec/README.md`.
@@ -45,7 +45,7 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 - [ ] CI grønn på `main`
 - [ ] Simulator-test av hele flyten bestått
 - [ ] Maskintester i studio for endrede integrasjoner, rapporter lagt i issues
-- [ ] Skyggemodus i studio for endrede regler eller brytere
+- [ ] Studiotest for endrede regler eller brytere (skyggemodus når studioet er i drift, D-049)
 - [ ] Migrering testet fra forrige versjon sin konfig
 
 **Utrulling** (spesifikasjonen 12.3)

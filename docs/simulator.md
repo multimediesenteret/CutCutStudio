@@ -34,7 +34,7 @@ Ferdige scenarioer ligger som filer i `sim/scenarios/` og brukes både av simula
 - Feil: lyd borte (`S4`), Companion nede, kamera svarer ikke, Pearl uten lagring.
 - Når ekte opptak finnes (Q1): avspilling av nivå- og VAD-forløp fra ekte episoder, uten selve lyden.
 
-## Arkitektur (forslag, ADR-0013)
+## Arkitektur (ADR-0013, akseptert D-046)
 
 | Trinn | Hva | Når |
 | --- | --- | --- |

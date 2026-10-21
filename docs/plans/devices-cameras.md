@@ -1,6 +1,6 @@
 # Plan: `devices/cameras` – OBSBOT Tail 2 og Canon CR-N300
 
-Status: forslag (M0) · Milepæl: M3 (drivere, presets, grenser) og M4 (AI-tracking, utsnitt, zoom, farge) · Spes. 2.4, 5.13 (`AT`, `F`, `Z`), 7.3, 8.4 steg 4, 8.5 (`H-CAM-*`, `H-CAM-MOVE`); D-005, D-022, D-023; ADR-0005; I2 · Mappe: `src/cutcut/devices/cameras/{base,obsbot,canon_xc}/`
+Status: godkjent (D-046) · Milepæl: M3 (drivere, presets, grenser) og M4 (AI-tracking, utsnitt, zoom, farge) · Spes. 2.4, 5.13 (`AT`, `F`, `Z`), 7.3, 8.4 steg 4, 8.5 (`H-CAM-*`, `H-CAM-MOVE`); D-005, D-022, D-023; ADR-0005; I2 · Mappe: `src/cutcut/devices/cameras/{base,obsbot,canon_xc}/`
 
 ## 1. Formål og avgrensning
 
@@ -61,7 +61,7 @@ class GuardedCamera:            # pakker hver driver
 | CA-4 | `canon_xc` med VISCA-reserve | XC når Q6 er besvart |
 | CA-5 | Maskintester OBSBOT og Canon | Rapporter i issue |
 | CA-6 | `H-CAM-*` og `H-CAM-MOVE` | Vises i helse |
-| CA-7 | AI-tracking `AT1`–`AT6` (M4) | Testet alene i skyggemodus |
+| CA-7 | AI-tracking `AT1`–`AT6` (M4) | Testet alene i studio |
 
 ## 7. Åpne spørsmål
 
@@ -69,5 +69,3 @@ class GuardedCamera:            # pakker hver driver
 - Q16: virker `SetAiEnable` på studioets fastvare?
 - Q26: kamerakart og antall OBSBOT.
 - Q19: blandes OBSBOT og Canon i samme show (fargematching)?
-</content>
-</invoke>

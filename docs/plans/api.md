@@ -1,6 +1,6 @@
 # Plan: `api` – REST, WebSocket og roller
 
-Status: forslag (M0) · Milepæl: M1 · Spes. 10.1, 10.2, 12.4, 12.5; D-036, D-045 · Mappe: `src/cutcut/api/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 10.1, 10.2, 12.4, 12.5; D-036, D-045 · Mappe: `src/cutcut/api/`
 
 ## 1. Formål og avgrensning
 
@@ -61,5 +61,3 @@ Setup- og helse-stiene kommer i M3 (`setup-health.md`).
 
 - Q33: hvem står på teknikerlisten og admin-listen, og skal PIN brukes som reserve?
 - 12.4 sier HTTPS med NTNU-sertifikat for teknikervindu fra andre maskiner. Trengs det i første versjon, eller er teknikervinduet bare på regi-PC-en til M3? (Q9)
-</content>
-</invoke>

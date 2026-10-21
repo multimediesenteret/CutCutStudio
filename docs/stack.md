@@ -34,7 +34,7 @@ Teknologi, versjoner og verktøy for CutCut Studio. Spesifikasjonen 3.1 er fasit
 | Bilde | OpenCV / FFmpeg, ONNX Runtime | |
 | Meldingsbuss | `pyzmq` | |
 | Enheter | `httpx`, `python-osc`, egen VISCA-UDP-klient | |
-| ATEM | `atem-connection` i Node-prosessen `atem-bridge` | ADR-0012 (forslag). Spesifikasjonen 3.1 nevner PyATEMMax; ADR-0012 erstatter det hvis den godkjennes |
+| ATEM | `atem-connection` i Node-prosessen `atem-bridge` | ADR-0012, akseptert (D-046). Erstatter PyATEMMax |
 | Kortleser | `pyserial` | |
 | Hemmeligheter | `keyring` | Windows Credential Manager |
 | Lagring | `sqlite3` (WAL) | |

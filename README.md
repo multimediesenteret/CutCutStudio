@@ -6,7 +6,11 @@ CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. 
 
 ## Status
 
-**Forprosjekt.** Ingen kode ennå; krav, beslutninger og research samles her (se `docs/forprosjekt/` og `docs/STATUS.md`).
+**M1 Simulator pågår.** Planene er godkjent (`docs/plans/`); se `docs/STATUS.md`.
+
+## Lisens
+
+Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 
 ## Hvor ting ligger
 

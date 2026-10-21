@@ -1,6 +1,6 @@
 # Plan: `core` – regimotoren
 
-Status: forslag (M0) · Milepæl: M1 · Spes. 5 (alle underseksjoner), 9.1, 10.4; D-010, D-035, D-041; I2–I5, I7 · Mappe: `src/cutcut/core/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 5 (alle underseksjoner), 9.1, 10.4; D-010, D-035, D-041; I2–I5, I7 · Mappe: `src/cutcut/core/`
 
 ## 1. Formål og avgrensning
 
@@ -37,7 +37,7 @@ def step(state: EngineState, inp: Inputs) -> tuple[EngineState, list[Decision], 
 | Tilstand | Beslutninger | Kommandoer | Brukes |
 | --- | --- | --- | --- |
 | `LIVE` | ja | ja | drift |
-| `SHADOW` | ja, merket `shadow: true` | nei, bare logg (PL-05) | M2, nye brytere |
+| `SHADOW` | ja, merket `shadow: true` | nei, bare logg (PL-05) | nye brytere og oppdateringer når studioet er i drift (D-049) |
 | `PAUSED` | nei (AUTO av, LÅS, modus `A`) | bare operatørens | overstyring |
 
 **Preview-tilstander (5.9):** `IDLE → ARMED → READY → TAKE → IDLE` som eksplisitt tilstandsmaskin med regel-ID på hver overgang.
@@ -120,5 +120,3 @@ Spesifikasjonen har verdier per forhåndsvalg bare for `T`. Forslag for resten, 
 - Q24 avgjør om `S6` trengs (pre-fader med dempet mic). Regelen bygges uansett; den kan slås av i `rules.yaml`.
 - Q34: godkjenner produkteier tuning-forslaget over som startpunkt?
 - Q1–Q2: ekte opptak og klippeliste trengs for å tune og for kriteriet «under 2 feilkutt per 10 min».
-</content>
-</invoke>

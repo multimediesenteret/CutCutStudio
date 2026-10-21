@@ -1,6 +1,6 @@
 # Plan: `sim` – simulator, scenarioer og avspilling
 
-Status: forslag (M0) · Milepæl: M1 · Spes. 10.3, 13.3; ADR-0013; `docs/simulator.md` · Mappe: `sim/`, `tests/integration/fakes/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 10.3, 13.3; ADR-0013; `docs/simulator.md` · Mappe: `sim/`, `tests/integration/fakes/`
 
 ## 1. Formål og avgrensning
 
@@ -69,5 +69,3 @@ Simulatoren skal kunne lage alle feil i 9.1, slik at skjermene og motoren kan pr
 ## 7. Åpne spørsmål
 
 - Q1–Q2: ekte opptak og klippeliste. Uten dem tunes reglene bare mot syntetiske talere.
-</content>
-</invoke>

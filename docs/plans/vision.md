@@ -1,6 +1,6 @@
 # Plan: `vision` – videolaget
 
-Status: forslag (M0) · Milepæl: M3 (lett) og M4 (tungt) · Spes. 2.1, 2.6, 5.4, 5.5, 6 (alle), 8.4 steg 6, 8.5 (`H-VID-*`); D-003, D-021; ADR-0003 · Mappe: `src/cutcut/vision/`
+Status: godkjent (D-046) · Milepæl: M3 (lett) og M4 (tungt) · Spes. 2.1, 2.6, 5.4, 5.5, 6 (alle), 8.4 steg 6, 8.5 (`H-VID-*`); D-003, D-021; ADR-0003 · Mappe: `src/cutcut/vision/`
 
 ## 1. Formål og avgrensning
 
@@ -55,7 +55,7 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 | VI-3 | Bevegelse per rute og PGM-bekreftelse | `S1` får ekte data |
 | VI-4 | Maskintest INOGENI | Rapport i issue |
 | VI-5 | Rutekart-forslag i setup steg 6 | Hjørner kan dras i GUI |
-| VI-6 | Tung del: ansikt, munn, smil, ASD (M4) | `video_confirm` testet i skyggemodus |
+| VI-6 | Tung del: ansikt, munn, smil, ASD (M4) | `video_confirm` testet alene i studio |
 
 ## 7. Åpne spørsmål
 
@@ -63,5 +63,3 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 - Q14: står laptopen alltid på inngang 6?
 - Q20: hvilken GPU har regi-PC-en?
 - Q1: multiview-video fra ekte sendinger.
-</content>
-</invoke>
