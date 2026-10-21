@@ -104,11 +104,21 @@ class RuntimeInfo(_S):
     processes: list[ProcessInfo] = []  # empty when core runs without the supervisor
 
 
+class MorningCheck(_S):
+    """The whole catalogue, run at start-up and every morning at 07:00 (spec 8.5, HS-4)."""
+
+    ts: str
+    reason: Literal["oppstart", "morgen", "manuell"]
+    status: Literal["green", "yellow", "red"]
+    failed: list[str] = []  # check IDs that were not green, worst first
+
+
 class HealthInfo(_S):
     """The health checks (spec 8.5): worst open issue and the latest result of each check."""
 
     status: Literal["green", "yellow", "red"] = "green"
     checks: list[CheckResult] = []
+    morning: MorningCheck | None = None
 
 
 class StudioState(_S):

@@ -149,6 +149,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/morning-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Morning Check
+         * @description Run the whole catalogue now («Kjør morgensjekk», technician).
+         */
+        post: operations["morning_check_api_health_morning_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/help": {
         parameters: {
             query?: never;
@@ -806,6 +826,8 @@ export interface components {
              * @default []
              */
             checks: components["schemas"]["CheckResult"][];
+            /** @default null */
+            morning: components["schemas"]["MorningCheck"] | null;
             /**
              * Status
              * @default green
@@ -877,6 +899,29 @@ export interface components {
          * @enum {string}
          */
         Mode: "N1" | "N2" | "N3" | "N4" | "N1C" | "N2C" | "N3C" | "N4C" | "A";
+        /**
+         * MorningCheck
+         * @description The whole catalogue, run at start-up and every morning at 07:00 (spec 8.5, HS-4).
+         */
+        MorningCheck: {
+            /**
+             * Failed
+             * @default []
+             */
+            failed: string[];
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "oppstart" | "morgen" | "manuell";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "green" | "yellow" | "red";
+            /** Ts */
+            ts: string;
+        };
         /** Ok */
         Ok: {
             /**
@@ -1193,6 +1238,7 @@ export interface components {
             /**
              * @default {
              *       "checks": [],
+             *       "morning": null,
              *       "status": "green"
              *     }
              */
@@ -1479,6 +1525,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CheckResult"][];
+                };
+            };
+        };
+    };
+    morning_check_api_health_morning_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

@@ -7,11 +7,12 @@ the studio (real devices) and in ``cutcut sim`` (fake devices and synthetic talk
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections import deque
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import date, datetime, tzinfo
 from pathlib import Path
 from typing import Any, Final, Literal, Protocol
 
@@ -25,6 +26,7 @@ from cutcut.app.state import (
     EngineInfo,
     HealthInfo,
     Meter,
+    MorningCheck,
     ParticipantInfo,
     ProcessInfo,
     RecordingInfo,
@@ -94,6 +96,8 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
+MORNING_HOUR: Final = 7  # spec 8.5: «hver morgen kl. 07:00» (local time)
+STARTUP_CHECK_MS: Final = 20_000  # after start: let the devices connect first
 PROC_STALE_MS: Final = 10_000  # supervisor status older than this: the supervisor is gone
 
 
@@ -234,6 +238,9 @@ class Studio:
         self._tracked: tuple[str, TouchStep] | None = None
         self._started_ms = self.now
         self._mv_checked = False
+        self.morning: MorningCheck | None = None
+        self._morning_day: date | None = None
+        self.local_tz: tzinfo | None = None  # None: the PC's own time zone
         self._mv_errors = ""
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
@@ -497,7 +504,53 @@ class Studio:
         return health_checks.CompanionReading(bool(getattr(ex, "companion_online", True)))
 
     def health_info(self) -> HealthInfo:
-        return HealthInfo(status=self.health.overall(), checks=self.health.results())
+        return HealthInfo(
+            status=self.health.overall(), checks=self.health.results(), morning=self.morning
+        )
+
+    async def health_loop(self, every_s: float = 0.25) -> None:
+        """The checks on their intervals, plus the start-up and morning check (HS-4)."""
+        while True:
+            try:
+                await self.health.step()
+                await self._maybe_morning_check()
+            except Exception:  # health must never take core down
+                log.exception("helsesjekkene feilet")
+            await asyncio.sleep(every_s)
+
+    def _local_now(self) -> datetime:
+        return self.deps.clock.now().astimezone(self.local_tz)
+
+    async def _maybe_morning_check(self) -> None:
+        local = self._local_now()
+        if self.morning is None:
+            if self.now - self._started_ms >= STARTUP_CHECK_MS:
+                await self.morning_check("oppstart")
+            return
+        if local.hour >= MORNING_HOUR and self._morning_day != local.date():
+            await self.morning_check("morgen")
+
+    async def morning_check(
+        self, reason: Literal["oppstart", "morgen", "manuell"] = "manuell"
+    ) -> MorningCheck:
+        """Run the whole catalogue now, and the multiview check (D-056)."""
+        self._check_multiview()
+        results = await self.health.run_all()
+        rank = {"green": 0, "yellow": 1, "red": 2}
+        bad = sorted((r for r in results if r.status != "green"), key=lambda r: -rank[r.status])
+        status: Literal["green", "yellow", "red"] = bad[0].status if bad else "green"
+        if self._mv_errors:
+            status = "red" if status == "red" else "yellow"
+        local = self._local_now()
+        if local.hour >= MORNING_HOUR:
+            self._morning_day = local.date()  # a start after 07:00 is today's morning check
+        failed = [r.id for r in bad] + (["H-MV"] if self._mv_errors else [])
+        self.morning = MorningCheck(
+            ts=local.isoformat(timespec="seconds"), reason=reason, status=status, failed=failed
+        )
+        text = "alt grønt" if not failed else ", ".join(failed)
+        log.info("Morgensjekk (%s): %s", reason, text, extra={"check": "HS-4"})
+        return self.morning
 
     # -- processes (supervisor, SO-1) ------------------------------------------------------
 

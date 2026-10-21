@@ -150,6 +150,13 @@ def create_app(
         )
         return {"status": overall, "version": __version__, **dump}
 
+    @app.post("/api/health/morning-check", tags=["status"])
+    async def morning_check(me: Who) -> dict[str, Any]:
+        """Run the whole catalogue now («Kjør morgensjekk», technician)."""
+        require(me, "operator")
+        result = await studio.morning_check("manuell")
+        return result.model_dump(mode="json")
+
     @app.get("/api/health/checks", tags=["status"])
     async def health_checks() -> list[CheckResult]:
         """Latest result of every check (spec 10.1). No sign-in needed, like /api/health."""

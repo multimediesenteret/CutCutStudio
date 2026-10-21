@@ -65,6 +65,21 @@ function useLevels(state: StudioState): { level: number; speaking: boolean; mute
   });
 }
 
+/** The start-up and morning check as a small dot (spec 8.5): green, or yellow when the
+ * technician has something to look at. Never details: the user cannot act on them. */
+function MorningDot({ state }: { state: StudioState }) {
+  const m = state.health?.morning;
+  if (!m) return <Chip>Kamera, lyd og opptak er sjekket</Chip>;
+  const at = m.ts.slice(11, 16);
+  return (
+    <Chip level={m.status === "green" ? "ok" : "warn"}>
+      <span title={m.status === "green" ? "Alt grønt" : "Teknikeren ser på noe"}>
+        Sjekket kl. {at}
+      </span>
+    </Chip>
+  );
+}
+
 export function Idle({ state, act }: { state: StudioState; act: Act }) {
   const problem = blocking(state);
   return (
@@ -78,7 +93,7 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
           ) : (
             <>
               <Chip level="ok">Studio klart</Chip>
-              <Chip>Kamera, lyd og opptak er sjekket</Chip>
+              <MorningDot state={state} />
             </>
           )}
         </StatusRow>

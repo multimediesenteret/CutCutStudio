@@ -72,6 +72,7 @@ export function commands(t: Transport) {
     features: (changes: Record<string, boolean>) => t.send("POST", "/api/features", changes),
     shadow: (on: boolean) => t.send("POST", "/api/shadow", { on }),
     ack: (alertId: number) => t.send("POST", `/api/alerts/${alertId}/ack`),
+    morningCheck: () => t.send("POST", "/api/health/morning-check"),
     login: (username: string, pin: string) => t.send("POST", "/api/login", { username, pin }),
     techLogout: () => t.send("POST", "/api/logout"),
     // simulator only (cutcut sim / Vercel)
