@@ -79,6 +79,24 @@
           "default": null,
           "title": "Ip"
         },
+        "limits": {
+          "$ref": "#/$defs/CameraLimits",
+          "default": {
+            "max_speed": 0.5,
+            "pan": [
+              -170.0,
+              170.0
+            ],
+            "tilt": [
+              -30.0,
+              90.0
+            ],
+            "zoom": [
+              0.0,
+              1.0
+            ]
+          }
+        },
         "model": {
           "title": "Model",
           "type": "string"
@@ -102,6 +120,75 @@
       ],
       "title": "CameraId",
       "type": "string"
+    },
+    "CameraLimits": {
+      "additionalProperties": false,
+      "description": "How far CutCut may move a camera (CA-1, 8.4). Commands outside are clamped and logged.\n\nPan and tilt in degrees from the camera's home, zoom 0 (widest) to 1 (tightest), speed\n0–1 of the camera's top speed.",
+      "properties": {
+        "max_speed": {
+          "default": 0.5,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Max Speed",
+          "type": "number"
+        },
+        "pan": {
+          "default": [
+            -170.0,
+            170.0
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Pan",
+          "type": "array"
+        },
+        "tilt": {
+          "default": [
+            -30.0,
+            90.0
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Tilt",
+          "type": "array"
+        },
+        "zoom": {
+          "default": [
+            0.0,
+            1.0
+          ],
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Zoom",
+          "type": "array"
+        }
+      },
+      "title": "CameraLimits",
+      "type": "object"
     },
     "CardReaderDevice": {
       "additionalProperties": false,

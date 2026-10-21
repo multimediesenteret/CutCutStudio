@@ -40,9 +40,32 @@ class PearlDevice(_Strict):
     verify_tls: bool = False
 
 
+class CameraLimits(_Strict):
+    """How far CutCut may move a camera (CA-1, 8.4). Commands outside are clamped and logged.
+
+    Pan and tilt in degrees from the camera's home, zoom 0 (widest) to 1 (tightest), speed
+    0–1 of the camera's top speed."""
+
+    pan: tuple[float, float] = (-170.0, 170.0)
+    tilt: tuple[float, float] = (-30.0, 90.0)
+    zoom: tuple[float, float] = (0.0, 1.0)
+    max_speed: float = Field(default=0.5, gt=0, le=1)
+
+    @model_validator(mode="after")
+    def _ordered(self) -> Self:
+        for name in ("pan", "tilt", "zoom"):
+            lo, hi = getattr(self, name)
+            if lo > hi:
+                raise ValueError(f"{name}: lowest {lo} is above highest {hi}")
+        if not 0 <= self.zoom[0] <= self.zoom[1] <= 1:
+            raise ValueError("zoom limits must lie within 0–1")
+        return self
+
+
 class CameraDevice(_Strict):
     ip: IPv4Address | None = None
     model: str
+    limits: CameraLimits = CameraLimits()
 
 
 class CardReaderDevice(_Strict):

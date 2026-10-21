@@ -26,7 +26,6 @@ OUT_RULES = ROOT / "docs" / "reference" / "rules.md"
 
 # Rules implemented outside the engine or in later milestones (docs/plans/milestones.md).
 PLANNED: dict[str, str] = {
-    "PV2": "M3 – kameradrivere (GuardedCamera)",
     "PV3": "M4 – video_confirm",
     "S5": "M2 – Companion/ATEM-utfører",
     **{f"L{i}": "M4 – layouts" for i in range(1, 5)},

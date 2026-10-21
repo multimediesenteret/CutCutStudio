@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-1: kameragrensesnittet og `GuardedCamera`.
+  - Felles `CameraDriver` (7.3) for OBSBOT og Canon.
+  - Kamera på program eller preview flyttes eller fargejusteres aldri (I2, `PV2`). Hva som er på lufta, leses fra ATEM, ikke fra motoren, og sjekkes igjen rett før sending.
+  - Grenser for panorering, tilt, zoom og fart per kamera i `devices.yaml` (`limits`); kommandoer utenfor klemmes og logges.
+  - Én kø per kamera med 200 ms tidsavbrudd og kretsbryter (ADR-0005).
 - D-056: kamerabilder i teknikervinduet.
   - Oversikt og Kameraer viser utsnitt av multiviewen (kameraer, laptop) i stedet for tegningene, oppdatert to ganger i sekundet.
   - Videolaget lager bildene bare mens noen ser (`vision.want`), og sender dem som `vision.thumbs`.
