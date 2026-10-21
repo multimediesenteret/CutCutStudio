@@ -18,6 +18,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (med Claude)
 - Beslutningslogg D-001–D-031 for hele forprosjektet.
 - Web-simulator beskrevet (`docs/simulator.md`, ADR-0013).
 - Research på lyd fra RØDECaster (`docs/research/lyd-fra-rodecaster.md`, ADR-0014).
+- RØDECaster standardoppsett og deltakerfarger (D-032–D-035); prototypen oppdatert med fargene.
 
 ## Pågår
 

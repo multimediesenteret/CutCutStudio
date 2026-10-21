@@ -8,6 +8,7 @@
   --bg:#eef0f2; --panel:#ffffff; --line:#d5d9de; --ink:#16191d; --muted:#5d6670;
   --tally:#d7262e; --tally-soft:#fbe3e4; --amber:#b67600; --amber-soft:#fbefd6;
   --live:#1f8a4c; --live-soft:#dcf1e4; --bleed:#8a93a0; --meter-bg:#e4e7eb; --eye:#2f6fd6; --eye-soft:#e1ebfb;
+  --p1:#D12E8A; --p2:#0A93B5; --p3:#6F4BD8; --p4:#E0640F;
   --f-display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -15,11 +16,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111417; --panel:#1a1e23; --line:#2c333b; --ink:#e8ebee; --muted:#9aa3ad;
   --tally:#ff4d55; --tally-soft:#3a1a1c; --amber:#f0b03c; --amber-soft:#382c14;
-  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; color-scheme:dark}}
+  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; --p1:#FF5CB8; --p2:#3FCFEA; --p3:#A68BFF; --p4:#FF9442; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#111417; --panel:#1a1e23; --line:#2c333b; --ink:#e8ebee; --muted:#9aa3ad;
   --tally:#ff4d55; --tally-soft:#3a1a1c; --amber:#f0b03c; --amber-soft:#382c14;
-  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; color-scheme:dark}
+  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; --p1:#FF5CB8; --p2:#3FCFEA; --p3:#A68BFF; --p4:#FF9442; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.4;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
@@ -54,10 +55,16 @@ header{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;justify-cont
 .strip.pv{background:var(--live-soft)} .strip.pv b{color:var(--live)}
 .strip.nx{background:var(--amber-soft)} .strip.nx b{color:var(--amber)}
 .mics{display:flex;flex-direction:column;gap:8px}
-.mic{display:grid;grid-template-columns:118px minmax(0,1fr) 132px 64px;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.mic{display:grid;grid-template-columns:168px minmax(0,1fr) 120px 64px;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
 .mic.onpgm{border-color:var(--tally);background:var(--tally-soft)}
 .mic.onpvw{border-color:var(--live)}
 .mic .who{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.1}
+.mic{border-left:6px solid var(--pc)}
+.seat{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--pc);color:#fff;font-family:var(--f-display);font-weight:700;font-size:13px;margin-right:6px;vertical-align:1px}
+.mic.lead{border-left-width:10px}
+.mic.lead .who .nm{font-weight:700}
+.mic .who .nm{white-space:nowrap}
+.mic.lead .seat{width:26px;height:26px;font-size:14px;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--pc)}
 .mic .who small{display:block;font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted)}
 .role{display:inline-block;font-family:var(--f-mono);font-size:10px;padding:1px 5px;border-radius:3px;background:var(--meter-bg);color:var(--muted);margin-left:4px;vertical-align:2px;cursor:pointer;border:0}
 .meters{display:flex;flex-direction:column;gap:5px;min-width:0}
@@ -160,7 +167,7 @@ select{font:inherit;padding:7px 8px;border-radius:6px;border:1px solid var(--lin
       <select id="scenario" aria-label="Scenario">
         <option value="talk">Samtale</option>
         <option value="cross">Heftig debatt</option>
-        <option value="mono">Verten forteller lenge</option>
+        <option value="mono">Programlederen forteller lenge</option>
         <option value="manual">Bare manuelt (hold Snakk)</option>
       </select>
       <button class="btn" id="simBtn" style="padding:8px 14px">Pause</button>
@@ -210,9 +217,8 @@ select{font:inherit;padding:7px 8px;border-radius:6px;border:1px solid var(--lin
         <div class="row" style="justify-content:space-between">
           <span class="lbl">Siste 60 sekunder</span>
           <div class="legend">
-            <span><i style="background:var(--live)"></i>tale</span>
+            <span><i style="background:linear-gradient(90deg,var(--p1) 25%,var(--p2) 25% 50%,var(--p3) 50% 75%,var(--p4) 75%)"></i>tale og nærbilde, i deltakerens farge</span>
             <span><i style="background:var(--bleed)"></i>lekkasje</span>
-            <span><i style="background:var(--tally)"></i>nærbilde</span>
             <span><i style="background:var(--amber)"></i>bird/vid</span>
             <span><i style="background:var(--eye)"></i>content/layout</span>
           </div>
@@ -273,7 +279,8 @@ const rnd=(a,b)=>a+Math.random()*(b-a);
 const f1=x=>x.toFixed(1).replace('.',','), f2=x=>x.toFixed(2).replace('.',',');
 const clk=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 const fmtS=v=>f1(v)+' s';
-const NAMES=['Vert','Gjest A','Gjest B','Gjest C'];
+const NAMES=['Programleder','Gjest 1','Gjest 2','Gjest 3'];
+const PCOL=['--p1','--p2','--p3','--p4'];
 const CANON={model:'Canon CR-N300',proto:'XC (HTTP)'}, OBS={model:'OBSBOT Tail 2',proto:'VISCA over IP'};
 
 const FEATURES=[
@@ -345,8 +352,8 @@ function layout(key,label,row,col){if(!SH[key])add(key,{cam:'SSRC',label,kind:'l
 // mic strips
 const hold=P.map(()=>false);
 const micUI=P.map(i=>{
-  const d=document.createElement('div');d.className='mic';
-  d.innerHTML=`<div class="who"><span class="nm">${NAMES[i]}</span><button class="role"></button><small>Mic ${i+1} → CAM ${i+1}</small></div>
+  const d=document.createElement('div');d.className='mic'+(i===0?' lead':'');d.style.setProperty('--pc',`var(${PCOL[i]})`);
+  d.innerHTML=`<div class="who"><span class="seat" aria-hidden="true">${i+1}</span><span class="nm">${NAMES[i]}</span><button class="role"></button><small>Mic ${i+1} · fader ${i+1} · kanal ${2*i+3}–${2*i+4} → CAM ${i+1}</small></div>
   <div class="meters"><div class="meter lvl"><i></i></div><div class="meter vad"><i></i><span class="th"></span></div><div class="meter mouth"><i></i></div>
   <div class="mlab mono"><span class="db">-60 dB</span><span class="vp">VAD 0,00</span><span class="mp">munn 0,00</span></div></div>
   <div class="state">stille</div><button class="hold" aria-label="Hold for å snakke i mic ${i+1}">Snakk</button>`;
@@ -545,7 +552,7 @@ function step(dt){
       }
       else if(best!=null&&best!==cp){
         const pp=personCuts.length>=R.ping;
-        if(pp&&N===2&&F.layouts){want=layout('PIP:P1+P2','PiP Vert + Gjest A',2,0);rule='L2';why=`${personCuts.length} bytter siste 10 s`}
+        if(pp&&N===2&&F.layouts){want=layout('PIP:P1+P2','PiP Programleder + Gjest 1',2,0);rule='L2';why=`${personCuts.length} bytter siste 10 s`}
         else if(pp&&(cur!=='BIRD'&&cur!=='WIDE')){want=hasWide?'WIDE':'BIRD';rule='T6';why=`${personCuts.length} bytter mellom personer siste 10 s (grense ${R.ping})`}
         else{want=cuKey(best);rule=req(best)>base(best)?'T4':'T2';why=detail(best)}
       } else if(best!=null&&best===cp){
@@ -635,13 +642,13 @@ function draw(){
   const cs=getComputedStyle(document.documentElement),col=k=>cs.getPropertyValue(k).trim();
   const W=cv.width,H=cv.height,left=90;
   ctx.clearRect(0,0,W,H);ctx.font='600 15px '+col('--f-display');ctx.textBaseline='middle';
-  [...P.map(i=>NAMES[i]),'Program'].forEach((nm,r)=>{ctx.fillStyle=col('--muted');ctx.fillText(nm,4,top+r*(rowH+8)+rowH/2);ctx.fillStyle=col('--meter-bg');ctx.fillRect(left,top+r*(rowH+8),W-left,rowH)});
+  [...P.map(i=>NAMES[i]),'Program'].forEach((nm,r)=>{const pc=r<N?col(PCOL[r]):null;if(pc){ctx.fillStyle=pc;ctx.fillRect(0,top+r*(rowH+8)+3,5,rowH-6)}ctx.fillStyle=pc||col('--muted');ctx.fillText(nm.replace('Programleder','Programl.'),10,top+r*(rowH+8)+rowH/2);ctx.fillStyle=col('--meter-bg');ctx.fillRect(left,top+r*(rowH+8),W-left,rowH)});
   const sw=(W-left)/600,off=600-hist.length,py=top+N*(rowH+8);
   const kc={cu:col('--tally'),bird:col('--amber'),wide:col('--amber'),content:col('--eye'),layout:col('--eye')};
   hist.forEach((h,k)=>{
     const x=left+(off+k)*sw;
-    h.m.forEach((v,r)=>{if(!v)return;ctx.fillStyle=v===2?col('--live'):col('--bleed');ctx.fillRect(x,top+r*(rowH+8)+(v===2?0:rowH*.6),Math.ceil(sw),v===2?rowH:rowH*.4)});
-    ctx.fillStyle=kc[h.k];ctx.fillRect(x,py,Math.ceil(sw),rowH);
+    h.m.forEach((v,r)=>{if(!v)return;ctx.fillStyle=v===2?col(PCOL[r]):col('--bleed');ctx.fillRect(x,top+r*(rowH+8)+(v===2?0:rowH*.6),Math.ceil(sw),v===2?rowH:rowH*.4)});
+    const pm=/^CAM ([1-4])$/.exec(h.c);ctx.fillStyle=(h.k==='cu'&&pm&&+pm[1]<=N)?col(PCOL[+pm[1]-1]):kc[h.k];ctx.fillRect(x,py,Math.ceil(sw),rowH);
     if(k>0&&hist[k-1].c!==h.c){ctx.fillStyle=col('--ink');ctx.fillRect(x,top,2,H-top*2)}
   });
   ctx.font='600 13px '+col('--f-display');

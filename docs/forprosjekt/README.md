@@ -21,6 +21,8 @@ CutCut Studio er i **forprosjekt**. Det skrives ingen kode. Målet er at alt en 
 | Stack, versjonering, publisering | `docs/stack.md`, `docs/RELEASE.md`, `docs/publishing.md` |
 | Web-simulator | `docs/simulator.md` |
 | Research: lyd fra RØDECaster | `docs/research/lyd-fra-rodecaster.md` |
+| RØDECaster standardoppsett | `docs/studio/rodecaster-standardoppsett.md` |
+| Farger og programleder-utheving | `docs/design/farger.md` |
 
 ## Ferdig når
 
@@ -31,4 +33,4 @@ Forprosjektet er ferdig og koding (M0, deretter M1) kan starte når:
 - [ ] ADR-0012, 0013 og 0014 er avgjort eller eksplisitt overlatt til agentens planer.
 - [ ] Studioinventaret (`docs/intake/studio-inventar.md`) er fylt ut.
 - [ ] Opptak og klippeliste (Q1–Q2) er bestilt, med dato. De trengs ikke for M1, men for M2.
-- [ ] Spesifikasjonen er eksportert på nytt med beslutningene D-030 og D-031 innarbeidet (eller beslutningsloggen er godkjent som tillegg).
+- [ ] Spesifikasjonen er eksportert på nytt med beslutningene D-030–D-035 innarbeidet (eller beslutningsloggen er godkjent som tillegg).

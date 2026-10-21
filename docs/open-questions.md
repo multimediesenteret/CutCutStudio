@@ -35,4 +35,6 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q20 | Hvilken GPU har regi-PC-en? (Avgjør CUDA/TensorRT eller DirectML for videolaget) | NTNU | Åpen | |
 | Q21 | Lyd med ASIO på Windows: virker RØDE ASIO via `sounddevice` (`SD_ENABLE_ASIO`) med 20 kanaler, synkront og stabilt? Research: `docs/research/lyd-fra-rodecaster.md`. Bekreftes med `tools/hw-test/audio_rodecaster.py` | Tekniker (hw-test) | Delvis | Research 2026-10-21 anbefaler ASIO i egen prosess (ADR-0014); venter på maskintest |
 | Q22 | Vercel: passer Hobby-planen for NTNU-prosjektet? | NTNU | Besvart | Ja. Intern prototyping ved universitet, ikke kommersielt. Bare web-simulatoren publiseres (2026-10-21, Magnus Lian) |
-| Q23 | RØDECaster-firmware: hvilken versjon står i studio (må være ≥ 1.7.3 for kanalkart etter fader)? Hvilken fader har hver mic? | Tekniker | Åpen | |
+| Q23 | RØDECaster-firmware og faderkart | Claude (valgt) | Besvart | Firmware 1.7.6, fast faderkart med programleder på fader 1. `docs/studio/rodecaster-standardoppsett.md` (2026-10-21) |
+| Q24 | Inneholder pre-fader multitrack-sporet lyd fra en mic som er dempet på RØDECaster? Avgjør om regel `S7` trengs eller om post-fader er bedre. Testes i `tools/hw-test/audio_rodecaster.py` | Tekniker (hw-test) | Åpen | |
+| Q25 | Eksakte fargenavn i RØDECaster-paletten for magenta, cyan, lilla og oransje (noteres i `baseline.yaml`) | Tekniker | Åpen | |

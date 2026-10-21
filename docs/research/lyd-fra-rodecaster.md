@@ -65,7 +65,8 @@ Skal svare på Q21 og bekrefte anbefalingen. Måler og rapporterer:
 3. Synkronitet: klapp foran alle mic-er; krysskorrelasjon mellom kanalene (forventet 0 sampler forskyvning).
 4. Forsinkelse og dropouts: 60 minutter opptak med teller for over- og underflyt per buffer-størrelse (128/256/512).
 5. Gjenoppretting: trekk ut USB, slå RØDECaster av og på; måler tid til strømmen er åpen igjen.
-6. Samme målinger for C (WASAPI eksklusiv) hvis Windows viser kanalene, så vi vet om reserven virker.
+6. Dempet kanal: tekniker demper én mic på RØDECaster mens personen snakker; skriptet måler om pre-fader-sporet fortsatt har signal (Q24).
+7. Samme målinger for C (WASAPI eksklusiv) hvis Windows viser kanalene, så vi vet om reserven virker.
 
 Resultatet legges som issue med malen «Maskintest-rapport», og avgjør ADR-0014.
 

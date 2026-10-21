@@ -27,6 +27,8 @@ CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Wi
 | 9 | `docs/publishing.md` og `docs/simulator.md` | Hva som publiseres hvor; web-simulatoren på Vercel |
 | – | `docs/spec/02-teknisk-referanse.md` | Oppslagsverk: protokoller, kommandoer, API-er per enhet |
 | – | `docs/spec/03-evaluering-og-bakgrunn.md` | Hvorfor valgene er tatt |
+| – | `docs/studio/` | Standardoppsett for utstyret i studio (f.eks. RØDECaster) |
+| – | `docs/design/` | Farger og visuelle regler for alle skjermer |
 | – | `docs/research/` | Research bak beslutninger (f.eks. lyd fra RØDECaster) |
 | – | `docs/prototype/cutcut-prototype.html` | Klikkbar referanse for oppførsel og regel-ID-er |
 
