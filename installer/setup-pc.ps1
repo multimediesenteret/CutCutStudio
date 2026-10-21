@@ -143,7 +143,7 @@ if ($Fix -and -not $rule) {
   $rule = Get-NetFirewallRule -DisplayName $ruleName
 }
 if ($rule) { Add-Result "P7" "Brannmur" "ok" "Port $Port åpen fra $AllowFrom (Companion bare på 127.0.0.1)" }
-else { Add-Result "P7" "Brannmur" "advarsel" "Ingen regel for port $Port: teknikervinduet nås bare fra PC-en selv (kjør med -Fix)" }
+else { Add-Result "P7" "Brannmur" "advarsel" "Ingen regel for port ${Port}: teknikervinduet nås bare fra PC-en selv (kjør med -Fix)" }
 
 # P8 Network: fixed IP (checked, never changed here)
 $ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.254.*" })
