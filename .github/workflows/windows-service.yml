@@ -97,6 +97,23 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "setup-kiosk.ps1 feiler i Windows PowerShell 5.1" }
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\install-services.ps1 -DryRun -Root "$env:RUNNER_TEMP\CutCut2"
           if ($LASTEXITCODE -ne 0) { throw "install-services.ps1 feiler i Windows PowerShell 5.1" }
+      - name: Windows setup (9.2) - check, fix, check again
+        shell: pwsh
+        run: |
+          $out = "$env:RUNNER_TEMP\hwtest"
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\setup-pc.ps1 -Out $out
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\installer\setup-pc.ps1 -Fix -Out $out -VersionsYaml "$env:RUNNER_TEMP\versions.yaml"
+          $json = Get-ChildItem $out -Filter *-windows.json | Sort-Object LastWriteTime | Select-Object -Last 1
+          $r = Get-Content $json.FullName -Raw | ConvertFrom-Json
+          $r.steps | Format-Table id, title, result, summary -AutoSize | Out-String -Width 200 | Write-Host
+          $md = Get-ChildItem $out -Filter *-windows.md | Sort-Object LastWriteTime | Select-Object -Last 1
+          Write-Host "::notice title=setup-pc::$((Get-Content $md.FullName) -join '%0A')"
+          foreach ($id in "P1", "P3", "P4", "P5", "P7") {
+            $s = $r.steps | Where-Object { $_.id -eq $id }
+            if ($s.result -ne "ok") { throw "$id er ikke grønn etter -Fix: $($s.summary)" }
+          }
+          if (-not (Test-Path "$env:RUNNER_TEMP\versions.yaml")) { throw "versions.yaml ble ikke skrevet" }
+          $global:LASTEXITCODE = 0
       - name: Stopping the service leaves no process behind
         shell: pwsh
         run: |

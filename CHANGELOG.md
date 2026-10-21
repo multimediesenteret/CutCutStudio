@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-5: `installer/setup-pc.ps1` sjekker Windows-oppsettet (9.2) i 12 punkter, og retter det som er trygt med `-Fix`.
+  - Notert drivere til `versions.yaml`.
+  - Rapport i Markdown og JSON.
+  - Testet i Windows-CI.
 - DA-5: `cutcut hwtest atem` er maskintesten for ATEM og Companion, med samme rapport som lydtesten.
   - B1: ATEM, modell og format. B2: multiview. B3: makroer. B4: Companion-sider og -tilkobling.
   - B5: hver preview-knapp, med ATEM lest tilbake og tid målt. B6: TAKE CUT, bare med bekreftelse.
