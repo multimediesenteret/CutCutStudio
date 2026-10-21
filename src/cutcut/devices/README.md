@@ -6,7 +6,7 @@ Klienter mot utstyret. Ingen av dem bestemmer noe; de gjør det motoren har best
 | --- | --- | --- |
 | `companion/client.py` | HTTP mot Companion: trykk knapp, custom variables, tilkoblinger, `cutcut_pages_version` | DA-3, DA-9 |
 | `companion/executor.py` | Motorens intents → knapper på side 10 og 11. Siste preview vinner (men aldri forbi en TAKE), variabler maks 5/s, kretsbryter (3 feil → 10 s), `S5` reservekutt via `atem-bridge` | DA-3, DA-4, DA-7 |
-
+| `companion/pages.py` | Side 10 og 11 og variablene som `.companionconfig`-filer, laget fra studio-oppsettet (`cutcut companion-pages`, `docs/studio/companion.md`) | DA-9 |
 | `atem/bridge.py` | `core` sin side av `atem-bridge`: ATEM-inngang → `C1`, `BIRD`, `LAPTOP` fra show-oppsettet, `AtemReadback` og multiview til sjekkene, direkte kutt og «Kun lyd» som `atem.cmd` (reservevei for Companion, `S5`). Ingen tilbakelesing hvis broen er stille i 3 s (I1) | DA-2 |
 | `pearl/client.py` | REST API v2.0: opptaksstatus, start/stopp per opptaker, lagring, fastvare; Basic-autentisering, passord fra Credential Manager | SE-2 |
 | `pearl/recorder.py` | Pearl som opptaker for studioet: start/stopp i kø og idempotent, status hvert 2. s, «starter» holdes til Pearl bekrefter, svarer den ikke avvises start straks; stopper aldri selv (I7) | SE-2, SE-3 |

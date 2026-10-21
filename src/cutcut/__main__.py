@@ -72,6 +72,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--site", type=Path, default=None, help="studio-oppsett (lekkasje fra baseline.yaml)"
     )
 
+    pages = sub.add_parser(
+        "companion-pages",
+        help="lag Companion-sidene 10 og 11 og variablene som importfiler (DA-9)",
+        description="Skriver tre .companionconfig-filer fra studio-oppsettet.",
+    )
+    pages.add_argument("--site", type=Path, required=True, help="studio-oppsett")
+    pages.add_argument(
+        "--out", type=Path, default=None, help="mappe (standard: equipment/companion)"
+    )
+    pages.add_argument(
+        "--check", action="store_true", help="skriv ingenting; feil hvis filene er utdaterte"
+    )
+
     trace = sub.add_parser(
         "trace",
         help="skriv simulerte forløp som JSON for web-simulatoren (Vercel)",
@@ -132,6 +145,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         from cutcut.audio.main import main as audio_main
 
         return audio_main(args.wav, args.vad_model, args.site)
+    if args.command == "companion-pages":
+        from cutcut.common.config import load_site
+        from cutcut.devices.companion.pages import default_out
+        from cutcut.devices.companion.pages import write as write_pages
+
+        site = load_site(args.site)
+        out = args.out or default_out(site)
+        changed = write_pages(site, out, check=args.check)
+        if args.check:
+            if changed:
+                print("Utdaterte Companion-filer: " + ", ".join(changed))
+                return 1
+            print("Companion-filene er oppdatert.")
+            return 0
+        print(f"Skrev i {out}: {', '.join(changed) or 'ingen endringer'}")
+        return 0
     if args.command == "trace":
         from cutcut.sim.trace import default_trace_dir, write_all
 

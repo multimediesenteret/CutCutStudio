@@ -1,0 +1,332 @@
+{
+ "version": 12,
+ "type": "page",
+ "companionBuild": null,
+ "page": {
+  "id": "cutcut-page-11",
+  "name": "CutCut OPERATØR",
+  "controls": {
+   "2": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nC1",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c0",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 1
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "1": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nC2",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c1",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 2
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "2": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nC3",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c2",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 3
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "3": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nC4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c3",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 4
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "4": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nBIRD",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c4",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 5
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "5": {
+     "type": "button",
+     "style": {
+      "text": "PGM\\nLAPTOP",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r2-c5",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 6
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   },
+   "3": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "KUN\\nLYD",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 9067008,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p11-r3-c0",
+          "definitionId": "program",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 3010
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   }
+  },
+  "gridSize": {
+   "minColumn": 0,
+   "maxColumn": 7,
+   "minRow": 0,
+   "maxRow": 3
+  }
+ },
+ "instances": {
+  "cutcut-atem": {
+   "label": "ATEM",
+   "moduleId": "bmd-atem",
+   "lastUpgradeIndex": 6,
+   "sortOrder": 0
+  }
+ },
+ "connectionCollections": [],
+ "oldPageNumber": 11
+}
