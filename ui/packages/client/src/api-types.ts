@@ -129,6 +129,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Health Checks
+         * @description Latest result of every check (spec 10.1). No sign-in needed, like /api/health.
+         */
+        get: operations["health_checks_api_health_checks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/help": {
         parameters: {
             query?: never;
@@ -645,6 +665,46 @@ export interface components {
             /** Ts */
             ts: string;
         };
+        /** CheckResult */
+        CheckResult: {
+            /**
+             * Expected
+             * @default null
+             */
+            expected: string | null;
+            /**
+             * For User
+             * @default false
+             */
+            for_user: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Level
+             * @default connected
+             * @enum {string}
+             */
+            level: "connected" | "working" | "as_agreed";
+            /** Message */
+            message: string;
+            /**
+             * Since
+             * @default null
+             */
+            since: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "green" | "yellow" | "red";
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Value */
+            value: string;
+        };
         /** CompanionButton */
         CompanionButton: {
             /** Col */
@@ -735,6 +795,23 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * HealthInfo
+         * @description The health checks (spec 8.5): worst open issue and the latest result of each check.
+         */
+        HealthInfo: {
+            /**
+             * Checks
+             * @default []
+             */
+            checks: components["schemas"]["CheckResult"][];
+            /**
+             * Status
+             * @default green
+             * @enum {string}
+             */
+            status: "green" | "yellow" | "red";
         };
         /**
          * LiveMessage
@@ -1113,6 +1190,13 @@ export interface components {
             /** Alerts */
             alerts: components["schemas"]["AlertInfo"][];
             engine: components["schemas"]["EngineInfo"];
+            /**
+             * @default {
+             *       "checks": [],
+             *       "status": "green"
+             *     }
+             */
+            health: components["schemas"]["HealthInfo"];
             /** Participants */
             participants: components["schemas"]["ParticipantInfo"][];
             recording: components["schemas"]["RecordingInfo"];
@@ -1375,6 +1459,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    health_checks_api_health_checks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckResult"][];
                 };
             };
         };

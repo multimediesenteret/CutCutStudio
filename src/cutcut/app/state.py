@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.session import Session, ShowChoice
+from cutcut.health.model import CheckResult
 
 
 class _S(BaseModel):
@@ -103,6 +104,13 @@ class RuntimeInfo(_S):
     processes: list[ProcessInfo] = []  # empty when core runs without the supervisor
 
 
+class HealthInfo(_S):
+    """The health checks (spec 8.5): worst open issue and the latest result of each check."""
+
+    status: Literal["green", "yellow", "red"] = "green"
+    checks: list[CheckResult] = []
+
+
 class StudioState(_S):
     studio: StudioInfo
     session: Session | None
@@ -113,6 +121,7 @@ class StudioState(_S):
     rules: RulesInfo
     alerts: list[AlertInfo]
     runtime: RuntimeInfo
+    health: HealthInfo = HealthInfo()
 
 
 class Meter(_S):

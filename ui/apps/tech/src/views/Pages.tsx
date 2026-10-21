@@ -716,8 +716,71 @@ export function Health({ ctx }: { ctx: Ctx }) {
           <span>{state.studio.version}</span>
         </div>
       </div>
+      <Checks health={state.health} />
       <Processes processes={rt.processes ?? []} />
       {state.studio.simulator && <SimPanel ctx={ctx} />}
+    </div>
+  );
+}
+
+type Health = NonNullable<StudioState["health"]>;
+
+const CHECK_TEXT = { green: "OK", yellow: "Avvik", red: "Feil" } as const;
+const CHECK_CLS = { green: "", yellow: "warn", red: "err" } as const;
+
+/** The health checks (spec 8.5): latest result of each, worst first. */
+function Checks({ health }: { health: Health | undefined }) {
+  const rank = { red: 0, yellow: 1, green: 2 } as const;
+  const checks = [...(health?.checks ?? [])].sort(
+    (a, b) => rank[a.status] - rank[b.status] || a.id.localeCompare(b.id),
+  );
+  const status = health?.status ?? "green";
+  return (
+    <div className="panel span">
+      <div className="ph">
+        <span className="lbl">Sjekker</span>
+        <span className={`hst ${CHECK_CLS[status]}`}>
+          <i />
+          {CHECK_TEXT[status]}
+        </span>
+        <span className="muted small">Et avvik lukkes etter 30 s grønt</span>
+      </div>
+      {checks.length === 0 ? (
+        <p className="muted small">Sjekkene har ikke kjørt ennå.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Sjekk</th>
+              <th>Status</th>
+              <th>Verdi</th>
+              <th>Forventet</th>
+              <th>Melding</th>
+            </tr>
+          </thead>
+          <tbody>
+            {checks.map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <span className="tag">{c.id}</span>
+                </td>
+                <td>
+                  <span className={`hst ${CHECK_CLS[c.status]}`}>
+                    <i />
+                    {CHECK_TEXT[c.status]}
+                  </span>
+                </td>
+                <td className="mono">{c.value}</td>
+                <td className="muted">{c.expected ?? "–"}</td>
+                <td>
+                  {c.message}
+                  {c.since && <span className="muted small"> · siden {hms(c.since)}</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

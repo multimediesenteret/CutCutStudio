@@ -5,6 +5,13 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- HS-1: helsemotor (`src/cutcut/health/`).
+  - Hver sjekk har eget intervall og egen tidsgrense. En sjekk som feiler eller henger, blir gul og stopper aldri motoren.
+  - Hysterese: et avvik lukkes først etter 30 s grønt, og hvert avvik logges med start og slutt.
+  - Åpne avvik blir varsler i teknikervinduet og forsvinner av seg selv når de er løst.
+  - Nytt endepunkt `GET /api/health/checks`, og `/api/health` tar med sjekkene.
+  - Teknikervinduet viser en sjekktabell under Helse.
+  - Første sjekk: `H-AUD-1` (lyden kommer).
 - AU-4: `audio-capture` merker lekkasje og dempede mic-er.
   - En mic som bare hører naboen, merkes `leak` og regnes ikke som taler. To som snakker samtidig, er begge talere.
   - Lekkasjematrisen måles i setup steg 5 og lagres i `baseline.yaml` (ny modell og skjema). Før det brukes −18 dB.
