@@ -5,6 +5,13 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- HS-2 (første del): helsesjekker for prosesser, PC, Pearl, ATEM og Companion.
+  - `H-PROC-*` fra supervisor og `H-PC-1/2/3` (disk, minne, CPU).
+  - `H-PRL-1`: Pearl svarer, ingen feil, plass i minutter.
+  - `H-ATEM-1`.
+  - `H-COMP-1`: API-et svarer, og CutCut-sidene er importert i riktig versjon.
+  - Touch sperrer start bare mens Pearl eller ATEM er rød.
+  - Simulatoren har feilene «Pearl svarer ikke» og «Disken er full».
 - HS-1: helsemotor (`src/cutcut/health/`).
   - Hver sjekk har eget intervall og egen tidsgrense. En sjekk som feiler eller henger, blir gul og stopper aldri motoren.
   - Hysterese: et avvik lukkes først etter 30 s grønt, og hvert avvik logges med start og slutt.

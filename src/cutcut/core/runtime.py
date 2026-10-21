@@ -99,6 +99,11 @@ class CoreRuntime:
         """The newest mic measurements (read-only use: meters for the screens)."""
         return self._mics
 
+    @property
+    def atem(self) -> AtemReadback | None:
+        """What the ATEM shows now (None: not connected). For ``H-ATEM-1``."""
+        return self._atem
+
     def audio_age_ms(self) -> int | None:
         """How long since the last audio measurement, or since start if none came yet (the
         same grace as S4). For ``H-AUD-1``."""

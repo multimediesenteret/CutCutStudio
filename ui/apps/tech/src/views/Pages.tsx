@@ -551,6 +551,8 @@ interface SimStatus {
   companion_online: boolean;
   moving: string[];
   multiview_wrong?: boolean;
+  pearl_online?: boolean;
+  disk_full?: boolean;
 }
 
 const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; camera?: string }[] = [
@@ -568,6 +570,12 @@ const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; came
     label: "Noen har endret ATEM-multiviewen (H-MV)",
     on: (s) => !!s.multiview_wrong,
   },
+  {
+    kind: "pearl_offline",
+    label: "Pearl svarer ikke (H-PRL-1)",
+    on: (s) => s.pearl_online === false,
+  },
+  { kind: "disk_full", label: "Disken på PC-en er full (H-PC-1)", on: (s) => !!s.disk_full },
 ];
 
 function SimPanel({ ctx }: { ctx: Ctx }) {

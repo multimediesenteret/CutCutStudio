@@ -34,6 +34,7 @@ from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_rule_presets, load_show_types, load_site
 from cutcut.common.models.site import Devices
 from cutcut.common.platform.secrets import SecretMissingError, SecretStore
+from cutcut.common.platform.system import PsutilSystem
 from cutcut.common.store import Store
 from cutcut.devices.atem.bridge import AtemBridgeClient, site_input_map
 from cutcut.devices.companion.client import CompanionHttp
@@ -134,6 +135,8 @@ def build_core(opts: CoreOptions) -> Core:
             store=store,
             log_dir=opts.data_dir / "logs",
             atem=bridge,
+            system=PsutilSystem(),
+            data_dir=opts.data_dir,
         )
     )
 

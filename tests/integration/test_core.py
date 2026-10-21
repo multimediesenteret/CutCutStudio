@@ -206,10 +206,33 @@ def test_core_shows_processes_from_the_supervisor(
         assert procs[1]["running"] is False
 
         up = [dict(down[0]), {**down[1], "running": True}]
-        assert until(
-            lambda: core.studio.alerts[-1].message == "atem-bridge kjører igjen",
-            5,
-            lambda: reporter(up),
-        )
+
+        def check(cid: str) -> str | None:
+            return next((r.status for r in core.studio.health.results() if r.id == cid), None)
+
+        assert until(lambda: check("H-PROC-atem-bridge") == "green", 5, lambda: reporter(up))
+        assert check("H-PROC-core") == "green"
+        assert check("H-PROC-supervisor") == "green"
     finally:
         reporter.close()
+
+
+def test_core_checks_companion_pages_and_pearl(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """HS-2 against the fake devices: Companion without CutCut's pages is red, with them green;
+    Pearl's storage is read in minutes."""
+    client, _, cstate, _, core = rig
+
+    def check(cid: str) -> dict[str, Any] | None:
+        rows = client.get("/api/health/checks").json()
+        return next((r for r in rows if r["id"] == cid), None)
+
+    assert until(lambda: (check("H-COMP-1") or {}).get("status") == "red", 10)
+    assert check("H-COMP-1")["value"] == "ingen CutCut-sider"  # type: ignore[index]
+    cstate.variables["cutcut_pages_version"] = "1"
+    assert until(lambda: (check("H-COMP-1") or {}).get("status") == "green", 10)
+
+    assert until(lambda: (check("H-PRL-1") or {}).get("status") == "green", 10)
+    assert check("H-PRL-1")["value"].endswith("min ledig")  # type: ignore[index]
+    assert {"H-PC-1", "H-PC-2", "H-PC-3"} <= {r.id for r in core.studio.health.results()}
