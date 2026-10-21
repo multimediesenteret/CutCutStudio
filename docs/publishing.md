@@ -16,7 +16,7 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 **Oppsett** (gjøres av eier, ikke av agent):
 
 - Vercel-prosjektet kobles til `multimediesenteret/cutcutstudio`, gren `main` til produksjon, pull requests til forhåndsvisning.
-- **Nå (konsept):** Root Directory `concept`, Framework Preset «Other», ingen byggekommando, Output Directory `.`.
+- **Nå (konsept):** Vercel-prosjektet `multimediesenteret/cutcutstudio2026` (https://cutcutstudio2026.vercel.app) bygger fra repo-roten med Framework Preset «Other» og ingen byggekommando. `vercel.json` i roten sender `/` til `/concept/`, `/touch` og `/tech` til hver skjerm, og alle andre stier til konseptet, så resten av repoet (dokumentasjon, utstyrsfiler) ikke kan åpnes fra nettsiden.
 - **Fra M1:** byggekommando og ut-mappe for simulatoren (forslag: `pnpm --filter simulator build`, ut-mappe `ui/apps/simulator/dist/`). Agenten dokumenterer det her når det finnes.
 - Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
 

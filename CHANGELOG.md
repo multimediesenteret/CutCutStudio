@@ -16,3 +16,4 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - `docs/studio/rodecaster-standardoppsett.md` (firmware 1.7.6, faderkart, innstillinger) og `docs/design/farger.md` (deltakerfarger); D-032–D-035, Q23 besvart, Q24–Q25.
 - Prototypen viser deltakerfarger og uthevet programleder.
 - GUI-konsept i `concept/` (touch, tekniker, side om side) og `docs/design/gui-konsept.md`; D-036–D-039. Vercel-oppsett for konseptet i `docs/publishing.md`.
+- `vercel.json`: forsiden og alle stier går til `concept/`; korte adresser `/touch` og `/tech`.

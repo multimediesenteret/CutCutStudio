@@ -20,7 +20,7 @@ cd concept && python3 -m http.server 8765
 
 ## Vercel
 
-Prosjektinnstillinger: **Root Directory** `concept`, Framework Preset **Other**, ingen byggekommando, Output Directory `.`. Se `docs/publishing.md`.
+Publisert på https://cutcutstudio2026.vercel.app (forside), `/touch` og `/tech`. Prosjektet bygger fra repo-roten uten byggekommando; `vercel.json` i roten sender alt til `concept/`. Se `docs/publishing.md`.
 
 ## Hva som er konsept og hva som blir appen
 
