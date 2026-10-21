@@ -8,7 +8,11 @@ Klienter mot utstyret. Ingen av dem bestemmer noe; de gjør det motoren har best
 | `companion/executor.py` | Motorens intents → knapper på side 10 og 11. Siste preview vinner (men aldri forbi en TAKE), variabler maks 5/s, kretsbryter (3 feil → 10 s), `S5` reservekutt via `atem-bridge` | DA-3, DA-4, DA-7 |
 | `companion/pages.py` | Side 10 og 11 og variablene som `.companionconfig`-filer, laget fra studio-oppsettet (`cutcut companion-pages`, `docs/studio/companion.md`) | DA-9 |
 | `atem/bridge.py` | `core` sin side av `atem-bridge`: ATEM-inngang → `C1`, `BIRD`, `LAPTOP` fra show-oppsettet, `AtemReadback` og multiview til sjekkene, direkte kutt og «Kun lyd» som `atem.cmd` (reservevei for Companion, `S5`). Ingen tilbakelesing hvis broen er stille i 3 s (I1) | DA-2 |
+| `cameras/base.py` | `CameraDriver` (spes. 7.3, pluss `move_to`/`zoom_to`), `PTZPosition`, `CameraStatus`, `Unsupported` og kommandoene CutCut sender til kameraer | CA-1 |
+| `cameras/guarded.py` | `GuardedCamera` pakker hver driver: nekter bevegelse og farge når kameraet er på program eller preview etter ATEM-tilbakelesingen (I2, `PV2`), også rett før sending; uten ATEM nektes alt som beveger. Klemmer til `limits` i `devices.yaml` og logger det (8.4). Én kø per kamera (maks 8, eldste kastes), 200 ms tidsavbrudd, kretsbryter (3 feil → 10 s). En SuperSource-layout på lufta holder alle kameraer i ro | CA-1 |
 | `pearl/client.py` | REST API v2.0: opptaksstatus, start/stopp per opptaker, lagring, fastvare; Basic-autentisering, passord fra Credential Manager | SE-2 |
 | `pearl/recorder.py` | Pearl som opptaker for studioet: start/stopp i kø og idempotent, status hvert 2. s, «starter» holdes til Pearl bekrefter, svarer den ikke avvises start straks; stopper aldri selv (I7) | SE-2, SE-3 |
+
+Kameraene testes mot `cutcut.sim.fake_camera.FakeCamera`, med en egenskapstest der tilfeldige kommandoer og kutt aldri flytter et kamera på lufta. Driverne for OBSBOT og Canon kommer i CA-2–CA-4.
 
 Testes mot en falsk Companion over ekte HTTP og en falsk Pearl over ekte HTTP (`cutcut.sim.fake_companion`, `cutcut.sim.fake_pearl`, `tests/integration/`). Knappekartet ligger i `site/<studio>/equipment/companion_map.yaml`; side 11 har direkte kutt og «Kun lyd».
