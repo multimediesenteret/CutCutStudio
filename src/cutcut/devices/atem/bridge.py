@@ -120,6 +120,10 @@ class AtemBridgeClient:
 
     # -- what the ATEM shows --------------------------------------------------------------
 
+    def raw(self) -> AtemStateRaw | None:
+        """The latest ``atem.state`` as ATEM input numbers (machine test, setup screen)."""
+        return self._fresh()
+
     def macros(self) -> dict[int, str] | None:
         """Macros in the ATEM (number → name), or None while the bridge is not connected."""
         st = self._fresh()

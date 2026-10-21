@@ -253,6 +253,12 @@ def create_app(
         require(me, "operator")
         return studio.check_multiview_now(me.role, me.actor)
 
+    @app.get("/api/setup/atem", tags=["setup"])
+    async def atem(me: Who) -> dict[str, Any]:
+        """What CutCut reads from the ATEM, in ATEM input numbers (machine test DA-5)."""
+        require(me, "operator")
+        return studio.atem_status()
+
     @app.get("/api/setup/mics", tags=["setup"])
     async def mics(me: Who) -> dict[str, Any]:
         """Setup step 5: what has been measured, and what is saved as fasit (AU-7)."""
