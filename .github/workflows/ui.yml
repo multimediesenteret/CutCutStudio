@@ -2,12 +2,15 @@ name: ui
 
 # Lint, types, tests and build for the screens (ui/). Runs only when UI-related files change,
 # to save Actions minutes on the free plan (D-050). Linux only: the UI is static files.
-# Also runs when the parts of the engine the screens talk to change (API, studio, session, sim).
+# Also runs when the parts of the engine the screens talk to change (API, studio, session, sim),
+# and for the Node bridges (bridges/), which share the pnpm workspace.
 
 on:
   pull_request:
     paths:
       - "ui/**"
+      - "bridges/**"
+      - "tests/fixtures/atem/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -26,6 +29,8 @@ on:
     branches: [main]
     paths:
       - "ui/**"
+      - "bridges/**"
+      - "tests/fixtures/atem/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"

@@ -1,0 +1,25 @@
+{
+  "connected": true,
+  "model": "TelevisionStudioHD8ISO",
+  "program_input": 3010,
+  "preview_input": 1,
+  "multiview": {
+    "layout": "2+8",
+    "preview_left": true,
+    "windows": [
+      "input1",
+      "input2",
+      "input3",
+      "input4",
+      "input6",
+      "input7",
+      "mediaplayer1",
+      "other"
+    ],
+    "safe_area": true,
+    "audio_meters": false,
+    "tally": true,
+    "video_mode": "1080p50"
+  },
+  "recording": "Idle"
+}
