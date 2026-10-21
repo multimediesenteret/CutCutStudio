@@ -1,0 +1,24 @@
+<!--
+  Windows-tjenesten «CutCut-Companion» (SO-2, Q35): Bitfocus Companion uten skjerm, låst
+  versjon, bare på 127.0.0.1 (spesifikasjonen 12.4). Laget av install-services.ps1.
+  Stien til Companions headless-start og konfigmappen bekreftes på test-PC-en (Q35).
+-->
+<service>
+  <id>CutCut-Companion</id>
+  <name>CutCut Companion</name>
+  <description>Bitfocus Companion for CutCut (side 10 REGI og 11 OPERATØR).</description>
+  <executable>{{COMPANION_EXE}}</executable>
+  <arguments>{{COMPANION_ARGS}}</arguments>
+  <workingdirectory>{{COMPANION_DIR}}</workingdirectory>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="5 sec"/>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  <stoptimeout>15 sec</stoptimeout>
+  <logpath>{{DATA}}\logs\companion</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>

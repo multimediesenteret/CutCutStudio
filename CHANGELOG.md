@@ -5,6 +5,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-2: Windows-tjenesten `CutCut` med WinSW 2.12 (`installer/install-services.ps1`, maler i `installer/winsw/`).
+  - Starter automatisk med Windows, og på nytt etter krasj (5, 10, 30 s).
+  - Valgfri Companion-tjeneste.
+  - CI-jobben `windows-service` installerer tjenesten på Windows og sjekker oppstart, omstart av en drept `core` og at ingenting blir igjen ved stopp.
+  - Veiledning i `docs/studio/tjenester.md`.
 - AU-7 (andre del): mic-sjekk i Oppsett (setup steg 5).
   - Én og én snakker. CutCut sjekker at stemmen er sterkest på riktig kanal, og måler lekkasje til de andre mikrofonene og støy i stillhet.
   - «Lagre som fasit» skriver `baseline.yaml` og sender den nye lekkasjematrisen til `audio-capture` med en gang (`audio.config`).
