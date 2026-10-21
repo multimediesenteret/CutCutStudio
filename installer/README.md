@@ -14,3 +14,10 @@ CI-jobben `windows-service` installerer den ekte tjenesten på en Windows-maskin
 - at den starter;
 - at en `core` som drepes, kommer tilbake;
 - at ingen prosesser blir igjen når tjenesten stoppes.
+
+`setup-pc.ps1` sjekker Windows-oppsettet i spesifikasjonen 9.2 (SO-5), og retter det med `-Fix`.
+- **Retter:** strøm, USB-strømsparing, rask oppstart, skjermsparer, Windows Update-tider, tidstjeneste (NTP) og brannmur for port 8080.
+- **Bare sjekker:** fast IP, tjenester og kiosk, drivere (`-VersionsYaml` skriver dem til `equipment/versions.yaml`) og UPS. BIOS står som et punkt å sjekke for hånd.
+- **Rapport:** som maskintestene.
+
+CI kjører skriptet på Windows to ganger: én sjekk, og én gang med `-Fix`.
