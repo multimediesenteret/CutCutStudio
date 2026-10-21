@@ -24,7 +24,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Kjente feil og funn
 
-- Studioets mikser er ATEM Television Studio HD8 ISO (SDI), ikke Mini Extreme ISO (D-053). Påvirker studio-oppsett, Companion og rutekart, ikke motoren. Inngangskartet er bekreftet og lagt inn i `site/ntnu-studio/` (D-054).
+- Studioets mikser er ATEM Television Studio HD8 ISO (SDI), ikke Mini Extreme ISO (D-053). Påvirker studio-oppsett, Companion og rutekart, ikke motoren. Inngangskartet er bekreftet og lagt inn i `site/ntnu-studio/` (D-054). IP-adresser settes i teknikervinduet, og multiviewen sjekkes automatisk (D-055).
 
 - `main` kan ikke beskyttes på gratis privat GitHub. Valgt løsning: agenten pusher aldri direkte til `main`, men merger egne pull requests når CI er grønn (D-050, D-052).
 

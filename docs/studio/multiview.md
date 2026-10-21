@@ -34,6 +34,41 @@ Bekreftet av Magnus Lian 2026-10-21: Camera 1 = programleder, Camera 2–4 = gje
 5. **Mediaspiller 1 er intern og brukes ikke** av studioet, så CutCut kan legge «Kun lyd»-grafikken der som spesifikasjonen sier (Q39 besvart).
 6. **Opptaksstatus-ruta** er ATEM sitt eget ISO-opptak. Pearl Nexus er fortsatt hovedopptaker (spesifikasjonen 2.2); ATEM-opptaket er av, som spesifikasjonen anbefaler.
 
+## Anbefalt oppsett (D-055)
+
+CutCut regner ut det anbefalte oppsettet fra studioets show-oppsett og viser det under **Oppsett → Multiview** i teknikervinduet, side om side med rutekartet og det ATEM faktisk viser.
+
+| Rute | Anbefalt | Hvorfor |
+| --- | --- | --- |
+| Stor venstre / høyre | Preview / Program | Vanlig ATEM-rekkefølge; skjermene tegner det likt |
+| 1–4 | Camera 1–4: programleder, gjest 1–3 | Setene leses fra venstre til høyre, som på touch-skjermen |
+| 5 | Camera 6: oversikt (fugleperspektiv) | CutCut leser den (antall personer, latter, bevegelse) |
+| 6 | Camera 7: laptop | CutCut leser den (content-deteksjon, 6.2) |
+| 7 | SuperSource | Viser hvilken layout som er klar (M4); fram til da er ruta ufarlig |
+| 8 | Media Player 1 | «Kun lyd»-grafikken, så teknikeren ser hva modus `A` sender |
+
+**Innstillinger i ATEM Software Control → Multiview:** tally-rammer på, safe area av, lydmålere av, navneskilt på (CutCut kutter 4 % inn og ser dem ikke), utgang på HDMI til opptakskortet i 1080p50.
+
+**I studio i dag** avviker bare rute 7 og 8 (Media Player 1 og opptaksstatus), som CutCut ikke leser, og safe area er på. Det er forslag og en advarsel, ikke feil: CutCut virker med oppsettet slik det står. Bytter dere til det anbefalte, endres rutekartet (`equipment/multiview_map.yaml`) samtidig.
+
+## Feil oppdages av seg selv
+
+CutCut sjekker multiviewen hvert 10. sekund (`H-MV`), og teknikeren får varsel under Helse når noe ikke stemmer:
+
+| Sjekk | Nivå | Hva |
+| --- | --- | --- |
+| `H-MV-0` | Feil | Studioet har ikke noe rutekart |
+| `H-MV-1` | Feil | Rutekartet sier ikke hvor en kamera CutCut kan klippe til, er |
+| `H-MV-2` | Feil | Rutekartet leser et kamera fra feil inngang (show-oppsett og rutekart er uenige) |
+| `H-MV-3` | Feil | ATEM har ikke 2 + 8-layout |
+| `H-MV-4` | Feil | Preview og program har byttet plass |
+| `H-MV-5` | Feil / advarsel | En rute viser noe annet enn rutekartet: feil hvis CutCut leser ruta, ellers advarsel |
+| `H-MV-6`, `H-MV-7`, `H-MV-8` | Advarsel | Safe area på, lydmålere på, tally av |
+| `H-MV-10` | Advarsel | Multiview er ikke 1080p50 |
+| `H-MV-11` | Forslag | Avvik fra det anbefalte oppsettet |
+
+Sjekk mot rutekart og show-oppsett virker allerede. Sjekk mot det ATEM viser (`H-MV-3`–`H-MV-10`) virker i simulatoren nå, og mot ekte ATEM når `atem-bridge` er på plass (M2). Prøv det i simulatoren: Helse → «Noen har endret ATEM-multiviewen».
+
 ## Hva som ikke endres
 
 Motoren, regelverket og skjermene er uavhengige av ATEM-modellen: de snakker om `C1`, `BIRD`, `LAPTOP` osv., og `devices.yaml` kobler det til innganger. Det som må tilpasses er studio-oppsettet (`site/ntnu-studio/`), Companion-knappekartet og rutekartet – ingen kodeendring i M1.

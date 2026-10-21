@@ -17,7 +17,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from cutcut import __version__
 from cutcut.api.auth import COOKIE, SESSION_S, Auth, Identity, require
-from cutcut.app import export
+from cutcut.app import devices, export
 from cutcut.app.hub import TOPICS
 from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
@@ -179,6 +179,36 @@ def create_app(
         stamp = studio.deps.clock.now().strftime("%Y-%m-%d-%H%M")
         headers = {"Content-Disposition": f'attachment; filename="{name}-{stamp}.{ext}"'}
         return Response(data, media_type=media, headers=headers)
+
+    @app.get("/api/settings/devices", tags=["config"])
+    async def get_devices(me: Who) -> dict[str, Any]:
+        """Equipment addresses: the value in use, the value in devices.yaml, and what is changed."""
+        require(me, "operator")
+        return studio.devices_info()
+
+    @app.put("/api/settings/devices", tags=["config"])
+    async def put_devices(body: dict[str, str | None], me: Who) -> dict[str, Any]:
+        """Change addresses, e.g. ``{"cameras.C2.ip": "10.10.10.32"}``; ``null`` resets one."""
+        require(me, "admin")
+        studio.set_devices(body, me.role, me.actor)
+        return studio.devices_info()
+
+    @app.get("/api/settings/devices.yaml", tags=["export"], response_class=Response)
+    async def devices_yaml(me: Who) -> Response:
+        """The equipment list in use, as a devices.yaml for the studio repo."""
+        require(me, "admin")
+        text = devices.to_yaml(studio.devices)
+        return Response(
+            text.encode("utf-8"),
+            media_type="application/yaml",
+            headers={"Content-Disposition": 'attachment; filename="devices.yaml"'},
+        )
+
+    @app.get("/api/setup/multiview", tags=["setup"])
+    async def multiview(me: Who) -> dict[str, Any]:
+        """Rutekart against shows and ATEM, plus the recommended layout (D-055)."""
+        require(me, "operator")
+        return studio.multiview_status()
 
     @app.get("/api/shows", tags=["config"])
     async def shows(me: Who) -> list[dict[str, Any]]:

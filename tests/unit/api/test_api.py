@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from cutcut.api.app import create_app
 from cutcut.common.clock import FakeClock
+from cutcut.common.ids import CameraId
 from cutcut.common.store import Store
 from cutcut.core.runtime import TICK_MS
 from cutcut.sim.live import SIM_PIN, build_live_sim, sim_routes
@@ -365,3 +366,83 @@ def test_exports_need_the_right_role(tmp_path: Path) -> None:
         assert rig.client.get("/api/debug-package").status_code == 403
     finally:
         rig.store.close()
+
+
+def test_equipment_addresses_can_be_changed_on_screen(rig: Rig) -> None:
+    c = rig.client
+    info = c.get("/api/settings/devices").json()
+    keys = {r["key"] for r in info["rows"]}
+    assert {"atem.ip", "pearl.ip", "companion.url", "cameras.C2.ip"} <= keys
+    r = c.put("/api/settings/devices", json={"cameras.C2.ip": "10.10.10.42", "atem.ip": "10.1.2.3"})
+    assert r.status_code == 200
+    rows = {x["key"]: x for x in r.json()["rows"]}
+    assert rows["cameras.C2.ip"]["value"] == "10.10.10.42"
+    assert rows["cameras.C2.ip"]["file_value"] == "10.10.10.22"
+    assert rows["cameras.C2.ip"]["overridden"] is True
+    # The show uses the new address for the camera driver.
+    assert str(rig.sim.studio.engine.config.show.cameras[CameraId.C2].ip) == "10.10.10.42"
+    yml = c.get("/api/settings/devices.yaml").text
+    assert "10.10.10.42" in yml
+    assert "10.1.2.3" in yml
+    # Reset to the file value.
+    c.put("/api/settings/devices", json={"cameras.C2.ip": None})
+    rows = {x["key"]: x for x in c.get("/api/settings/devices").json()["rows"]}
+    assert rows["cameras.C2.ip"]["value"] == "10.10.10.22"
+
+
+def test_bad_addresses_are_refused_with_plain_messages(rig: Rig) -> None:
+    c = rig.client
+    bad = c.put("/api/settings/devices", json={"pearl.ip": "10.10.10.999"})
+    assert bad.status_code == 409
+    assert "IP-adresse" in bad.json()["detail"]
+    dup = c.put("/api/settings/devices", json={"cameras.C3.ip": "10.10.10.22"})
+    assert dup.status_code == 409
+    assert "samme IP-adresse" in dup.json()["detail"]
+    assert c.put("/api/settings/devices", json={"api_port": "1"}).status_code == 409
+    # Nothing changed.
+    rows = {x["key"]: x for x in c.get("/api/settings/devices").json()["rows"]}
+    assert not any(r["overridden"] for r in rows.values())
+
+
+def test_equipment_addresses_survive_restart(tmp_path: Path) -> None:
+    first = Rig(tmp_path)
+    first.client.put("/api/settings/devices", json={"pearl.ip": "10.10.10.77"})
+    first.store.close()
+    second = Rig(tmp_path)
+    try:
+        rows = {x["key"]: x for x in second.client.get("/api/settings/devices").json()["rows"]}
+        assert rows["pearl.ip"]["value"] == "10.10.10.77"
+    finally:
+        second.store.close()
+
+
+def test_only_admin_changes_addresses(tmp_path: Path) -> None:
+    rig = Rig(tmp_path, dev_admin=False)
+    try:
+        r = rig.client.put("/api/settings/devices", json={"pearl.ip": "10.10.10.77"})
+        assert r.status_code in (401, 403)
+    finally:
+        rig.store.close()
+
+
+def test_multiview_check_finds_a_changed_atem_and_recovers_D055(rig: Rig) -> None:
+    c = rig.client
+    status = c.get("/api/setup/multiview").json()
+    assert status["ok"] is True
+    assert status["readback"]["windows"][0] == "input1"
+    assert [t["source"] for t in status["recommended"]["tiles"]][:2] == ["preview", "program"]
+    c.post("/api/sim/fault", json={"kind": "multiview_wrong", "on": True})
+    rig.run(10_100)
+    status = c.get("/api/setup/multiview").json()
+    assert status["ok"] is False
+    checks = {(f["check"], f["where"]) for f in status["findings"]}
+    assert ("H-MV-5", "rute W1") in checks
+    assert ("H-MV-6", "overlegg") in checks
+    alerts = [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
+    assert alerts
+    assert alerts[-1]["level"] == "warn"
+    c.post("/api/sim/fault", json={"kind": "multiview_wrong", "on": False})
+    rig.run(10_100)
+    assert c.get("/api/setup/multiview").json()["ok"] is True
+    alerts = [a for a in rig.state()["alerts"] if a["code"] == "H-MV"]
+    assert alerts[-1]["level"] == "info"

@@ -1,0 +1,232 @@
+{
+  "$defs": {
+    "AtemDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "ip": {
+          "format": "ipv4",
+          "title": "Ip",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        }
+      },
+      "required": [
+        "ip"
+      ],
+      "title": "AtemDevice",
+      "type": "object"
+    },
+    "CameraDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ip"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "CameraDevice",
+      "type": "object"
+    },
+    "CameraId": {
+      "description": "Camera IDs. C1–C4 close-ups (ATEM inputs 1–4), C5 bird's-eye, C7 optional wide.",
+      "enum": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C7"
+      ],
+      "title": "CameraId",
+      "type": "string"
+    },
+    "CardReaderDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "usb_id": {
+          "default": "09D8:0320",
+          "pattern": "^[0-9A-F]{4}:[0-9A-F]{4}$",
+          "title": "Usb Id",
+          "type": "string"
+        }
+      },
+      "title": "CardReaderDevice",
+      "type": "object"
+    },
+    "CompanionDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "engine_page": {
+          "default": 10,
+          "maximum": 99,
+          "minimum": 1,
+          "title": "Engine Page",
+          "type": "integer"
+        },
+        "operator_page": {
+          "default": 11,
+          "maximum": 99,
+          "minimum": 1,
+          "title": "Operator Page",
+          "type": "integer"
+        },
+        "pages_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Pages Version",
+          "type": "integer"
+        },
+        "url": {
+          "default": "http://127.0.0.1:8000/",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "title": "CompanionDevice",
+      "type": "object"
+    },
+    "NtnuApi": {
+      "additionalProperties": false,
+      "properties": {
+        "timeout_s": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Timeout S",
+          "type": "number"
+        },
+        "url": {
+          "default": "https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "title": "NtnuApi",
+      "type": "object"
+    },
+    "PearlDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "ip": {
+          "format": "ipv4",
+          "title": "Ip",
+          "type": "string"
+        },
+        "recorder_id": {
+          "default": "1",
+          "title": "Recorder Id",
+          "type": "string"
+        },
+        "username": {
+          "default": "cutcut",
+          "title": "Username",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ip"
+      ],
+      "title": "PearlDevice",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "api_port": {
+      "default": 8080,
+      "maximum": 65535,
+      "minimum": 1024,
+      "title": "Api Port",
+      "type": "integer"
+    },
+    "atem": {
+      "$ref": "#/$defs/AtemDevice"
+    },
+    "cameras": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CameraDevice"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/CameraId"
+      },
+      "title": "Cameras",
+      "type": "object"
+    },
+    "card_reader": {
+      "$ref": "#/$defs/CardReaderDevice",
+      "default": {
+        "usb_id": "09D8:0320"
+      }
+    },
+    "companion": {
+      "$ref": "#/$defs/CompanionDevice",
+      "default": {
+        "engine_page": 10,
+        "operator_page": 11,
+        "pages_version": 1,
+        "url": "http://127.0.0.1:8000/"
+      }
+    },
+    "ntnu_api": {
+      "$ref": "#/$defs/NtnuApi",
+      "default": {
+        "timeout_s": 3.0,
+        "url": "https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid"
+      }
+    },
+    "pearl": {
+      "$ref": "#/$defs/PearlDevice"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "studio": {
+      "pattern": "^[a-z0-9-]+$",
+      "title": "Studio",
+      "type": "string"
+    }
+  },
+  "required": [
+    "studio",
+    "atem",
+    "pearl",
+    "cameras"
+  ],
+  "title": "Devices",
+  "type": "object"
+}

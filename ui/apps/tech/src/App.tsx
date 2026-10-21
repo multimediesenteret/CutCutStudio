@@ -14,7 +14,8 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { NAV, allowed, errorText, type Ctx, type View } from "./lib";
 import { Overview } from "./views/Overview";
-import { Cameras, Health, LogView, Recording, Regi, Settings, Setup } from "./views/Pages";
+import { Cameras, Health, LogView, Recording, Regi, Settings } from "./views/Pages";
+import { Setup } from "./views/Setup";
 
 function viewFromHash(): View {
   const h = location.hash.slice(1);
@@ -198,7 +199,7 @@ function Shell({ role }: { role: Role }) {
           {view === "kameraer" && <Cameras ctx={ctx} />}
           {view === "opptak" && <Recording ctx={ctx} />}
           {view === "helse" && <Health ctx={ctx} />}
-          {view === "oppsett" && <Setup />}
+          {view === "oppsett" && <Setup ctx={ctx} />}
           {view === "logg" && <LogView ctx={ctx} />}
           {view === "innstillinger" && <Settings ctx={ctx} theme={theme} onTheme={chooseTheme} />}
         </main>

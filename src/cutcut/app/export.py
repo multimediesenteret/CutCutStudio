@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Final
 
 from cutcut import __version__
+from cutcut.app import devices as devices_mod
 from cutcut.common.privacy import redact, redact_text
 
 if TYPE_CHECKING:
@@ -156,6 +157,7 @@ def debug_package(studio: Studio, now: datetime) -> bytes:
             files[f"site/{path.relative_to(root).as_posix()}"] = redact_text(
                 path.read_text(encoding="utf-8", errors="replace")
             )
+    files["site/devices.i-bruk.yaml"] = devices_mod.to_yaml(studio.devices)
     if deps.log_dir is not None and deps.log_dir.is_dir():
         for path in sorted(deps.log_dir.glob("*.jsonl")):
             files[f"logs/{path.name}"] = _tail(path, LOG_TAIL_LINES)

@@ -81,3 +81,30 @@ test("overview stays under 50 ms of main-thread work per second (12.5)", async (
   console.log(`tech overview main thread: ${perSecondMs.toFixed(1)} ms/s`);
   expect(perSecondMs).toBeLessThan(50);
 });
+
+test("oppsett: equipment addresses are saved and the multiview is checked (D-055)", async ({
+  page,
+}) => {
+  await page.goto("/tech/#oppsett");
+  await expect(page.getByRole("heading", { name: "Oppsett-veiviser" })).toBeVisible();
+  const cam2 = page.getByLabel(/Adresse for Camera 2/);
+  await cam2.fill("10.10.10.299");
+  await expect(page.getByText("Skriv fire tall")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Lagre endringer" })).toBeDisabled();
+  await cam2.fill("10.10.10.42");
+  await page.getByRole("button", { name: "Lagre endringer" }).click();
+  await expect(page.getByText("I filen: 10.10.10.22")).toBeVisible();
+  const yml = await (await page.request.get("/api/settings/devices.yaml")).text();
+  expect(yml).toContain("10.10.10.42");
+  await page.getByRole("button", { name: "Nullstill" }).click();
+  await expect(page.getByText("I filen: 10.10.10.22")).toHaveCount(0);
+
+  await expect(page.getByText("Stemmer", { exact: true })).toBeVisible();
+  await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: true } });
+  try {
+    await expect(page.getByText("Stemmer ikke")).toBeVisible({ timeout: 8000 });
+    await expect(page.getByText(/CutCut ville lest feil kamera/).first()).toBeVisible();
+  } finally {
+    await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: false } });
+  }
+});

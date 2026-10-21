@@ -2091,6 +2091,122 @@
         ]
       }
     },
+    "/api/settings/devices": {
+      "get": {
+        "description": "Equipment addresses: the value in use, the value in devices.yaml, and what is changed.",
+        "operationId": "get_devices_api_settings_devices_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Devices Api Settings Devices Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Devices",
+        "tags": [
+          "config"
+        ]
+      },
+      "put": {
+        "description": "Change addresses, e.g. ``{\"cameras.C2.ip\": \"10.10.10.32\"}``; ``null`` resets one.",
+        "operationId": "put_devices_api_settings_devices_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "title": "Body",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Put Devices Api Settings Devices Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Devices",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/devices.yaml": {
+      "get": {
+        "description": "The equipment list in use, as a devices.yaml for the studio repo.",
+        "operationId": "devices_yaml_api_settings_devices_yaml_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Devices Yaml",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/setup/multiview": {
+      "get": {
+        "description": "Rutekart against shows and ATEM, plus the recommended layout (D-055).",
+        "operationId": "multiview_api_setup_multiview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Multiview Api Setup Multiview Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Multiview",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
     "/api/shadow": {
       "post": {
         "operationId": "shadow_api_shadow_post",

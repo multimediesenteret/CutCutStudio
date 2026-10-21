@@ -14,12 +14,16 @@ from pydantic import BaseModel
 
 from cutcut.common.config.loader import ShowTypes, default_config_dir
 from cutcut.common.config.rules import RulePresets
+from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.show import ShowConfig
+from cutcut.common.models.site import Devices
 
 SCHEMAS: dict[str, type[BaseModel]] = {
     "show.schema.json": ShowConfig,
     "rules.schema.json": RulePresets,
     "show_types.schema.json": ShowTypes,
+    "multiview_map.schema.json": MultiviewMap,
+    "devices.schema.json": Devices,
 }
 
 
