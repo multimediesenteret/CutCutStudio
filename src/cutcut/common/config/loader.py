@@ -17,6 +17,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
 
 from cutcut.common.config.rules import RuleParams, RulePresets
+from cutcut.common.models.baseline import Baseline
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.show import SHOW_SCHEMA_VERSION, RulesPreset, ShowConfig
 from cutcut.common.models.site import CompanionMap, Devices, Staff
@@ -141,6 +142,7 @@ class Site(BaseModel):
     companion_map: CompanionMap
     shows: dict[str, ShowConfig]
     multiview: MultiviewMap | None = None  # equipment/multiview_map.yaml (spec 6.1)
+    baseline: Baseline = Baseline()  # baseline.yaml from the setup wizard; empty before setup
 
 
 def load_site(root: Path) -> Site:
@@ -169,8 +171,13 @@ def load_site(root: Path) -> Site:
     multiview = (
         _validate(MultiviewMap, read_yaml(mv_path), str(mv_path)) if mv_path.exists() else None
     )
+    bl_path = root / "baseline.yaml"
+    baseline = (
+        _validate(Baseline, read_yaml(bl_path), str(bl_path)) if bl_path.exists() else Baseline()
+    )
     return Site(
         root=root,
+        baseline=baseline,
         devices=devices,
         staff=staff,
         companion_map=companion_map,

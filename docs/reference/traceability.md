@@ -34,7 +34,7 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `S3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `S4` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `S5` | Planlagt: M2 – Companion/ATEM-utfører | – | 0 |
-| `S6` | Implementert | `src/cutcut/core/engine.py`, `src/cutcut/core/speakers.py` | 2 |
+| `S6` | Implementert | `src/cutcut/core/engine.py`, `src/cutcut/core/speakers.py` | 7 |
 | `PV1` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `PV2` | Planlagt: M3 – kameradrivere (GuardedCamera) | – | 0 |
 | `PV3` | Planlagt: M4 – video_confirm | – | 0 |

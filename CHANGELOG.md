@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-4: `audio-capture` merker lekkasje og dempede mic-er.
+  - En mic som bare hører naboen, merkes `leak` og regnes ikke som taler. To som snakker samtidig, er begge talere.
+  - Lekkasjematrisen måles i setup steg 5 og lagres i `baseline.yaml` (ny modell og skjema). Før det brukes −18 dB.
+  - `S6`: en mic som er dempet på RØDECaster, faller ut av hovedmiksen innen ca. 1 s, så motoren ikke klipper til en som ikke høres.
 - AU-3: `audio-capture` finner frasegrenser per mic, så `K2` kan klippe etter 150 ms i stedet for 250 ms når en setning slutter.
   - Tonehøyde med YIN, energifall og pause.
   - Gylne filer med syntetiske stemmer: påstand, spørsmål, nøling, stemme som dør ut, dyp stemme.

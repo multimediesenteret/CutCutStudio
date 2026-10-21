@@ -1,4 +1,4 @@
-"""Per-mic measurements from multitrack blocks (AU-1, AU-2, AU-3; leakage in AU-4).
+"""Per-mic measurements from multitrack blocks (AU-1 – AU-4).
 
 Input: 10 ms blocks of the RØDECaster multitrack (480 samples × channels at 48 kHz).
 Output per block: one ``audio.frame`` payload with, for each mic, the fields core reads
@@ -8,21 +8,24 @@ Output per block: one ``audio.frame`` payload with, for each mic, the fields cor
 * ``vad`` – voice probability from the VAD, updated every 32 ms and held in between;
 * ``dominance_db`` – own level minus the loudest other mic (who is talking, not leaking);
 * ``pause_ms`` – how long the mic has been quiet (hysteresis 0.5 / 0.35 on ``vad``);
-* ``phrase_end``, ``pitch_falling`` – phrase boundaries (:mod:`cutcut.audio.phrase`).
-
-Leakage and muted-on-mixer come in AU-4; until then they are reported as neutral.
+* ``phrase_end``, ``pitch_falling`` – phrase boundaries (:mod:`cutcut.audio.phrase`);
+* ``leak`` – active only because it hears another mic (:mod:`cutcut.audio.leak`);
+* ``in_main_mix`` – heard in the RØDECaster main mix, ``S6`` (:mod:`cutcut.audio.mainmix`).
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final
 
 import numpy as np
 
-from cutcut.audio.channels import DEFAULT_MAP
+from cutcut.audio.channels import DEFAULT_MAP, MAIN_MIX
 from cutcut.audio.dsp import SILENCE_DB, Array, Decimator, rms_db
+from cutcut.audio.leak import LeakDetector
+from cutcut.audio.mainmix import MainMixWatch
 from cutcut.audio.phrase import PhraseTracker
 from cutcut.audio.vad import BLOCK, Vad, make_vad
 from cutcut.common.ids import MicId
@@ -52,11 +55,16 @@ class Analyzer:
         mics: dict[MicId, int] | None = None,
         *,
         vad_model: Path | None = None,
+        leak_db: Mapping[MicId, Mapping[MicId, float]] | None = None,
+        main_mix: tuple[int, int] | None = MAIN_MIX,
     ) -> None:
         self.mics = {
             mic: _Mic(channel, make_vad(vad_model))
             for mic, channel in (mics or DEFAULT_MAP).items()
         }
+        self.leak = LeakDetector(leak_db)
+        self.main_mix = main_mix
+        self.mainmix = MainMixWatch()
 
     @property
     def vad_name(self) -> str:
@@ -82,6 +90,18 @@ class Analyzer:
                 m.active = True
             m.pause_ms = 0 if m.active else min(MAX_PAUSE_MS, m.pause_ms + 10)
             m.phrase.feed(x16, m.level_db, m.active, m.pause_ms)
+        levels = {mic: m.level_db for mic, m in self.mics.items()}
+        active = {mic: m.active for mic, m in self.mics.items()}
+        leak = self.leak.feed(levels, active)
+        if self.main_mix is not None and max(self.main_mix) < block.shape[1]:
+            main_db = max(rms_db(block[:, ch]) for ch in self.main_mix)
+            in_mix = self.mainmix.feed(
+                main_db,
+                {k.value: v for k, v in levels.items()},
+                {k.value: v for k, v in active.items()},
+            )
+        else:
+            in_mix = {}
         out: dict[str, Any] = {}
         for mic, m in self.mics.items():
             others = [o.level_db for k, o in self.mics.items() if k is not mic]
@@ -93,8 +113,8 @@ class Analyzer:
                 "pause_ms": m.pause_ms,
                 "phrase_end": not m.active and m.phrase.phrase_end(m.pause_ms),
                 "pitch_falling": not m.active and m.phrase.pitch_falling,
-                "in_main_mix": True,
-                "leak": False,
+                "in_main_mix": in_mix.get(mic.value, True),
+                "leak": leak.get(mic, False),
                 "laughter": False,
             }
         return {"mics": out}
