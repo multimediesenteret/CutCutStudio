@@ -51,7 +51,7 @@ class SileroVad:
     name = "silero"
 
     def __init__(self, model: Path) -> None:
-        import onnxruntime as ort  # type: ignore[import-not-found,unused-ignore]  # extra «silero»
+        import onnxruntime as ort  # type: ignore[import-untyped,import-not-found,unused-ignore]
 
         opts = ort.SessionOptions()
         opts.inter_op_num_threads = 1
