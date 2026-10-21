@@ -18,8 +18,8 @@ Status: **Åpen** · **Delvis** · **Besvart**
 | Q8 | Er regi-PC-en NTNU-administrert (Intune/gruppepolicy)? Kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt? | Drift (9) | NTNU IT | Steg 9 | Åpen | |
 | Q9 | Nett: VLAN, IP-plan bekreftet, brannmur ut mot NTNU-API og Panopto | Alt | NTNU IT | Steg 5 | Åpen | |
 | Q10 | Personvern: behandlingsgrunnlag og lagringstid for brukernavn, økthistorikk, ev. live tekst | Lagring og logg | Personvernombud | Før produksjon | Åpen | |
-| Q11 | Lisens for repoet og eierskap til koden | Avhengigheter, deling | NTNU | Steg 1 | Åpen | |
-| Q12 | Kontaktpersoner: produkteier, tekniker for studiotest, IT-kontakt | Godkjenning | NTNU | Steg 1 | Åpen | |
+| Q11 | Lisens for repoet og eierskap til koden | Avhengigheter, deling | NTNU | Steg 1 | Besvart | Apache-2.0, opphavsrett NTNU Multimediesenteret; agenten valgte etter ønske fra produkteier (D-047, 2026-10-21, Magnus Lian) |
+| Q12 | Kontaktpersoner: produkteier, tekniker for studiotest, IT-kontakt | Godkjenning | NTNU | Steg 1 | Besvart | Magnus Lian (magnus.lian@ntnu.no) er produkteier, kontakt for studiotest og IT-kontakt inntil annet er sagt (D-048, 2026-10-21) |
 
 ## Tekniske spørsmål (spesifikasjonen 11)
 
@@ -44,13 +44,13 @@ Status: **Åpen** · **Delvis** · **Besvart**
 
 | ID | Spørsmål | Ansvar | Blokkerer | Status | Svar |
 | --- | --- | --- | --- | --- | --- |
-| Q27 | GitHub og Vercel: beskyttelse av `main` finnes ikke for private repoer på gratis GitHub. Velg A (privat, disiplin), B (GitHub Pro) eller C (offentlig repo). Godkjenn også CI med sti-filtre og `ignoreCommand` i `vercel.json` (se `docs/plans/milestones.md`) | Eier | M1 | Åpen | |
-| Q28 | Finnes en Windows-maskin (gjerne lik regi-PC-en) vi kan teste på før studio, eventuelt som egen GitHub Actions-maskin (gratis minutter, ekte Windows)? | NTNU | M2 | Åpen | |
+| Q27 | GitHub og Vercel: beskyttelse av `main` finnes ikke for private repoer på gratis GitHub. Velg A (privat, disiplin), B (GitHub Pro) eller C (offentlig repo). Godkjenn også CI med sti-filtre og `ignoreCommand` i `vercel.json` (se `docs/plans/milestones.md`) | Eier | M1 | Besvart | Alternativ A: privat og gratis, agenten pusher aldri til `main`. Agenten oppretter milepæler, etiketter og issues; `ignoreCommand` i `vercel.json` godkjent (D-050, 2026-10-21, Magnus Lian) |
+| Q28 | Finnes en Windows-maskin (gjerne lik regi-PC-en) vi kan teste på før studio, eventuelt som egen GitHub Actions-maskin (gratis minutter, ekte Windows)? | NTNU | M2 | Delvis | Test-PC Dell SFF ordnes av NTNU (D-051, 2026-10-21, Magnus Lian). Modell, CPU, GPU og Windows-oppsett noteres når den er klar |
 | Q29 | Varsling utenfor studio ved rødt over 1 min: e-post, Teams eller begge? Hvem skal få det? | NTNU | M3 | Åpen | |
 | Q30 | Åpningstider og servicevindu: når kan CutCut gjøre nattlig vedlikehold (forslag 04:00) og når kan Windows og CutCut oppdateres? | NTNU | M2 | Åpen | |
 | Q31 | Strøm: finnes UPS for PC, ATEM, RØDECaster og switch? Kan BIOS settes til «power on after AC loss», og er automatisk innlogging for kiosk-brukeren tillatt? | NTNU IT | M3 | Åpen | |
 | Q32 | Standardvalg på touch: 2 personer og video (D-036), eller hentes det fra studio-oppsettet? | Eier | M1 | Åpen | |
 | Q33 | Hvem står på teknikerlisten (`operator`) og admin-listen, og skal PIN brukes som reserve? | Eier | M1 (fiktivt), M3 (ekte) | Åpen | |
-| Q34 | Godkjennes tuning-forslaget for `K`, `H`, `B`, `CT`, `L` per forhåndsvalg (`docs/plans/core.md`, vedlegg) som startpunkt? | Eier | M1 | Åpen | |
+| Q34 | Godkjennes tuning-forslaget for `K`, `H`, `B`, `CT`, `L` per forhåndsvalg (`docs/plans/core.md`, vedlegg) som startpunkt? | Eier | M1 | Besvart | Godkjent som startpunkt med planene (D-046, 2026-10-21, Magnus Lian) |
 | Q35 | Skal Companion kjøre som Windows-tjeneste uten skrivebord, eller i kiosk-brukerens økt? | Tekniker | M2 | Åpen | |
-| Q36 | Godkjennes forslagene PL-01–PL-08 i `docs/plans/README.md` (blant annet ADR-0012, 0013 og 0014 bekreftet)? | Eier | M1 | Åpen | |
+| Q36 | Godkjennes forslagene PL-01–PL-08 i `docs/plans/README.md` (blant annet ADR-0012, 0013 og 0014 bekreftet)? | Eier | M1 | Besvart | Godkjent (D-046, 2026-10-21, Magnus Lian). Endring: ingen skyggerunde som milepæl (D-049) |

@@ -1,6 +1,6 @@
 # ADR-0013: Web-simulator med samme GUI, publisert på Vercel
 
-- **Status:** Forslag
+- **Status:** Akseptert 2026-10-21 (D-046). Bekreftet i M0-planen `docs/plans/ui.md` og `sim.md`
 - **Dato:** 2026-10-21
 - **Kilde:** beslutningslogg D-029, D-030; `docs/simulator.md`
 

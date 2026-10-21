@@ -1,6 +1,6 @@
 # Plan: `supervisor` og drift – tjenester, kiosk, installasjon, utrulling
 
-Status: forslag (M0) · Milepæl: grunnversjon i M2 (PL-07), full drift i M3 · Spes. 2.6, 3, 8.2 (kiosk), 9 (alle), 10.4, 12.2–12.4; D-019, D-042; ADR-0001, 0003, 0007 · Mapper: `src/cutcut/supervisor/`, `installer/`, `tools/`
+Status: godkjent (D-046) · Milepæl: grunnversjon i M2 (PL-07), full drift i M3 · Spes. 2.6, 3, 8.2 (kiosk), 9 (alle), 10.4, 12.2–12.4; D-019, D-042; ADR-0001, 0003, 0007 · Mapper: `src/cutcut/supervisor/`, `installer/`, `tools/`
 
 ## 1. Formål og avgrensning
 
@@ -65,7 +65,7 @@ WinSW (MIT) 2.x/3.x, PowerShell 5.1+, `uv` og python-build-standalone, Node 24 L
 - Drapstester (10.4): drep hver prosess under scenario; `core` tilbake innen 5 s med samme økt; videolaget dør uten at kuttingen stopper.
 - Omstartsløkke og backoff testes med en prosess som krasjer med vilje.
 - Installasjon: installer N, så N+1 med feil som får morgensjekken til å feile → automatisk tilbake til N.
-- **72-timerstest** (10.4) i studio i skyggemodus: minne (RSS per prosess hvert 10. min), håndtak, tilkoblinger, logger. Grense: under 5 % vekst etter første time.
+- **72-timerstest** (10.4) i studio (eller på test-PC-en) med motoren i drift: minne (RSS per prosess hvert 10. min), håndtak, tilkoblinger, logger. Grense: under 5 % vekst etter første time.
 - Nattlig soak i CI på Linux mot simulatoren (8 timer simulert drift på falsk klokke), og på Windows-testmaskin hvis den finnes (Q28).
 - Windows-oppsettskriptet testes i en Windows-VM (eller `windows-latest`) i tørrkjøringsmodus.
 
@@ -90,5 +90,3 @@ WinSW (MIT) 2.x/3.x, PowerShell 5.1+, `uv` og python-build-standalone, Node 24 L
 - Q30: servicevindu og åpningstider.
 - Q31: UPS, «power on after AC loss», og er automatisk innlogging for kiosk-brukeren tillatt?
 - Q35: Companion som tjeneste.
-</content>
-</invoke>

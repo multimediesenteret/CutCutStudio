@@ -21,3 +21,4 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - Overlevering: `docs/forprosjekt/overlevering.md` med startmelding, modulliste og blokkeringer. Spesifikasjonen rettet for D-035–D-045 (regel-ID-er `CT`/`PV`/`S6`, prosesser, touch-flyt, utlogging, Companion lokalt). Konseptet følger spesifikasjonen (5600 K, preset-navn, 5 s teknikertilgang). Repoet er fasit (D-040).
 - Hindrer `Co-authored-by`: `.claude/settings.json` og `commit-msg`-hook.
 - M0: implementasjonsplaner for alle 13 moduler og `milestones.md` i `docs/plans/`, forslag PL-01–PL-08, spørsmål Q27–Q36.
+- Planene godkjent (D-046); ADR-0012–0014 akseptert. Lisens Apache-2.0 (`LICENSE`, `NOTICE`). Ingen skyggerunde: M2 er nå «Studiotest» (D-049). Vercel hopper over utrulling når skjermene ikke er endret (`ignoreCommand`, D-050).

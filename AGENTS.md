@@ -2,7 +2,7 @@
 
 Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent eller menneske. Alt du trenger for å komme i gang står her eller er lenket herfra. Filen endres bare via pull request godkjent av et menneske.
 
-> **Fase nå: forprosjektet er overlevert, M0 (planer) kan starte.** Ingen produksjonskode før planene er godkjent. Les `docs/forprosjekt/overlevering.md` for startmelding, hva som mangler og hva som blokkerer hva.
+> **Fase nå: M1 Simulator.** M0-planene er godkjent (D-046); bygg etter `docs/plans/` og issuene i milepælen M1. Se `docs/STATUS.md` for hvor arbeidet står. Skyggemodus er ikke lenger en milepæl (D-049).
 
 **Hovedprinsipp:** prosjektet skal kunne tas over av hvem som helst, når som helst, uten muntlig overlevering. Det som ikke står i repoet, finnes ikke.
 
@@ -54,7 +54,7 @@ Grunnen er at web-delene publiseres på Vercel Hobby, som blokkerer utrulling n�
 - CI-jobben `commit-identity` feiler hvis en commit i en pull request har en annen forfatter eller committer.
 - Har du laget en commit med feil identitet: `git commit --amend --reset-author --no-edit` (siste commit), eller `git rebase -r <base> --exec "git commit --amend --no-edit --reset-author"` for flere.
 
-## 4. Første oppgave (milepæl M0)
+## 4. Første oppgave (milepæl M0, ferdig 2026-10-21)
 
 > Lag implementasjonsplaner i `docs/plans/<modul>.md` etter malen i spesifikasjonens 0.4, for alle moduler i rekkefølgen fra seksjon 11, og et forslag til GitHub-issues og milepæler M0–M4 i `docs/plans/milestones.md`. Bekreft eller avvis ADR-0012 (atem-bridge) i planen for ATEM. Skriv ingen produksjonskode før planene er godkjent. Oppdater `docs/STATUS.md` og legg spørsmål du trenger svar på i `docs/open-questions.md`.
 
@@ -64,9 +64,9 @@ Milepælene (spesifikasjonen 13.5):
 | --- | --- |
 | M0 Planer | Planer for alle moduler er godkjent av produkteier |
 | M1 Simulator | Hele brukerflyten og alle regeltester virker uten utstyr |
-| M2 Skyggemodus | Motoren logger beslutninger live i studio uten å klippe, sammenlignet med menneske |
+| M2 Studiotest | Motoren klipper live i studio via preview (lyd, ATEM, Companion, Pearl, supervisor). Ingen skyggerunde først (D-049) |
 | M3 Grunnmodus i drift | Akseptansekriteriene i 10.4 for grunnmodus er oppfylt |
-| M4 Brytere | Hver bryter testet alene i skyggemodus |
+| M4 Brytere | Hver bryter testet alene i studio (D-049) |
 
 ## 5. Ufravikelige regler (spesifikasjonen 0.2)
 

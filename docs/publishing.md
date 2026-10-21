@@ -18,6 +18,7 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 - Repoet `multimediesenteret/CutCutStudio` er koblet til Vercel-prosjektet `cutcutstudio2026`: gren `main` til produksjon, pull requests til forhåndsvisning.
 - **Nå (konsept):** Vercel-prosjektet `multimediesenteret/cutcutstudio2026` (https://cutcutstudio2026.vercel.app) bygger fra repo-roten med Framework Preset «Other» og ingen byggekommando. `vercel.json` i roten sender `/` til `/concept/`, `/touch` og `/tech` til hver skjerm, og alle andre stier til konseptet, så resten av repoet (dokumentasjon, utstyrsfiler) ikke kan åpnes fra nettsiden.
 - **Fra M1:** byggekommando og ut-mappe for simulatoren (forslag: `pnpm --filter simulator build`, ut-mappe `ui/apps/simulator/dist/`). Agenten dokumenterer det her når det finnes.
+- **Bygg bare når skjermene endres (D-050):** `ignoreCommand` i `vercel.json` kjører `git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json`. Har siste commit ikke endret noen av dem, hoppes utrullingen over (avslutningskode 0). Ellers, eller hvis forrige commit mangler, bygges det som vanlig. Det sparer utrullinger på Hobby (100 per døgn) når bare dokumentasjon eller Python-kode endres.
 - Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
 
 **Hobby-planen har to begrensninger som styrer hvordan vi jobber:**

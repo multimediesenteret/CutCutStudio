@@ -1,10 +1,10 @@
 # Plan: brytere og steg 11 – farge og Panopto
 
-Status: forslag (M0) · Milepæl: M4 · Spes. 5.6, 5.13, 6.4, 6.5, 7.6, 11 steg 10–11; D-006, D-009, D-011, D-023; ADR-0011 · Moduler: `core/rules/`, `vision/`, `stt/`, `devices/cameras/`, `session/`
+Status: godkjent (D-046) · Milepæl: M4 · Spes. 5.6, 5.13, 6.4, 6.5, 7.6, 11 steg 10–11; D-006, D-009, D-011, D-023; ADR-0011 · Moduler: `core/rules/`, `vision/`, `stt/`, `devices/cameras/`, `session/`
 
 ## 1. Formål og avgrensning
 
-Alt utover grunnmodus. Hver bryter bygges, testes i simulator, og **testes alene i skyggemodus i studio** før den kan slås på i drift (M4-kriteriet). Grunnmodus skal gi samme resultat med bryterne av som med bryterne på og videolaget borte (10.4).
+Alt utover grunnmodus. Hver bryter bygges, testes i simulator, og **testes alene i studio** før den kan slås på i drift (M4-kriteriet). Mens studioet ikke er i bruk testes den live; når studioet er i drift, i skyggemodus (D-049). Grunnmodus skal gi samme resultat med bryterne av som med bryterne på og videolaget borte (10.4).
 
 **Rekkefølge (spes. 11 steg 10):**
 
@@ -43,7 +43,7 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 
 - Regeltester per ID som i `core.md`.
 - Simulator-scenarioer per bryter.
-- Skyggemodus i studio per bryter: sammenligning med menneskelig klippeliste (Q2) eller med grunnmodus; rapport i issue før bryteren kan slås på.
+- Studiotest per bryter (skyggemodus når studioet er i drift): sammenligning med menneskelig klippeliste (Q2) eller med grunnmodus; rapport i issue før bryteren kan slås på.
 - `live_transcript`: forsinkelse og at `core` ikke påvirkes når `stt` dør.
 
 ## 6. Leveranser
@@ -51,19 +51,17 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 | # | Leveranse | Ferdig når |
 | --- | --- | --- |
 | F-1 | `shadow`-tilstand per bryter og forutsetningssjekk | Teknikervinduet viser hvorfor en bryter er sperret |
-| F-2 | `video_confirm` | Skyggetest-rapport godkjent |
-| F-3 | `framing_variety` | Skyggetest-rapport godkjent |
-| F-4 | `reactions` | Skyggetest-rapport godkjent |
-| F-5 | `slow_zoom` | Skyggetest-rapport godkjent per kamera |
-| F-6 | `layouts` | Skyggetest-rapport godkjent |
-| F-7 | `ai_tracking` | Skyggetest-rapport godkjent |
-| F-8 | `live_transcript` (`stt`) | Skyggetest-rapport godkjent |
-| F-9 | `turn_prediction` | Skyggetest-rapport godkjent |
+| F-2 | `video_confirm` | Testrapport godkjent |
+| F-3 | `framing_variety` | Testrapport godkjent |
+| F-4 | `reactions` | Testrapport godkjent |
+| F-5 | `slow_zoom` | Testrapport godkjent per kamera |
+| F-6 | `layouts` | Testrapport godkjent |
+| F-7 | `ai_tracking` | Testrapport godkjent |
+| F-8 | `live_transcript` (`stt`) | Testrapport godkjent |
+| F-9 | `turn_prediction` | Testrapport godkjent |
 | F-10 | Fargematching | Gråkort-test i studio |
 | F-11 | Panopto | Når Q5 er avklart |
 
 ## 7. Åpne spørsmål
 
 - Q5 (Panopto), Q6 (Canon), Q16 (AI-tracking), Q19 (blandede kameraer), Q20 (GPU), Q10 (live tekst og personvern).
-</content>
-</invoke>

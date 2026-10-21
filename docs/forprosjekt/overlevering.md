@@ -38,7 +38,7 @@ Lim inn dette som første oppgave:
 | --- | --- | --- |
 | M0 Planer | Nå | Ingen. Spørsmål legges i planene |
 | M1 Simulator | M0 godkjent, Q11 og Q12 besvart | Q21 avgjør lyd-adapteren, men simulatoren trenger den ikke |
-| M2 Skyggemodus i studio | M1 ferdig | Q1, Q2, Q3, Q7, Q8, Q9, Q13, Q14, Q18, Q20, Q21, Q24, Q26 |
+| M2 Studiotest (før: skyggemodus, endret ved D-049) | M1 ferdig | Q1, Q2, Q3, Q7, Q8, Q9, Q13, Q14, Q18, Q20, Q21, Q24, Q26 |
 | M3 Grunnmodus i drift | M2 ferdig | Q4, Q10, Q15, Q16, Q17, Q23 (besvart), Q25 |
 | M4 Brytere | M3 ferdig | Q5 (Panopto), Q6 (Canon), Q19 |
 

@@ -1,6 +1,6 @@
 # Plan: `setup` og `health` – setup-hjelper og helsekatalog
 
-Status: forslag (M0) · Milepæl: helsekjerne i M2, full setup-hjelper og katalog i M3 · Spes. 8.4, 8.5, 9.3, 10.1 (setup- og helsestier); D-018 · Mapper: `src/cutcut/setup/`, `src/cutcut/health/`, `site/<studio>/setup/*.yaml`
+Status: godkjent (D-046) · Milepæl: helsekjerne i M2, full setup-hjelper og katalog i M3 · Spes. 8.4, 8.5, 9.3, 10.1 (setup- og helsestier); D-018 · Mapper: `src/cutcut/setup/`, `src/cutcut/health/`, `site/<studio>/setup/*.yaml`
 
 ## 1. Formål og avgrensning
 
@@ -56,7 +56,7 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 | # | Leveranse | Ferdig når |
 | --- | --- | --- |
 | HS-1 | Helsemotor, `CheckResult`, hysterese, `/api/health` | Tester grønne (M2) |
-| HS-2 | Sjekker for prosesser, PC, lyd, Pearl, ATEM, Companion (`H-PROC`, `H-PC`, `H-AUD`, `H-PRL`, `H-ATEM-1`, `H-COMP-1`) | Grønne i skyggemodus i studio (M2) |
+| HS-2 | Sjekker for prosesser, PC, lyd, Pearl, ATEM, Companion (`H-PROC`, `H-PC`, `H-AUD`, `H-PRL`, `H-ATEM-1`, `H-COMP-1`) | Grønne på test-PC og i studio (M2) |
 | HS-3 | Varsling: teknikervindu, touch, Companion, e-post/Teams (Q29) | Rødt over 1 min gir melding |
 | HS-4 | Morgensjekk kl. 07:00 og ved oppstart | Prikk på hvileskjermen |
 | HS-5 | Setup-motor og steg-format, guide-generering | Guide i `docs/setup/` sjekkes i CI |
@@ -68,5 +68,3 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 - Q29: varsling utenfor studio: e-post, Teams eller begge, og til hvem?
 - Q30: når kan morgensjekken og eventuelle omstarter kjøres (åpningstider)?
 - Q12: tekniker som tester setup-stegene i studio.
-</content>
-</invoke>

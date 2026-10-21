@@ -1,6 +1,6 @@
 # Implementasjonsplaner
 
-Status: **forslag til godkjenning (M0)** · Dato: 2026-10-21 · Av: agent (Claude) for Multimediesenteret
+Status: **godkjent av produkteier 2026-10-21 (D-046)**, med endring D-049 (ingen skyggerunde) · Dato: 2026-10-21 · Av: agent (Claude) for Multimediesenteret
 
 Én fil per modul, i rekkefølgen fra spesifikasjonen seksjon 11, etter malen i 0.4:
 
@@ -41,9 +41,9 @@ Disse må godkjennes av produkteier sammen med planene. Når de er godkjent, fø
 | PL-02 | **ADR-0014 bekreftes med presisering:** `audio-capture` gjør både innlesing *og* lydanalysen (VAD, nivå, frasegrenser, dempet-sjekk) og sender bare *målinger* til `core`, ikke rå lyd. `core` blir da ren regelkode uten lyd-avhengigheter, og simulatoren og web-simulatoren lager nøyaktig de samme meldingene | `audio.md`, `core.md` |
 | PL-03 | **ADR-0013 bekreftes:** trinn 1 (avspilling av ferdige forløp) i M1; trinn 2 (motoren i nettleseren med Pyodide) etter M1 | `sim.md`, `ui.md` |
 | PL-04 | `core` er en ren funksjon `step(state, inputs, now) → (state, decisions, commands)` uten I/O. Alt rundt (klokke, buss, enheter) ligger i et tynt skall. Gir I3, deterministiske tester og web-simulator med samme kode | `core.md` |
-| PL-05 | **Skyggemodus** er en egen motortilstand: motoren tar alle beslutninger og logger dem, men sender ingen kommandoer. Brukes i M2 og for hver ny bryter i M4 | `core.md` |
+| PL-05 | **Skyggemodus** er en egen motortilstand: motoren tar alle beslutninger og logger dem, men sender ingen kommandoer. Bygges i M1 som verktøy, men er ikke krav i noen milepæl mens studioet ikke er i bruk (D-049); tas i bruk for nye brytere og oppdateringer når studioet er i drift | `core.md` |
 | PL-06 | Videolaget deles i to: **lett** (capture, ruter, content-deteksjon og program-bekreftelse på CPU) i M3, og **tungt** (ansikt, munn, taler-modell på GPU) i M4. Grunnmodus avhenger aldri av GPU | `vision.md` |
-| PL-07 | Supervisor og WinSW kommer allerede i M2, fordi skyggemodus skal stå i studio i dager uten tilsyn | `supervisor-ops.md` |
+| PL-07 | Supervisor og WinSW kommer allerede i M2, fordi studiotesten skal stå i studio i dager uten tilsyn | `supervisor-ops.md` |
 | PL-08 | Tuning-verdier for `K`, `H`, `B`, `CT`, `L` per forhåndsvalg (tabell i `core.md`) som startpunkt, til de kan måles mot opptak (Q1–Q2) | `core.md` |
 
 ## Oppetid først
@@ -56,7 +56,5 @@ NTNU har sagt at oppetid og at det fungerer er det viktigste, og at studioet st�
 4. **Grunnmodus er liten.** Lyd + regler + Companion + Pearl-status. Alt annet (bilde, GPU, live tekst, layouter) er brytere som kan feile uten at grunnmodus merker det.
 5. **Feil vises før de merkes.** Helsesjekker, morgensjekk kl. 07:00, varsel til tekniker utenfor studio ved rødt over 1 min (Q29).
 6. **Brukeren ser aldri teknikk.** Touch viser én setning og «Trenger du hjelp?». Gule avvik vises aldri på touch.
-7. **Ingen vekst over tid.** Logger roteres, databasen ryddes, minne måles i 72-timerstest og nattlig i skyggemodus.
+7. **Ingen vekst over tid.** Logger roteres, databasen ryddes, minne måles i 72-timerstest og nattlig i simulator-soak.
 8. **Endringer bare i servicevindu**, med automatisk tilbakerulling hvis morgensjekken feiler.
-</content>
-</invoke>

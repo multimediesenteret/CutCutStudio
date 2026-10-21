@@ -1,6 +1,6 @@
 # ADR-0012: En egen liten prosess, atem-bridge, i Node.js med atem-connection, som snakker med regi-core over den interne meldingsbussen
 
-- **Status:** Forslag
+- **Status:** Akseptert 2026-10-21 (D-046). Bekreftet i M0-planen `docs/plans/devices-companion-atem.md`; endelig etter maskintest av ATEM-modellen (Q7)
 - **Dato:** 2026-10-20
 - **Kilde:** spesifikasjonen 13.4
 

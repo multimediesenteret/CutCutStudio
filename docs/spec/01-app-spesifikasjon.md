@@ -200,7 +200,7 @@ Fugleperspektivet `C5` kan være hvilket som helst kamera med HDMI. Det står fa
 
 Programmet er delt i flere prosesser, slik at klippingen fortsetter på lyd alene hvis bildeanalysen stopper. En supervisor kjører som Windows-tjeneste og restarter det som faller ut.
 
-**Prosesser (D-042):** `core` (regimotor, API, skjermer), `audio-capture` (lyd fra RØDECaster via ASIO, ADR-0014), `vision` (multiview og bildeanalyse), `stt` (live tekst, bryter) og `atem-bridge` (Node.js med `atem-connection`, ADR-0012), alle under `supervisor`. ADR-0012 og ADR-0014 er forslag som bekreftes i implementasjonsplanene; tegningen under viser den opprinnelige inndelingen.
+**Prosesser (D-042):** `core` (regimotor, API, skjermer), `audio-capture` (lyd fra RØDECaster via ASIO, ADR-0014), `vision` (multiview og bildeanalyse), `stt` (live tekst, bryter) og `atem-bridge` (Node.js med `atem-connection`, ADR-0012), alle under `supervisor`. ADR-0012 og ADR-0014 er akseptert (D-046); `audio-capture` sender målinger, ikke rå lyd, til `core`. Tegningen under viser den opprinnelige inndelingen.
 
 &#91;embedded content: programvare · prosesser og moduler på regi-PC-en\]
 
@@ -1029,7 +1029,7 @@ Serveren sender meldinger med `type`: `state` (hele tilstanden, ved tilkobling),
 ### 10.4 Akseptansekriterier for v1
 
 - [ ] Kutt kommer innen 150 ms etter at bekreftelsestiden er nådd (målt fra lyd inn til Companion-kall).
-- [ ] I skyggemodus på tre sendinger: færre enn 2 kutt per 10 minutter som operatøren ville gjort annerledes.
+- [ ] På tre testsendinger: færre enn 2 kutt per 10 minutter som operatøren ville gjort annerledes, vurdert i etterkant fra opptak og beslutningslogg (D-049; skyggemodus var opprinnelig kravet).
 - [ ] Ingen kutt til et kamera som beveger seg, eller til tomt bilde, i 10 timers test.
 - [ ] Lekkasje: med én person som snakker høyt, ingen kutt til andre deltakere i 10 minutters test.
 - [ ] Content: ny slide vises innen 1 s; laptop koblet fra fjernes fra utvalget innen 1 s.
@@ -1064,7 +1064,7 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 7. **Fugleperspektiv og content:** `B`- og `CT`-regler med content-deteksjon. Ferdig når alle moduser `N1`–`N4C` er testet.
 8. **Kameradrivere og oppsett:** `obsbot` og `canon_xc` med presets, grenser, kalibrering og hvitbalanse. Ferdig når grensene håndheves i driveren. Setup-hjelperen (8.4) og statussiden (8.5) bygges i samme steg, ett utstyr av gangen.
 9. **Drift:** supervisor, tjenester, kiosk, morgensjekk, helse-API, 72 timers test. Her er grunnmodus klar for produksjon.
-10. **Brytere, i denne rekkefølgen:** `video_confirm`, `framing_variety`, `reactions`, `slow_zoom`, `layouts`, `live_transcript`, `turn_prediction`. Hver testes alene i skyggemodus før den slås på.
+10. **Brytere, i denne rekkefølgen:** `video_confirm`, `framing_variety`, `reactions`, `slow_zoom`, `layouts`, `live_transcript`, `turn_prediction`. Hver testes alene i studio før den slås på; i skyggemodus når studioet er i drift (D-049).
 11. **Fargematching og Panopto:** gråkort-måling og off-air-justering; publisering til Panopto når eierskapet er avklart.
 
 **Åpne spørsmål før bygging:**
@@ -1250,9 +1250,9 @@ Agenten jobber i et skymiljø uten tilgang til ATEM, kameraer eller RØDECaster.
 | --- | --- | --- |
 | M0 Planer | Implementasjonsplaner for alle moduler; issues og milepæler i GitHub | Planene er godkjent av produkteier |
 | M1 Simulator | Kjerne med grunnmodus, simulator, API, teknikervindu og touch mot simulator | Hele brukerflyten og alle regeltester virker uten utstyr |
-| M2 Skyggemodus i studio | Lyd inn, ATEM-lesing, Companion, Pearl-status | Motoren logger beslutninger live uten å klippe, og sammenlignes med menneske |
+| M2 Studiotest | Lyd inn, ATEM-lesing, Companion, Pearl-status, supervisor | Motoren klipper live i studio via preview; testsendinger vurderes av operatør (D-049: ingen skyggerunde mens studioet ikke er i bruk) |
 | M3 Grunnmodus i drift | Klipping via preview, kortinnlogging, kameradrivere, setup-hjelper og helse | Akseptansekriteriene i 10.4 for grunnmodus er oppfylt |
-| M4 Brytere | Videolag, reaksjoner, utsnitt, layouter, AI-tracking, live tekst | Hver bryter testet alene i skyggemodus |
+| M4 Brytere | Videolag, reaksjoner, utsnitt, layouter, AI-tracking, live tekst | Hver bryter testet alene i studio; i skyggemodus når studioet er i drift (D-049) |
 
 ### 13.6 Første oppgave til agenten
 

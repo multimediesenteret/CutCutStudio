@@ -1,6 +1,6 @@
 # Plan: `session` og `devices/pearl` – kort, økter, show-typer, opptak
 
-Status: forslag (M0) · Milepæl: M2 (Pearl-status) og M3 (kort, økter, opptak fra touch) · Spes. 2.5, 5.1 (`A`), 7.4, 7.5, 7.6 (forberedt), 8.1–8.2, 9.1, 10.4; D-013, D-014, D-016, D-036, D-043; ADR-0008; I6, I7, I8 · Mapper: `src/cutcut/session/`, `src/cutcut/devices/pearl/`
+Status: godkjent (D-046) · Milepæl: M2 (Pearl status, start og stopp) og M3 (kort, NTNU-API) · Spes. 2.5, 5.1 (`A`), 7.4, 7.5, 7.6 (forberedt), 8.1–8.2, 9.1, 10.4; D-013, D-014, D-016, D-036, D-043; ADR-0008; I6, I7, I8 · Mapper: `src/cutcut/session/`, `src/cutcut/devices/pearl/`
 
 ## 1. Formål og avgrensning
 
@@ -56,8 +56,8 @@ IDLE ──kort/tekniker──► READY ──Start──► COUNTDOWN ──3-2
 | # | Leveranse | Ferdig når |
 | --- | --- | --- |
 | SE-1 | Økt-modell og tilstandsmaskin mot simulator | Touch-flyt i Playwright grønn (M1) |
-| SE-2 | Pearl-klient: status, innganger, lagring, system | Pearl-status vises i studio i skyggemodus (M2) |
-| SE-3 | Pearl start/stopp, idempotent, «Starter…» | Tester grønne; maskintest |
+| SE-2 | Pearl-klient: status, innganger, lagring, system | Pearl-status vises i teknikervinduet på test-PC/studio (M2) |
+| SE-3 | Pearl start/stopp, idempotent, «Starter…» | Tester grønne; maskintest (M2) |
 | SE-4 | Kortleser med automatisk portvalg og I8-test | I8-test grønn i CI |
 | SE-5 | NTNU-API-adapter (falsk + ekte bak samme grensesnitt) | Kort → «Velkommen» under 2 s mot falsk tjeneste; ekte når Q4 er besvart |
 | SE-6 | Show-typer (`show_types.yaml`) og Kun lyd | Kun lyd-test grønn |
@@ -69,5 +69,3 @@ IDLE ──kort/tekniker──► READY ──Start──► COUNTDOWN ──3-2
 - Q10: lagringstid for brukernavn og økthistorikk.
 - Q17: hvor lenge opptak skal ligge på Pearl og ATEM-disk.
 - Q5: Panopto (M4).
-</content>
-</invoke>

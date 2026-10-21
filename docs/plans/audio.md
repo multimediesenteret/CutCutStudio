@@ -1,6 +1,6 @@
 # Plan: `audio` – lyd fra RØDECaster (`audio-capture`)
 
-Status: forslag (M0) · Milepæl: M2 · Spes. 2.3, 3.1, 5.3, 5.7 (`S4`, `S6`), 5.10, 8.4 steg 5, 8.5 (`H-AUD-*`); D-031, D-032, D-035; ADR-0014; `docs/research/lyd-fra-rodecaster.md`, `docs/studio/rodecaster-standardoppsett.md` · Mappe: `src/cutcut/audio/`
+Status: godkjent (D-046) · Milepæl: M2 · Spes. 2.3, 3.1, 5.3, 5.7 (`S4`, `S6`), 5.10, 8.4 steg 5, 8.5 (`H-AUD-*`); D-031, D-032, D-035; ADR-0014; `docs/research/lyd-fra-rodecaster.md`, `docs/studio/rodecaster-standardoppsett.md` · Mappe: `src/cutcut/audio/`
 
 ## 1. Formål og avgrensning
 
@@ -55,7 +55,7 @@ Rå lyd lagres aldri på disk (personvern), unntatt i maskintest og setup når t
 - Tidsbudsjett: en 10 ms-ramme for 5 mic-er analyseres på under 3 ms på CI-maskin.
 - Avspilling av ekte multitrack fra Q1 (når den kommer) mot motoren.
 - **Maskintest** `tools/hw-test/audio_rodecaster.py`: de sju punktene i research-notatet (enhet, kanalkart, synkronitet, 60 min dropouts, gjenoppretting etter USB-uttrekk, dempet kanal for Q24, WASAPI-reserve). Avgjør Q21, Q24 og ADR-0014.
-- Soak: 72 timer i studio i skyggemodus (M2) uten minnevekst eller tapt strøm.
+- Soak: 72 timer på test-PC eller i studio (M2) uten minnevekst eller tapt strøm.
 
 ## 6. Leveranser
 
@@ -74,5 +74,3 @@ Rå lyd lagres aldri på disk (personvern), unntatt i maskintest og setup når t
 - Q21 (ASIO stabilt med 20 kanaler) og Q24 (dempet mic i pre-fader-sporet): avgjøres av maskintesten.
 - Q25: eksakte fargenavn på RØDECaster (bare for `baseline.yaml`).
 - Q1: ekte multitrack-opptak til tuning og avspillingstester.
-</content>
-</invoke>

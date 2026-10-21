@@ -1,6 +1,6 @@
 # Plan: `common` – modeller, konfig, klokke, logging, lagring, buss, plattform
 
-Status: forslag (M0) · Milepæl: M1 · Spes. 3, 4, 5.8, 7.5, 12.1–12.4; ADR-0002, 0006, 0010 · Mappe: `src/cutcut/common/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 3, 4, 5.8, 7.5, 12.1–12.4; ADR-0002, 0006, 0010 · Mappe: `src/cutcut/common/`
 
 ## 1. Formål og avgrensning
 
@@ -104,5 +104,3 @@ Python 3.12, `pydantic` 2, `ruamel.yaml`, `pyzmq`, `keyring`, `orjson`. Låses i
 
 - Q10: lagringstid for brukernavn og økthistorikk (forslag 90 dager som i 12.4).
 - Q11: lisens før første kode.
-</content>
-</invoke>

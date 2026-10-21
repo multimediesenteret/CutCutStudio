@@ -1,6 +1,6 @@
 # Plan: `devices/companion` og `atem-bridge`
 
-Status: forslag (M0) · Milepæl: M2 (lesing, skyggemodus) og M3 (klipping) · Spes. 2.2, 5.6, 5.7 (`S5`), 7.1, 7.2, 7.7, 8.4 steg 3, 7, 8, 8.5 (`H-ATEM-*`, `H-COMP-1`); ADR-0004, 0005, 0009, 0012; Q7 · Mapper: `src/cutcut/devices/companion/`, `src/cutcut/devices/atem/`, `bridges/atem/`
+Status: godkjent (D-046) · Milepæl: M2 (lesing og klipping via preview, D-049) og M3 (ISO, Companion-sider) · Spes. 2.2, 5.6, 5.7 (`S5`), 7.1, 7.2, 7.7, 8.4 steg 3, 7, 8, 8.5 (`H-ATEM-*`, `H-COMP-1`); ADR-0004, 0005, 0009, 0012; Q7 · Mapper: `src/cutcut/devices/companion/`, `src/cutcut/devices/atem/`, `bridges/atem/`
 
 ## 1. Formål og avgrensning
 
@@ -77,8 +77,8 @@ Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64
 | DA-2 | ATEM-klient i `core` + avstemming | Avviks-test grønn |
 | DA-3 | Companion-klient med kø og kretsbryter | Tester mot falsk Companion |
 | DA-4 | `regi_*`-variabler | Vises i falsk Companion |
-| DA-5 | Maskintestskript ATEM og Companion | Kjørt i studio, rapport i issue (M2) |
-| DA-6 | Klipping via preview + TAKE i `LIVE` | Motoren klipper via preview i studio (spes. 11 steg 5, M3) |
+| DA-5 | Maskintestskript ATEM og Companion | Kjørt på test-PC eller i studio, rapport i issue (M2) |
+| DA-6 | Klipping via preview + TAKE i `LIVE` | Motoren klipper via preview i studio (spes. 11 steg 5, M2) |
 | DA-7 | `S5` reservekutt og makrosjekk ved oppstart | Tester grønne |
 | DA-8 | ISO-opptak fra teknikervinduet (7.7) | Start/stopp/status mot falsk og ekte ATEM |
 | DA-9 | Companion-eksport `cutcut-pages.companionconfig` side 10 og 11 | Importert i studio, versjon leses |
@@ -88,5 +88,3 @@ Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64
 - Q7: ATEM-modell og om `atem-connection` og Companion støtter G2 fullt (tilstand, makroer, SuperSource, opptak). Fant ingen bekreftelse i offentlige kilder per 21.10.2026; maskintesten avgjør.
 - Q35: skal Companion kjøre som Windows-tjeneste (uten skrivebord), eller i kiosk-brukerens økt? Påvirker automatisk omstart.
 - Q9: IP-plan og VLAN.
-</content>
-</invoke>

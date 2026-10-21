@@ -1,6 +1,6 @@
 # Plan: `ui` – touch, tekniker og web-simulator
 
-Status: forslag (M0) · Milepæl: M1 · Spes. 8, 12.5; D-036–D-039, D-043, D-045; ADR-0007, ADR-0013 · Mappe: `ui/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 8, 12.5; D-036–D-039, D-043, D-045; ADR-0007, ADR-0013 · Mappe: `ui/`
 
 ## 1. Formål og avgrensning
 
@@ -75,5 +75,3 @@ Oppsett-veiviseren i teknikervinduet bygges i M3 (`setup-health.md`).
 - Q32: skal standardvalget på klar-skjermen være 2 personer og video (D-036), eller hentes fra studio-oppsettet?
 - Q15: kabellengde til touch-skjermen påvirker ikke koden, men kiosk-oppsettet.
 - Vercel: godkjenning av `ignoreCommand` og byggekommando (se `milestones.md`, Q27).
-</content>
-</invoke>
