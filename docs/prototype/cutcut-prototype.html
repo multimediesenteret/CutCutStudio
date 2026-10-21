@@ -1,0 +1,664 @@
+<title>CutCut Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: control-room desk. Logo + show controls on top; program, preview, mics, content, transcript and timeline on the left; controls, switches, cameras, tuning and decision log on the right. Tally red = on air, green = preview, amber = waiting, blue = eyes/content. */
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --line:#d5d9de; --ink:#16191d; --muted:#5d6670;
+  --tally:#d7262e; --tally-soft:#fbe3e4; --amber:#b67600; --amber-soft:#fbefd6;
+  --live:#1f8a4c; --live-soft:#dcf1e4; --bleed:#8a93a0; --meter-bg:#e4e7eb; --eye:#2f6fd6; --eye-soft:#e1ebfb;
+  --f-display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111417; --panel:#1a1e23; --line:#2c333b; --ink:#e8ebee; --muted:#9aa3ad;
+  --tally:#ff4d55; --tally-soft:#3a1a1c; --amber:#f0b03c; --amber-soft:#382c14;
+  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111417; --panel:#1a1e23; --line:#2c333b; --ink:#e8ebee; --muted:#9aa3ad;
+  --tally:#ff4d55; --tally-soft:#3a1a1c; --amber:#f0b03c; --amber-soft:#382c14;
+  --live:#3ccf7d; --live-soft:#173225; --bleed:#6b7480; --meter-bg:#252b32; --eye:#7ea6ff; --eye-soft:#1c2a44; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.4;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 32px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand svg{flex:none;width:92px;height:auto}
+.word{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1;letter-spacing:.005em;margin:0}
+.word .c2{color:var(--eye)} .word .st{font-weight:500;color:var(--muted)}
+.tag{font-family:var(--f-display);font-weight:600;font-size:16px;margin-top:4px}
+.sub{color:var(--muted);font-size:13px}
+.lbl{font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.pgm{border-color:var(--tally);border-width:2px}
+.pgm-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.onair{display:inline-flex;align-items:center;gap:8px;background:var(--tally);color:#fff;font-family:var(--f-display);font-weight:700;letter-spacing:.12em;font-size:12px;padding:4px 10px;border-radius:4px}
+.onair::before{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+.chip{font-family:var(--f-mono);font-size:12px;padding:3px 8px;border-radius:4px;background:var(--meter-bg);color:var(--ink)}
+.shot{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:1.05;margin:0}
+.shot small{font-weight:500;font-size:20px;color:var(--muted);margin-left:8px}
+.bar{height:6px;border-radius:3px;background:var(--meter-bg);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--tally);width:0}
+.bar.ok i{background:var(--live)}
+.strip{display:flex;gap:10px;align-items:flex-start;border-radius:8px;padding:10px 12px}
+.strip b{font-family:var(--f-display);font-weight:600;letter-spacing:.06em;font-size:12px;text-transform:uppercase;white-space:nowrap;padding-top:2px;min-width:62px}
+.strip span{min-width:0}
+.strip.pv{background:var(--live-soft)} .strip.pv b{color:var(--live)}
+.strip.nx{background:var(--amber-soft)} .strip.nx b{color:var(--amber)}
+.mics{display:flex;flex-direction:column;gap:8px}
+.mic{display:grid;grid-template-columns:118px minmax(0,1fr) 132px 64px;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px}
+.mic.onpgm{border-color:var(--tally);background:var(--tally-soft)}
+.mic.onpvw{border-color:var(--live)}
+.mic .who{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.1}
+.mic .who small{display:block;font-family:var(--f-mono);font-weight:400;font-size:11px;color:var(--muted)}
+.role{display:inline-block;font-family:var(--f-mono);font-size:10px;padding:1px 5px;border-radius:3px;background:var(--meter-bg);color:var(--muted);margin-left:4px;vertical-align:2px;cursor:pointer;border:0}
+.meters{display:flex;flex-direction:column;gap:5px;min-width:0}
+.meter{position:relative;height:9px;background:var(--meter-bg);border-radius:2px;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--live);width:0}
+.meter.vad i{background:var(--amber)}
+.meter.mouth i{background:var(--eye)}
+.meter .th{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55}
+.mlab{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--muted)}
+.state{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;text-align:center;padding:5px 6px;border-radius:4px;background:var(--meter-bg);color:var(--muted)}
+.state.talk{background:var(--live-soft);color:var(--live)}
+.state.conf{background:var(--amber-soft);color:var(--amber)}
+.state.bleed{color:var(--bleed);text-decoration:line-through}
+.state.short{color:var(--amber)}
+.state.react{background:var(--eye-soft);color:var(--eye)}
+.hold{font:inherit;font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:8px 4px;cursor:pointer;touch-action:none;user-select:none}
+.hold.down{background:var(--live);color:#fff;border-color:var(--live)}
+@media (max-width:560px){.mic{grid-template-columns:minmax(0,1fr) auto}.mic .meters{grid-column:1/-1;order:3}.mic .state{order:2}.mic .hold{order:4;grid-column:1/-1}}
+.content{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center}
+.cstate{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.04em;padding:6px 10px;border-radius:6px;background:var(--meter-bg);color:var(--muted)}
+.cstate.on{background:var(--eye-soft);color:var(--eye)}
+.tx{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.tx li{display:grid;grid-template-columns:52px 70px minmax(0,1fr);gap:8px}
+.tx .who{font-family:var(--f-display);font-weight:600}
+canvas{width:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.btn{font:inherit;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase;padding:12px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;min-width:0}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible,.hold:focus-visible,input:focus-visible,select:focus-visible,.seg button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.btn.on{background:var(--live);border-color:var(--live);color:#fff}
+.btn.warn{background:var(--amber);border-color:var(--amber);color:#fff}
+.btn.cam.pgm-on{background:var(--tally);border-color:var(--tally);color:#fff}
+.btn.cam.pvw-on{border-color:var(--live);box-shadow:inset 0 0 0 2px var(--live)}
+.btn small{display:block;font-weight:500;font-size:11px;letter-spacing:.02em;text-transform:none;opacity:.85}
+select{font:inherit;padding:7px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-family:var(--f-display);font-weight:600;font-size:14px;padding:8px 13px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.sel{background:var(--ink);color:var(--panel)}
+.feats{display:flex;flex-direction:column}
+.feat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.feat:first-child{border-top:0}
+.feat .fn{font-weight:500;font-size:14px}
+.feat .fn code{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-left:6px}
+.feat .fd{grid-column:1;font-size:12px;color:var(--muted)}
+.sw{grid-row:1/3;grid-column:2;position:relative;width:44px;height:26px;border-radius:13px;border:0;background:var(--meter-bg);cursor:pointer}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--panel);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.sw[aria-checked="true"]{background:var(--live)}
+.sw[aria-checked="true"]::after{left:21px}
+.feat.base .fn::after{content:"grunnmodus";font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-left:8px}
+.rules{display:flex;flex-direction:column;gap:10px}
+.rule{display:grid;grid-template-columns:30px minmax(0,1fr) 78px;gap:4px 10px;align-items:center}
+.rule .n{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.rule label{font-size:14px}
+.rule output{font-family:var(--f-mono);font-size:13px;text-align:right}
+.rule input[type=range]{grid-column:2/4;width:100%;accent-color:var(--amber)}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:460px;overflow:auto}
+.log li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:2px 10px;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+.log li:first-child{border-top:0}
+.log .t{font-family:var(--f-mono);color:var(--muted);font-size:12px}
+.log .to{font-family:var(--f-display);font-weight:700;font-size:15px}
+.log .rtag{font-family:var(--f-mono);font-size:11px;color:var(--amber);margin-left:6px}
+.log .why{grid-column:2;color:var(--muted)}
+.cmd{font-family:var(--f-mono);font-size:12px;background:var(--meter-bg);border-radius:6px;padding:10px;overflow-x:auto;white-space:pre;color:var(--ink)}
+.note{font-size:12px;color:var(--muted)}
+.camlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.camlist li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.camlist li:first-child{border-top:0}
+.camlist .to{font-family:var(--f-display);font-weight:700}
+.camlist .mod small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.camlist .st{font-size:12px;color:var(--muted);text-align:right}
+.camlist .st.moving{color:var(--amber)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="20 50 190 90" role="img" aria-label="CutCut Studio-logo">
+        <g fill="var(--eye)"><rect x="32" y="90" width="7" height="20" rx="3.5"/><rect x="44" y="78" width="7" height="44" rx="3.5"/><rect x="56" y="68" width="7" height="64" rx="3.5"/><rect x="68" y="82" width="7" height="36" rx="3.5"/><rect x="80" y="92" width="7" height="16" rx="3.5"/></g>
+        <g stroke="var(--tally)" stroke-width="6" stroke-linecap="round"><line x1="100" y1="128" x2="114" y2="72"/><line x1="116" y1="128" x2="130" y2="72"/></g>
+        <rect x="158" y="56" width="44" height="30" rx="5" fill="none" stroke="var(--bleed)" stroke-width="1.5"/>
+        <rect x="151" y="72" width="44" height="30" rx="5" fill="none" stroke="var(--bleed)" stroke-width="1.5"/>
+        <rect x="144" y="88" width="48" height="34" rx="5" fill="var(--eye-soft)" stroke="var(--eye)" stroke-width="2.5"/>
+        <circle cx="182" cy="97" r="4" fill="var(--tally)"/>
+      </svg>
+      <div>
+        <p class="word">Cut<span class="c2">Cut</span><span class="st"> Studio</span></p>
+        <div class="tag">You speak. We cut cut.</div>
+        <div class="sub">Prototype med simulert lyd, munnbevegelse og laptop. Kommandoene til Companion vises, men sendes ikke.</div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="lbl">Deltakere</span>
+      <div class="seg" role="group" aria-label="Antall deltakere" id="people"><button data-n="1">1</button><button data-n="2">2</button><button data-n="3" class="sel">3</button><button data-n="4">4</button></div>
+      <span class="lbl">Laptop</span>
+      <div class="seg" role="group" aria-label="Laptop" id="laptop"><button data-l="0" class="sel">Ingen</button><button data-l="1">Tilkoblet</button></div>
+      <select id="scenario" aria-label="Scenario">
+        <option value="talk">Samtale</option>
+        <option value="cross">Heftig debatt</option>
+        <option value="mono">Verten forteller lenge</option>
+        <option value="manual">Bare manuelt (hold Snakk)</option>
+      </select>
+      <button class="btn" id="simBtn" style="padding:8px 14px">Pause</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel pgm" aria-label="Program">
+        <div class="pgm-top">
+          <div class="row"><span class="onair">PÅ LUFTA</span><span class="chip" id="mode">Modus N3</span><span class="chip" id="zoom" hidden>zoom</span></div>
+          <span class="mono sub" id="clock">00:00</span>
+        </div>
+        <p class="shot" id="shot">BIRD<small>Fugleperspektiv</small></p>
+        <div class="row" style="justify-content:space-between">
+          <span class="sub">Bildet har stått <b class="mono" id="age">0,0 s</b></span>
+          <span class="sub" id="minlbl">Minste bildelengde 2,5 s</span>
+        </div>
+        <div class="bar" id="ageBar"><i></i></div>
+        <div class="strip pv"><b>Preview</b><span id="pvw">Ingen kandidat</span></div>
+        <div class="strip nx"><b>Neste</b><span id="next">Åpner på fugleperspektiv (B1)</span></div>
+      </section>
+
+      <section class="panel" aria-label="Mikrofoner">
+        <div class="row" style="justify-content:space-between">
+          <span class="lbl">Mikrofoner · RØDECaster USB 1</span>
+          <span class="note">Grønn = nivå · gul = tale (VAD) · blå = munn i kamera · trykk på VERT/GJEST for å bytte rolle</span>
+        </div>
+        <div class="mics" id="mics"></div>
+      </section>
+
+      <section class="panel" aria-label="Content" id="contentPanel">
+        <span class="lbl">Laptop · inngang 6 · lest fra multiview</span>
+        <div class="content">
+          <span class="cstate" id="cstate">NO_SIGNAL</span>
+          <span class="sub" id="cinfo">Ingen laptop tilkoblet</span>
+          <button class="btn" id="slideBtn" style="padding:8px 12px">Ny slide</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="Live tekst" id="txPanel" hidden>
+        <div class="row" style="justify-content:space-between"><span class="lbl">Live tekst · NB-Whisper per mic</span><span class="note">Simulert, ca. 3 s forsinket</span></div>
+        <ul class="tx" id="tx"></ul>
+      </section>
+
+      <section class="panel" aria-label="Tidslinje">
+        <div class="row" style="justify-content:space-between">
+          <span class="lbl">Siste 60 sekunder</span>
+          <div class="legend">
+            <span><i style="background:var(--live)"></i>tale</span>
+            <span><i style="background:var(--bleed)"></i>lekkasje</span>
+            <span><i style="background:var(--tally)"></i>nærbilde</span>
+            <span><i style="background:var(--amber)"></i>bird/vid</span>
+            <span><i style="background:var(--eye)"></i>content/layout</span>
+          </div>
+        </div>
+        <canvas id="tl" width="1200" height="180" aria-label="Tidslinje over tale og kutt"></canvas>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel" aria-label="Styring">
+        <span class="lbl">Styring</span>
+        <div class="btns">
+          <button class="btn on" id="autoBtn">Auto på<small>motoren klipper</small></button>
+          <button class="btn" id="lockBtn">Lås<small>hold dette bildet</small></button>
+          <button class="btn" id="birdBtn">Bird nå<small>overstyring</small></button>
+        </div>
+        <div class="btns" id="camBtns"></div>
+        <p class="note">Rød = program, grønn ramme = preview. Knappene kutter direkte (side 11, nødbruk).</p>
+      </section>
+
+      <section class="panel" aria-label="Brytere">
+        <span class="lbl">Brytere · 5.13</span>
+        <div class="feats" id="feats"></div>
+      </section>
+
+      <section class="panel" aria-label="Kameraer">
+        <span class="lbl">Kameraer i dette oppsettet</span>
+        <ul class="camlist" id="cams"></ul>
+      </section>
+
+      <section class="panel" aria-label="Tuning">
+        <div class="row" style="justify-content:space-between">
+          <span class="lbl">Tuning</span>
+          <div class="seg" role="group" aria-label="Forhåndsvalg" id="presets">
+            <button data-p="rolig">Rolig</button><button data-p="standard" class="sel">Standard</button><button data-p="energisk">Energisk</button>
+          </div>
+        </div>
+        <div class="rules" id="rules"></div>
+      </section>
+
+      <section class="panel" aria-label="Til Companion">
+        <span class="lbl">Siste kommando til Companion</span>
+        <div class="cmd" id="cmd">Ingen kutt ennå</div>
+      </section>
+
+      <section class="panel" aria-label="Beslutningslogg">
+        <span class="lbl">Beslutningslogg · nyeste øverst</span>
+        <ul class="log" id="log"></ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const f1=x=>x.toFixed(1).replace('.',','), f2=x=>x.toFixed(2).replace('.',',');
+const clk=ms=>{const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const fmtS=v=>f1(v)+' s';
+const NAMES=['Vert','Gjest A','Gjest B','Gjest C'];
+const CANON={model:'Canon CR-N300',proto:'XC (HTTP)'}, OBS={model:'OBSBOT Tail 2',proto:'VISCA over IP'};
+
+const FEATURES=[
+ {k:'bird',name:'Fugleperspektiv',ids:'B1–B5',d:'Åpning, krysstale med 3+, latter, stillhet og korte pusterom',on:true},
+ {k:'content',name:'Laptop som content',ids:'C1–C6',d:'Ny slide vises, video holdes, aldri under krysstale',on:true},
+ {k:'video_confirm',name:'Videolag bekrefter',ids:'V1 V2 V5 P3',d:'Munnbevegelse korter ned bekreftelse og avviser lekkasje',on:false},
+ {k:'reactions',name:'Reaksjonsklipp',ids:'R1–R3',d:'Lytter nikker eller ler under lange svar',on:false},
+ {k:'framing_variety',name:'Vekslende utsnitt',ids:'F1–F3',d:'Kamera off air veksler mellom tett og vid',on:false},
+ {k:'slow_zoom',name:'Langsom zoom',ids:'Z1–Z3',d:'Maks 10 % over 15 s, stopper når preview armes',on:false},
+ {k:'layouts',name:'Layouter (PiP/quad)',ids:'L1–L4',d:'ATEM-makroer via Companion',on:false},
+ {k:'live_transcript',name:'Live tekst',ids:'NB-Whisper',d:'Tekst per mic, ca. 3 s forsinket; ikke for kuttpunkt',on:false},
+ {k:'turn_prediction',name:'Forvarsel om turbytte',ids:'VAP',d:'Kun 2 personer; armer preview tidligere, tar aldri kutt',on:false}];
+const F={};FEATURES.forEach(f=>F[f.k]=f.on);
+
+const PRESETS={
+ rolig:{vad:.7,dom:9,confirm:1200,minShot:4,short:1.5,cross:1.5,ping:3,monolog:25,silence:4,hostW:1.2},
+ standard:{vad:.6,dom:6,confirm:800,minShot:2.5,short:1.0,cross:1.0,ping:4,monolog:15,silence:3,hostW:1.1},
+ energisk:{vad:.5,dom:4,confirm:500,minShot:1.8,short:.7,cross:.8,ping:5,monolog:10,silence:2,hostW:1.0}};
+const RULES=[
+ {k:'vad',n:'T1',label:'VAD-terskel',min:.3,max:.9,step:.05,fmt:v=>f2(v)},
+ {k:'dom',n:'T1',label:'Dominans over andre mic-er',min:2,max:15,step:1,fmt:v=>v+' dB'},
+ {k:'confirm',n:'T2',label:'Bekreftelse før kutt',min:200,max:2000,step:50,fmt:v=>v+' ms'},
+ {k:'minShot',n:'T3',label:'Minste bildelengde',min:1,max:8,step:.1,fmt:fmtS},
+ {k:'short',n:'T4',label:'Småord ved avbrudd',min:.3,max:3,step:.1,fmt:fmtS},
+ {k:'cross',n:'T5',label:'Krysstale før vid/bird',min:.4,max:3,step:.1,fmt:fmtS},
+ {k:'ping',n:'T6',label:'Ping-pong: bytter per 10 s',min:2,max:8,step:1,fmt:v=>String(v)},
+ {k:'monolog',n:'T7',label:'Reaksjonsbilde etter',min:5,max:40,step:1,fmt:v=>v+' s'},
+ {k:'silence',n:'T8',label:'Stillhet før vid/bird',min:1,max:8,step:.5,fmt:fmtS},
+ {k:'hostW',n:'T12',label:'Prioritet vert',min:1,max:1.5,step:.05,fmt:v=>'×'+f2(v)}];
+let R={...PRESETS.standard};
+let running=true, scenario='talk', timer=null, N=3, laptop=false;
+const roles=['host','guest','guest','guest'];
+
+const TXT={host:['Velkommen til en ny episode.','Hva tenker du om det?','Det er et godt poeng.','La oss gå litt videre.','Kan du utdype det?'],
+ guest:['Ja, det er jo litt sånn at det kommer an på.','Jeg tror egentlig det handler om tillit.','Det var noe vi så allerede i fjor.','Nei, der er jeg faktisk uenig.','For oss var det helt avgjørende.']};
+
+// switches
+function buildFeats(){
+  $('feats').innerHTML='';
+  FEATURES.forEach(f=>{
+    const d=document.createElement('div');d.className='feat';
+    d.innerHTML=`<span class="fn">${f.name}<code>${f.ids}</code></span><span class="fd">${f.d}</span><button class="sw" role="switch" aria-checked="${F[f.k]}" aria-label="${f.name}"></button>`;
+    d.querySelector('button').onclick=e=>{F[f.k]=!F[f.k];e.currentTarget.setAttribute('aria-checked',F[f.k]);onFeature(f)};
+    $('feats').appendChild(d);
+  });
+}
+let onFeature=()=>{};
+buildFeats();
+$('simBtn').onclick=()=>{running=!running;$('simBtn').textContent=running?'Pause':'Fortsett'};
+document.querySelectorAll('#people button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#people button').forEach(x=>x.classList.toggle('sel',x===b));start(+b.dataset.n)});
+document.querySelectorAll('#laptop button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#laptop button').forEach(x=>x.classList.toggle('sel',x===b));laptop=b.dataset.l==='1';start(N)});
+
+function start(n){
+N=n; if(timer)clearInterval(timer);
+['mics','camBtns','rules','log','cams','tx'].forEach(id=>$(id).innerHTML='');
+const P=[...Array(N).keys()];
+const hasWide=N<=2;
+// shots
+const SH={};
+const add=(key,o)=>{SH[key]={key,...o}};
+P.forEach(i=>add('CU:P'+(i+1),{cam:'CAM '+(i+1),label:NAMES[i],kind:'cu',p:i,input:i+1,dev:i===0?CANON:OBS,row:0,col:i}));
+add('BIRD',{cam:'CAM 5',label:'Fugleperspektiv',kind:'bird',input:5,dev:{model:'Fast kamera',proto:'ingen styring'},row:0,col:4});
+if(laptop)add('CONTENT',{cam:'IN 6',label:'Laptop',kind:'content',input:6,dev:{model:'Laptop',proto:'HDMI'},row:0,col:5});
+if(hasWide)add('WIDE',{cam:'CAM 7',label:'Halvtotal',kind:'wide',input:7,dev:OBS,row:0,col:6});
+const cuKey=i=>'CU:P'+(i+1);
+const layoutKey={};
+function layout(key,label,row,col){if(!SH[key])add(key,{cam:'SSRC',label,kind:'layout',input:8,dev:{model:'ATEM SuperSource',proto:'makro'},row,col});return key}
+
+// mic strips
+const hold=P.map(()=>false);
+const micUI=P.map(i=>{
+  const d=document.createElement('div');d.className='mic';
+  d.innerHTML=`<div class="who"><span class="nm">${NAMES[i]}</span><button class="role"></button><small>Mic ${i+1} → CAM ${i+1}</small></div>
+  <div class="meters"><div class="meter lvl"><i></i></div><div class="meter vad"><i></i><span class="th"></span></div><div class="meter mouth"><i></i></div>
+  <div class="mlab mono"><span class="db">-60 dB</span><span class="vp">VAD 0,00</span><span class="mp">munn 0,00</span></div></div>
+  <div class="state">stille</div><button class="hold" aria-label="Hold for å snakke i mic ${i+1}">Snakk</button>`;
+  $('mics').appendChild(d);
+  const q=s=>d.querySelector(s), h=q('.hold'), rb=q('.role');
+  const setRole=()=>{rb.textContent=roles[i]==='host'?'VERT':'GJEST';rb.setAttribute('aria-label','Rolle for '+NAMES[i]+': '+(roles[i]==='host'?'vert':'gjest')+'. Trykk for å bytte.')};
+  setRole();rb.onclick=()=>{roles[i]=roles[i]==='host'?'guest':'host';setRole();logEntry(null,'—',`${NAMES[i]} er nå ${roles[i]==='host'?'vert':'gjest'} (5.12)`)};
+  const down=e=>{e.preventDefault();hold[i]=true;h.classList.add('down')}, up=()=>{hold[i]=false;h.classList.remove('down')};
+  h.addEventListener('pointerdown',down);['pointerup','pointerleave','pointercancel'].forEach(ev=>h.addEventListener(ev,up));
+  h.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')down(e)});h.addEventListener('keyup',up);
+  return {root:d,lvl:q('.lvl i'),vad:q('.vad i'),vadTh:q('.vad .th'),mouth:q('.mouth i'),mp:q('.mp'),db:q('.db'),vp:q('.vp'),state:q('.state')};
+});
+
+// buttons and cameras
+const btnKeys=Object.keys(SH);
+const camBtnEls={};
+btnKeys.forEach(k=>{const s=SH[k];const b=document.createElement('button');b.className='btn cam';b.innerHTML=`${s.cam}<small>${s.label}</small>`;b.onclick=()=>cut(k,'M','Manuelt kutt fra operatør');$('camBtns').appendChild(b);camBtnEls[k]=b});
+const camState={};
+btnKeys.forEach(k=>{const s=SH[k];if(s.kind==='content')return;camState[k]={size:'tett',moving:0,zoom:0};
+  const li=document.createElement('li');li.innerHTML=`<span class="to">${s.cam}</span><span class="mod">${s.dev.model}<small>${s.dev.proto} · ${s.label}</small></span><span class="st"></span>`;
+  $('cams').appendChild(li);camState[k].el=li.querySelector('.st')});
+
+// rules
+const ruleEls={};
+RULES.forEach(r=>{
+  if(N===1&&['dom','short','cross','ping','hostW'].includes(r.k))return;
+  const d=document.createElement('div');d.className='rule';const id='r_'+r.k;
+  d.innerHTML=`<span class="n">${r.n}</span><label for="${id}">${N===1&&r.k==='monolog'?'Vinkelbytte etter':r.label}</label><output></output><input type="range" id="${id}" min="${r.min}" max="${r.max}" step="${r.step}">`;
+  $('rules').appendChild(d);
+  const inp=d.querySelector('input'),out=d.querySelector('output');
+  inp.addEventListener('input',()=>{R[r.k]=parseFloat(inp.value);out.textContent=r.fmt(R[r.k]);selPreset(null)});
+  ruleEls[r.k]={inp,out,r};
+});
+const syncRules=()=>{for(const k in ruleEls){const e=ruleEls[k];e.inp.value=R[k];e.out.textContent=e.r.fmt(R[k])}};
+const selPreset=p=>document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('sel',b.dataset.p===p));
+document.querySelectorAll('#presets button').forEach(b=>b.onclick=()=>{R={...PRESETS[b.dataset.p]};syncRules();selPreset(b.dataset.p);logEntry(null,'—','Forhåndsvalg «'+b.textContent+'» valgt')});
+syncRules();
+onFeature=f=>{logEntry(null,'—',`${f.name} ${F[f.k]?'slått på':'slått av'}`);$('txPanel').hidden=!F.live_transcript;if(f.k==='content'&&!F.content&&SH[cur]&&SH[cur].kind==='content')cut(fallback(),'C6','Content slått av');};
+$('txPanel').hidden=!F.live_transcript;
+
+// simulation
+let t=0, events=[], planUntil=1500, lastMain=0, nextSlideAt=rnd(14000,22000), videoUntil=0, slideFlash=0, slideNo=1, contentState=laptop?'STATIC':'NO_SIGNAL';
+const pickOther=x=>{const o=P.filter(i=>i!==x);return o.length?o[Math.floor(Math.random()*o.length)]:x};
+function planSpeech(){
+  if(scenario==='manual'){planUntil=t+1000;return}
+  let who=0;
+  if(N>1){who=scenario==='mono'?(Math.random()<.7?0:pickOther(0)):(Math.random()<.5?0:pickOther(lastMain));if(who===lastMain)who=pickOther(lastMain)}
+  const s=planUntil+rnd(N===1?600:250,N===1?1800:900);
+  const dur=(scenario==='mono'&&who===0)||N===1?rnd(14000,30000):(scenario==='cross'?rnd(2500,7000):rnd(4000,12000));
+  const e=s+dur;
+  let p=s;while(p<e){const ph=Math.min(e,p+rnd(1200,3500));events.push({who,s:p,e:ph,kind:'tale'});p=ph+rnd(160,420)}
+  let end=e;
+  if(N>1){
+    for(let k=0;k<Math.floor(dur/4000);k++)if(Math.random()<.55){const b=rnd(s+800,e-800);events.push({who:pickOther(who),s:b,e:b+rnd(300,900),kind:'mm'})}
+    for(let k=0;k<Math.floor(dur/5000);k++)if(Math.random()<.5){const b=rnd(s+2000,e);events.push({who:pickOther(who),s:b,e:b+rnd(900,1600),kind:'nikk'})}
+    if(Math.random()<.3){const ns=rnd(s,e);events.push({who:pickOther(who),s:ns,e:ns+rnd(900,1800),kind:'støy'})}
+    if(Math.random()<.1){const l=rnd(s+1000,e);P.forEach(i=>events.push({who:i,s:l,e:l+rnd(900,1500),kind:'latter'}))}
+    if(Math.random()<(scenario==='cross'?.45:.12)){const o=pickOther(who);events.push({who:o,s:e-rnd(1200,2200),e:e+rnd(1500,3500),kind:'tale'});lastMain=o;end=events.at(-1).e}
+    else lastMain=who;
+  }
+  planUntil=end;
+}
+const speaking=i=>{if(hold[i])return 'tale';let k=null;for(const e of events)if(e.who===i&&t>=e.s&&t<e.e){if(e.kind!=='nikk')return e.kind;k='nikk'}return k};
+$('scenario').onchange=e=>{scenario=e.target.value;events=events.filter(x=>x.e<t);planUntil=t+300;lastMain=0};
+$('slideBtn').onclick=()=>{if(laptop){slideFlash=600;slideNo++}};
+$('slideBtn').disabled=!laptop;
+
+// transcript
+const txQueue=[];const txStarted=new Set();
+function txTick(){
+  for(const e of events){if(e.kind!=='tale'||t<e.s||txStarted.has(e))continue;txStarted.add(e);
+    if(Math.random()<.6){const pool=TXT[roles[e.who]];txQueue.push({at:e.s+3300,who:e.who,text:pool[Math.floor(Math.random()*pool.length)]})}}
+  while(txQueue.length&&txQueue[0].at<=t){const x=txQueue.shift();if(!F.live_transcript)continue;
+    const li=document.createElement('li');li.innerHTML=`<span class="mono sub">${clk(x.at-3300)}</span><span class="who">${NAMES[x.who]}</span><span>${x.text}</span>`;$('tx').prepend(li);while($('tx').children.length>6)$('tx').lastChild.remove()}
+}
+
+// engine
+const mic=P.map(()=>({lvl:-60,vad:0,mouth:0,still:0,run:0,gap:999,flash:0,flashTxt:'',nod:0}));
+let cur='BIRD', age=0, auto=true, lock=false, overlapT=0, silT=0, waitT=0, insert=null, personCuts=[], prevShot=null, lastCutT=-1e9, lastBirdT=-1e9, lastReactT=-1e9, lastLaughT=-1e9, cutTimes=[], manualUntil=0;
+const hist=[];
+const curP=()=>SH[cur]&&SH[cur].kind==='cu'?SH[cur].p:null;
+function fallback(){return hasWide?'WIDE':'BIRD'}
+function mode(){return 'N'+N+(laptop&&F.content&&contentState!=='NO_SIGNAL'?'C':'')}
+function cut(to,rule,why){
+  if(!SH[to])return;
+  if(to===cur&&rule!=='M')return;
+  const s=SH[to];
+  if(SH[cur]&&SH[cur].kind==='cu'&&F.framing_variety&&camState[cur])camState[cur].pendingMove=t+1000;
+  if(camState[cur])camState[cur].zoom=0;
+  prevShot=cur;cur=to;age=0;waitT=0;lastCutT=t;cutTimes.push(t);
+  if(rule==='M'){insert=null;manualUntil=t+5000}
+  if(s.kind==='cu')personCuts.push({t,p:s.p});
+  if(s.kind==='bird')lastBirdT=t;
+  logEntry(to,rule,why);
+  const take=s.kind==='layout'||s.kind==='content'?'MIX':'CUT';
+  $('cmd').textContent=rule==='M'?`POST http://companion.local:8000/api/location/11/0/${s.col}/press   (direkte programkutt)\n→ ATEM: ${s.cam} (${s.label})`:
+   `1) POST http://companion.local:8000/api/location/10/${s.row}/${s.col}/press   (${s.kind==='layout'?'makro → preview':'preview'})\n2) POST http://companion.local:8000/api/location/10/3/${take==='MIX'?1:0}/press   (TAKE ${take})\n3) POST http://companion.local:8000/api/custom-variable/regi_rule/value?value=${encodeURIComponent(rule)}\n→ ATEM: ${s.cam} · ${s.label} fra preview til program`;
+}
+function logEntry(to,rule,why){
+  const li=document.createElement('li');
+  const tag=rule==='M'?'manuell':rule==='—'?'':rule;
+  li.innerHTML=`<span class="t">${clk(t)}</span><span><span class="to">${to==null?'Innstilling':'→ '+SH[to].cam+' · '+SH[to].label}</span><span class="rtag">${tag}</span></span><span class="why">${why}</span>`;
+  const log=$('log');log.prepend(li);while(log.children.length>30)log.lastChild.remove();
+}
+
+function step(dt){
+  if(t>planUntil-1500)planSpeech();
+  events=events.filter(e=>e.e>t-2000);
+  // content state
+  if(laptop){
+    if(t>nextSlideAt){if(Math.random()<.3){videoUntil=t+rnd(8000,14000)}else{slideFlash=600;slideNo++}nextSlideAt=t+rnd(25000,45000)}
+    if(slideFlash>0){slideFlash-=dt;contentState='NEW_SLIDE'}else if(t<videoUntil)contentState='VIDEO';else contentState='STATIC';
+  } else contentState='NO_SIGNAL';
+  // signals
+  const sp=P.map(speaking);
+  sp.forEach((k,i)=>{
+    const others=sp.some((o,j)=>j!==i&&o&&o!=='nikk');let lvl,v,mo;
+    if(k==='støy'){lvl=-15+rnd(-3,3);v=rnd(.62,.85);mo=rnd(0,.15)}
+    else if(k&&k!=='nikk'){lvl=(k==='mm'?-22:-17)+rnd(-3,3);v=k==='latter'?rnd(.45,.7):rnd(.8,.97);mo=rnd(.55,.95)}
+    else if(others){lvl=-31+rnd(-3,3);v=rnd(.35,.62);mo=rnd(0,.18)}
+    else{lvl=-58+rnd(-2,2);v=rnd(0,.08);mo=rnd(0,.12)}
+    const m=mic[i];m.lvl=m.lvl*.5+lvl*.5;m.vad=m.vad*.6+v*.4;m.mouth=m.mouth*.7+mo*.3;m.nod=k==='nikk'||k==='latter'?Math.min(1,m.nod+dt/400):Math.max(0,m.nod-dt/600);
+  });
+  const laughing=sp.filter(k=>k==='latter').length>=2;
+  const cp=curP();
+  const maxOther=i=>Math.max(-60,...mic.filter((_,j)=>j!==i).map(o=>o.lvl));
+  const isAct=i=>mic[i].run>0&&mic[i].gap<=250;
+  const hold1=cp!=null&&t-lastCutT<5000;
+  const base=i=>R.confirm*(F.video_confirm&&mic[i].mouth>.5?.6:1)*(hold1?1.5:1);
+  const req=i=>(cp!=null&&cp!==i&&isAct(cp))?Math.max(base(i),(roles[i]==='host'&&roles[cp]!=='host'?1500:R.short*1000)):base(i);
+  const weight=i=>roles[i]==='host'?R.hostW:1;
+  mic.forEach((m,i)=>{
+    const audio=m.vad>R.vad&&(N===1||(m.lvl-maxOther(i))>=R.dom);
+    if(audio&&F.video_confirm&&m.mouth<.3)m.still+=dt;else m.still=0;
+    if(audio&&!(F.video_confirm&&m.still>=400)){m.run+=dt;m.gap=0}
+    else{m.gap+=dt;if(m.gap>250){if(m.run>0&&m.run<req(i)){m.flash=900;m.flashTxt=cp!=null&&i!==cp&&isAct(cp)?'småord':'for kort'}m.run=0}}
+    if(m.flash>0)m.flash-=dt;
+  });
+  age+=dt;
+  const actives=P.filter(isAct), nOver=actives.filter(i=>mic[i].run>=300).length;
+  overlapT=nOver>=2?overlapT+dt:0; silT=actives.length?0:silT+dt;
+  personCuts=personCuts.filter(x=>t-x.t<10000); cutTimes=cutTimes.filter(x=>t-x<1000);
+  const inPause=cp==null||mic[cp].gap>=250||!isAct(cp);
+  const minShot=(R.minShot+(cp!=null&&roles[cp]!=='host'&&N>1?1:0))*1000;
+  const contentOn=laptop&&F.content&&contentState!=='NO_SIGNAL';
+
+  // camera moves (F) and zoom (Z)
+  for(const k in camState){const c=camState[k];
+    if(c.pendingMove&&t>=c.pendingMove&&k!==cur&&k!==pvKey){c.pendingMove=0;c.size=c.size==='tett'?'vid':'tett';c.moving=t+1400}
+    if(c.moving&&t>c.moving)c.moving=0;
+    const s=SH[k];c.el.className='st'+(c.moving?' moving':'');
+    c.el.textContent=k===cur?'på lufta'+(c.zoom>0.05?` · zoom +${f1(c.zoom)} %`:''):(c.moving?'flytter seg (F2)':k===pvKey?'på preview':(s.kind==='cu'||s.kind==='wide'?(F.framing_variety?'klar · '+c.size:'klar'):'klar'));
+  }
+  if(F.slow_zoom&&SH[cur].kind==='cu'&&age>3000&&!pvKey){camState[cur].zoom=Math.min(10,(age-3000)/15000*10)}
+  $('zoom').hidden=!(F.slow_zoom&&camState[cur]&&camState[cur].zoom>0.05);
+  if(camState[cur])$('zoom').textContent=`langsom zoom +${f1(camState[cur].zoom)} %`;
+
+  let want=null,rule=null,why='',ins=null,nextTxt='',direct=false;
+  const detail=i=>`${NAMES[i]} (${roles[i]==='host'?'vert':'gjest'}) aktiv ${f2(mic[i].run/1000)} s (krav ${f2(req(i)/1000)} s), VAD ${f2(mic[i].vad)}${F.video_confirm?', munn '+f2(mic[i].mouth):''}${N>1?', '+Math.round(mic[i].lvl-maxOther(i))+' dB over andre':''}`;
+  const crossShot=()=>{
+    if(F.layouts&&N===4&&nOver>=3)return [layout('QUAD4','Quad 4 deltakere',2,6),'L3'];
+    if(F.layouts&&N===3&&contentOn&&nOver>=3)return [layout('QUAD3C','Quad 3 + laptop',2,7),'L4'];
+    if(N>=3)return [F.bird?'BIRD':cur,'B2'];
+    return [hasWide?'WIDE':'BIRD','T5'];
+  };
+  if(t<manualUntil){nextTxt=`Manuelt kutt: motoren venter ${f1((manualUntil-t)/1000)} s`}
+  else if(!F.bird&&cur==='BIRD'&&N>0&&t<4000){}
+  // opening
+  else if(t<4000&&cur==='BIRD'){nextTxt=`Åpning på fugleperspektiv i ${f1((4000-t)/1000)} s til (B1)`}
+  // content lost
+  else if(SH[cur]&&SH[cur].kind==='content'&&!contentOn){want=cp??(F.bird?'BIRD':fallback());want=typeof want==='number'?cuKey(want):want;rule='C6';why='Laptop-signal borte, kuttes straks';direct=true}
+  // inserts (reaction, bird pause, content slide)
+  else if(insert){
+    const done=age>=insert.dur&&!(insert.kind==='video'&&contentState==='VIDEO'&&age<60000);
+    if(done){const back=insert.back;insert=null;
+      if(back!=null&&isAct(back)){want=cuKey(back);rule='H4';why=`Tilbake til ${NAMES[back]} etter innslag`}
+      else if(insert==null&&cur==='CONTENT'&&insert===null){}
+    } else nextTxt=`Innslag (${insert.label}), tilbake ${insert.back!=null?'til '+NAMES[insert.back]+' ':''}om ${f1(Math.max(0,insert.dur-age)/1000)} s`;
+  }
+  if(want==null&&!insert&&t>=4000&&t>=manualUntil){
+    // content
+    if(contentOn&&contentState==='NEW_SLIDE'&&cur!=='CONTENT'&&nOver<2&&!laughing){
+      if(F.layouts&&cp!=null&&isAct(cp)){want=layout('PIPC:P'+(cp+1),'PiP '+NAMES[cp]+' + laptop',1,cp);rule='L1';why=`Ny slide mens ${NAMES[cp]} snakker`}
+      else{want='CONTENT';rule='C2';why=`Ny slide (slide ${slideNo}) på laptop`}
+      ins={label:'ny slide',dur:6000,back:cp,kind:'slide'};
+    } else if(contentOn&&contentState==='VIDEO'&&cur!=='CONTENT'&&nOver<2){want='CONTENT';rule='C3';why='Video på laptop (bevegelse/lyd)';ins={label:'video',dur:4000,back:cp,kind:'video'}}
+    // laughter
+    else if(F.bird&&laughing&&N>=2&&cur!=='BIRD'&&t-lastLaughT>8000){want='BIRD';rule='B4';why='Latter hos flere';ins={label:'latter',dur:3000,back:cp,kind:'bird'};lastLaughT=t}
+    // crosstalk
+    else if(overlapT>=R.cross*1000&&N>1){const [k,r]=crossShot();if(k!==cur){want=k;rule=r;why=`${nOver} aktive samtidig i ${f1(overlapT/1000)} s (krav ${f1(R.cross)} s)`}}
+    else{
+      const best=actives.filter(i=>mic[i].run>=req(i)).sort((a,b)=>mic[b].run*weight(b)-mic[a].run*weight(a))[0];
+      if(N===1){
+        if(cur===cuKey(0)&&isAct(0)&&age>=R.monolog*1000){if(hasWide&&inPause){want='WIDE';rule='T7';why=`Vinkelbytte etter ${f1(age/1000)} s, i pause (K4)`;ins={label:'vinkelbytte',dur:R.monolog*600,back:0,kind:'wide'}}else nextTxt='Vinkelbytte klart, venter på pause (K4)'}
+        else if(best===0&&cur!==cuKey(0)){want=cuKey(0);rule='T2';why=detail(0)}
+      }
+      else if(best!=null&&best!==cp){
+        const pp=personCuts.length>=R.ping;
+        if(pp&&N===2&&F.layouts){want=layout('PIP:P1+P2','PiP Vert + Gjest A',2,0);rule='L2';why=`${personCuts.length} bytter siste 10 s`}
+        else if(pp&&(cur!=='BIRD'&&cur!=='WIDE')){want=hasWide?'WIDE':'BIRD';rule='T6';why=`${personCuts.length} bytter mellom personer siste 10 s (grense ${R.ping})`}
+        else{want=cuKey(best);rule=req(best)>base(best)?'T4':'T2';why=detail(best)}
+      } else if(best!=null&&best===cp){
+        // reactions R1
+        const nodder=P.filter(i=>i!==cp&&mic[i].nod>.6&&!isAct(i)).sort((a,b)=>mic[b].nod-mic[a].nod)[0];
+        if(F.reactions&&nodder!=null&&age>=6000&&t-lastReactT>20000){
+          if(inPause){want=cuKey(nodder);rule='R1';why=`${NAMES[nodder]} nikker/ler mens ${NAMES[cp]} har snakket ${f1(age/1000)} s`;ins={label:'reaksjon',dur:2500,back:cp,kind:'react'};lastReactT=t}
+          else nextTxt=`Reaksjon fra ${NAMES[nodder]} klar, venter på pause hos ${NAMES[cp]} (K4)`;
+        }
+        else if(age>=R.monolog*1000){
+          const lis=roles[cp]==='host'?pickOther(cp):(P.find(i=>i!==cp&&roles[i]==='host')??pickOther(cp));
+          if(inPause){want=cuKey(lis);rule='T7';why=`${NAMES[cp]} har snakket ${f1(age/1000)} s, reaksjon fra ${NAMES[lis]} (${roles[lis]==='host'?'vert':'gjest'})`;ins={label:'reaksjon',dur:2500,back:cp,kind:'react'}}
+          else nextTxt=`Reaksjonsbilde klart, venter på pause hos ${NAMES[cp]} (K4)`;
+        }
+        else if(F.bird&&age>=20000&&t-lastBirdT>45000&&inPause){want='BIRD';rule='B5';why='Kort pusterom under langt svar';ins={label:'pusterom',dur:3500,back:cp,kind:'bird'}}
+      }
+      else if(!actives.length&&silT>=Math.max(R.silence*1000,(cp!=null?1000:0))){
+        const s=hasWide?'WIDE':(F.bird?'BIRD':null);
+        if(s&&cur!==s&&!(contentOn&&cur==='CONTENT')){want=contentOn&&F.content?'CONTENT':s;rule=hasWide||!F.bird?'T8':'B3';why=`Ingen aktiv mic på ${f1(silT/1000)} s (grense ${f1(R.silence)} s, release H3 1,0 s)`}
+      }
+    }
+  }
+  // preview and gates
+  let pvState='',pvWhy='';
+  pvKey=null;
+  if(want!=null&&want!==cur){pvKey=want;pvState='READY'}
+  else{const c=P.filter(i=>isAct(i)&&i!==cp&&mic[i].run>=req(i)*.5)[0];
+    if(c!=null&&N>1){pvKey=cuKey(c);pvState='ARMED';pvWhy=`${NAMES[c]} bekreftes (${f2(mic[c].run/1000)} av ${f2(req(c)/1000)} s)`}
+    else if(F.turn_prediction&&N===2){const nx=events.find(e=>e.kind==='tale'&&e.s>t&&e.s-t<1500&&e.who!==cp);if(nx){pvKey=cuKey(nx.who);pvState='ARMED';pvWhy=`forvarsel: ${NAMES[nx.who]} snakker trolig om ${f1((nx.s-t)/1000)} s (VAP)`}}
+  }
+  if(want!=null&&want!==cur){
+    const isInsert=ins!=null&&ins.kind!=='slide'&&ins.kind!=='video';
+    const c=camState[want];
+    if(!auto)nextTxt='AUTO er av. Motoren ville kuttet til '+SH[want].cam+' ('+rule+')';
+    else if(lock)nextTxt='LÅST. Motoren ville kuttet til '+SH[want].cam+' ('+rule+')';
+    else if(cutTimes.length&&!direct)nextTxt='Maks ett kutt per sekund (S3)';
+    else if(c&&c.moving){pvState='ARMED';pvWhy='kamera flytter seg';nextTxt=`${SH[want].cam} flytter seg, venter (S1)`}
+    else if(!direct&&age<minShot&&!['C2','C3','H4'].includes(rule)){pvState='ARMED';pvWhy='minste bildelengde (T3)';nextTxt=`${SH[want].cam} på preview, venter på minste bildelengde: ${f1((minShot-age)/1000)} s igjen (T3${cp!=null&&roles[cp]!=='host'&&N>1?', gjest +1 s':''})`}
+    else if(!direct&&want===prevShot&&t-lastCutT<4000&&rule!=='H4'&&!rule.startsWith('C')){pvState='ARMED';pvWhy='ikke tilbake så raskt (H2)';nextTxt=`Venter: ikke tilbake til ${SH[want].cam} før ${f1((4000-(t-lastCutT))/1000)} s (H2)`}
+    else if(!direct&&!isInsert&&SH[want].kind==='cu'&&cp!=null&&isAct(cp)&&mic[cp].gap<250&&waitT<1500){waitT+=dt;pvWhy='venter på kuttpunkt';nextTxt=`${SH[want].cam} klar på preview, venter på pause hos ${NAMES[cp]} (K2, maks ${f1((1500-waitT)/1000)} s til)`}
+    else{
+      const k=waitT>=1500?' · tatt ved maks ventetid (K3)':waitT>0?` · tatt i pause etter ${Math.round(waitT)} ms (K2)`:(cp!=null&&SH[want].kind==='cu'&&!isInsert?' · turbytte (K1)':'');
+      cut(want,rule,why+k);if(ins)insert={...ins};pvKey=null;
+    }
+  }
+  if(!nextTxt){
+    if(hold1)nextTxt='Holder bildet · sterkere krav til nytt kutt i '+f1((5000-(t-lastCutT))/1000)+' s (H1)';
+    else if(cp!=null&&isAct(cp))nextTxt=`Holder ${SH[cur].cam}: ${NAMES[cp]} snakker. Reaksjon om ${f1(Math.max(0,R.monolog-age/1000))} s`;
+    else if(!actives.length)nextTxt=`Stille i ${f1(silT/1000)} s`;
+    else nextTxt='Holder bildet';
+  }
+  $('next').textContent=nextTxt;
+  $('pvw').textContent=pvKey&&SH[pvKey]?`${SH[pvKey].cam} · ${SH[pvKey].label} — ${pvState}${pvWhy?', '+pvWhy:''}`:'Ingen kandidat · reservebilde '+SH[fallback()].label.toLowerCase();
+
+  // UI
+  mic.forEach((m,i)=>{
+    const ui=micUI[i];let cls='',txt='stille';
+    if(isAct(i)){if(m.run>=req(i)){cls='talk';txt='snakker'}else{cls='conf';txt='bekrefter '+f1((req(i)-m.run)/1000)}}
+    else if(m.flash>0){cls='short';txt='ignorert: '+m.flashTxt}
+    else if(F.reactions&&m.nod>.6){cls='react';txt='nikker/ler'}
+    else if(F.video_confirm&&m.still>=400){cls='bleed';txt='munn i ro'}
+    else if(m.vad>R.vad){cls='bleed';txt='lekkasje'}
+    ui.state.className='state '+cls;ui.state.textContent=txt;
+    ui.lvl.style.width=Math.max(0,Math.min(100,(m.lvl+60)/60*100))+'%';
+    ui.vad.style.width=(m.vad*100)+'%';ui.vadTh.style.left=(R.vad*100)+'%';
+    ui.mouth.style.width=(F.video_confirm||F.reactions?m.mouth*100:0)+'%';
+    ui.db.textContent=Math.round(m.lvl)+' dB';ui.vp.textContent='VAD '+f2(m.vad);ui.mp.textContent=F.video_confirm||F.reactions?'munn '+f2(m.mouth):'video av';
+    ui.root.classList.toggle('onpgm',cur===cuKey(i));ui.root.classList.toggle('onpvw',pvKey===cuKey(i));
+  });
+  const s=SH[cur];$('shot').innerHTML=`${s.cam}<small>${s.label}${s.kind==='cu'&&F.framing_variety&&camState[cur]?' · '+camState[cur].size:''}</small>`;
+  $('mode').textContent='Modus '+mode();
+  $('age').textContent=f1(age/1000)+' s';$('minlbl').textContent='Minste bildelengde '+f1(minShot/1000)+' s';
+  const bar=$('ageBar');bar.firstElementChild.style.width=Math.min(100,age/minShot*100)+'%';bar.classList.toggle('ok',age>=minShot);
+  for(const k in camBtnEls){camBtnEls[k].classList.toggle('pgm-on',k===cur);camBtnEls[k].classList.toggle('pvw-on',k===pvKey)}
+  $('cstate').textContent=contentState;$('cstate').classList.toggle('on',contentOn);
+  $('cinfo').textContent=!laptop?'Ingen laptop tilkoblet':!F.content?'Content er slått av':contentState==='VIDEO'?'Video spilles, holdes på lufta (C3)':contentState==='NEW_SLIDE'?'Ny slide oppdaget (C2)':`Slide ${slideNo}, stillestående`;
+  $('clock').textContent=clk(t);
+  txTick();
+  if(Math.floor(t/100)!==Math.floor((t-dt)/100)){hist.push({m:mic.map((m,i)=>isAct(i)?2:(m.vad>R.vad?1:0)),k:SH[cur].kind,c:SH[cur].cam});if(hist.length>600)hist.shift();draw()}
+}
+let pvKey=null;
+
+// timeline
+const cv=$('tl'),ctx=cv.getContext('2d'),rowH=24,top=8;
+cv.height=top*2+(N+1)*(rowH+8);cv.style.height=Math.round(cv.height/1.25)+'px';
+function draw(){
+  const cs=getComputedStyle(document.documentElement),col=k=>cs.getPropertyValue(k).trim();
+  const W=cv.width,H=cv.height,left=90;
+  ctx.clearRect(0,0,W,H);ctx.font='600 15px '+col('--f-display');ctx.textBaseline='middle';
+  [...P.map(i=>NAMES[i]),'Program'].forEach((nm,r)=>{ctx.fillStyle=col('--muted');ctx.fillText(nm,4,top+r*(rowH+8)+rowH/2);ctx.fillStyle=col('--meter-bg');ctx.fillRect(left,top+r*(rowH+8),W-left,rowH)});
+  const sw=(W-left)/600,off=600-hist.length,py=top+N*(rowH+8);
+  const kc={cu:col('--tally'),bird:col('--amber'),wide:col('--amber'),content:col('--eye'),layout:col('--eye')};
+  hist.forEach((h,k)=>{
+    const x=left+(off+k)*sw;
+    h.m.forEach((v,r)=>{if(!v)return;ctx.fillStyle=v===2?col('--live'):col('--bleed');ctx.fillRect(x,top+r*(rowH+8)+(v===2?0:rowH*.6),Math.ceil(sw),v===2?rowH:rowH*.4)});
+    ctx.fillStyle=kc[h.k];ctx.fillRect(x,py,Math.ceil(sw),rowH);
+    if(k>0&&hist[k-1].c!==h.c){ctx.fillStyle=col('--ink');ctx.fillRect(x,top,2,H-top*2)}
+  });
+  ctx.font='600 13px '+col('--f-display');
+  hist.forEach((h,k)=>{if(k===0||hist[k-1].c!==h.c){ctx.fillStyle='#fff';ctx.fillText(h.c.replace('CAM ','C'),left+(off+k)*sw+5,py+rowH/2)}});
+}
+
+// controls
+const autoBtn=$('autoBtn'),lockBtn=$('lockBtn');
+autoBtn.classList.add('on');autoBtn.innerHTML='Auto på<small>motoren klipper</small>';lockBtn.classList.remove('warn');lockBtn.innerHTML='Lås<small>hold dette bildet</small>';
+autoBtn.onclick=()=>{auto=!auto;autoBtn.classList.toggle('on',auto);autoBtn.innerHTML=auto?'Auto på<small>motoren klipper</small>':'Auto av<small>motoren er frosset</small>';logEntry(null,'—',auto?'AUTO slått på':'AUTO slått av, ATEM beholder bildet')};
+lockBtn.onclick=()=>{lock=!lock;lockBtn.classList.toggle('warn',lock);lockBtn.innerHTML=lock?'Låst<small>trykk for å slippe</small>':'Lås<small>hold dette bildet</small>';logEntry(null,'—',lock?'Bildet låst av operatør':'Lås sluppet')};
+$('birdBtn').onclick=()=>cut('BIRD','M','Operatør trykket BIRD NÅ');
+$('slideBtn').disabled=!laptop;
+let last=performance.now();
+timer=setInterval(()=>{const now=performance.now();let dt=Math.min(120,now-last);last=now;if(!running)return;while(dt>0){const d=Math.min(30,dt);t+=d;step(d);dt-=d}},50);
+logEntry('BIRD','B1',`Show-oppsett: ${N} ${N===1?'deltaker':'deltakere'}${laptop?' + laptop':''}. Åpner på fugleperspektiv`);
+}
+start(3);
+})();
+</script>
