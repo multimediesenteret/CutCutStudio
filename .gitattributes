@@ -5,3 +5,4 @@
 *.pdf binary
 *.png binary
 ui/apps/simulator/public/traces/*.json linguist-generated=true -diff
+site/*/equipment/companion/*.companionconfig linguist-generated=true

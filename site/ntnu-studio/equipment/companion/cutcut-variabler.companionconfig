@@ -1,0 +1,50 @@
+{
+ "version": 12,
+ "type": "full",
+ "companionBuild": null,
+ "custom_variables": {
+  "regi_shot": {
+   "description": "Bildet motoren har valgt (f.eks. CU:P2)",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 0
+  },
+  "regi_rule": {
+   "description": "Regelen bak siste beslutning (f.eks. T1)",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 1
+  },
+  "regi_reason": {
+   "description": "Hvorfor, med ord",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 2
+  },
+  "regi_mode": {
+   "description": "Motorens modus (N1–N4, NxC, A)",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 3
+  },
+  "regi_auto": {
+   "description": "AUTO på eller av",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 4
+  },
+  "regi_health": {
+   "description": "Helse: ok, warn eller error",
+   "defaultValue": "",
+   "persistCurrentValue": false,
+   "sortOrder": 5
+  },
+  "cutcut_pages_version": {
+   "description": "Versjonen av CutCut-sidene (side 10 og 11). Leses av helsesjekken H-COMP-1",
+   "defaultValue": "1",
+   "persistCurrentValue": false,
+   "sortOrder": 6
+  }
+ },
+ "customVariablesCollections": []
+}

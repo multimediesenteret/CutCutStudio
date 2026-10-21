@@ -1,0 +1,979 @@
+{
+ "version": 12,
+ "type": "page",
+ "companionBuild": null,
+ "page": {
+  "id": "cutcut-page-10",
+  "name": "CutCut REGI",
+  "controls": {
+   "0": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nC1",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c0",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 1
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "1": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nC2",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c1",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 2
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "2": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nC3",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c2",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 3
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "3": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nC4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c3",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 4
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "4": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nBIRD",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c4",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 5
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "5": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nLAPTOP",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c5",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 6
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "7": {
+     "type": "button",
+     "style": {
+      "text": "PRV\\nSUPER\\nSOURCE",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 1993530,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r0-c7",
+          "definitionId": "preview",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0,
+           "input": 6000
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   },
+   "1": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "P1 + CONTENT",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r1-c0",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 10,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "1": {
+     "type": "button",
+     "style": {
+      "text": "P2 + CONTENT",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r1-c1",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 11,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "2": {
+     "type": "button",
+     "style": {
+      "text": "P3 + CONTENT",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r1-c2",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 12,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "3": {
+     "type": "button",
+     "style": {
+      "text": "P4 + CONTENT",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r1-c3",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 13,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "4": {
+     "type": "button",
+     "style": {
+      "text": "LAYOUT\\nAV",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r1-c4",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 40,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   },
+   "2": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "P1 + P2",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c0",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 20,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "1": {
+     "type": "button",
+     "style": {
+      "text": "P1 + P3",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c1",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 21,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "2": {
+     "type": "button",
+     "style": {
+      "text": "P1 + P4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c2",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 22,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "3": {
+     "type": "button",
+     "style": {
+      "text": "P2 + P3",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c3",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 23,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "4": {
+     "type": "button",
+     "style": {
+      "text": "P2 + P4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c4",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 24,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "5": {
+     "type": "button",
+     "style": {
+      "text": "P3 + P4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c5",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 25,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "6": {
+     "type": "button",
+     "style": {
+      "text": "QUAD4",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c6",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 30,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "7": {
+     "type": "button",
+     "style": {
+      "text": "QUAD3C",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 2312058,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r2-c7",
+          "definitionId": "macrorun",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "macro": 31,
+           "action": "run"
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   },
+   "3": {
+    "0": {
+     "type": "button",
+     "style": {
+      "text": "TAKE\\nCUT",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r3-c0",
+          "definitionId": "cut",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    },
+    "1": {
+     "type": "button",
+     "style": {
+      "text": "TAKE\\nMIX",
+      "textExpression": false,
+      "size": "auto",
+      "alignment": "center:center",
+      "pngalignment": "center:center",
+      "color": 16777215,
+      "bgcolor": 10165276,
+      "show_topbar": "default",
+      "png64": null
+     },
+     "options": {
+      "stepProgression": "auto",
+      "rotaryActions": false
+     },
+     "feedbacks": [],
+     "localVariables": [],
+     "steps": {
+      "0": {
+       "action_sets": {
+        "down": [
+         {
+          "type": "action",
+          "id": "cutcut-p10-r3-c1",
+          "definitionId": "auto",
+          "connectionId": "cutcut-atem",
+          "options": {
+           "mixeffect": 0
+          },
+          "upgradeIndex": 6
+         }
+        ],
+        "up": []
+       },
+       "options": {
+        "runWhileHeld": []
+       }
+      }
+     }
+    }
+   }
+  },
+  "gridSize": {
+   "minColumn": 0,
+   "maxColumn": 7,
+   "minRow": 0,
+   "maxRow": 3
+  }
+ },
+ "instances": {
+  "cutcut-atem": {
+   "label": "ATEM",
+   "moduleId": "bmd-atem",
+   "lastUpgradeIndex": 6,
+   "sortOrder": 0
+  }
+ },
+ "connectionCollections": [],
+ "oldPageNumber": 10
+}

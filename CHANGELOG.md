@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- DA-9: `cutcut companion-pages` lager Companion-side 10 «REGI», side 11 «OPERATØR» og variablene (`regi_*`, `cutcut_pages_version`) som importfiler.
+  - Filene lages fra studio-oppsettet.
+  - Filene er sjekket inn for `ntnu-studio` og `example`, og en test sier fra når de er utdaterte.
+  - Importveiledning i `docs/studio/companion.md`.
 - HS-4: oppstarts- og morgensjekk.
   - Hele katalogen og multiview-sjekken kjøres 20 s etter oppstart og kl. 07:00, og kan startes med «Kjør alle nå».
   - Resultatet vises som en prikk på hvileskjermen (grønn eller gul) og med navn i teknikervinduet.
