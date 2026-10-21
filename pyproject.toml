@@ -41,6 +41,9 @@ extend-exclude = ["docs", "concept", "site"]  # Markdown code samples are illust
 select = ["E", "F", "W", "I", "B", "UP", "N", "ASYNC", "S", "RUF", "SIM", "PT"]
 ignore = ["RUF001", "RUF002", "RUF003"]  # Norwegian letters in UI strings and comments are intentional
 
+[tool.ruff.lint.isort]
+known-first-party = ["cutcut"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
 
