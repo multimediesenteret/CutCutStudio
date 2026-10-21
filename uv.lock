@@ -196,6 +196,7 @@ silero = [
 dev = [
     { name = "hypothesis" },
     { name = "mypy" },
+    { name = "onnxruntime" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "ruff" },
@@ -221,6 +222,7 @@ provides-extras = ["silero"]
 dev = [
     { name = "hypothesis", specifier = ">=6.112" },
     { name = "mypy", specifier = ">=1.13" },
+    { name = "onnxruntime", specifier = ">=1.20,<2" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
     { name = "ruff", specifier = ">=0.8" },

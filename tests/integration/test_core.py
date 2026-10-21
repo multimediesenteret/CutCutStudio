@@ -1,0 +1,177 @@
+"""The whole chain in one process (M2): core with Companion, Pearl and the bus, against fakes.
+
+audio-capture and atem-bridge are stood in for by a ZeroMQ publisher sending the same
+messages they send (the ATEM message is the shared contract fixture). Companion and Pearl
+are fake HTTP servers. Nothing here is simulated inside core: it is the studio code path.
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import socket
+import time
+from collections.abc import Callable, Iterator
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+import pytest
+import zmq
+from fastapi.testclient import TestClient
+
+from cutcut.app.core import CoreOptions, build_core
+from cutcut.common.platform.secrets import FakeSecretStore
+from cutcut.sim.fake_companion import FakeCompanionState, fake_companion
+from cutcut.sim.fake_pearl import FakePearlState, fake_pearl
+
+ROOT = Path(__file__).resolve().parents[2]
+ATEM = json.loads((ROOT / "tests" / "fixtures" / "atem" / "state-ntnu.json").read_text())
+PIN = "4711"
+
+
+def free_port() -> int:
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return int(s.getsockname()[1])
+
+
+def site_copy(tmp: Path, companion_url: str, pearl_url: str) -> Path:
+    site = tmp / "site"
+    shutil.copytree(ROOT / "site" / "ntnu-studio", site)
+    host, port = pearl_url.removeprefix("http://").split(":")
+    devices = (site / "devices.yaml").read_text()
+    devices = devices.replace(
+        'companion: { url: "http://127.0.0.1:8000"', f'companion: {{ url: "{companion_url}"'
+    )
+    devices = devices.replace(
+        "pearl: { ip: 10.10.10.30,", f"pearl: {{ ip: {host}, port: {port}, scheme: http,"
+    )
+    (site / "devices.yaml").write_text(devices)
+    (site / "staff.yaml").write_text("schema_version: 1\noperators: [tekniker1]\nadmins: []\n")
+    return site
+
+
+class Bus:
+    """Plays audio-capture and atem-bridge: publishes into core's events-in socket."""
+
+    def __init__(self, port: int) -> None:
+        self.ctx = zmq.Context()
+        self.sock = self.ctx.socket(zmq.PUB)
+        self.sock.connect(f"tcp://127.0.0.1:{port}")
+        self.seq: dict[str, int] = {}
+
+    def send(self, topic: str, source: str, payload: dict[str, Any]) -> None:
+        seq = self.seq.get(topic, 0)
+        self.seq[topic] = seq + 1
+        msg = {
+            "topic": topic,
+            "source": source,
+            "ts": datetime.now(UTC).isoformat(),
+            "mono_ms": int(time.monotonic() * 1000),
+            "seq": seq,
+            "schema_version": 1,
+            "payload": payload,
+        }
+        self.sock.send_multipart([topic.encode(), json.dumps(msg).encode()])
+
+    def close(self) -> None:
+        self.sock.close(0)
+        self.ctx.term()
+
+
+def talk(mic: str | None) -> dict[str, Any]:
+    on = {"vad": 0.95, "level_db": -20, "dominance_db": 15, "pause_ms": 0}
+    off = {"vad": 0.02, "level_db": -60, "dominance_db": -15, "pause_ms": 5000}
+    return {"mics": {m: on if m == mic else off for m in ("M1", "M2", "M3", "M4")}}
+
+
+def until(cond: Callable[[], bool], timeout: float, tick: Callable[[], None] | None = None) -> bool:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if tick:
+            tick()
+        if cond():
+            return True
+        time.sleep(0.05)
+    return False
+
+
+@pytest.fixture
+def rig(
+    tmp_path: Path,
+) -> Iterator[tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any]]:
+    with fake_companion() as (curl, cstate), fake_pearl() as (purl, pstate):
+        bus_in, bus_out = free_port(), free_port()
+        core = build_core(
+            CoreOptions(
+                site_dir=site_copy(tmp_path, curl, purl),
+                data_dir=tmp_path / "data",
+                secrets=FakeSecretStore(
+                    {"pearl_password": "test-only", "operator_pin": PIN, "admin_pin": PIN}
+                ),
+                bus_in_port=bus_in,
+                bus_out_port=bus_out,
+            )
+        )
+        bus = Bus(bus_in)
+        try:
+            with TestClient(core.app) as client:
+                yield client, bus, cstate, pstate, core
+        finally:
+            bus.close()
+            core.close()
+
+
+def test_core_reads_the_atem_cuts_via_companion_and_records_on_pearl(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    client, bus, cstate, pstate, core = rig
+    assert client.post("/api/login", json={"username": "tekniker1", "pin": PIN}).status_code == 200
+
+    # atem-bridge reports the ATEM; core sees it (and its multiview) within a moment.
+    def atem() -> None:
+        bus.send("atem.state", "atem-bridge", ATEM)
+
+    assert until(lambda: core.bridge.readback() is not None, 5, atem)
+    mv = client.get("/api/setup/multiview").json()
+    assert mv["readback"]["windows"][4] == "input6"
+    assert mv["ok"] is True
+
+    # A technician starts a session and a recording; Pearl is asked and confirms.
+    assert client.post("/api/session", json={"username": "kanordm"}).status_code == 200
+    assert client.post("/api/recording", json={"action": "start"}).status_code == 200
+    assert until(lambda: ("1", "start") in pstate.commands, 8, atem)
+    assert until(lambda: client.get("/api/state").json()["touch"]["step"] == "rec", 8, atem)
+    assert client.get("/api/state").json()["recording"]["online"] is True
+
+    # audio-capture says gjest 1 talks: core puts Camera 2 on preview and takes it via Companion.
+    def speak() -> None:
+        atem()
+        bus.send("audio.frame", "audio-capture", talk("M2"))
+
+    assert until(lambda: (10, 3, 0) in cstate.presses and (10, 0, 1) in cstate.presses, 15, speak)
+    assert cstate.variables.get("regi_shot")
+
+    assert client.post("/api/recording", json={"action": "stop"}).status_code == 200
+    assert until(lambda: ("1", "stop") in pstate.commands, 5, atem)
+
+
+def test_core_starts_without_any_equipment(tmp_path: Path) -> None:
+    """Uptime first: nothing answers, the studio still starts and shows it."""
+    site = site_copy(tmp_path, "http://127.0.0.1:9", "http://127.0.0.1:9")
+    core = build_core(
+        CoreOptions(
+            site_dir=site,
+            data_dir=tmp_path / "data",
+            secrets=FakeSecretStore({}),
+            bus_in_port=free_port(),
+            bus_out_port=free_port(),
+        )
+    )
+    try:
+        with TestClient(core.app) as client:
+            assert client.get("/api/health").status_code == 200
+            assert core.bridge.readback() is None
+    finally:
+        core.close()

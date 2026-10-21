@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from collections import deque
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -137,6 +138,10 @@ PARTICIPANT_COLORS: Final[dict[str, Color]] = {
 Role = Literal["touch", "operator", "admin"]
 
 
+class AtemReader(Protocol):
+    def multiview_readback(self) -> MultiviewReadback | None: ...
+
+
 class Recorder(Protocol):
     """Pearl (spec 7.4). Start/stop are idempotent and asynchronous; ``state`` is polled."""
 
@@ -173,6 +178,7 @@ class StudioDeps:
     store: Store | None = None
     simulator: bool = False
     log_dir: Path | None = None  # JSON-line logs, for the debug package
+    atem: AtemReader | None = None  # atem-bridge client in studio; None: the executor reads
 
 
 @dataclass
@@ -188,6 +194,7 @@ class Studio:
         self.overrides: dict[str, float] = {}
         self.device_overrides: dict[str, str] = {}
         self.devices: Devices = self.deps.site.devices
+        self.on_devices: Callable[[Devices], None] | None = None
         self._load_devices()
         self._load_tuning()
         engine = self._make_engine(self.show)
@@ -310,6 +317,8 @@ class Studio:
         except devices.DeviceSettingsError as exc:
             raise CommandError(str(exc)) from exc
         self.device_overrides, self.devices = updated, effective
+        if self.on_devices is not None:
+            self.on_devices(effective)  # e.g. point the Companion and Pearl clients elsewhere
         if self.deps.store is not None:
             self.deps.store.put_kv(devices.DEVICES_KEY, updated, self.deps.clock.now())
         self._reconfigure()
@@ -403,7 +412,8 @@ class Studio:
     # -- multiview (D-055) ---------------------------------------------------------------
 
     def _mv_readback(self) -> MultiviewReadback | None:
-        reader = getattr(self.deps.executor, "multiview_readback", None)
+        source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
+        reader = getattr(source, "multiview_readback", None)
         return reader() if callable(reader) else None
 
     def multiview_status(self) -> dict[str, Any]:

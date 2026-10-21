@@ -4,7 +4,7 @@ and external monitoring. Served by ``core`` on port 8080; the screens are static
 import asyncio
 import contextlib
 import logging
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Coroutine, Sequence
 from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -88,15 +88,18 @@ def create_app(
     run_loop: bool = True,
     before_tick: TickHook | None = None,
     extra_routes: Callable[[FastAPI, Callable[..., Awaitable[Identity]]], None] | None = None,
+    background: Sequence[Callable[[], Coroutine[Any, Any, None]]] = (),
 ) -> FastAPI:
     @contextlib.asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-        task = asyncio.create_task(_loop(studio, before_tick)) if run_loop else None
+        tasks = [asyncio.create_task(_loop(studio, before_tick))] if run_loop else []
+        tasks += [asyncio.create_task(job()) for job in background]  # e.g. the bus reader
         try:
             yield
         finally:
-            if task is not None:
+            for task in tasks:
                 task.cancel()
+            for task in tasks:
                 with contextlib.suppress(asyncio.CancelledError):
                     await task
 

@@ -57,6 +57,18 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
+## I studio (M2)
+
+Prosessene startes av supervisor (kommer i SO-1/SO-2); for hånd ser det slik ut:
+
+```bash
+uv run cutcut core --site site/ntnu-studio            # motor, API og skjermer på :8080
+pnpm --filter @cutcut/atem-bridge start -- --ip <ATEM-IP>
+uv run cutcut audio --wav test.wav                     # ekte lydkort (ASIO) kommer i AU-5
+```
+
+Passord og PIN-er ligger i Windows Credential Manager (`pearl_password`, `operator_pin`, `admin_pin`). Adressene til utstyret settes under Oppsett i teknikervinduet.
+
 ## Bidra
 
 Kjør `tools/setup-git.sh` (eller `.ps1`) etter kloning. Alle commits skal ha forfatter `Multimediesenteret <magnus.lian@ntnu.no>` (se `AGENTS.md` 3).
