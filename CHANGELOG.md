@@ -41,4 +41,5 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - U-1: arbeidsområde for skjermene i `ui/` (pnpm, Vite 7, React 19, TypeScript strict): felles design (`@cutcut/design`), klient (`@cutcut/client`) med typer generert fra API-beskrivelsen, tom touch- og teknikerapp, og CI-jobben `ui` (format, lint, typer, tester, bygg).
 - SIM-6: `uv run cutcut sim` starter motor, simulator og begge skjermer på http://127.0.0.1:8080 (`/touch/`, `/tech/`, `/api/docs`). `--smoke` starter, sjekker helse og skjermer og avslutter; CI kjører den.
 - SIM-7: `uv run cutcut trace` lagrer simulerte økter (kort, valg, opptak, samtale, slides, ferdig) som JSON for web-simulatoren i `ui/apps/simulator/public/traces/`. Forløpene er deterministiske, og CI feiler hvis de er utdaterte.
+- U-3: klienten for skjermene: `WsTransport` kobler til igjen for alltid (250 ms → 5 s) og viser siste tilstand mens den venter, `ReplayTransport` spiller av forløp fra `cutcut trace` med pause, fart, hopp og løkke. Testet mot det ekte forløpet.
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).

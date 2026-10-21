@@ -51,6 +51,11 @@ export class Store {
     for (const fn of this.listeners) fn();
   }
 
+  /** Forget everything (the replay player jumps in time). */
+  reset(): void {
+    this.set({ state: null, meters: {}, decisions: [], lastMessageAt: 0 });
+  }
+
   setConnection(connection: Connection): void {
     if (connection !== this.snap.connection) this.set({ connection });
   }
