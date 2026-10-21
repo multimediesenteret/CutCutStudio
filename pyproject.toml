@@ -8,6 +8,8 @@ license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12,<3.13"
 authors = [{ name = "NTNU Multimediesenteret", email = "magnus.lian@ntnu.no" }]
 dependencies = [
+    "keyring>=25,<26",
+    "psutil>=6,<8",
     "pydantic>=2.9,<3",
     "pyzmq>=26,<28",
     "ruamel-yaml>=0.18,<0.19",
@@ -23,6 +25,7 @@ dev = [
     "hypothesis>=6.112",
     "mypy>=1.13",
     "ruff>=0.8",
+    "types-psutil>=7.2.2.20260906",
 ]
 
 [build-system]
