@@ -114,3 +114,18 @@ test("light and dark theme", async ({ page }) => {
   await toggle.click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
+
+test("without card reader: Start logs in a guest (D-057)", async ({ page }) => {
+  await page.request.put("/api/settings/login", { data: { mode: "open" } });
+  try {
+    await page.goto("/touch/");
+    await expect(
+      page.getByRole("heading", { name: "Velkommen til podkaststudioet" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Hei!" })).toBeVisible();
+    await page.request.delete("/api/session");
+  } finally {
+    await page.request.put("/api/settings/login", { data: { mode: "card" } });
+  }
+});

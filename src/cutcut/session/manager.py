@@ -35,7 +35,7 @@ START_TIMEOUT_MS: Final = 10_000
 DONE_LOGOUT_MS: Final = 30_000
 READY_IDLE_MS: Final = 180_000
 
-Source = Literal["touch", "tech", "streamdeck", "card"]
+Source = Literal["touch", "tech", "streamdeck", "card", "guest"]
 
 
 @dataclass(frozen=True)

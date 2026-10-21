@@ -499,6 +499,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Login */
+        get: operations["get_login_api_settings_login_get"];
+        /**
+         * Put Login
+         * @description Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057).
+         */
+        put: operations["put_login_api_settings_login_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/setup/multiview": {
         parameters: {
             query?: never;
@@ -621,6 +642,26 @@ export interface paths {
          * @description «Ta et nytt opptak» on the done screen: back to ready for the same user.
          */
         post: operations["again_api_touch_again_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/touch/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Without Card
+         * @description «Start uten kort» (D-057): the touch screen starts a session for «Gjest».
+         */
+        post: operations["start_without_card_api_touch_start_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -875,6 +916,14 @@ export interface components {
             pin: string;
             /** Username */
             username: string;
+        };
+        /** LoginModeIn */
+        LoginModeIn: {
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "open" | "card";
         };
         /** Meter */
         Meter: {
@@ -1261,6 +1310,12 @@ export interface components {
             done_logout_ms: number;
             /** Help */
             help: boolean;
+            /**
+             * Login
+             * @default open
+             * @enum {string}
+             */
+            login: "open" | "card";
             /** Notice */
             notice: string | null;
             /**
@@ -2135,6 +2190,61 @@ export interface operations {
             };
         };
     };
+    get_login_api_settings_login_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    put_login_api_settings_login_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginModeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     multiview_api_setup_multiview_get: {
         parameters: {
             query?: never;
@@ -2288,6 +2398,26 @@ export interface operations {
         };
     };
     again_api_touch_again_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+        };
+    };
+    start_without_card_api_touch_start_post: {
         parameters: {
             query?: never;
             header?: never;

@@ -49,6 +49,7 @@ from cutcut.common.ids import MicId, RuleId, is_shot
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import (
+    GUEST_USER,
     RecordingStatus,
     Session,
     ShowChoice,
@@ -92,6 +93,8 @@ STATE_EVERY_MS: Final = 100  # 10 Hz (docs/design/gui-konsept.md)
 METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
+LOGIN_KEY: Final = "studio.login"
+LoginMode = Literal["open", "card"]
 HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
@@ -207,8 +210,10 @@ class Studio:
         self.device_overrides: dict[str, str] = {}
         self.devices: Devices = self.deps.site.devices
         self.on_devices: Callable[[Devices], None] | None = None
+        self.login_mode: LoginMode = "card" if self.deps.simulator else "open"
         self._load_devices()
         self._load_tuning()
+        self._load_login_mode()
         engine = self._make_engine(self.show)
         self.runtime = CoreRuntime(
             engine,
@@ -256,6 +261,29 @@ class Studio:
     def _merged(self, show: ShowConfig) -> ShowConfig:
         """The show with the technician's preset, switches and fine tuning applied."""
         return self._merged_with(show, self.preset, self.features, self.overrides)
+
+    def _load_login_mode(self) -> None:
+        if self.deps.store is None:
+            return
+        saved = self.deps.store.get_kv(LOGIN_KEY)
+        if saved in ("open", "card"):
+            self.login_mode = saved
+
+    def set_login_mode(self, mode: LoginMode, role: Role, actor: str) -> None:
+        """«Innlogging» in the technician's settings (D-057). Card login needs the card reader
+        and the NTNU API; until they are set up, users start with the button on the screen."""
+        if mode not in ("open", "card"):
+            raise CommandError("Ukjent innlogging.")
+        self.login_mode = mode
+        if self.deps.store is not None:
+            self.deps.store.put_kv(LOGIN_KEY, mode, self.deps.clock.now())
+        self._audit(role, actor, "login_mode", mode=mode)
+
+    def start_without_card(self, role: Role, actor: str) -> None:
+        """«Start uten kort» on the touch screen: a session for «Gjest» (no Panopto owner)."""
+        if self.login_mode != "open":
+            raise CommandError("Bruk NTNU-kortet ditt, eller trykk Hjelp.")
+        self.login(GUEST_USER, role, actor, source="guest")
 
     def _load_tuning(self) -> None:
         """Preset, switches and fine tuning survive a restart (the studio runs unattended)."""
@@ -792,6 +820,7 @@ class Studio:
                 done_logout_ms=max(0, DONE_LOGOUT_MS - (now - s.step_since))
                 if s.step is TouchStep.DONE
                 else 0,
+                login=self.login_mode,
             ),
             engine=EngineInfo(
                 mode=e.mode.value,

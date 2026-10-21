@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- D-057: «Start uten kort».
+  - Innstillingen «Innlogging» i teknikervinduet: Start-knapp (standard i studio) eller NTNU-kort.
+  - Med Start-knappen tar brukeren opp som «Gjest» uten kortleser og NTNU-API. Kortleser og NTNU-API kommer sist (M4).
+  - `POST /api/touch/start` og `GET/PUT /api/settings/login`.
 - DA-9: `cutcut companion-pages` lager Companion-side 10 «REGI», side 11 «OPERATØR» og variablene (`regi_*`, `cutcut_pages_version`) som importfiler.
   - Filene lages fra studio-oppsettet.
   - Filene er sjekket inn for `ntnu-studio` og `example`, og en test sier fra når de er utdaterte.

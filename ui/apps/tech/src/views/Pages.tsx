@@ -984,6 +984,48 @@ const COLORS = [
   ["P4", "Gjest 3", "oransje"],
 ] as const;
 
+/** How users sign in (D-057). The card reader and NTNU API come last; until then: Start. */
+function Login({ ctx }: { ctx: Ctx }) {
+  const mode = ctx.state.touch.login ?? "open";
+  const options = [
+    ["open", "Start-knapp (uten kort)"],
+    ["card", "NTNU-kort"],
+  ] as const;
+  return (
+    <div className="panel">
+      <div className="ph">
+        <span className="lbl">Innlogging</span>
+        <span className="muted small">Touch-skjermen</span>
+      </div>
+      <div className="seg" role="group" aria-label="Innlogging">
+        {options.map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            className={mode === k ? "sel" : ""}
+            aria-pressed={mode === k}
+            onClick={() => ctx.run(ctx.cmd.setLoginMode(k))}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {mode === "open" ? (
+        <p className="muted">
+          Brukeren trykker Start og tar opp som «Gjest». Opptaket havner på Pearl, ikke i noens
+          Panopto-konto.
+        </p>
+      ) : (
+        <p className="muted">
+          Brukeren holder NTNU-kortet mot leseren. Krever kortleseren (TWN3) og NTNU-API-et med
+          nøkkel i Credential Manager. Er de ikke satt opp, kommer ingen inn: bytt tilbake til
+          Start-knapp.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function Settings({
   ctx,
   theme,
@@ -1042,6 +1084,7 @@ export function Settings({
           ))}
         </div>
       </div>
+      <Login ctx={ctx} />
       <div className="panel">
         <div className="ph">
           <span className="lbl">Utstyr og multiview</span>

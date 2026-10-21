@@ -27,6 +27,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
   - supervisor (SO-1).
 
   Maskintester på test-PC og i studio gjenstår.
+- Innlogging (D-057): studioet bruker Start-knappen («Gjest») til appen har vært testet en stund. Kortleser og NTNU-API (SE-4, SE-5) er flyttet til M4.
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn

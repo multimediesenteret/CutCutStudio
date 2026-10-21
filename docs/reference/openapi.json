@@ -486,6 +486,24 @@
         "title": "LoginIn",
         "type": "object"
       },
+      "LoginModeIn": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "enum": [
+              "open",
+              "card"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "title": "LoginModeIn",
+        "type": "object"
+      },
       "Meter": {
         "additionalProperties": false,
         "properties": {
@@ -1349,6 +1367,15 @@
           "help": {
             "title": "Help",
             "type": "boolean"
+          },
+          "login": {
+            "default": "open",
+            "enum": [
+              "open",
+              "card"
+            ],
+            "title": "Login",
+            "type": "string"
           },
           "notice": {
             "anyOf": [
@@ -2492,6 +2519,71 @@
         ]
       }
     },
+    "/api/settings/login": {
+      "get": {
+        "operationId": "get_login_api_settings_login_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Get Login Api Settings Login Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Login",
+        "tags": [
+          "config"
+        ]
+      },
+      "put": {
+        "description": "Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057).",
+        "operationId": "put_login_api_settings_login_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginModeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Login",
+        "tags": [
+          "config"
+        ]
+      }
+    },
     "/api/setup/multiview": {
       "get": {
         "description": "Rutekart against shows and ATEM, plus the recommended layout (D-055).",
@@ -2689,6 +2781,28 @@
           }
         },
         "summary": "Again",
+        "tags": [
+          "session"
+        ]
+      }
+    },
+    "/api/touch/start": {
+      "post": {
+        "description": "«Start uten kort» (D-057): the touch screen starts a session for «Gjest».",
+        "operationId": "start_without_card_api_touch_start_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Start Without Card",
         "tags": [
           "session"
         ]
