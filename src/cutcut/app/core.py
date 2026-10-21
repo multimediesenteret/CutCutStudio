@@ -201,8 +201,10 @@ def serve(opts: CoreOptions) -> int:
         f"CutCut Studio core · {core.studio.devices.studio} · http://{opts.host}:{opts.port}/tech/"
     )
     try:
-        use_selector_event_loop()  # the bus needs it on Windows
-        uvicorn.run(core.app, host=opts.host, port=opts.port, log_level="warning", loop="asyncio")
+        # The bus needs a selector loop on Windows. uvicorn's own «asyncio» setting picks the
+        # proactor loop there, so «none»: uvicorn then uses the policy set here.
+        use_selector_event_loop()
+        uvicorn.run(core.app, host=opts.host, port=opts.port, log_level="warning", loop="none")
     finally:
         core.close()
     return 0
