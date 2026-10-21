@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- CA-5: `cutcut hwtest camera` er maskintesten for PTZ-kameraene, med samme rapport som de andre.
+  - KA1–KA3 leser bare: protokoll og svartid, posisjon og manuell modus.
+  - KA4–KA7 flytter kameraet eller endrer fargen, og spør først: presets, laveste zoomfart, fargetemperatur over OSC og AI-tracking (Q16).
+  - Gir tallene for kalibreringen av kameraenheter.
 - CA-6: kameraene i `core` og helsesjekkene `H-CAM-*` og `H-CAM-MOVE`.
   - Posisjonen leses hvert 2. sekund. Et kamera som beveger seg, holdes utenfor (`S1`).
   - Et kamera som flytter seg uten at CutCut ba om det og uten AI-tracking, gir rødt `H-CAM-MOVE`.

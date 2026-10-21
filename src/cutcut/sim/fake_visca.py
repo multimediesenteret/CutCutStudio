@@ -60,6 +60,10 @@ class FakeVisca(asyncio.DatagramProtocol):
             return b"\x90\x50" + visca.nibbles(zoom, 4) + b"\xff"
         if msg == visca.INQ_POWER:
             return b"\x90\x50\x02\xff"
+        if msg in (visca.INQ_R_GAIN, visca.INQ_B_GAIN):  # follows the colour temperature
+            k = c.kelvin
+            g = 0x80 + (k - 5600) // 50 * (1 if msg == visca.INQ_R_GAIN else -1)
+            return b"\x90\x50" + visca.nibbles(max(0, min(0xFF, g)), 4) + b"\xff"
         if msg == visca.INQ_WB_MODE:
             return bytes([0x90, 0x50, self.wb_mode, 0xFF])
         if msg == visca.INQ_AE_MODE:
@@ -95,6 +99,14 @@ class FakeVisca(asyncio.DatagramProtocol):
             z = self.cal.from_units(0, 0, visca.from_nibbles(msg[4:8], False)).zoom
             c.zoom = z
             c.received.append(f"zoom {z:g}")
+            return True
+        if head == b"\x81\x01\x04\x07" and len(msg) == 6:  # zoom drive: one step per command
+            code = msg[4]
+            if code >> 4 == 2:
+                c.zoom = min(1.0, c.zoom + 0.01 * ((code & 0x0F) + 1))
+            elif code >> 4 == 3:
+                c.zoom = max(0.0, c.zoom - 0.01 * ((code & 0x0F) + 1))
+            c.received.append(f"zoom drive {code:02x}")
             return True
         if head == b"\x81\x01\x04\x35" and len(msg) == 6:
             self.wb_mode = msg[4]

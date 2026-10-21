@@ -43,3 +43,23 @@ uv run cutcut hwtest atem --site C:\CutCut\site --user tekniker1
 | B6 TAKE | TAKE CUT. **Endrer program**: bare med bekreftelse, når ingen sender | |
 
 Motoren låses (LÅS) mens knappene trykkes, og låses opp etterpå.
+
+## PTZ-kameraer (CA-5)
+
+Ett kamera av gangen, med kameraets IP og modell i `devices.yaml`. Testen snakker direkte med kameraet med den samme driveren som CutCut bruker. CutCut kan gjerne kjøre samtidig, men da blir `H-CAM-MOVE` rødt mens testen flytter kameraet. Det er ventet.
+
+```powershell
+uv run cutcut hwtest camera --site C:\CutCut\site --camera C2
+```
+
+| Steg | Hva skjer | Flytter kameraet | Svarer på |
+| --- | --- | --- | --- |
+| KA1 Protokoll | VISCA svarer, og hvor fort (krav under 200 ms) | nei | |
+| KA2 Posisjon | Posisjonen leses og står stille når ingen rører kameraet | nei | |
+| KA3 Manuell modus | Manuell hvitbalanse og eksponering (`H-CAM-*`) | nei | |
+| KA4 Presets | Lagrer preset 99, snur 10°, henter preset 99 og måler tiden. Gir tallet for `Calibration` (enheter per 10°) | ja | |
+| KA5 Laveste zoomfart | Zoomer inn med laveste fart i 2 s og tilbake (`Z3`) | ja | |
+| KA6 Fargetemperatur | 3200 K og 5600 K over OSC; R/B-gain skal endre seg (OBSBOT). Står på 5600 K etterpå | nei, men fargen endres | |
+| KA7 AI-tracking | Tracking på: gå foran kameraet, det skal følge. Av: det skal stå stille (OBSBOT) | ja | Q16 |
+
+Steg som flytter kameraet eller endrer fargen, spør først. Bekreft bare når kameraet ikke er på program eller preview (I2). Canon hopper over KA6 og KA7 til XC er på plass (Q6).
