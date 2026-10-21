@@ -83,6 +83,7 @@ class CoreRuntime:
         self.stats = RuntimeStats()
         self._mics: dict[MicId, MicFrame] = {}
         self._last_audio_ms: int | None = None
+        self.audio_status: dict[str, Any] = {}
         self._content: ContentState | None = None
         self._vision: dict[SourceId, TileFrame] = {}
         self._last_vision_ms: int | None = None
@@ -143,6 +144,8 @@ class CoreRuntime:
                 self.feed_tile(*messages.tile(payload))
             elif topic == "atem.state":
                 self.feed_atem(messages.atem_readback(payload))
+            elif topic == "audio.status":
+                self.audio_status = dict(payload)  # for H-AUD-1's message, not for decisions
             elif topic == "cameras.moving":
                 self.feed_cameras_moving(messages.cameras_moving(payload))
         except ValueError as exc:

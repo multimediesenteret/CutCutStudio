@@ -488,7 +488,9 @@ class Studio:
         now = clock.now
         self._proc_checks: set[str] = set()
         checks: list[HealthCheck] = [
-            health_checks.audio_stream(self.runtime.audio_age_ms, now),
+            health_checks.audio_stream(
+                self.runtime.audio_age_ms, now, lambda: self.runtime.audio_status
+            ),
             health_checks.pearl(self._pearl_reading, now),
             health_checks.atem(
                 lambda: self.runtime.atem is not None,

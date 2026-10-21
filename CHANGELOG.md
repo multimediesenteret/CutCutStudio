@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-5: `audio-capture` leser RØDECaster via ASIO, med WASAPI eksklusiv som reserve.
+  - Lydkortet åpnes på nytt hvert 5. sekund når det mangler eller stopper.
+  - `audio.status` hvert sekund (også når kortet er borte), og `H-AUD-1` sier hvorfor.
+  - Nytt `audio` i `devices.yaml`. Supervisor starter nå alltid `audio-capture`.
 - D-057: «Start uten kort».
   - Innstillingen «Innlogging» i teknikervinduet: Start-knapp (standard i studio) eller NTNU-kort.
   - Med Start-knappen tar brukeren opp som «Gjest» uten kortleser og NTNU-API. Kortleser og NTNU-API kommer sist (M4).

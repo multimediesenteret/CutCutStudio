@@ -16,6 +16,9 @@ dependencies = [
     "pydantic>=2.9,<3",
     "pyzmq>=26,<28",
     "ruamel-yaml>=0.18,<0.19",
+    # PortAudio with ASIO for the RØDECaster (AU-5). Windows only: elsewhere audio-capture
+    # plays files, and the studio PC is Windows.
+    "sounddevice>=0.5,<1; sys_platform == 'win32'",
     "uvicorn[standard]>=0.32,<1",
 ]
 
