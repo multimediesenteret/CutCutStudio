@@ -16,6 +16,7 @@ on:
       - "docs/reference/**"
       - "pyproject.toml"
       - "uv.lock"
+      - "models/manifest.yaml"
       - ".python-version"
       - ".github/workflows/python.yml"
   push:
@@ -30,6 +31,7 @@ on:
       - "docs/reference/**"
       - "pyproject.toml"
       - "uv.lock"
+      - "models/manifest.yaml"
       - ".python-version"
       - ".github/workflows/python.yml"
   schedule:
@@ -52,7 +54,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - run: uv sync --locked
+      - run: uv sync --locked --extra silero
+      - name: Model files (Silero VAD), checked against SHA-256
+        run: uv run python tools/fetch_models.py
       - run: uv run ruff format --check .
       - run: uv run ruff check .
       - run: uv run mypy
@@ -67,5 +71,6 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - run: uv sync --locked
+      - run: uv sync --locked --extra silero
+      - run: uv run python tools/fetch_models.py
       - run: uv run pytest
