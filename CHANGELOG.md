@@ -5,6 +5,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- AU-6: `cutcut hwtest audio` er maskintesten for RØDECaster.
+  - Sju steg: lydkort, kanalkart, synkronitet, stabilitet, USB ut og inn, dempet mic (Q24) og WASAPI-reserve.
+  - Rapport i Markdown og JSON som kan limes rett inn i issuet.
+  - Veiledning i `docs/studio/maskintest.md`.
 - DA-7: makrosjekk.
   - `atem-bridge` sender ATEM-makroene, nummerert som i ATEM Software Control.
   - `H-ATEM-3` sjekker at alle layoutmakroene i 7.2 finnes med riktig navn.

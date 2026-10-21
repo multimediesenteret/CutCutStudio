@@ -85,6 +85,17 @@ def build_parser() -> argparse.ArgumentParser:
         "--check", action="store_true", help="skriv ingenting; feil hvis filene er utdaterte"
     )
 
+    hw = sub.add_parser(
+        "hwtest",
+        help="maskintest på test-PC eller i studio, med rapport (AU-6, DA-5)",
+        description="Følg instruksjonene. Rapporten (Markdown) limes inn i GitHub-issuet.",
+    )
+    hw.add_argument("what", choices=["audio"], help="audio: RØDECaster (AU-6)")
+    hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
+    hw.add_argument("--minutes", type=float, default=60.0, help="stabilitetstest (standard 60)")
+    hw.add_argument("--out", type=Path, default=None, help="mappe for rapporten")
+    hw.add_argument("--save-wav", action="store_true", help="lagre lyden fra mic 1 i A2")
+
     trace = sub.add_parser(
         "trace",
         help="skriv simulerte forløp som JSON for web-simulatoren (Vercel)",
@@ -145,6 +156,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         from cutcut.audio.main import main as audio_main
 
         return audio_main(args.wav, args.vad_model, args.site)
+    if args.command == "hwtest":
+        from cutcut.app.core import default_data_dir
+        from cutcut.hwtest.audio import main as audio_test
+
+        out = args.out or default_data_dir() / "hwtest"
+        return audio_test(args.site, args.minutes, out, args.save_wav)
     if args.command == "companion-pages":
         from cutcut.common.config import load_site
         from cutcut.devices.companion.pages import default_out

@@ -74,8 +74,10 @@ class DeviceBackend:
         *,
         sd: Any | None = None,
         clock: Callable[[], float] = time.monotonic,
+        fallback: bool = True,
     ) -> None:
         self.cfg = cfg
+        self.fallback = fallback  # False: only cfg.backend (the machine test tries each)
         self._sd = sd
         self.clock = clock
         self.name: str = cfg.backend
@@ -136,7 +138,9 @@ class DeviceBackend:
         sd = self._sd or load_sounddevice()
         self._sd = sd
         errors = []
-        order = [self.cfg.backend] + [b for b in ("asio", "wasapi") if b != self.cfg.backend]
+        order = [self.cfg.backend]
+        if self.fallback:
+            order += [b for b in ("asio", "wasapi") if b != self.cfg.backend]
         for backend in order:
             try:
                 idx = find_device(sd, self.cfg, backend)
