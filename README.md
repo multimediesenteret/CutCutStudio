@@ -36,17 +36,24 @@ Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 
 ## Kjøre lokalt
 
-Krever [`uv`](https://docs.astral.sh/uv/) (henter selv Python 3.12).
+Krever [`uv`](https://docs.astral.sh/uv/) (henter selv Python 3.12) og Node 22+ med `corepack enable` (for skjermene).
 
 ```bash
 ./tools/setup-git.sh       # git-identitet (AGENTS.md 3)
 uv sync                    # Python og avhengigheter, låst i uv.lock
-uv run pytest              # tester
-uv run ruff check . && uv run ruff format --check . && uv run mypy   # kvalitet, som i CI
-uv run cutcut --version
+pnpm install && pnpm build # skjermene, til ui/dist
+uv run cutcut sim          # motor, simulator og begge skjermer på http://127.0.0.1:8080
 ```
 
-Målet for M1 er at `uv run cutcut sim` starter motor, simulator og begge skjermer på under 10 minutter fra ren klone (kommer i SIM-6).
+Åpne http://127.0.0.1:8080/touch/ og http://127.0.0.1:8080/tech/. Alt utstyr er simulert. Testkort `04A1B2C3` og `04D4E5F6`, PIN `1234` for tekniker. CI kjører den samme kommandoen med `--smoke`.
+
+Kvalitet, som i CI:
+
+```bash
+uv run pytest
+uv run ruff check . && uv run ruff format --check . && uv run mypy
+pnpm lint && pnpm typecheck && pnpm test
+```
 
 ## Bidra
 

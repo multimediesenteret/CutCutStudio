@@ -19,7 +19,7 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
 
 ## Pågår
 
-- M1: grunnmuren (C-1–C-8), regimotoren (K-1–K-10), simulatoren (SIM-1, -2, -5), økt (SE-1) og API (A-1–A-5) er merget. Skjermene er i gang: U-1 arbeidsområde for `ui/` (pnpm, Vite, React) med CI-jobben `ui`. Neste: klient (U-3), touch (U-4, U-5), tekniker (U-6–U-8), web-simulator (U-9, U-10).
+- M1: grunnmuren (C-1–C-8), regimotoren (K-1–K-10), simulatoren (SIM-1, -2, -5, -6: `uv run cutcut sim`), økt (SE-1) og API (A-1–A-5) er merget. Skjermene er i gang: U-1 arbeidsområde for `ui/` (pnpm, Vite, React) med CI-jobben `ui`. Neste: klient (U-3), touch (U-4, U-5), tekniker (U-6–U-8), web-simulator (U-9, U-10).
 - NTNU ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn

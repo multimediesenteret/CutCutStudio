@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, WebSocket
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.websockets import WebSocketDisconnect
@@ -352,6 +352,11 @@ def create_app(
     app.openapi = custom_openapi  # type: ignore[method-assign]
 
     if ui_dir is not None and ui_dir.is_dir():
+
+        @app.get("/", include_in_schema=False)
+        async def root() -> RedirectResponse:
+            return RedirectResponse("/touch/")
+
         app.mount("/", StaticFiles(directory=ui_dir, html=True), name="ui")
 
     return app
