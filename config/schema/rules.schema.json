@@ -1,0 +1,427 @@
+{
+  "$defs": {
+    "RuleParams": {
+      "additionalProperties": false,
+      "properties": {
+        "B1_after_content_s": {
+          "maximum": 30,
+          "minimum": 0,
+          "title": "B1 After Content S",
+          "type": "number"
+        },
+        "B1_open_s": {
+          "maximum": 30,
+          "minimum": 0,
+          "title": "B1 Open S",
+          "type": "number"
+        },
+        "B2_crosstalk_s": {
+          "maximum": 10,
+          "minimum": 0.1,
+          "title": "B2 Crosstalk S",
+          "type": "number"
+        },
+        "B3_silence_s": {
+          "maximum": 60,
+          "minimum": 0.5,
+          "title": "B3 Silence S",
+          "type": "number"
+        },
+        "B4_laugh_max_s": {
+          "maximum": 20,
+          "minimum": 0.5,
+          "title": "B4 Laugh Max S",
+          "type": "number"
+        },
+        "B4_laugh_min_s": {
+          "maximum": 10,
+          "minimum": 0.5,
+          "title": "B4 Laugh Min S",
+          "type": "number"
+        },
+        "B5_max_s": {
+          "maximum": 30,
+          "minimum": 0.5,
+          "title": "B5 Max S",
+          "type": "number"
+        },
+        "B5_max_share": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "B5 Max Share",
+          "type": "number"
+        },
+        "B5_min_gap_s": {
+          "maximum": 600,
+          "minimum": 0,
+          "title": "B5 Min Gap S",
+          "type": "number"
+        },
+        "B5_min_s": {
+          "maximum": 20,
+          "minimum": 0.5,
+          "title": "B5 Min S",
+          "type": "number"
+        },
+        "CT1_active_s": {
+          "maximum": 30,
+          "minimum": 0,
+          "title": "Ct1 Active S",
+          "type": "number"
+        },
+        "CT2_hold_s": {
+          "maximum": 60,
+          "minimum": 0.5,
+          "title": "Ct2 Hold S",
+          "type": "number"
+        },
+        "CT3_video_max_s": {
+          "maximum": 600,
+          "minimum": 1,
+          "title": "Ct3 Video Max S",
+          "type": "number"
+        },
+        "CT4_return_after_s": {
+          "maximum": 120,
+          "minimum": 0.5,
+          "title": "Ct4 Return After S",
+          "type": "number"
+        },
+        "CT4_revisit_enabled": {
+          "title": "Ct4 Revisit Enabled",
+          "type": "boolean"
+        },
+        "CT4_revisit_every_s": {
+          "maximum": 600,
+          "minimum": 5,
+          "title": "Ct4 Revisit Every S",
+          "type": "number"
+        },
+        "CT4_revisit_s": {
+          "maximum": 30,
+          "minimum": 0.5,
+          "title": "Ct4 Revisit S",
+          "type": "number"
+        },
+        "H1_factor": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "H1 Factor",
+          "type": "number"
+        },
+        "H1_window_s": {
+          "maximum": 60,
+          "minimum": 0,
+          "title": "H1 Window S",
+          "type": "number"
+        },
+        "H2_no_return_s": {
+          "maximum": 60,
+          "minimum": 0,
+          "title": "H2 No Return S",
+          "type": "number"
+        },
+        "H3_release_s": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "H3 Release S",
+          "type": "number"
+        },
+        "K1_pause_ms": {
+          "maximum": 2000,
+          "minimum": 0,
+          "title": "K1 Pause Ms",
+          "type": "integer"
+        },
+        "K2_falling_pause_ms": {
+          "maximum": 2000,
+          "minimum": 0,
+          "title": "K2 Falling Pause Ms",
+          "type": "integer"
+        },
+        "K2_pause_ms": {
+          "maximum": 2000,
+          "minimum": 0,
+          "title": "K2 Pause Ms",
+          "type": "integer"
+        },
+        "K3_max_wait_s": {
+          "maximum": 10,
+          "minimum": 0.2,
+          "title": "K3 Max Wait S",
+          "type": "number"
+        },
+        "K4_pause_ms": {
+          "maximum": 2000,
+          "minimum": 0,
+          "title": "K4 Pause Ms",
+          "type": "integer"
+        },
+        "L1_content_recent_s": {
+          "maximum": 300,
+          "minimum": 0,
+          "title": "L1 Content Recent S",
+          "type": "number"
+        },
+        "L1_speaker_s": {
+          "maximum": 60,
+          "minimum": 0,
+          "title": "L1 Speaker S",
+          "type": "number"
+        },
+        "L3_window_s": {
+          "maximum": 60,
+          "minimum": 1,
+          "title": "L3 Window S",
+          "type": "number"
+        },
+        "L_min_s": {
+          "maximum": 60,
+          "minimum": 1,
+          "title": "L Min S",
+          "type": "number"
+        },
+        "L_no_repeat_s": {
+          "maximum": 600,
+          "minimum": 0,
+          "title": "L No Repeat S",
+          "type": "number"
+        },
+        "PV1_min_preview_s": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Pv1 Min Preview S",
+          "type": "number"
+        },
+        "R1_shot_s": {
+          "maximum": 10,
+          "minimum": 0.5,
+          "title": "R1 Shot S",
+          "type": "number"
+        },
+        "R1_speaker_min_s": {
+          "maximum": 120,
+          "minimum": 0,
+          "title": "R1 Speaker Min S",
+          "type": "number"
+        },
+        "R2_min_gap_s": {
+          "maximum": 600,
+          "minimum": 0,
+          "title": "R2 Min Gap S",
+          "type": "number"
+        },
+        "S1_still_s": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "S1 Still S",
+          "type": "number"
+        },
+        "S3_min_cut_gap_s": {
+          "maximum": 10,
+          "minimum": 1,
+          "title": "S3 Min Cut Gap S",
+          "type": "number"
+        },
+        "S4_audio_lost_s": {
+          "maximum": 10,
+          "minimum": 0.5,
+          "title": "S4 Audio Lost S",
+          "type": "number"
+        },
+        "S6_mix_window_s": {
+          "maximum": 5,
+          "minimum": 0.1,
+          "title": "S6 Mix Window S",
+          "type": "number"
+        },
+        "T12_host_weight": {
+          "maximum": 2,
+          "minimum": 1,
+          "title": "T12 Host Weight",
+          "type": "number"
+        },
+        "T1_dominance_db": {
+          "maximum": 40,
+          "minimum": 0,
+          "title": "T1 Dominance Db",
+          "type": "number"
+        },
+        "T1_vad_threshold": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "T1 Vad Threshold",
+          "type": "number"
+        },
+        "T2_confirm_ms": {
+          "maximum": 5000,
+          "minimum": 100,
+          "title": "T2 Confirm Ms",
+          "type": "integer"
+        },
+        "T2_mouth_factor": {
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "T2 Mouth Factor",
+          "type": "number"
+        },
+        "T3_guest_extra_s": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "T3 Guest Extra S",
+          "type": "number"
+        },
+        "T3_min_shot_s": {
+          "maximum": 30,
+          "minimum": 0.5,
+          "title": "T3 Min Shot S",
+          "type": "number"
+        },
+        "T4_host_backchannel_s": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "T4 Host Backchannel S",
+          "type": "number"
+        },
+        "T4_ignore_interrupt_s": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "T4 Ignore Interrupt S",
+          "type": "number"
+        },
+        "T5_crosstalk_s": {
+          "maximum": 10,
+          "minimum": 0.1,
+          "title": "T5 Crosstalk S",
+          "type": "number"
+        },
+        "T6_pingpong_switches": {
+          "maximum": 20,
+          "minimum": 2,
+          "title": "T6 Pingpong Switches",
+          "type": "integer"
+        },
+        "T6_window_s": {
+          "maximum": 60,
+          "minimum": 2,
+          "title": "T6 Window S",
+          "type": "number"
+        },
+        "T7_reaction_after_s": {
+          "maximum": 300,
+          "minimum": 3,
+          "title": "T7 Reaction After S",
+          "type": "number"
+        },
+        "T7_reaction_shot_s": {
+          "maximum": 10,
+          "minimum": 0.5,
+          "title": "T7 Reaction Shot S",
+          "type": "number"
+        },
+        "T8_silence_s": {
+          "maximum": 60,
+          "minimum": 0.5,
+          "title": "T8 Silence S",
+          "type": "number"
+        },
+        "T9_max_wait_pause_ms": {
+          "maximum": 2000,
+          "minimum": 0,
+          "title": "T9 Max Wait Pause Ms",
+          "type": "integer"
+        },
+        "manual_quiet_s": {
+          "maximum": 60,
+          "minimum": 0,
+          "title": "Manual Quiet S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "T1_vad_threshold",
+        "T1_dominance_db",
+        "T2_confirm_ms",
+        "T2_mouth_factor",
+        "T3_min_shot_s",
+        "T3_guest_extra_s",
+        "T4_ignore_interrupt_s",
+        "T4_host_backchannel_s",
+        "T5_crosstalk_s",
+        "T6_pingpong_switches",
+        "T6_window_s",
+        "T7_reaction_after_s",
+        "T7_reaction_shot_s",
+        "T8_silence_s",
+        "T9_max_wait_pause_ms",
+        "T12_host_weight",
+        "B1_open_s",
+        "B1_after_content_s",
+        "B2_crosstalk_s",
+        "B3_silence_s",
+        "B4_laugh_min_s",
+        "B4_laugh_max_s",
+        "B5_min_s",
+        "B5_max_s",
+        "B5_max_share",
+        "B5_min_gap_s",
+        "CT1_active_s",
+        "CT2_hold_s",
+        "CT3_video_max_s",
+        "CT4_return_after_s",
+        "CT4_revisit_enabled",
+        "CT4_revisit_s",
+        "CT4_revisit_every_s",
+        "L_min_s",
+        "L_no_repeat_s",
+        "L1_speaker_s",
+        "L1_content_recent_s",
+        "L3_window_s",
+        "S1_still_s",
+        "S3_min_cut_gap_s",
+        "S4_audio_lost_s",
+        "S6_mix_window_s",
+        "PV1_min_preview_s",
+        "K1_pause_ms",
+        "K2_pause_ms",
+        "K2_falling_pause_ms",
+        "K3_max_wait_s",
+        "K4_pause_ms",
+        "H1_factor",
+        "H1_window_s",
+        "H2_no_return_s",
+        "H3_release_s",
+        "manual_quiet_s",
+        "R1_speaker_min_s",
+        "R1_shot_s",
+        "R2_min_gap_s"
+      ],
+      "title": "RuleParams",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "energisk": {
+      "$ref": "#/$defs/RuleParams"
+    },
+    "rolig": {
+      "$ref": "#/$defs/RuleParams"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "standard": {
+      "$ref": "#/$defs/RuleParams"
+    }
+  },
+  "required": [
+    "rolig",
+    "standard",
+    "energisk"
+  ],
+  "title": "RulePresets",
+  "type": "object"
+}

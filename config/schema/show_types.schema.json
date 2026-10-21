@@ -1,0 +1,65 @@
+{
+  "$defs": {
+    "ShowType": {
+      "additionalProperties": false,
+      "properties": {
+        "audio_only": {
+          "default": false,
+          "title": "Audio Only",
+          "type": "boolean"
+        },
+        "iso_record": {
+          "default": false,
+          "title": "Iso Record",
+          "type": "boolean"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "rules_preset": {
+          "enum": [
+            "rolig",
+            "standard",
+            "energisk"
+          ],
+          "title": "Rules Preset",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "rules_preset"
+      ],
+      "title": "ShowType",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "default": {
+      "title": "Default",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "types": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ShowType"
+      },
+      "minProperties": 1,
+      "title": "Types",
+      "type": "object"
+    }
+  },
+  "required": [
+    "default",
+    "types"
+  ],
+  "title": "ShowTypes",
+  "type": "object"
+}

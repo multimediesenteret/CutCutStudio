@@ -9,7 +9,8 @@ dist/
 build/
 *.log
 /data/
-/models/          # ONNX model files (models/manifest.yaml is fetched at install)
+# ONNX model files at the repo root only (src/cutcut/common/models is code)
+/models/
 /recordings/
 *.wav
 *.mp4
