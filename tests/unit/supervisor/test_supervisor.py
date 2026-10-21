@@ -254,3 +254,37 @@ def test_children_die_when_the_supervisor_is_killed_hard(tmp_path: Path) -> None
         assert wait(stopped, 10)
     finally:
         sup.kill()
+
+
+def test_stopping_a_process_also_stops_what_it_started(
+    make: Callable[..., Supervisor], clock: Clock, tmp_path: Path
+) -> None:
+    """On Windows a venv's python.exe is a launcher with the real interpreter as its child;
+    killing only the launcher would leave core holding its port."""
+    import psutil
+
+    pidfile = tmp_path / "child.pid"
+    launcher = (
+        "import subprocess, sys, time, pathlib\n"
+        "c = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+        f"pathlib.Path({str(pidfile)!r}).write_text(str(c.pid))\n"
+        "time.sleep(60)\n"
+    )
+    healthy = {"ok": True}
+    sup = make(
+        ProcessSpec(
+            "core",
+            [sys.executable, "-c", launcher],
+            health=lambda: healthy["ok"],
+            health_every_s=1.0,
+        )
+    )
+    sup.step()
+    assert wait(lambda: pidfile.exists() and pidfile.read_text() != "")
+    child = psutil.Process(int(pidfile.read_text()))
+    healthy["ok"] = False
+    for _ in range(sv.HEALTH_FAILS + 1):
+        clock.t += 5.0
+        sup.step()
+    assert sup.states["core"].last_reason == "svarte ikke (hang)"
+    assert wait(lambda: not child.is_running() or child.status() == psutil.STATUS_ZOMBIE)

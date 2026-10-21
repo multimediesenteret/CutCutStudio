@@ -29,7 +29,13 @@ from cutcut.api.app import create_app
 from cutcut.api.auth import Auth
 from cutcut.app import devices as device_settings
 from cutcut.app.studio import Studio, StudioDeps
-from cutcut.common.bus.zmq_bus import EVENTS_IN_PORT, EVENTS_OUT_PORT, Publisher, Subscriber
+from cutcut.common.bus.zmq_bus import (
+    EVENTS_IN_PORT,
+    EVENTS_OUT_PORT,
+    Publisher,
+    Subscriber,
+    use_selector_event_loop,
+)
 from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_rule_presets, load_show_types, load_site
 from cutcut.common.models.site import Devices
@@ -195,7 +201,8 @@ def serve(opts: CoreOptions) -> int:
         f"CutCut Studio core · {core.studio.devices.studio} · http://{opts.host}:{opts.port}/tech/"
     )
     try:
-        uvicorn.run(core.app, host=opts.host, port=opts.port, log_level="warning")
+        use_selector_event_loop()  # the bus needs it on Windows
+        uvicorn.run(core.app, host=opts.host, port=opts.port, log_level="warning", loop="asyncio")
     finally:
         core.close()
     return 0

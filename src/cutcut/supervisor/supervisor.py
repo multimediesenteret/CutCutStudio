@@ -24,6 +24,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
 
+import psutil
+
 from cutcut.supervisor.orphans import bind_to_us, linux_preexec
 
 log = logging.getLogger(__name__)
@@ -36,6 +38,22 @@ FLAP_WINDOW_S: Final = 600.0
 STOP_GRACE_S: Final = 5.0
 
 Health = Callable[[], bool]
+
+
+def _children(pid: int) -> list[psutil.Process]:
+    try:
+        return psutil.Process(pid).children(recursive=True)
+    except psutil.Error:
+        return []
+
+
+def _kill_all(procs: list[psutil.Process]) -> None:
+    for p in procs:
+        try:
+            p.kill()
+        except psutil.Error:
+            continue
+    psutil.wait_procs(procs, timeout=STOP_GRACE_S)
 
 
 @dataclass(frozen=True)
@@ -155,6 +173,9 @@ class Supervisor:
         proc = st.proc
         if proc is None or proc.poll() is not None:
             return
+        # On Windows a venv's python.exe is a launcher that starts the real interpreter as a
+        # child: stopping only the launcher would leave core running and holding its port.
+        children = _children(proc.pid)
         try:
             if sys.platform == "win32":
                 proc.send_signal(signal.CTRL_BREAK_EVENT)
@@ -164,6 +185,7 @@ class Supervisor:
         except (subprocess.TimeoutExpired, OSError):
             proc.kill()
             proc.wait(timeout=STOP_GRACE_S)
+        _kill_all(children)
 
     def stop_all(self) -> None:
         for st in self.states.values():

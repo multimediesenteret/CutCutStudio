@@ -120,4 +120,6 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).
 
 ### Fixed
+- Windows: bussen (ZeroMQ) trenger selector-løkka. Med Windows' standardløkke fikk `core` ingen meldinger fra `atem-bridge`, `audio-capture` eller supervisor. Funnet av den nye tjenestetesten.
+- Windows: supervisor stopper hele prosesstreet. En venv-`python.exe` er en starter med den ekte Python som barn, og ellers ville en hengt `core` blitt stående og holdt porten.
 - Companion og Pearl kontaktes alltid direkte, aldri via en proxy satt i Windows.
