@@ -54,7 +54,7 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 - [ ] Windows-pakke, SBOM og sjekksum bygget av CI og lagt på GitHub-releasen
 - [ ] Installert i servicevindu ved siden av forrige versjon; `current` byttet
 - [ ] Morgensjekk bestått (ellers automatisk tilbakerulling)
-- [ ] Dokumentasjonssiden på Vercel viser ny versjon
+- [ ] Simulatoren på Vercel er bygget fra samme versjon
 
 ## Branch-regler på GitHub (settes av eier)
 

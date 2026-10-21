@@ -17,10 +17,10 @@ const PRESETS={
   energisk:{vad:.5,dom:4,confirm:500,minShot:1.8,cross:.8,silence:2,monolog:10}};
 const FEATURES=[
   {k:'bird',name:'Fugleperspektiv',ids:'B1–B5',d:'Åpning, krysstale, latter og stillhet',on:true,base:true},
-  {k:'content',name:'Laptop som content',ids:'C1–C6',d:'Ny slide vises; video holdes',on:true,base:true},
+  {k:'content',name:'Laptop som content',ids:'CT1–CT6',d:'Ny slide vises; video holdes',on:true,base:true},
   {k:'video_confirm',name:'Videolag bekrefter',ids:'V1 V2 V5',d:'Munnbevegelse bekrefter tale',on:false},
   {k:'reactions',name:'Reaksjonsklipp',ids:'R1–R3',d:'Lytter som nikker eller ler',on:false},
-  {k:'framing_variety',name:'Vekslende utsnitt',ids:'F1–F3',d:'Tett og vid off air',on:false},
+  {k:'framing_variety',name:'Vekslende utsnitt',ids:'F1–F3',d:'Nær og halvnær off air',on:false},
   {k:'slow_zoom',name:'Langsom zoom',ids:'Z1–Z3',d:'Maks 10 % over 15 s',on:false},
   {k:'layouts',name:'Layouter (PiP/quad)',ids:'L1–L4',d:'ATEM-makroer via Companion',on:false},
   {k:'live_transcript',name:'Live tekst',ids:'NB-Whisper',d:'Tekst per mic, ca. 3 s forsinket',on:true},
@@ -35,13 +35,14 @@ const HEALTH=[
   {id:'H-ATEM-3',name:'Makroer og mediaspillere',grp:'ATEM',val:'14 makroer · MP1 Kun lyd'},
   {id:'H-ATEM-4',name:'ISO-disk og opptak',grp:'ATEM',val:'402 GB ledig · ca. 9 t'},
   {id:'H-COMP-1',name:'Companion API og knappesider',grp:'Companion',val:'38 ms · cutcut_pages v3'},
-  {id:'H-CAM-1',name:'CAM 1 Canon CR-N300',grp:'Kamera',val:'XC · manuell · 4300 K'},
-  {id:'H-CAM-2',name:'CAM 2 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 4300 K'},
-  {id:'H-CAM-3',name:'CAM 3 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 4300 K'},
-  {id:'H-CAM-4',name:'CAM 4 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 4300 K'},
+  {id:'H-CAM-1',name:'CAM 1 Canon CR-N300',grp:'Kamera',val:'XC · manuell · 5600 K'},
+  {id:'H-CAM-2',name:'CAM 2 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 5600 K'},
+  {id:'H-CAM-3',name:'CAM 3 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 5600 K'},
+  {id:'H-CAM-4',name:'CAM 4 OBSBOT Tail 2',grp:'Kamera',val:'VISCA + OSC · 5600 K'},
   {id:'H-CAM-MOVE',name:'Ingen ukjent kamerabevegelse',grp:'Kamera',val:'Alle i ro'},
   {id:'H-AUD-1',name:'ASIO-strøm fra RØDECaster',grp:'Lyd',val:'20 kanaler · 48 kHz · 0 dropouts'},
   {id:'H-AUD-2',name:'Støy og kanalkart per mic',grp:'Lyd',val:'Under fasit + 6 dB'},
+  {id:'H-AUD-3',name:'Mic aktiv, men mangler i hovedmiks (S6)',grp:'Lyd',val:'Ingen dempet mic i bruk'},
   {id:'H-VID-1',name:'Capture-bilde og rutekart',grp:'Video',val:'INOGENI · 1080p50'},
   {id:'H-VID-2',name:'Forsinkelse ATEM → PC',grp:'Video',val:'112 ms (fasit 110)'},
   {id:'H-PRL-1',name:'Pearl status og lagring',grp:'Opptak',val:'812 GB · 41 °C'},
@@ -65,7 +66,7 @@ const FAULTS={
   'no-audio':{label:'Lyd fra RØDECaster borte',health:'H-AUD-1',sev:'err',touch:'Noe er galt med lyden. Teknikeren er varslet.'},
   'pearl-full':{label:'Pearl: under 60 min lagring',health:'H-PRL-1',sev:'warn'},
   'cam3-off':{label:'CAM 3 svarer ikke',health:'H-CAM-3',sev:'err'},
-  'mute-p2':{label:'Gjest 1 dempet på mikseren (S7)',health:'H-AUD-2',sev:'warn'}};
+  'mute-p2':{label:'Gjest 1 dempet på mikseren (S6)',health:'H-AUD-3',sev:'warn'}};
 const USERS=[{name:'Kari Nordmann',first:'Kari',user:'karino'},{name:'Ola Hansen',first:'Ola',user:'olaha'},{name:'Ingrid Berg',first:'Ingrid',user:'ingridb'}];
 
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -174,7 +175,7 @@ class Sim{
     const s=this.s,se=s.session,R=PRESETS[s.preset];s.t+=dt;const t=s.t;
     // session phases
     if(se.phase==='countdown'&&t>=se.countdownEnd){se.phase='rec';se.recStart=t;s.rec.pearl=true;s.rec.iso=se.mode==='video';this.log(null,'—','Opptak startet: Pearl Nexus'+(se.mode==='video'?' og ATEM ISO':'')+(se.user?` · ${se.user.user}`:''));
-      if(se.mode==='audio')this.cut('AUDIO','A1','Kun lyd: grafikk fra mediespiller 1');else this.cut('BIRD','B1','Åpner på fugleperspektiv')}
+      if(se.mode==='audio')this.cut('AUDIO','A','Kun lyd: grafikk fra mediespiller 1');else this.cut('BIRD','B1','Åpner på fugleperspektiv')}
     if(se.phase==='done'&&t-se.doneAt>30000){se.phase='idle';se.user=null;this.log(null,'—','Logget ut automatisk etter 30 s')}
     const talking=se.phase==='ready'||se.phase==='countdown'||se.phase==='rec';
     if(talking&&t>this.planUntil-1500)this.plan();
@@ -220,7 +221,7 @@ class Sim{
     if(this.insert){if(s.age>=this.insert.dur){const b=this.insert.back;this.insert=null;if(b!=null&&isAct(b)){want='P'+(b+1);rule='H4';why=`Tilbake til ${PEOPLE[b].name}`}}
       else{s.next=`Innslag (${this.insert.label}), tilbake om ${fmt1((this.insert.dur-s.age)/1000)} s`}}
     if(!want&&!this.insert){
-      if(s.content==='NEW_SLIDE'&&s.pgm!=='CONTENT'&&nOver<2){want='CONTENT';rule='C2';why=`Ny slide (${s.slide}) på laptop`;this.pendingInsert={label:'ny slide',dur:6000,back:cp};direct=true}
+      if(s.content==='NEW_SLIDE'&&s.pgm!=='CONTENT'&&nOver<2){want='CONTENT';rule='CT2';why=`Ny slide (${s.slide}) på laptop`;this.pendingInsert={label:'ny slide',dur:6000,back:cp};direct=true}
       else if(this.overlapT>=R.cross*1000&&se.n>1&&s.features.bird&&s.pgm!=='BIRD'){want='BIRD';rule=se.n>=3?'B2':'T5';why=`${nOver} snakker samtidig i ${fmt1(this.overlapT/1000)} s`}
       else{const best=actives.filter(i=>s.mics[i].run>=R.confirm).sort((a,b)=>(s.mics[b].run*(b===0?1.1:1))-(s.mics[a].run*(a===0?1.1:1)))[0];
         if(best!=null&&best!==cp){want='P'+(best+1);rule=cp!=null&&isAct(cp)?'T4':'T2';why=`${PEOPLE[best].name} aktiv ${fmt1(s.mics[best].run/1000)} s (krav ${fmt1(R.confirm/1000)} s), ${Math.round(s.mics[best].lvl-maxOther(best))} dB over andre`}

@@ -30,8 +30,9 @@ CutCut Studio er i **forprosjekt**. Det skrives ingen kode. Målet er at alt en 
 Forprosjektet er ferdig og koding (M0, deretter M1) kan starte når:
 
 - [ ] Produkteier har godkjent spesifikasjonen og beslutningsloggen.
-- [ ] Spørsmålene som blokkerer M0–M1 er besvart: Q11 (lisens), Q12 (kontaktpersoner).
-- [ ] ADR-0012, 0013 og 0014 er avgjort eller eksplisitt overlatt til agentens planer.
+- [ ] Q11 (lisens) og Q12 (kontaktpersoner) er besvart. Blokkerer M1, ikke M0.
+- [x] ADR-0012, 0013 og 0014 er overlatt til agentens M0-planer (D-042).
 - [ ] Studioinventaret (`docs/intake/studio-inventar.md`) er fylt ut.
 - [ ] Opptak og klippeliste (Q1–Q2) er bestilt, med dato. De trengs ikke for M1, men for M2.
-- [ ] Spesifikasjonen er eksportert på nytt med beslutningene D-030–D-039 innarbeidet (eller beslutningsloggen er godkjent som tillegg).
+- [x] Spesifikasjonen i repoet er fasit (D-040), og D-035, D-036 og D-041–D-043 er innarbeidet. D-030–D-034 og D-037–D-039 står i egne dokumenter som spesifikasjonen viser til.
+- [x] Overlevering skrevet: `docs/forprosjekt/overlevering.md`.

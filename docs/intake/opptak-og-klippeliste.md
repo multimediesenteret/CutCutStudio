@@ -23,10 +23,10 @@ episode: 2026-11-04-podkast-a
 participants:
   - mic: 1
     role: host        # host | guest
-    camera: CAM1
+    camera: C1
   - mic: 2
     role: guest
-    camera: CAM2
+    camera: C2
 content_input: 6      # eller null
 sync_clap_s: 3.42     # tidspunkt for klappet i mic1.wav
 consent: true         # alle deltakere har samtykket til bruk i utvikling
@@ -40,12 +40,12 @@ Lages av en erfaren klipper som ser opptaket og noterer hvor *hun eller han* vil
 ```csv
 time_s,source,comment
 0.00,BIRD,åpning
-6.80,CAM1,vert starter
-21.35,CAM2,gjest svarer
-24.10,CAM1,reaksjon fra vert
+6.80,CU:P1,programleder starter
+21.35,CU:P2,gjest 1 svarer
+24.10,CU:P1,reaksjon fra programleder
 ```
 
-`source` bruker samme ID-er som spesifikasjonen: `CAM1`–`CAM4`, `BIRD`, `CONTENT`, eller layout-navn (`PIP_P1_CONTENT` osv.).
+`source` bruker bilde-ID-ene fra spesifikasjonens ordliste: `CU:P1`–`CU:P4` (nærbilde av deltaker), `BIRD`, `WIDE`, `CONTENT`, eller layouter som `PIP:P1+CONTENT`, `PIP:P1+P2`, `QUAD4`, `QUAD3C`.
 
 ## Personvern
 

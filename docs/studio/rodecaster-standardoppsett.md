@@ -2,7 +2,7 @@
 
 Dato: 2026-10-21 · Status: **standard** (beslutning D-032). Avvik krever ny rad i beslutningsloggen.
 
-Dette er oppsettet CutCut Studio forventer. Setup-hjelperen (spesifikasjonen 8.4, steg 2) kontrollerer hvert punkt og lagrer resultatet i `baseline.yaml`.
+Dette er oppsettet CutCut Studio forventer. Setup-hjelperen (spesifikasjonen 8.4, steg 5) kontrollerer hvert punkt og lagrer resultatet i `baseline.yaml`.
 
 ## Firmware og driver
 
@@ -25,7 +25,7 @@ Programlederen sitter ved RØDECaster og betjener den. Programlederen har derfor
 | 2 | Mic | Combo 2 | Gjest 1 | Cyan | 5–6 | `M2` / `P2` |
 | 3 | Mic | Combo 3 | Gjest 2 | Lilla | 7–8 | `M3` / `P3` |
 | 4 | Mic | Combo 4 | Gjest 3 | Oransje | 9–10 | `M4` / `P4` |
-| 5 | Laptop-lyd | USB 2 | – | Hvit | 11–12 | `LAPTOP` (regel `C5`) |
+| 5 | Laptop-lyd | USB 2 | – | Hvit | 11–12 | `M5` (regel `CT5`) |
 | 6 | SMART Pads (jingler) | intern | – | RØDE-standard | 13–14 | ignoreres |
 | 7–9 | Ikke i bruk (virtuelle) | – | – | – | 15–20 | ignoreres |
 
@@ -54,7 +54,7 @@ Hovedmiks ligger alltid på kanal 1–2.
 
 Programlederen betjener mikseren og kan dempe en gjest eller dra ned en fader. Med pre-fader multitrack hører CutCut trolig fortsatt den dempede mic-en, og kunne klippet til noen som ikke høres i sendingen.
 
-Tiltak (forslag til regel `S7`, må med i implementasjonsplanen for lyd):
+Tiltak (forslag til regel `S6`, må med i implementasjonsplanen for lyd):
 
 - CutCut sammenligner hver mic med hovedmiksen (kanal 1–2). Er mic-en aktiv, men bidraget i hovedmiksen mangler (lav korrelasjon over 0,5 s), regnes den som **dempet**: ingen kutt til den personen, og mic-stripen viser «dempet på mikser».
 - Maskintesten for lyd skal bekrefte om pre-fader-sporet faktisk inneholder lyd fra en dempet kanal, og om post-fader er et bedre valg (Q24).

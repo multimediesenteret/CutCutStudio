@@ -22,6 +22,10 @@ cd concept && python3 -m http.server 8765
 
 Publisert på https://cutcutstudio2026.vercel.app (forside), `/touch` og `/tech`. Prosjektet bygger fra repo-roten uten byggekommando; `vercel.json` i roten sender alt til `concept/`. Se `docs/publishing.md`.
 
+## Antagelser
+
+Kamerakart, IP-adresser og noen standardverdier er antatt for å kunne vise skjermene. Se «Antagelser i konseptet» i `docs/design/gui-konsept.md` og Q26.
+
 ## Hva som er konsept og hva som blir appen
 
 - Utseende, flyt, tekster, farger og oppsett av skjermene er ment å videreføres i `ui/apps/touch` og `ui/apps/tech` (React + TypeScript, spesifikasjonen 12.5).

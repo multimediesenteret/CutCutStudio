@@ -288,8 +288,8 @@ function render(s){
   lastPhase=ph;
 }
 sim.on(render);
-// long-press logo opens tech access (concept: shows a note)
-let lp;$('brand').addEventListener('pointerdown',()=>{lp=setTimeout(()=>toast('Teknikertilgang: vis ansattkort eller skriv PIN (kommer i appen)'),3000)});
+// long-press logo 5 s opens tech access (spec 8.2; concept: shows a note)
+let lp;$('brand').addEventListener('pointerdown',()=>{lp=setTimeout(()=>toast('Teknikertilgang: vis ansattkort eller skriv PIN (kommer i appen)'),5000)});
 ['pointerup','pointerleave','pointercancel'].forEach(e=>$('brand').addEventListener(e,()=>clearTimeout(lp)));
 })();
 </script>

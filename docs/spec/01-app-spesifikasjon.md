@@ -6,9 +6,9 @@ Oct 20, 2026 · @Magnus Lian
 
 CutCut Studio er en Windows-applikasjon som klipper en live videopodcast automatisk. Den lytter på hver mikrofon fra RØDECaster, ser alle kameraene via ATEM-multiviewen, og kaller ferdige oppsett i ATEM gjennom Companion. Den styrer PTZ-kameraene over IP, og leser status fra Epiphan Pearl Nexus som tar opp sendingen.
 
-Dokumentet er skrevet for to lesere. Mennesker leser første setning i hver seksjon og tegningene. En AI-utvikler bygger fra tabellene, ID-ene, konfigurasjonsformatet og akseptansekriteriene, som er ment å kunne brukes direkte. Fanen «Evaluering og bakgrunn» forklarer valgene; ved uenighet gjelder denne fanen.
+Dokumentet er skrevet for to lesere. Mennesker leser første setning i hver seksjon og tegningene. En AI-utvikler bygger fra tabellene, ID-ene, konfigurasjonsformatet og akseptansekriteriene, som er ment å kunne brukes direkte. Fanen «Evaluering og bakgrunn» forklarer valgene. Ved uenighet mellom dokumentene gjelder rekkefølgen i `docs/forprosjekt/overlevering.md` (beslutningsloggen først).
 
-**Omfang v1:** 1–4 deltakere med hver sin mic, ett fugleperspektiv-kamera over bordet, én laptop på HDMI, live-produksjon uten etterarbeid, OBSBOT Tail 2 og Canon CR-N300. PiP og quad er støttet, men avslått som standard. Brukeren logger inn med ansattkort, velger show på én touch-skjerm, og kan velge video og lyd eller bare lyd. Opptak kan startes både fra touch-skjermen og teknikervinduet.
+**Omfang v1:** 1–4 deltakere med hver sin mic, ett fugleperspektiv-kamera over bordet, én laptop på HDMI, live-produksjon uten etterarbeid, OBSBOT Tail 2 og Canon CR-N300. PiP og quad er støttet, men avslått som standard. Brukeren logger inn med NTNU-kortet, velger hvem som er med og video og lyd eller bare lyd på én touch-skjerm, og trykker Start (D-036). Opptak kan startes både fra touch-skjermen og teknikervinduet.
 
 **Ikke i v1:** NDI, etterarbeid, Panasonic- og Sony-drivere (fase 2), grafikk og navneskilt, styring av lydmiksen, publisering til Panopto (forberedt i GUI og datamodell, bygges senere).
 
@@ -18,13 +18,14 @@ Dokumentet er skrevet for to lesere. Mennesker leser første setning i hver seks
 | --- | --- | --- |
 | `P1`–`P4` | Deltaker | `P1` er vert som standard |
 | `M1`–`M4` | Mikrofon = RØDECaster fader 1–4 | Én mic per deltaker, `Mx` hører til `Px` |
-| `C1`–`C4` | Nærbilde-kamera for `P1`–`P4` | ATEM-inngang 1–4 |
-| `C5` | Fugleperspektiv over bordet (`BIRD`) | ATEM-inngang 5, fast kamera |
+| `M5` | Laptop-lyd = RØDECaster fader 5 (USB 2) | Brukes av content-reglene (`CT3`, `CT5`) |
+| `C1`–`C4` | Nærbilde-kamera for `P1`–`P4` | ATEM-inngang 1–4. Vises i GUI som «CAM 1»–«CAM 4» |
+| `C5` | Fugleperspektiv over bordet (`BIRD`) | ATEM-inngang 5, fast kamera. Vises som «CAM 5» |
 | `C7` | Valgfritt halvtotal-kamera | ATEM-inngang 7, brukes ved 1–2 deltakere |
-| `LAPTOP` | Content fra laptop på HDMI | ATEM-inngang 6 |
+| `LAPTOP` | Content fra laptop på HDMI | ATEM-inngang 6. Vises som «IN 6» |
 | Bilde (shot) | Det som går på program | `CU:P2`, `BIRD`, `WIDE`, `CONTENT`, `PIP:P2+CONTENT`, `PIP:P1+P2`, `QUAD4`, `QUAD3C` |
-| Modus | Regelsett valgt ut fra antall deltakere og om content er aktivt | `N1–N4 etter antall deltakere, N1C–N4``C` når content er aktivt |
-| Regel-ID | Hver regel har fast ID som vises i loggen | `T` tale, `V` video, `B` fugleperspektiv, `C` content, `L` layout, `S` sikkerhet, P preview, K kuttpunkt, H hold, R reaksjon, F utsnitt, Z zoom |
+| Modus | Regelsett valgt ut fra antall deltakere og om content er aktivt | `N1`–`N4` etter antall deltakere, `N1C`–`N4C` når content er aktivt, `A` for kun lyd |
+| Regel-ID | Hver regel har fast ID som vises i loggen | `T` tale, `V` video, `B` fugleperspektiv, `CT` content, `L` layout, `S` sikkerhet, `PV` preview, `K` kuttpunkt, `H` hold, `R` reaksjon, `F` utsnitt, `Z` zoom, `AT` AI-tracking. `CT` og `PV` het tidligere `C` og `P`; de ble endret for ikke å kollidere med kamera- og deltaker-ID-ene (D-041) |
 | Motor | Tjenesten som tar beslutninger | Kjører på regi-PC-en |
 
 ## 0. Agent-brief
@@ -142,7 +143,7 @@ G2 er det beste valget ved nytt kjøp, fordi den tredje utgangen gir en egen skj
 | Innstilling | Verdi |
 | --- | --- |
 | Fader 1–4 | Mic `M1`–`M4`, samme rekkefølge som deltakerne |
-| Fader 5 | Laptop-lyd (USB 2 eller Bluetooth), brukes av regel `C5` |
+| Fader 5 | Laptop-lyd via USB 2 (`M5`), brukes av regel `CT5` (D-032) |
 | USB 1 multitrack | På, pre-fader (rene spor) |
 | Driver på PC | RØDECaster ASIO-driver. Virtual Devices-driveren installeres ikke |
 | Utgang til ATEM | Hovedmiks til ATEM sin 3,5 mm-inngang |
@@ -197,7 +198,9 @@ Fugleperspektivet `C5` kan være hvilket som helst kamera med HDMI. Det står fa
 
 ## 3. Programvare
 
-Programmet er delt i to prosesser, slik at klippingen fortsetter på lyd alene hvis bildeanalysen stopper. En supervisor kjører som Windows-tjeneste og restarter det som faller ut.
+Programmet er delt i flere prosesser, slik at klippingen fortsetter på lyd alene hvis bildeanalysen stopper. En supervisor kjører som Windows-tjeneste og restarter det som faller ut.
+
+**Prosesser (D-042):** `core` (regimotor, API, skjermer), `audio-capture` (lyd fra RØDECaster via ASIO, ADR-0014), `vision` (multiview og bildeanalyse), `stt` (live tekst, bryter) og `atem-bridge` (Node.js med `atem-connection`, ADR-0012), alle under `supervisor`. ADR-0012 og ADR-0014 er forslag som bekreftes i implementasjonsplanene; tegningen under viser den opprinnelige inndelingen.
 
 &#91;embedded content: programvare · prosesser og moduler på regi-PC-en\]
 
@@ -220,7 +223,7 @@ Videolaget sender resultater til regi-core over lokal ZeroMQ (pub/sub). Skjermen
 | Pålogging | `httpx` mot NTNU-API med tjenestenøkkel | 3 s tidsavbrudd, ingen hurtigbuffer av kortnummer |
 | Intern meldingsbuss | ZeroMQ pub/sub | vision og stt → core |
 | Server | FastAPI + uvicorn, Pydantic v2 for alle modeller | Samme modeller brukes i API og konfig |
-| Enhetsklienter | `httpx` (Companion, Pearl, Canon XC), egen UDP-klient (VISCA), `python-osc`, PyATEMMax (lesing av ATEM-tilstand) | Kø, tidsavbrudd, gjenoppkobling og kretsbryter per enhet |
+| Enhetsklienter | `httpx` (Companion, Pearl, Canon XC), egen UDP-klient (VISCA), `python-osc`; ATEM leses og styres av `atem-bridge` med `atem-connection` (ADR-0012; PyATEMMax var tidligere forslag) | Kø, tidsavbrudd, gjenoppkobling og kretsbryter per enhet |
 | Lagring | YAML for oppsett (i git), SQLite (WAL) for kjøredata og økthistorikk, JSON-linjer for logg | Logg roteres daglig, beholdes 30 dager |
 | Web-UI | React + TypeScript + Vite, bygget statisk | Tre visninger: `touch`, `tech`, `tech/setup` |
 | Drift | WinSW for tjenester, Edge i kiosk-modus med tilordnet tilgang for touch | Se seksjon 9 |
@@ -350,18 +353,18 @@ Fugleperspektivet er etablerende bilde og pusterom, og skal brukes bevisst, ikke
 | `B4` | Latter: to eller flere ler (latter i lyd eller smil i bildet) → `BIRD` | 2–4 s |
 | `B5` | Variasjon: kort `BIRD` i talerens pause under lange svar, men maks andel av tiden | 3–5 s, maks 15 %, minst 45 s mellom |
 
-### 5.5 Content (`C`)
+### 5.5 Content (`CT`)
 
 Content er laptopen på inngang 6. Motoren finner ut om den er i bruk ved å se på multiview-ruta (seksjon 6.2), og bruker laptop-lyden på fader 5 som ekstra signal.
 
 | ID | Regel | Standard |
 | --- | --- | --- |
-| `C1` | Content regnes som aktivt når ruta har signal, ikke er svart og ikke viser «ingen signal» | i 2 s |
-| `C2` | Ny slide (stor bildeendring, så stille bilde) → `CONTENT`, eller `PIP:Px+CONTENT` hvis `L1` er på | 6 s |
-| `C3` | Video i content (vedvarende bevegelse eller laptop-lyd på `M5`) → hold `CONTENT` | maks 60 s |
-| `C4` | Statisk content: tilbake til taler, og et kort besøk igjen hvis den fortsatt er aktiv | etter 6 s; besøk 4 s hvert 45 s (av som standard) |
-| `C5` | Laptop-lyd aktiv gir content prioritet over taler | på |
-| `C6` | Aldri `CONTENT` under krysstale eller latter. Forsvinner signalet mens content er på lufta, kuttes det straks til taler eller `BIRD` | på |
+| `CT1` | Content regnes som aktivt når ruta har signal, ikke er svart og ikke viser «ingen signal» | i 2 s |
+| `CT2` | Ny slide (stor bildeendring, så stille bilde) → `CONTENT`, eller `PIP:Px+CONTENT` hvis `L1` er på | 6 s |
+| `CT3` | Video i content (vedvarende bevegelse eller laptop-lyd på `M5`) → hold `CONTENT` | maks 60 s |
+| `CT4` | Statisk content: tilbake til taler, og et kort besøk igjen hvis den fortsatt er aktiv | etter 6 s; besøk 4 s hvert 45 s (av som standard) |
+| `CT5` | Laptop-lyd aktiv (`M5`) gir content prioritet over taler | på |
+| `CT6` | Aldri `CONTENT` under krysstale eller latter. Forsvinner signalet mens content er på lufta, kuttes det straks til taler eller `BIRD` | på |
 
 ### 5.6 Layouter (`L`) – av som standard
 
@@ -385,6 +388,7 @@ En layout står minst 6 s, og samme layout brukes ikke to ganger på rad innen 3
 | `S3` | Hard grense: maks ett kutt per sekund, uansett regel |
 | `S4` | Mister motoren lyden i mer enn 2 s: kutt til `BIRD`, sett AUTO på pause og varsle |
 | `S5` | Mister motoren Companion: prøv direkte ATEM-kutt; feiler det også, stopp og varsle |
+| `S6` | En mic som er aktiv, men mangler i hovedmiksen (dempet eller nede på RØDECaster), regnes som dempet: ingen kutt til den personen (D-035; avhenger av Q24) |
 
 ### 5.8 Beslutningsobjekt
 
@@ -412,17 +416,17 @@ Motoren klipper ikke rett på program i normal drift. Den legger neste bilde på
 
 | Tilstand | Betyr | Overgang |
 | --- | --- | --- |
-| `IDLE` | Ingen kandidat; preview viser modusens reservebilde | → `ARMED` når en ny taler har vært aktiv halve `T2`, eller en `C`-, `B`- eller `T7`-regel ønsker bytte |
+| `IDLE` | Ingen kandidat; preview viser modusens reservebilde | → `ARMED` når en ny taler har vært aktiv halve `T2`, eller en `CT`-, `B`- eller `T7`-regel ønsker bytte |
 | `ARMED` | Kandidaten ligger på preview | → `READY` når alle krav er oppfylt; → `IDLE` hvis kandidaten faller bort |
 | `READY` | Alt er klart, venter på kuttpunkt (5.10) | → `TAKE` på kuttpunkt; → `IDLE` hvis ny taler slutter før kuttpunktet |
 | `TAKE` | Companion trykker CUT (eller MIX for layouter) | → `IDLE` |
 
 | ID | Regel | Standard |
 | --- | --- | --- |
-| `P1` | Preview byttes ikke oftere enn dette, så multiview ikke blinker | 0,5 s |
-| `P2` | Kamera på preview behandles som på lufta: det beveges ikke | på |
-| `P3` | Med videolag på: preview-ruta (ca. 960 × 540 piksler, større enn de små rutene) må vise gyldig ansikt og stillestående bilde før `TAKE` | på |
-| `P4` | Overstyring og `S`-regler kan kutte direkte på program | på |
+| `PV1` | Preview byttes ikke oftere enn dette, så multiview ikke blinker | 0,5 s |
+| `PV2` | Kamera på preview behandles som på lufta: det beveges ikke | på |
+| `PV3` | Med videolag på: preview-ruta (ca. 960 × 540 piksler, større enn de små rutene) må vise gyldig ansikt og stillestående bilde før `TAKE` | på |
+| `PV4` | Overstyring og `S`-regler kan kutte direkte på program | på |
 
 ### 5.10 Kuttpunkt: mellom setninger
 
@@ -468,7 +472,7 @@ Grunnmodus er lyd, regler, preview først, kuttpunkt, hold og release. Alt annet
 | --- | --- | --- | --- |
 | `bird` (`B1`–`B5`) | på | Fugleperspektiv som åpning, pusterom og ved latter | `C5` |
 | `content` (`C`) | på | Laptop som content | Inngang 6 |
-| `video_confirm` (`V1`, `V2`, `V5`, `P3`) | av | Bildet bekrefter taler og gyldig bilde | Videolag |
+| `video_confirm` (`V1`, `V2`, `V5`, `PV3`) | av | Bildet bekrefter taler og gyldig bilde | Videolag |
 | `reactions` (`R`) | av | Reaksjonsklipp ved nikk og latter | Videolag |
 | `framing_variety` (`F`) | av | Kamera off air veksler mellom tett og videre utsnitt | PTZ |
 | `slow_zoom` (`Z`) | av | Langsom zoom under lange svar | PTZ som tåler sakte zoom |
@@ -595,7 +599,7 @@ Motoren snakker med fire typer utstyr: Companion for alle kutt og layouter, ATEM
 
 ### 7.1 Companion: side 10 «REGI»
 
-Siden er laget for et Stream Deck XL (8 × 4). Side 10 brukes av motoren; side 11 er for mennesker. Kall: `POST http://10.10.10.40:8000/api/location/10/<rad>/<kol>/press` (Companion-porten settes i Companion).
+Siden er laget for et Stream Deck XL (8 × 4). Side 10 brukes av motoren; side 11 er for mennesker. Kall: `POST http://127.0.0.1:8000/api/location/10/<rad>/<kol>/press`. Companion kjører på regi-PC-en, og motoren kaller den lokalt; Companion sitt nettgrensesnitt er ikke åpent fra andre maskiner (12.4).
 
 | Rad | Kol 0 | Kol 1 | Kol 2 | Kol 3 | Kol 4 | Kol 5 | Kol 6 | Kol 7 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -721,7 +725,7 @@ Brukeren holder ansattkortet mot leseren ved touch-skjermen, og systemet viser �
 **Regler for økter:**
 
 - Bare én aktiv økt. Et nytt kort under opptak avvises med en melding; samme kort igjen gjør ingenting.
-- Utlogging skjer med knappen «Logg ut», eller automatisk 3 minutter etter at opptaket er stoppet. Aldri under opptak.
+- Utlogging skjer med knappen «Ferdig, logg ut», automatisk 30 sekunder etter at opptaket er stoppet, eller etter 3 minutter uten trykk på klar-skjermen før opptak. Aldri under opptak (D-043).
 - Teknikeren ser navn, brukernavn, showvalg og modus live, og kan avslutte en økt.
 
 **Show-typer** ligger i `config/defaults/show_types.yaml`. Hver type peker på et forhåndsvalg av regler, brytere og layouter:
@@ -773,6 +777,8 @@ ATEM kan ta opp hver kamerainngang for seg i tillegg til programmet. CutCut styr
 Det er tre skjermbilder fra samme server: touch-skjermen for brukeren, teknikervinduet, og oppsettsiden for første oppsett og kalibrering. Opptak kan startes og stoppes fra både touch og tekniker, og begge viser alltid samme tilstand, fordi tilstanden ligger i motoren og ikke i skjermene.
 
 ### 8.1 Brukerflyt
+
+> **Endret etter forprosjektet (D-036):** touch-flyten har fem skjermer: hvile → klar (hvem er med, video eller kun lyd, Start) → lydsjekk 3–2–1 → opptak → ferdig. Brukeren velger ikke show-type, og deltakerne trykker ikke på navnet sitt; lydsjekken skjer automatisk under nedtellingen, og full mic-sjekk ligger i setup-hjelperen (steg 5). Fasit for utseende og flyt er `docs/design/gui-konsept.md` og `concept/touch.html`. Teksten under beskriver den opprinnelige seks-skjerms-flyten og gjelder bare der den ikke strider mot dette.
 
 &#91;embedded content: brukerflyt · seks skjermer på touch\]
 
@@ -900,7 +906,7 @@ En egen helsetjeneste i regi-core sjekker hele tiden at alt er tilkoblet, svarer
 | `H-PRL-2` | Opptak kjører når det skal | 2 s | `started` under økt med opptak | Rødt med lyd |
 | `H-CARD-1` | TWN3 COM-port | 10 s | Porten er åpen | Gult |
 | `H-NTNU-1` | NTNU-API | 5 min, og ved hvert oppslag | Testoppslag under 3 s | Gult |
-| `H-PROC-*` | Hjerteslag fra core, vision, stt, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
+| `H-PROC-*` | Hjerteslag fra core, audio-capture, vision, stt, atem-bridge, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
 | `H-PC-*` | Disk, minne, CPU, GPU-temperatur, klokke (NTP) | 30 s | Under grenser; klokkeavvik under 1 s | Gult |
 
 I tillegg: `H-ATEM-4` sjekker ISO-disk og opptak hvert 10. sekund (gult under 60 minutter igjen, rødt hvis disken mangler når showet skal ta opp ISO), og `H-VID-2` sjekker at INOGENI-kortet leverer 1080p50 og at forsinkelsen er som målt ved oppsett.
@@ -974,9 +980,9 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 | `GET /state` | Hele nåtilstanden: økt, modus, bilde på lufta, preview og tilstand, mic-er, content, opptak |
 | `GET /session` | Aktiv økt (seksjon 7.5), eller ingen |
 | `POST /session` `{"username": "kanordm"}` | Tekniker starter økt for en bruker uten kort |
-| `PUT /session/show` `{"guests": 2, "type": "podcast", "video": true, "laptop": false}` | Lagre showvalg; setter modus og regler |
+| `PUT /session/show` `{"guests": 2, "video": true, "type": "podcast"}` | Lagre showvalg; setter modus og regler. `type` er valgfri og hentes fra studio-oppsettet når touch ikke sender den (D-036); laptop oppdages fra multiview |
 | `DELETE /session` | Logg ut (avvises under opptak) |
-| `POST /touch/step` `{"step": 4}` | Flytt touch-skjermen til et steg (bare tekniker) |
+| `POST /touch/step` `{"step": "countdown"}` | Flytt touch-skjermen til et steg: `idle`, `ready`, `countdown`, `rec`, `done` (bare tekniker, D-036) |
 | `POST /help` | Hjelp-knappen: varsel til tekniker |
 | `POST /recording` `{"action": "start"}` | Start eller stopp Pearl-opptak; `started_by` settes fra hvem som kaller |
 | `POST /auto` `{"on": true}` | AUTO på eller av |
@@ -1051,11 +1057,11 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 
 1. **Planer:** agenten skriver implementasjonsplaner for alle moduler etter malen i 0.4. Ferdig når et menneske har godkjent dem.
 2. **Kjerne uten utstyr:** Pydantic-modeller (oppsett, økt, beslutning, meldinger), regimotor med grunnmodus: `T`-, `S`-, `P`-, `K`- og `H`-regler, roller, preview-tilstander og simulator. Ferdig når alle regeltester går grønt.
-3. **Skjermer mot simulator:** touch-flyten (seks skjermer), teknikervinduet med menyer og oppsettsiden, alle mot simulert motor. Ferdig når touch-flyten kan gjennomføres med Playwright-test.
-4. **Lyd inn:** ASIO fra RØDECaster, Silero VAD, dominans, lekkasjematrise, frasegrenser. Ferdig når mic-sjekken på skjerm 4 virker.
+3. **Skjermer mot simulator:** touch-flyten (fem skjermer, D-036, etter `concept/`), teknikervinduet med menyer og oppsettsiden, alle mot simulert motor. Ferdig når touch-flyten kan gjennomføres med Playwright-test.
+4. **Lyd inn:** ASIO fra RØDECaster, Silero VAD, dominans, lekkasjematrise, frasegrenser. Ferdig når lydsjekken under nedtellingen på touch og mic-sjekken i setup-hjelperen (steg 5) virker.
 5. **Companion og ATEM:** knappekart side 10–11, preview og take, custom variables, ATEM-leser, makrosjekk. Ferdig når motoren klipper via preview.
 6. **Pearl og økter:** opptaksstatus, start og stopp fra begge sider, kortleser og NTNU-oppslag, show-typer, kun lyd. Ferdig når hele flyten fra kort til ferdig opptak virker.
-7. **Fugleperspektiv og content:** `B`- og `C`-regler med content-deteksjon. Ferdig når alle moduser `N1`–`N4C` er testet.
+7. **Fugleperspektiv og content:** `B`- og `CT`-regler med content-deteksjon. Ferdig når alle moduser `N1`–`N4C` er testet.
 8. **Kameradrivere og oppsett:** `obsbot` og `canon_xc` med presets, grenser, kalibrering og hvitbalanse. Ferdig når grensene håndheves i driveren. Setup-hjelperen (8.4) og statussiden (8.5) bygges i samme steg, ett utstyr av gangen.
 9. **Drift:** supervisor, tjenester, kiosk, morgensjekk, helse-API, 72 timers test. Her er grunnmodus klar for produksjon.
 10. **Brytere, i denne rekkefølgen:** `video_confirm`, `framing_variety`, `reactions`, `slow_zoom`, `layouts`, `live_transcript`, `turn_prediction`. Hver testes alene i skyggemodus før den slås på.
@@ -1102,18 +1108,18 @@ Prosjektet skal kunne tas over av et menneske eller en AI-agent når som helst, 
 Kode og studio-oppsett holdes adskilt. Koden er lik for alle studioer; alt som er spesielt for ett studio ligger under `site/<studio>/`. Da kan et nytt studio settes opp uten kodeendring.
 
 ```text
-cutcut-studio/
+CutCutStudio/
   README.md  AGENTS.md  CHANGELOG.md  LICENSE
   pyproject.toml  uv.lock          # Python, låste versjoner
   package.json  pnpm-lock.yaml     # UI-arbeidsområde
   docs/  (se 12.1)
   src/cutcut/
     core/        # regimotor, moduser, regler, tilstand, beslutninger
-    audio/       # ASIO, VAD, dominans, frasegrenser
+    audio/       # VAD, dominans, frasegrenser (i core); capture/ = egen prosess audio-capture (ADR-0014)
     vision/      # capture, ruter, ansikt og munn, content, farge (egen prosess)
     stt/         # live tekst (egen prosess, bryter)
     session/     # TWN3-kortleser, NTNU-oppslag, økter, show-typer
-    devices/     # companion, atem, pearl, cameras/{base,obsbot,canon_xc}
+    devices/     # companion, atem (klient mot atem-bridge), pearl, cameras/{base,obsbot,canon_xc}
     health/      # sjekkatalog, fasit-sammenligning, varsler
     setup/       # setup-hjelperens motor (leser steg-filer)
     api/         # FastAPI, REST og WebSocket, roller
@@ -1129,7 +1135,9 @@ cutcut-studio/
     defaults/          # standardverdier, regelpresets, show-typer
   site/
     example/           # eksempelstudio for simulator og tester
-  sim/                 # simulator og avspilling
+  sim/                 # simulator, scenarioer og avspilling
+  bridges/atem/        # atem-bridge: Node.js + atem-connection (ADR-0012)
+  concept/             # GUI-konsept fra forprosjektet (Vercel), erstattes av ui/apps/simulator i M1
   tests/  unit/  rules/  integration/  e2e/
   tools/               # skript: generer dokumentasjon, sjekk sporbarhet, lag pakke
   installer/           # Windows-installasjon og tjenestedefinisjoner

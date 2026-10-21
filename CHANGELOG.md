@@ -18,3 +18,5 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - GUI-konsept i `concept/` (touch, tekniker, side om side) og `docs/design/gui-konsept.md`; D-036–D-039. Vercel-oppsett for konseptet i `docs/publishing.md`.
 - `vercel.json`: forsiden og alle stier går til `concept/`; korte adresser `/touch` og `/tech`.
 - Konseptet ca. 6× lettere: 10 Hz, bare endringer skrives, målere med transform, tidslinje i sammenhengende biter. Ytelseskrav i `docs/design/gui-konsept.md`.
+- Overlevering: `docs/forprosjekt/overlevering.md` med startmelding, modulliste og blokkeringer. Spesifikasjonen rettet for D-035–D-045 (regel-ID-er `CT`/`PV`/`S6`, prosesser, touch-flyt, utlogging, Companion lokalt). Konseptet følger spesifikasjonen (5600 K, preset-navn, 5 s teknikertilgang). Repoet er fasit (D-040).
+- Hindrer `Co-authored-by`: `.claude/settings.json` og `commit-msg`-hook.

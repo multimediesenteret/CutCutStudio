@@ -34,6 +34,8 @@ CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Wi
 | – | `docs/research/` | Research bak beslutninger (f.eks. lyd fra RØDECaster) |
 | – | `docs/prototype/cutcut-prototype.html` | Eldre skisse; bare referanse for regel-ID-er. GUI bygges etter `concept/` |
 
+**Ved uenighet mellom dokumentene:** beslutningsloggen (nyeste rad) → aksepterte ADR-er → `docs/design/` og `docs/studio/` → `docs/spec/01` → `docs/spec/02` og `03` → `concept/` → `docs/prototype/`.
+
 Markdown-eksporten av spesifikasjonen mangler tegningene (`[embedded content: …]`). De finnes i PDF-ene i `docs/spec/`.
 
 ## 3. Git-identitet (obligatorisk)
@@ -107,7 +109,7 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 | --- | --- |
 | Avslutter en arbeidsøkt | `docs/STATUS.md` (ferdig, pågår, kjente feil, neste steg) |
 | Endrer eller lager en modul | `src/cutcut/<modul>/README.md` (ansvar, inn/ut, regel-ID-er, akseptanse) |
-| Endrer en regel | Regelens test, `docs/reference/rules.md` (generert) og spesifikasjonen hvis oppførselen endres |
+| Endrer en regel | Regelens test, `docs/reference/traceability.md` og regeltabellen i `docs/reference/` (generert, spesifikasjonen 12.1), og spesifikasjonen hvis oppførselen endres |
 | Tar en arkitekturbeslutning | Ny `docs/adr/NNNN-*.md` og en rad i `docs/forprosjekt/beslutningslogg.md` |
 | Gjør research | Ny fil i `docs/research/` med kilder |
 | Lærer noe nytt om en enhet | `docs/spec/02-teknisk-referanse.md`, med kilde |

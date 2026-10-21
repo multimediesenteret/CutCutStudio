@@ -30,7 +30,8 @@ Regler:
 - Ingen dialogbokser: å avslutte bekreftes ved å holde knappen inne i 2 sekunder.
 - Show-type velges ikke av brukeren. Den følger av antall personer og studio-oppsettet (teknikeren kan definere flere show-typer senere).
 - Feil vises bare når brukeren må vite det, med én setning og uten tekniske ord: «Noe er galt med lyden. Teknikeren er varslet.» Gule avvik vises aldri.
-- Teknikertilgang: hold logoen inne i 3 s (ansattkort eller PIN).
+- Teknikertilgang: hold logoen inne i 5 s (ansattkort eller PIN), som i spesifikasjonen 8.2.
+- Utlogging: automatisk 30 s etter ferdig opptak, eller etter 3 min uten trykk på klar-skjermen (D-043).
 - Mørkt tema som standard, så skjermen ikke lyser opp rommet. Tema kan byttes med én knapp.
 
 ## Teknikervinduet
@@ -44,6 +45,8 @@ Regler:
 - Toppen: innlogget bruker og show, opptaksstatus (Pearl + ISO) med Start/Stopp (stopp bekreftes med et ekstra klikk), helsestatus.
 - Varsellinje når en bruker trykker «Trenger du hjelp?».
 
+**Roller (spesifikasjonen 12.4, D-045):** `operator` ser Oversikt, Kameraer, Opptak, Helse og Logg, og kan bruke AUTO, Lås, manuelt kutt og forhåndsvalg. `admin` ser i tillegg Regi (glidere og brytere), Oppsett og Innstillinger, og kan simulere eller kvittere feil.
+
 **Menyen til venstre:** Oversikt · Regi (tuning og brytere) · Kameraer (bilde, status, presets, AI-tracking) · Opptak (Pearl, ATEM ISO, dagens opptak) · Helse (alle H-sjekker, morgensjekk) · Oppsett (veiviseren i 10 steg fra spesifikasjonen 8.4) · Logg · Innstillinger (tema, farger).
 
 Regler:
@@ -52,6 +55,14 @@ Regler:
 - Presets og «Fiks for meg» er sperret for kamera på program eller preview og under opptak (I2).
 - Lyst, mørkt eller systemtema; valget huskes per maskin.
 - Virker også på smal skjerm (meny nederst), men er laget for 16:9.
+
+## Antagelser i konseptet
+
+- **Kamerakart:** CAM 1 = Canon CR-N300 på programleder, CAM 2–4 = OBSBOT Tail 2 på gjestene, CAM 5 = fast fugleperspektiv, IN 6 = laptop. Ikke bekreftet (Q26). Det valgfrie halvtotal-kameraet `C7` vises ikke i konseptet.
+- **Visningsnavn:** ID-ene i koden er `C1`–`C7` og `LAPTOP`; GUI viser «CAM 1» osv. og «IN 6».
+- **Live tekst** er slått på i konseptet for å vise funksjonen. I appen er den av som standard (spesifikasjonen 5.13).
+- **IP-adresser** i kamerasiden er fra forslaget i spesifikasjonen 2.6, ikke bekreftet (Q9).
+- **Regelmotoren i `sim.js`** er forenklet og bruker bare noen regler; den er ikke fasit for regler eller verdier.
 
 ## Teknologi som må virke i Windows-appen
 

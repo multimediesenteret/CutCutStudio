@@ -273,7 +273,7 @@ $('auto').onclick=()=>sim.cmd('auto',!S.auto);$('lock').onclick=()=>sim.cmd('loc
 ['presets','presets2'].forEach(id=>document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>sim.cmd('preset',b.dataset.p)));
 $('helpOk').onclick=()=>sim.cmd('help-ok');
 $('healthpill').onclick=()=>go('helse');
-$('tlLegend').innerHTML=`<span><i style="background:linear-gradient(90deg,var(--p1) 25%,var(--p2) 25% 50%,var(--p3) 50% 75%,var(--p4) 75%)"></i>tale og nærbilde</span><span><i style="background:var(--bleed)"></i>lekkasje</span><span><i style="background:var(--wait)"></i>total</span><span><i style="background:var(--eye)"></i>laptop</span>`;
+$('tlLegend').innerHTML=`<span><i style="background:linear-gradient(90deg,var(--p1) 25%,var(--p2) 25% 50%,var(--p3) 50% 75%,var(--p4) 75%)"></i>tale og nærbilde</span><span><i style="background:var(--bleed)"></i>lekkasje</span><span><i style="background:var(--wait)"></i>fugleperspektiv</span><span><i style="background:var(--eye)"></i>laptop</span>`;
 // regi
 const SL=[['confirm','T2','Bekreftelse før kutt',200,2000,50,v=>v+' ms'],['minShot','T3','Minste bildelengde',1,8,.1,v=>fmt1(+v)+' s'],['dom','T1','Dominans over andre mic-er',2,15,1,v=>v+' dB'],['cross','T5','Krysstale før total',.4,3,.1,v=>fmt1(+v)+' s'],['silence','T8','Stillhet før total',1,8,.5,v=>fmt1(+v)+' s'],['monolog','T7','Reaksjonsbilde etter',5,40,1,v=>v+' s']];
 $('sliders').innerHTML=SL.map(([k,id,l,mi,ma,st])=>`<div class="slider"><span class="tag">${id}</span><label for="sl-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="sl-${k}" min="${mi}" max="${ma}" step="${st}"></div>`).join('');
@@ -285,8 +285,8 @@ $('laptopSw').onclick=()=>sim.cmd('laptop',!S.laptop);$('slideBtn').onclick=()=>
 // cameras
 const CAMS=[{k:'P1',cam:'CAM 1',model:'Canon CR-N300',proto:'XC over HTTP',ip:'10.10.10.21',ai:false},{k:'P2',cam:'CAM 2',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.22',ai:true},{k:'P3',cam:'CAM 3',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.23',ai:true},{k:'P4',cam:'CAM 4',model:'OBSBOT Tail 2',proto:'VISCA + OSC',ip:'10.10.10.24',ai:true},{k:'BIRD',cam:'CAM 5',model:'Fast kamera',proto:'Ingen styring',ip:'–',ai:false}];
 $('cams').innerHTML=CAMS.map(c=>{const p=c.k[0]==='P'?PEOPLE[+c.k[1]-1]:null;return `<div class="panel camcard" id="cc-${c.k}" ${p?`style="--pc:var(${p.color})"`:''}><div class="ph"><span style="font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px">${p?`<span class="seat" style="width:22px;height:22px;font-size:12px">${p.id[1]}</span>`:''}${c.cam} · ${p?(p.id==='P1'?'Programleder':p.name):'Fugleperspektiv'}</span><span class="hst" data-st></span></div>
-  <div class="pic" data-pic></div><div class="kv"><span>Modell</span><span>${c.model}</span><span>Styring</span><span>${c.proto}</span><span>IP</span><span class="mono">${c.ip}</span><span>Hvitbalanse</span><span>${c.ip==='–'?'Fast':'Manuell · 4300 K'}</span></div>
-  ${c.ip!=='–'?`<div class="row"><button class="btn" data-preset>Tett</button><button class="btn" data-preset>Halv</button><button class="btn" data-preset>Vid</button></div>`:''}
+  <div class="pic" data-pic></div><div class="kv"><span>Modell</span><span>${c.model}</span><span>Styring</span><span>${c.proto}</span><span>IP</span><span class="mono">${c.ip}</span><span>Hvitbalanse</span><span>${c.ip==='–'?'Fast':'Manuell · 5600 K'}</span></div>
+  ${c.ip!=='–'?`<div class="row"><button class="btn" data-preset>1 Nær</button><button class="btn" data-preset>2 Halvnær</button><button class="btn" data-preset>3 Reserve</button></div>`:''}
   ${c.ai?`<div class="feat" style="padding-bottom:0"><span><b>AI-tracking</b> <span class="tag">OSC SetAiEnable</span></span><span class="fd">Av som standard. Kameraet følger personen.</span><button class="sw" role="switch" aria-checked="false" data-ai aria-label="AI-tracking ${c.cam}"></button></div>`:''}</div>`}).join('');
 document.querySelectorAll('[data-ai]').forEach(b=>b.onclick=()=>b.setAttribute('aria-checked',b.getAttribute('aria-checked')!=='true'));
 // faults
@@ -294,8 +294,8 @@ $('faults').innerHTML=Object.entries(FAULTS).map(([k,f])=>`<div class="feat"><sp
 document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>sim.cmd('fault',{k:b.dataset.f,on:!S.faults[b.dataset.f]}));
 // wizard
 const HOW={
- 4:{why:'Kameraene må stå i manuell hvitbalanse og eksponering, ellers endrer bildet seg midt i en sending.',how:['Åpne kameraets nettside eller bruk «Fiks for meg».','Sett hvitbalanse til <b>manuell, 4300 K</b> og eksponering til <b>manuell</b>.','Slå på <b>VISCA over IP</b> (OBSBOT) eller <b>XC-protokoll</b> (Canon).','Kjør kalibrering: still inn grenser for pan, tilt og zoom, og lagre presets Tett, Halv og Vid.'],
-   cmp:[['CAM 1 hvitbalanse','Manuell 4300 K','Manuell 4300 K'],['CAM 2 eksponering','Manuell','Manuell'],['CAM 3 AI-tracking','Av','Av'],['CAM 4 hvitbalanse','Manuell 4300 K','Auto',1]]},
+ 4:{why:'Kameraene må stå i manuell hvitbalanse og eksponering, ellers endrer bildet seg midt i en sending.',how:['Åpne kameraets nettside eller bruk «Fiks for meg».','Sett hvitbalanse til <b>manuell, 5600 K</b> og eksponering til <b>manuell</b>.','Slå på <b>VISCA over IP</b> (OBSBOT) eller <b>XC-protokoll</b> (Canon).','Kjør kalibrering: still inn grenser for pan, tilt og zoom, og lagre preset 1 nær, 2 halvnær og 3 reserve.'],
+   cmp:[['CAM 1 hvitbalanse','Manuell 5600 K','Manuell 5600 K'],['CAM 2 eksponering','Manuell','Manuell'],['CAM 3 AI-tracking','Av','Av'],['CAM 4 hvitbalanse','Manuell 5600 K','Auto',1]]},
  5:{why:'CutCut leser hver mic som eget spor. Kanalene følger faderne, så faderkartet må være fast.',how:['Oppdater RØDECaster til firmware <b>1.7.6</b> (ikke beta).','Sett fader 1 = programleder, 2–4 = gjest 1–3, 5 = laptop (USB 2).','Settings → Outputs → Multitrack → USB 1: <b>Pre-Fader</b>.','Sett kanalfarger: magenta, cyan, lilla, oransje.','Trykk Sjekk: hver person sier noen ord i sin mikrofon.'],
    cmp:[['Firmware','1.7.6','1.7.6'],['USB 1 multitrack','Pre-fader','Pre-fader'],['Mic 1 → kanal','3','3'],['Mic 2 → kanal','5','5'],['Lekkasje mic 1 → 2','under −18 dB','−24 dB']]}};
 let stepSel=5;
