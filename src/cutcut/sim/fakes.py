@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from cutcut.common.ids import SourceId
+from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import RecordingStatus
 from cutcut.core.inputs import AtemReadback
 from cutcut.core.intents import (
@@ -36,6 +37,7 @@ class FakeAtem:
     companion_vars: dict[str, str] = field(default_factory=dict)
     commands: int = 0
     dropped: int = 0
+    multiview: MultiviewReadback | None = None  # what atem-bridge will read in M2
 
     def submit(self, intent: Intent) -> None:
         if not self.online:
@@ -63,6 +65,9 @@ class FakeAtem:
     def operator_cut(self, source: SourceId) -> None:
         """A person presses a button on the ATEM or Stream Deck (I5)."""
         self.program, self.program_layout = source, None
+
+    def multiview_readback(self) -> MultiviewReadback | None:
+        return self.multiview if self.online else None
 
     def readback(self) -> AtemReadback | None:
         if not self.online:

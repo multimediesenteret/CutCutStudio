@@ -522,6 +522,7 @@ interface SimStatus {
   atem_online: boolean;
   companion_online: boolean;
   moving: string[];
+  multiview_wrong?: boolean;
 }
 
 const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; camera?: string }[] = [
@@ -533,6 +534,11 @@ const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; came
     label: "Gjest 1-kameraet beveger seg (S1)",
     on: (s) => s.moving.includes("C2"),
     camera: "C2",
+  },
+  {
+    kind: "multiview_wrong",
+    label: "Noen har endret ATEM-multiviewen (H-MV)",
+    on: (s) => !!s.multiview_wrong,
   },
 ];
 
@@ -870,6 +876,15 @@ export function Settings({
       </div>
       <div className="panel">
         <div className="ph">
+          <span className="lbl">Utstyr og multiview</span>
+        </div>
+        <p className="muted">IP-adresser for utstyret og multiview-sjekken ligger under Oppsett.</p>
+        <button type="button" className="btn" onClick={() => ctx.go("oppsett")}>
+          Gå til Oppsett
+        </button>
+      </div>
+      <div className="panel">
+        <div className="ph">
           <span className="lbl">Om</span>
         </div>
         <div className="kv">
@@ -886,25 +901,6 @@ export function Settings({
           <span>Norsk (bokmål)</span>
         </div>
       </div>
-    </div>
-  );
-}
-
-// -- Oppsett (admin) -----------------------------------------------------------------------
-
-export function Setup() {
-  return (
-    <div className="panel">
-      <div className="ph">
-        <span className="lbl">Oppsett-veiviser</span>
-      </div>
-      <p>
-        Veiviseren som sjekker og retter utstyret steg for steg (kameraer, RØDECaster, ATEM,
-        Companion, Pearl) kommer i M3 (<span className="mono">docs/plans/setup-health.md</span>).
-      </p>
-      <p className="muted">
-        Til da følger du standardoppsettet i <span className="mono">docs/studio/</span>.
-      </p>
     </div>
   );
 }

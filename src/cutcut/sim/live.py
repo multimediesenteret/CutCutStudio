@@ -24,6 +24,7 @@ from cutcut.common.models.session import User
 from cutcut.common.platform.secrets import FakeSecretStore
 from cutcut.common.store import Store
 from cutcut.core.inputs import ContentState
+from cutcut.setup.multiview import readback_from_map
 from cutcut.sim.fakes import FakeAtem, FakeCardReader, FakeNtnuApi, FakePearl
 from cutcut.sim.voices import Conversation, Voices
 
@@ -42,6 +43,7 @@ class LiveSim:
     content: ContentState | None = None
     audio_lost: bool = False
     moving: set[CameraId] = field(default_factory=set)
+    mv_wrong: bool = False
 
     def __post_init__(self) -> None:
         self._voices_for_show()
@@ -67,6 +69,19 @@ class LiveSim:
         rt.feed_atem(self.atem.readback())
         rt.feed_cameras_moving(frozenset(self.moving))
 
+    def multiview_wrong(self, on: bool) -> None:
+        """Someone changed the ATEM multiview: windows 1 and 2 swapped, safe area on."""
+        self.mv_wrong = on
+        mv = self.studio.deps.site.multiview
+        if mv is None:
+            return
+        rb = readback_from_map(mv)
+        if on:
+            w = list(rb.windows)
+            w[0], w[1] = w[1], w[0]
+            rb = rb.model_copy(update={"windows": w, "safe_area": True})
+        self.atem.multiview = rb
+
     def _card(self, card: str) -> None:
         try:
             found = self.ntnu.lookup(card)
@@ -85,6 +100,8 @@ def build_live_sim(
 ) -> tuple[LiveSim, Auth]:
     site = load_site(site_dir or example_site_dir())
     atem, pearl = FakeAtem(), FakePearl()
+    if site.multiview is not None:
+        atem.multiview = readback_from_map(site.multiview)
     deps = StudioDeps(
         site=site,
         show_types=load_show_types(),
@@ -132,6 +149,7 @@ class FaultIn(_In):
         "pearl_fail",
         "ntnu_down",
         "card_reader_down",
+        "multiview_wrong",
     ]
     on: bool
     camera: CameraId | None = None
@@ -150,6 +168,7 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                 "atem_online": sim.atem.online,
                 "companion_online": sim.atem.companion_online,
                 "moving": sorted(c.value for c in sim.moving),
+                "multiview_wrong": sim.mv_wrong,
                 "test_cards": ["04A1B2C3", "04D4E5F6"],
             }
 
@@ -206,6 +225,8 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                     sim.ntnu.online = not body.on
                 case "card_reader_down":
                     sim.card_reader.connected = not body.on
+                case "multiview_wrong":
+                    sim.multiview_wrong(body.on)
             return {"ok": True}
 
     return add

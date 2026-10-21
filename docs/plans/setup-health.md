@@ -61,6 +61,7 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 | HS-4 | Morgensjekk kl. 07:00 og ved oppstart | Prikk på hvileskjermen |
 | HS-5 | Setup-motor og steg-format, guide-generering | Guide i `docs/setup/` sjekkes i CI |
 | HS-6 | Setup-steg 1–10, ett utstyr av gangen | Hvert steg testet i studio med tekniker |
+| HS-1b | Utstyrsadresser i teknikervinduet og multiview-sjekk (`H-MV-0`–`H-MV-11`) mot rutekart, show og ATEM (D-055) | Gjort i M1 mot simulator; mot ekte ATEM med `atem-bridge` (M2) |
 | HS-7 | Resten av katalogen (`H-CAM-*`, `H-VID-*`, `H-CARD-1`, `H-NTNU-1`, `H-ATEM-2/3/4`) | Komplett katalog (M3) |
 
 ## 7. Åpne spørsmål

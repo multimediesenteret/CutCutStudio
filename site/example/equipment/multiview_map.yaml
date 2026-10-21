@@ -1,0 +1,18 @@
+# Rutekart for det fiktive eksempelstudioet, laget fra det anbefalte oppsettet (D-055).
+# Koordinater er andel av bildet (0–1): x, y, bredde, høyde.
+schema_version: 1
+status: recommended
+source: "CutCut (anbefalt oppsett)"
+switcher: "ATEM Mini Extreme ISO"
+layout: "2+8, preview venstre"
+tiles:
+  - { id: PVW, label: "Preview", rect: [0.00, 0.00, 0.50, 0.50], source: preview }
+  - { id: PGM, label: "Program", rect: [0.50, 0.00, 0.50, 0.50], source: program }
+  - { id: W1, label: "Camera 1", rect: [0.00, 0.50, 0.25, 0.25], source: input1, camera: C1 }
+  - { id: W2, label: "Camera 2", rect: [0.25, 0.50, 0.25, 0.25], source: input2, camera: C2 }
+  - { id: W3, label: "Camera 3", rect: [0.50, 0.50, 0.25, 0.25], source: input3, camera: C3 }
+  - { id: W4, label: "Camera 4", rect: [0.75, 0.50, 0.25, 0.25], source: input4, camera: C4 }
+  - { id: W5, label: "Camera 5", rect: [0.00, 0.75, 0.25, 0.25], source: input5, camera: C5 }
+  - { id: W6, label: "Camera 6", rect: [0.25, 0.75, 0.25, 0.25], source: input6, camera: LAPTOP }
+  - { id: W7, label: "SuperSource", rect: [0.50, 0.75, 0.25, 0.25], source: supersource, camera: SUPERSOURCE }
+  - { id: W8, label: "Media Player 1", rect: [0.75, 0.75, 0.25, 0.25], source: mediaplayer1 }

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Final, Literal, Protocol
@@ -17,6 +17,7 @@ from typing import Any, Final, Literal, Protocol
 from pydantic import ValidationError
 
 from cutcut import __version__
+from cutcut.app import devices
 from cutcut.app.hub import Hub
 from cutcut.app.state import (
     AlertInfo,
@@ -41,6 +42,7 @@ from cutcut.common.config import (
 )
 from cutcut.common.ids import MicId, RuleId, is_shot
 from cutcut.common.models.decision import Decision
+from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import (
     RecordingStatus,
     Session,
@@ -50,6 +52,7 @@ from cutcut.common.models.session import (
     User,
 )
 from cutcut.common.models.show import Features, RulesPreset, ShowConfig
+from cutcut.common.models.site import Devices
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
 from cutcut.core.inputs import (
@@ -73,6 +76,7 @@ from cutcut.session.manager import (
     SessionError,
     SessionManager,
 )
+from cutcut.setup import multiview as mv
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +85,7 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 HISTORY_KEEP: Final = 200
+MULTIVIEW_CHECK_MS: Final = 10_000
 
 
 @dataclass
@@ -179,6 +184,9 @@ class Studio:
         self.preset: RulesPreset = self.show.rules_preset
         self.features = self.show.features
         self.overrides: dict[str, float] = {}
+        self.device_overrides: dict[str, str] = {}
+        self.devices: Devices = self.deps.site.devices
+        self._load_devices()
         self._load_tuning()
         engine = self._make_engine(self.show)
         self.runtime = CoreRuntime(
@@ -198,6 +206,9 @@ class Studio:
         self._last_state_ms = -STATE_EVERY_MS
         self._last_meters_ms = -METERS_EVERY_MS
         self._tracked: tuple[str, TouchStep] | None = None
+        self._last_mv_check_ms = -MULTIVIEW_CHECK_MS
+        self._mv_errors = ""
+        self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
 
     # -- configuration --------------------------------------------------------------------
@@ -231,9 +242,12 @@ class Studio:
             return
         self.preset, self.features, self.overrides = preset, features, overrides
 
-    @staticmethod
     def _merged_with(
-        show: ShowConfig, preset: RulesPreset, features: Features, overrides: dict[str, float]
+        self,
+        show: ShowConfig,
+        preset: RulesPreset,
+        features: Features,
+        overrides: dict[str, float],
     ) -> ShowConfig:
         data = show.model_dump()
         data.update(
@@ -241,6 +255,11 @@ class Studio:
             features=features.model_dump(),
             rules_override={**show.rules_override, **overrides},
         )
+        # Camera addresses come from the equipment settings, which the technician can change.
+        for cid, cam in data["cameras"].items():
+            device = self.devices.cameras.get(cid)
+            if device is not None and device.ip is not None:
+                cam["ip"] = device.ip
         return ShowConfig.model_validate(data)
 
     def _inputs(self) -> dict[str, int]:
@@ -257,6 +276,48 @@ class Studio:
                     out[cam.role.upper()] = cam.atem_input
             out["CONTENT"] = show.content.atem_input
         return out
+
+    # -- equipment addresses (Oppsett → Utstyr og nettverk) ----------------------------------
+
+    def _load_devices(self) -> None:
+        if self.deps.store is None:
+            return
+        saved = self.deps.store.get_kv(devices.DEVICES_KEY)
+        if not isinstance(saved, dict):
+            return
+        overrides = {str(k): str(v) for k, v in saved.items()}
+        try:
+            self.devices = devices.apply(self.deps.site.devices, overrides)
+        except devices.DeviceSettingsError as exc:
+            log.warning("Lagrede utstyrsadresser ble ikke brukt: %s", exc)
+            return
+        self.device_overrides = overrides
+
+    def set_devices(self, changes: dict[str, str | None], role: Role, actor: str) -> None:
+        """Change equipment addresses. ``None`` goes back to the value in devices.yaml. Applies
+        from the next connection; nothing changes if any value is invalid."""
+        updated = dict(self.device_overrides)
+        for key, value in changes.items():
+            if value is None or value == "":
+                updated.pop(key, None)
+            else:
+                updated[key] = value.strip()
+        try:
+            effective = devices.apply(self.deps.site.devices, updated)
+        except devices.DeviceSettingsError as exc:
+            raise CommandError(str(exc)) from exc
+        self.device_overrides, self.devices = updated, effective
+        if self.deps.store is not None:
+            self.deps.store.put_kv(devices.DEVICES_KEY, updated, self.deps.clock.now())
+        self._reconfigure()
+        self._audit(role, actor, "devices", **{k: v for k, v in changes.items()})
+
+    def devices_info(self) -> dict[str, Any]:
+        return {
+            "studio": self.devices.studio,
+            "atem_model": self.devices.atem.model,
+            "rows": devices.rows(self.deps.site.devices, self.devices, self.device_overrides),
+        }
 
     def _save_tuning(self) -> None:
         if self.deps.store is not None:
@@ -308,7 +369,56 @@ class Studio:
             self._last_state_ms = now
             self._publish_state()
         self._track_session()
+        if now - self._last_mv_check_ms >= MULTIVIEW_CHECK_MS:
+            self._last_mv_check_ms = now
+            self._check_multiview()
         return result
+
+    # -- multiview (D-055) ---------------------------------------------------------------
+
+    def _mv_readback(self) -> MultiviewReadback | None:
+        reader = getattr(self.deps.executor, "multiview_readback", None)
+        return reader() if callable(reader) else None
+
+    def multiview_status(self) -> dict[str, Any]:
+        """Rutekart, what the ATEM shows, the recommended layout, and what is wrong."""
+        site = self.deps.site
+        studio_inputs = mv.StudioInputs.from_site(site)
+        rec = mv.recommended(studio_inputs, self.devices.atem.model)
+        readback = self._mv_readback()
+        findings = mv.check_map(site.multiview, studio_inputs)
+        suggestions: list[mv.Finding] = []
+        if site.multiview is not None:
+            findings += mv.check_readback(site.multiview, readback)
+            suggestions = mv.compare_recommended(site.multiview, rec)
+        return {
+            "map": site.multiview.model_dump(mode="json") if site.multiview else None,
+            "recommended": rec.model_dump(mode="json"),
+            "readback": readback.model_dump(mode="json") if readback else None,
+            "findings": [asdict(f) for f in findings],
+            "suggestions": [asdict(f) for f in suggestions],
+            "ok": not any(f.level == "error" for f in findings),
+        }
+
+    def _check_multiview(self) -> None:
+        """Warn the technician once when the multiview stops matching (CutCut would read the
+        wrong camera); say so again when it is fixed."""
+        try:
+            status = self.multiview_status()
+        except Exception:  # never let a check stop the studio
+            log.exception("multiview-sjekk feilet")
+            return
+        errors = [f for f in status["findings"] if f["level"] == "error"]
+        key = "|".join(f"{f['check']}:{f['where']}" for f in errors)
+        if key == self._mv_errors:
+            return
+        self._mv_errors = key
+        if errors:
+            more = f" (+{len(errors) - 1} til)" if len(errors) > 1 else ""
+            self._alert("warn", "H-MV", f"Multiview: {errors[0]['message']}{more}")
+        elif self._mv_seen_error:
+            self._alert("info", "H-MV", "Multiview stemmer med rutekartet igjen.")
+        self._mv_seen_error = self._mv_seen_error or bool(errors)
 
     def _track_session(self) -> None:
         """Keep the session history (spec 8.4 «Opptak i dag»): saved on every step change, so
@@ -436,7 +546,7 @@ class Studio:
         session = s.session
         return StudioState(
             studio=StudioInfo(
-                name=self.deps.site.devices.studio,
+                name=self.devices.studio,
                 simulator=self.deps.simulator,
                 version=__version__,
                 show_types={k: v.name for k, v in self.deps.show_types.types.items()},

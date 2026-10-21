@@ -17,6 +17,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
 
 from cutcut.common.config.rules import RuleParams, RulePresets
+from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.show import SHOW_SCHEMA_VERSION, RulesPreset, ShowConfig
 from cutcut.common.models.site import CompanionMap, Devices, Staff
 
@@ -139,6 +140,7 @@ class Site(BaseModel):
     staff: Staff
     companion_map: CompanionMap
     shows: dict[str, ShowConfig]
+    multiview: MultiviewMap | None = None  # equipment/multiview_map.yaml (spec 6.1)
 
 
 def load_site(root: Path) -> Site:
@@ -163,7 +165,18 @@ def load_site(root: Path) -> Site:
         shows[show.id] = show
     if not shows:
         raise ConfigError(f"{root / 'shows'}: ingen show-oppsett")
-    return Site(root=root, devices=devices, staff=staff, companion_map=companion_map, shows=shows)
+    mv_path = root / "equipment" / "multiview_map.yaml"
+    multiview = (
+        _validate(MultiviewMap, read_yaml(mv_path), str(mv_path)) if mv_path.exists() else None
+    )
+    return Site(
+        root=root,
+        devices=devices,
+        staff=staff,
+        companion_map=companion_map,
+        shows=shows,
+        multiview=multiview,
+    )
 
 
 def example_site_dir() -> Path:
