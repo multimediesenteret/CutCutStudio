@@ -1,0 +1,27 @@
+{
+  "name": "@cutcut/atem-bridge",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Thin bridge between the ATEM switcher and CutCut core (ADR-0012). No logic: state out, commands in.",
+  "license": "Apache-2.0",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types src/main.ts",
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "atem-connection": "^3.10.3",
+    "zeromq": "^6.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
