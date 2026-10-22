@@ -38,6 +38,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cameras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cameras
+         * @description The PTZ cameras CutCut steers: online, AI-tracking, position, last refusal.
+         */
+        get: operations["cameras_api_cameras_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cameras/{cam}/nudge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Camera Nudge
+         * @description A small step in pan, tilt or zoom (spec 7.3). Refused on program and preview.
+         */
+        post: operations["camera_nudge_api_cameras__cam__nudge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cameras/{cam}/preset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Camera Preset
+         * @description Recall a preset, or save one (admin). Refused on program and preview (I2).
+         */
+        post: operations["camera_preset_api_cameras__cam__preset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cameras/{cam}/tracking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Camera Tracking
+         * @description AI-tracking on or off (AT1). On needs the switch and the camera off air; off is
+         *     always allowed (AT5).
+         */
+        post: operations["camera_tracking_api_cameras__cam__tracking_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/content": {
         parameters: {
             query?: never;
@@ -1140,6 +1221,16 @@ export interface components {
             /** Note */
             note?: string | null;
         };
+        /** CameraPresetIn */
+        CameraPresetIn: {
+            /** N */
+            n: number;
+            /**
+             * Store
+             * @default false
+             */
+            store: boolean;
+        };
         /** CheckResult */
         CheckResult: {
             /**
@@ -1476,6 +1567,24 @@ export interface components {
             switcher?: string | null;
             /** Tiles */
             tiles: components["schemas"]["Tile"][];
+        };
+        /** NudgeIn */
+        NudgeIn: {
+            /**
+             * Pan
+             * @default 0
+             */
+            pan: number;
+            /**
+             * Tilt
+             * @default 0
+             */
+            tilt: number;
+            /**
+             * Zoom
+             * @default 0
+             */
+            zoom: number;
         };
         /** Ok */
         Ok: {
@@ -2067,6 +2176,133 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cameras_api_cameras_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    camera_nudge_api_cameras__cam__nudge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cam: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NudgeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    camera_preset_api_cameras__cam__preset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cam: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CameraPresetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    camera_tracking_api_cameras__cam__tracking_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cam: string;
+            };
             cookie?: never;
         };
         requestBody: {

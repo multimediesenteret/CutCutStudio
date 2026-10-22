@@ -218,3 +218,17 @@ def test_PV2_the_real_driver_behind_the_guard() -> None:
         assert g.st.position == PTZPosition(0.0, 0.0, 0.0)
 
     with_camera(body)
+
+
+def test_AT2_tracking_on_sets_calm_tracking_first() -> None:
+    async def body(drv: ObsbotDriver, cam: FakeCamera, fake: FakeVisca) -> None:
+        await drv.set_auto_tracking(True)
+
+    o = with_camera(body)
+    assert o.log == [
+        ("/OBSBOT/Camera/Tail2/SetAiMode", [0]),  # one person
+        ("/OBSBOT/Camera/Tail2/SetTrackingSpeed", [1, 0, 1, 0, 1]),  # «Lazy»
+        ("/OBSBOT/Camera/Tail2/SetAutoZoom", [0]),  # CutCut keeps the zoom
+        ("/OBSBOT/Camera/Tail2/SetOnlyMe", [0]),
+        ("/OBSBOT/Camera/Tail2/SetAiEnable", [1]),
+    ]

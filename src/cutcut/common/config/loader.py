@@ -34,6 +34,7 @@ class ShowType(BaseModel):
     rules_preset: RulesPreset
     audio_only: bool = False
     iso_record: bool = False
+    ai_tracking: list[str] = []  # AT1: cameras that track when a session starts, e.g. [C2]
 
 
 class ShowTypes(BaseModel):

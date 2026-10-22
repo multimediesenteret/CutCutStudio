@@ -39,6 +39,11 @@ def build_parser() -> argparse.ArgumentParser:
     sim.add_argument(
         "--vision", action="store_true", help="tegnet videolag: kamerabilder i teknikervinduet"
     )
+    sim.add_argument(
+        "--cameras",
+        action="store_true",
+        help="falske PTZ-kameraer bak den ekte kameravakten (utsnitt, zoom, AI-tracking)",
+    )
 
     core = sub.add_parser(
         "core",
@@ -157,6 +162,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             ui_dir=args.ui_dir or default_ui_dir(),
             site_dir=args.site,
             vision=args.vision,
+            cameras=args.cameras,
         )
         return smoke(opts) if args.smoke else serve(opts)
     if args.command == "core":

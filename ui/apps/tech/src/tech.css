@@ -1183,3 +1183,18 @@ a.btn {
   margin-block: 8px;
   padding: 8px;
 }
+
+/* Kameraer: styring (7.3, AT1–AT6) */
+.camctl {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.camctl .nudge {
+  display: inline-flex;
+  gap: 4px;
+}
+.camctl .nudge .btn {
+  min-width: 36px;
+  padding-inline: 8px;
+}

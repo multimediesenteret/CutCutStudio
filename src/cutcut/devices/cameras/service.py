@@ -22,7 +22,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Final
 
-from cutcut.common.ids import CameraId
+from cutcut.common.ids import CameraId, RuleId
 from cutcut.common.models.site import CameraDevice, Devices
 from cutcut.devices.cameras.base import (
     AutoTracking,
@@ -42,6 +42,7 @@ STATUS_S: Final = 10.0  # H-CAM-*
 MOVE_DEG: Final = 0.5  # less than this is noise in the read-back
 MOVE_ZOOM: Final = 0.01
 SETTLE_S: Final = 15.0  # a slow preset move CutCut asked for may still be under way
+TRACKING_STILL_DEG_S: Final = 3.0  # AT4: a tracking camera slower than this counts as still
 FRAME_SPEED: Final = 0.3  # F2: reframing off air, slow enough to look calm on the multiview
 ZOOM_STEP: Final = 0.01  # Z1: one step of a slow zoom, share of the zoom range
 
@@ -163,6 +164,19 @@ class CameraService:
                 return  # refused (switch off, camera off air …): stop quietly
             await asyncio.sleep(duration_s / steps)
 
+    def tracking(self) -> frozenset[CameraId]:
+        return frozenset(c for c, g in self.guards.items() if g.st.tracking)
+
+    def set_tracking(self, cam: CameraId, on: bool) -> Verdict | None:
+        """AT1/AT2: tracking on (calm settings first, where the camera has them) or off.
+        Turning it off is always allowed (AT5, AT6); on is refused on air like any move."""
+        g = self.guards.get(cam)
+        if g is None:
+            return None
+        if on:
+            self.stop_zoom(cam)
+        return g.submit(AutoTracking(on=on))
+
     def stop_zoom(self, cam: CameraId) -> None:
         """Z2: stop a slow zoom at once."""
         task = self._zooms.pop(cam, None)
@@ -178,12 +192,20 @@ class CameraService:
         return t is not None and self.clock() - t < SETTLE_S
 
     async def _poll_one(self, cam: CameraId, g: GuardedCamera) -> bool:
-        before = g.st.position
+        before, before_at = g.st.position, g.st.position_at
         after = await g.refresh()
         if before is None or after is None or g.st.position_at is None:
             return False
         if not moved(before, after):
             return False
+        if g.st.tracking and before_at is not None:
+            # AT4: calm tracking does not hold the camera back (S1), only a fast swing does
+            dt = max(g.st.position_at - before_at, 1e-3)
+            speed = max(abs(after.pan - before.pan), abs(after.tilt - before.tilt)) / dt
+            if speed < TRACKING_STILL_DEG_S:
+                log.debug("%s følger rolig (%.1f °/s, %s)", cam.value, speed, RuleId.AT4.value)
+                return False
+            return True
         if not self._expected(g):
             self.unexpected[cam] = self.clock()
             log.error(

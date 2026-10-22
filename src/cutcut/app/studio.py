@@ -92,6 +92,7 @@ from cutcut.devices.atem import iso
 from cutcut.devices.atem.bridge import AtemStateRaw
 from cutcut.devices.atem.iso import IsoRecorder, IsoStatus
 from cutcut.devices.atem.macros import check as macro_check
+from cutcut.devices.cameras.base import CameraCommand, Nudge, RecallPreset, StorePreset
 from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
 from cutcut.health import checks as health_checks
@@ -120,8 +121,16 @@ TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
 # Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
 IMPLEMENTED_SWITCHES: Final = frozenset(
-    {"video_confirm", "layouts", "framing_variety", "slow_zoom"}
+    {"video_confirm", "layouts", "framing_variety", "slow_zoom", "ai_tracking"}
 )
+VERDICT_TEXT: Final[dict[str, str]] = {
+    "on_program": "Kameraet er på program (I2). Prøv når det er av lufta.",
+    "on_preview": "Kameraet er på preview (PV2). Prøv når det er av lufta.",
+    "no_atem": "ATEM kan ikke leses, så CutCut vet ikke hva som er på lufta.",
+    "breaker_open": "Kameraet svarer ikke. CutCut prøver igjen om litt.",
+    "invalid": "Ugyldig preset.",
+    "tracking": "Kameraet følger personen selv (AT3). Slå av AI-tracking først.",
+}
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
@@ -263,6 +272,7 @@ class Studio:
         self._steps: list[SetupStep] | None = None  # setup helper, read on first use
         self._approved: dict[str, Approval] | None = None
         self._failed_seen: set[str] = set()  # switches already moved to shadow (F-1)
+        self._had_session = False  # AT6
         self._iso_since: int | None = None  # when CutCut started ISO (engine ms)
         self._iso_file: str | None = None
         self._iso_by: str | None = None
@@ -400,6 +410,11 @@ class Studio:
             self.preset = preset
             self._save_tuning()
             self._reconfigure()
+        for cam in self._type().ai_tracking:  # AT1: the show type asks for tracking
+            try:
+                self.set_tracking(CameraId(cam), True, "operator", "show-type")
+            except (CommandError, ValueError) as exc:
+                log.info("AI-tracking for %s fra show-typen ble ikke slått på: %s", cam, exc)
 
     def iso_wanted(self) -> bool:
         """The ATEM is to record ISO: set on the show or on the studio's type (spec 7.7)."""
@@ -838,6 +853,7 @@ class Studio:
             self._last_state_ms = now
             self._publish_state()
         self._track_session()
+        self._tracking_off_after_session()
         self._switches_failed()
         self._audio_check(now)
         self._maybe_add_video_check()
@@ -2018,6 +2034,94 @@ class Studio:
         cfg = self.show.cameras.get(cam)
         return self.features.mode("slow_zoom") == "on" and cfg is not None and cfg.slow_zoom
 
+    # -- the cameras from the technician window (Kameraer, AT1–AT6) ---------------------------
+
+    def _cams(self) -> CameraService:
+        if self.deps.cameras is None:
+            raise CommandError("Kameraene styres ikke fra denne PC-en.")
+        return self.deps.cameras
+
+    def _verdict(self, verdict: str | None) -> None:
+        if verdict is None:
+            raise CommandError("CutCut styrer ikke dette kameraet.")
+        if verdict != "queued":
+            raise CommandError(VERDICT_TEXT.get(verdict, verdict))
+
+    def cameras_info(self) -> list[dict[str, Any]]:
+        cams = self.deps.cameras
+        if cams is None:
+            return []
+        out = []
+        for cam, g in sorted(cams.guards.items()):
+            cfg = self.show.cameras.get(cam)
+            pos = g.st.position
+            out.append(
+                {
+                    "id": cam.value,
+                    "model": cams.models.get(cam),
+                    "online": g.st.ok,
+                    "tracking": g.st.tracking,
+                    "can_track": cfg is not None and cfg.driver == "obsbot" and cfg.role != "bird",
+                    "presets": dict(cfg.presets) if cfg else {},
+                    "position": None
+                    if pos is None
+                    else {
+                        "pan": round(pos.pan, 1),
+                        "tilt": round(pos.tilt, 1),
+                        "zoom": round(pos.zoom, 3),
+                    },
+                    "last_refused": g.st.last_refused,
+                    "last_error": g.st.last_error,
+                }
+            )
+        return out
+
+    def camera_preset(self, cam: CameraId, n: int, store: bool, role: Role, actor: str) -> None:
+        """Recall (or, admin, save) a preset. Saving does not move the camera."""
+        cmd: CameraCommand = StorePreset(n) if store else RecallPreset(n, speed=0.3)
+        self._verdict(self._cams().submit(cam, cmd))
+        self._audit(role, actor, "camera_preset", camera=cam.value, n=n, store=store)
+
+    def camera_nudge(
+        self, cam: CameraId, pan: float, tilt: float, zoom: float, role: Role, actor: str
+    ) -> None:
+        self._verdict(self._cams().submit(cam, Nudge(pan=pan, tilt=tilt, zoom=zoom)))
+        self._audit(role, actor, "camera_nudge", camera=cam.value)
+
+    def set_tracking(self, cam: CameraId, on: bool, role: Role, actor: str) -> None:
+        """AT1: AI-tracking on or off for one camera. Needs the switch; in shadow it is only
+        logged. Off is always allowed (AT5: the camera stays where it is)."""
+        mode = self.features.mode("ai_tracking")
+        cfg = self.show.cameras.get(cam)
+        if on and (cfg is None or cfg.driver != "obsbot" or cfg.role == "bird"):
+            raise CommandError("AI-tracking finnes bare på OBSBOT, og aldri på fugleperspektivet.")
+        if on and mode == "off":
+            raise CommandError("Slå på AI-tracking under Regi → Brytere først.")
+        if on and mode == "shadow":
+            self._alert(
+                "info",
+                RuleId.AT1.value,
+                f"Skygge: AI-tracking ville blitt slått på for {cam.value}.",
+            )
+            self._audit(role, actor, "tracking_shadow", camera=cam.value)
+            return
+        cams = self._cams()
+        self._verdict(cams.set_tracking(cam, on))  # on: calm settings first (AT2)
+        rule = RuleId.AT2 if on else RuleId.AT5
+        self._audit(role, actor, "tracking", camera=cam.value, on=on, rule=rule.value)
+
+    def _tracking_off_after_session(self) -> None:
+        """AT6: tracking is always off when a session ends."""
+        had, self._had_session = self._had_session, self.sessions.session is not None
+        cams = self.deps.cameras
+        if cams is None:
+            return
+        self.runtime.feed_cameras_tracking(cams.tracking())
+        if had and not self._had_session:
+            for cam in cams.tracking():
+                cams.set_tracking(cam, False)
+                log.info("%s: AI-tracking av etter økten (%s)", cam.value, RuleId.AT6.value)
+
     def _camera_intent(self, intent: Intent) -> None:
         cams = self.deps.cameras
         if cams is None:
@@ -2055,6 +2159,14 @@ class Studio:
             if not ok:
                 why = "Ingen nærbildekameraer med presetene «tight» og «wide» styres av CutCut."
                 return True, False, why
+        if name == "ai_tracking":
+            ok = [
+                c
+                for c, cfg in self.show.cameras.items()
+                if c in steered and cfg.driver == "obsbot" and cfg.role != "bird"
+            ]
+            if not ok:
+                return True, False, "Ingen OBSBOT-kameraer styres av CutCut."
         if name == "slow_zoom":
             ok = [c for c, cfg in self.show.cameras.items() if c in steered and cfg.slow_zoom]
             if not ok:

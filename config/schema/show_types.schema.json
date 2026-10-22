@@ -3,6 +3,14 @@
     "ShowType": {
       "additionalProperties": false,
       "properties": {
+        "ai_tracking": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Ai Tracking",
+          "type": "array"
+        },
         "audio_only": {
           "default": false,
           "title": "Audio Only",

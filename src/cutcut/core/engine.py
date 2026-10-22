@@ -1131,6 +1131,10 @@ class Engine:
             if not usable or shot is None or cam in on_air:
                 self._reframe_pending.discard(cam)
                 continue
+            if cam in inp.cameras_tracking:
+                self._reframe_pending.discard(cam)  # AT3: the camera follows the person
+                self._decide("hold", shot, RuleId.AT3, f"{cam.value} følger personen selv")
+                continue
             cand = self.candidate
             if cand is not None and shots.camera_of(cand.shot, self.show) == cam:
                 if cam not in self._f3_waiting:  # F3: wait until it is no longer the candidate
@@ -1193,6 +1197,8 @@ class Engine:
         cfg = self.show.cameras.get(cam)
         if cfg is None or not cfg.slow_zoom or cfg.driver == "none" or cam in self._zoomed:
             return
+        if cam in inp.cameras_tracking:
+            return  # AT3: no slow zoom while the camera tracks
         talker = self.speakers.get(pid)
         if not talker.speaking or now - self.program_since < r.Z1_after_s * 1000:
             return

@@ -29,7 +29,6 @@ PLANNED: dict[str, str] = {
     "PV3": "M4 – video_confirm",
     "S5": "M2 – Companion/ATEM-utfører",
     **{f"R{i}": "M4 – reactions" for i in range(1, 4)},
-    **{f"AT{i}": "M4 – ai_tracking" for i in range(1, 7)},
     **{f"V{i}": "M4 – video_confirm / reactions" for i in range(1, 7)},
 }
 

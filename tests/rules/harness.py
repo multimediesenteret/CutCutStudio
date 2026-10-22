@@ -95,6 +95,7 @@ class Harness:
         self.audio_age_ms = 0
         self.audio_lost = False
         self.moving: set[CameraId] = set()
+        self.tracking: set[CameraId] = set()
         self.vision: dict[SourceId, TileFrame] | None = None
         self.atem: AtemReadback | None = None
         self.content: ContentState | None = None
@@ -180,6 +181,7 @@ class Harness:
             content=self.content,
             atem=self.atem,
             cameras_moving=frozenset(self.moving),
+            cameras_tracking=frozenset(self.tracking),
             commands=tuple(self.pending),
         )
         self.pending = []

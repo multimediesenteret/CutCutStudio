@@ -149,5 +149,6 @@ class Inputs:
     content: ContentState | None = None  # None = no content measurement
     atem: AtemReadback | None = None  # None = ATEM not readable
     cameras_moving: frozenset[CameraId] = frozenset()  # from PTZ position readback (S1)
+    cameras_tracking: frozenset[CameraId] = frozenset()  # AI-tracking on (AT3, AT4)
     companion_ok: bool = True
     commands: tuple[Command, ...] = ()
