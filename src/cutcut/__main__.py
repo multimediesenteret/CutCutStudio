@@ -116,10 +116,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     hw.add_argument(
         "what",
-        choices=["audio", "atem", "camera", "vision", "faces", "soak"],
+        choices=["audio", "atem", "camera", "vision", "faces", "pearl", "soak", "akseptanse"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
         "vision: capture-kortet, INOGENI (VI-4); faces: ansikt og munn på et opptak (P6); "
-        "soak: 72-timerstesten (SO-8)",
+        "pearl: Epiphan Pearl (SE-3); soak: 72-timerstesten (SO-8); "
+        "akseptanse: kriteriene i 10.4 fra en periode (T-M3)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument(
@@ -139,6 +140,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--rounds", type=int, default=1500, help="analyserunder (faces; standard 1500 = 5 min)"
     )
     hw.add_argument("--hours", type=float, default=72.0, help="varighet (soak; standard 72)")
+    hw.add_argument("--since", default=None, help="fra, f.eks. «2026-11-04 09:00» (akseptanse)")
+    hw.add_argument("--until", default=None, help="til (akseptanse; standard nå)")
+    hw.add_argument(
+        "--data", type=Path, default=None, help="CutCuts datamappe (akseptanse; C:\\CutCut\\data)"
+    )
     hw.add_argument(
         "--every", type=float, default=10.0, help="minutter mellom målingene (soak; standard 10)"
     )
@@ -237,6 +243,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.site is None or args.file is None:
                 parser.error("hwtest faces trenger --site og --file (opptak av multiviewen)")
             return faces_test(args.site, args.file, args.rounds, out)
+        if args.what == "pearl":
+            from cutcut.hwtest.pearl import main as pearl_test
+
+            if args.site is None:
+                parser.error("hwtest pearl trenger --site")
+            return pearl_test(args.site, args.api, args.user, out)
+        if args.what == "akseptanse":
+            from cutcut.hwtest.acceptance import main as acceptance
+
+            return acceptance(args.data, args.since, args.until, out)
         if args.what == "soak":
             from cutcut.hwtest.soak import main as soak_test
 

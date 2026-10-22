@@ -53,6 +53,7 @@ REST_PATHS: Final = (
     "/api/setup/color",
     "/api/setup/mics",
     "/api/setup/multiview",
+    "/api/debug",
 )
 
 # Tick timings are measured in real time and would make the trace differ run to run (I3).

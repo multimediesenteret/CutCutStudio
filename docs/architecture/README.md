@@ -121,6 +121,7 @@ stateDiagram-v2
 | Studio-oppsett: utgangspunkt (utstyr, show, knappekart) | `site/<studio>/` | Versjonert | Lesbart, kan rulles tilbake (ADR-0006). Bare eksempeladresser |
 | Studio-oppsett: det som er lagt inn i appen (ekte IP-er, teknikere, varsling, rutekart, innlogging, farge) | SQLite `kv` på studio-PC-en; kopi i `data\oppsett\` ved hver endring | De 20 nyeste kopiene | Ekte adresser og personer skal ikke i git (D-055, D-060). «Lagre oppsett» og «Hent oppsett» flytter alt som én fil |
 | Nattlig kopi av databasen | `data\backup\` | 7 kopier | SO-7 |
+| Feilsøkingsopptak (når feilsøkingsmodus er på) | `data\debug\*.jsonl.gz` | 7 dager, høyst 5 GB | Studioprøver, feilsøking og akseptanse (`hwtest akseptanse`) |
 | Regelverdier per forhåndsvalg | `config/defaults/rules.yaml` | Versjonert | Samme i studio, simulator og tester |
 | Økter, beslutninger, revisjonslogg, varsler | SQLite WAL, `data/cutcut.db` | Økter 90 d, beslutninger 30 d, revisjon 365 d, varsler 90 d | Overlever omstart, skrives i egen tråd |
 | Motorinnstillinger (AUTO, LÅS, content, skygge), tuning | SQLite `kv` | Til de endres | `core` er tilbake med samme innstillinger etter omstart |

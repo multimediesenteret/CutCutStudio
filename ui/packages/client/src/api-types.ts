@@ -153,6 +153,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/debug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Debug
+         * @description Feilsøkingsmodus: on or off, until when, and how much is recorded.
+         */
+        get: operations["get_debug_api_debug_get"];
+        /**
+         * Put Debug
+         * @description Feilsøkingsmodus on for ``hours`` (off by itself afterwards), or off with 0 (admin).
+         *     While on, everything that reaches the engine is recorded in ``data/debug``.
+         */
+        put: operations["put_debug_api_debug_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/debug-package": {
         parameters: {
             query?: never;
@@ -1318,6 +1343,11 @@ export interface components {
             /** Enabled */
             enabled: boolean;
         };
+        /** DebugIn */
+        DebugIn: {
+            /** Hours */
+            hours: number;
+        };
         /** Decision */
         Decision: {
             /**
@@ -2024,6 +2054,11 @@ export interface components {
         };
         /** StudioInfo */
         StudioInfo: {
+            /**
+             * Debug Until
+             * @default null
+             */
+            debug_until: string | null;
             /** Inputs */
             inputs: {
                 [key: string]: number;
@@ -2422,6 +2457,63 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_debug_api_debug_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    put_debug_api_debug_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DebugIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

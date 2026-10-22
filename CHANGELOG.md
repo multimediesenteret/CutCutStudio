@@ -14,6 +14,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- Feilsøkingsmodus under Helse (admin): i 1, 8 eller 24 timer tas alt som kommer inn til motoren opp, sammen med beslutningene og tiden hvert Companion-kall tok, i `data\debug`, og `core` logger mer. Slår seg av selv, overlever omstart og vises øverst i teknikervinduet. Siste time er med i feilsøkingspakken.
+- `cutcut hwtest pearl`: maskintest for Pearl med testopptak, og at en stopp uten trykk varsles innen 5 s.
+- `cutcut hwtest akseptanse`: regner ut akseptansekriteriene i 10.4 (kuttid, kuttpunkt, preview før TAKE, kutt tilbake, overstyringer) for en periode fra beslutningene og feilsøkingsopptaket.
 - Manual for oppsett og drift i `docs/manual/`: Markdown som kilde, med tegning av det fysiske oppsettet, og PDF med forside, logo og innholdsfortegnelse, bygget med `pnpm manual`. En test sier fra når manualen er endret uten at PDF-en er bygget på nytt.
 - P9: sjekkliste for studioperioden (`docs/studio/testdag.md`): rom, strøm og nett, maskintester, setup-hjelperens ti steg, grunnmodus med opptak til Q1, bryterne én og én i skygge og live, 72-timerstesten og hvor hvert akseptansekriterium i 10.4 sjekkes.
   - `cutcut hwtest soak` måler minne og håndtak per prosess, omstarter, tilkoblinger og helse hvert 10. minutt i 72 timer, og skriver rapport (SO-8). `/api/health` viser nå pid per prosess.

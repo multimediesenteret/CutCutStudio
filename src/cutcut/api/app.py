@@ -55,6 +55,11 @@ class ShowTypeIn(BaseModel):
     type: str
 
 
+class DebugIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    hours: float = Field(ge=0, le=72)
+
+
 class LoginModeIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     mode: Literal["open", "card"]
@@ -191,6 +196,19 @@ def create_app(
             mode="json", include={"engine", "recording", "runtime", "alerts", "health"}
         )
         return {"status": overall, "version": __version__, **dump}
+
+    @app.get("/api/debug", tags=["status"])
+    async def get_debug(me: Who) -> dict[str, Any]:
+        """Feilsøkingsmodus: on or off, until when, and how much is recorded."""
+        require(me, "operator")
+        return studio.debug_info()
+
+    @app.put("/api/debug", tags=["status"])
+    async def put_debug(body: DebugIn, me: Who) -> dict[str, Any]:
+        """Feilsøkingsmodus on for ``hours`` (off by itself afterwards), or off with 0 (admin).
+        While on, everything that reaches the engine is recorded in ``data/debug``."""
+        require(me, "admin")
+        return studio.set_debug(body.hours, me.role, me.actor)
 
     @app.post("/api/health/morning-check", tags=["status"])
     async def morning_check(me: Who) -> dict[str, Any]:

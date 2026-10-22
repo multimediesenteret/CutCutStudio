@@ -14,7 +14,7 @@ import logging
 from collections import deque
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
-from datetime import date, datetime, tzinfo
+from datetime import date, datetime, timedelta, tzinfo
 from pathlib import Path
 from typing import Any, Final, Literal, Protocol
 
@@ -22,6 +22,7 @@ from pydantic import ValidationError
 
 from cutcut import __version__
 from cutcut.app import devices, setup_file
+from cutcut.app.debugrec import DebugRecorder
 from cutcut.app.hub import Hub
 from cutcut.app.state import (
     AlertInfo,
@@ -146,6 +147,8 @@ VERDICT_TEXT: Final[dict[str, str]] = {
     "invalid": "Ugyldig preset.",
     "tracking": "Kameraet følger personen selv (AT3). Slå av AI-tracking først.",
 }
+DEBUG_KEY: Final = "debug.until"  # feilsøkingsmodus: when it turns itself off
+DEBUG_MAX_HOURS: Final = 72
 COLOR_KEY: Final = "setup.color"  # the last colour match (6.4): kelvin and gain per camera
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
@@ -314,6 +317,13 @@ class Studio:
             on_decision=self._on_decision,
             on_step=self._on_step,
         )
+        self.debug = DebugRecorder(
+            self.deps.data_dir / "debug", self.deps.clock.now, self.deps.clock.mono_ms
+        )
+        self.runtime.on_bus = self.debug.bus
+        self.runtime.on_intent = self._debug_intent
+        if hasattr(self.deps.executor, "on_sent"):
+            self.deps.executor.on_sent = self._debug_press
         if self.deps.cameras is not None:
             self.runtime.camera_sink = self._camera_intent
             for cam, guard in self.deps.cameras.guards.items():
@@ -370,6 +380,7 @@ class Studio:
         self._check: dict[str, dict[str, int | bool]] = {}
         self._check_step: TouchStep = TouchStep.IDLE
         self._check_ms = self.now
+        self._load_debug()  # last: turning it on raises an alert
 
     # -- configuration --------------------------------------------------------------------
 
@@ -588,6 +599,49 @@ class Studio:
         saved = self.deps.store.get_kv(LOGIN_KEY)
         if saved in ("open", "card"):
             self.login_mode = saved
+
+    # -- feilsøkingsmodus (app/debugrec.py) -------------------------------------------------
+
+    def _load_debug(self) -> None:
+        saved = self.deps.store.get_kv(DEBUG_KEY) if self.deps.store is not None else None
+        if isinstance(saved, str):
+            until = datetime.fromisoformat(saved)
+            if until > self.deps.clock.now():
+                self._debug_on(until)  # still on after a restart
+
+    def set_debug(self, hours: float, role: Role, actor: str) -> dict[str, Any]:
+        """On for ``hours`` (then off by itself), or off with 0 (Helse, admin)."""
+        if hours < 0 or hours > DEBUG_MAX_HOURS:
+            raise CommandError(f"Velg mellom 0 og {DEBUG_MAX_HOURS} timer.")
+        if hours == 0:
+            self.debug.stop()
+            self._debug_off()
+        else:
+            self._debug_on(self.deps.clock.now() + timedelta(hours=hours))
+        self._audit(role, actor, "debug", hours=hours)
+        return self.debug.info()
+
+    def _debug_on(self, until: datetime) -> None:
+        self.debug.start(until)
+        logging.getLogger().setLevel(logging.DEBUG)
+        if self.deps.store is not None:
+            self.deps.store.put_kv(DEBUG_KEY, until.isoformat(), self.deps.clock.now())
+        self._alert("info", "DEBUG", f"Feilsøkingsmodus på til {until:%d.%m. %H:%M}")
+
+    def _debug_off(self) -> None:
+        logging.getLogger().setLevel(logging.INFO)
+        if self.deps.store is not None:
+            self.deps.store.put_kv(DEBUG_KEY, None, self.deps.clock.now())
+
+    def _debug_intent(self, intent: Intent) -> None:
+        if self.debug.active:
+            self.debug.event("intent", {"type": type(intent).__name__, "data": repr(intent)})
+
+    def _debug_press(self, label: str, ms: float) -> None:
+        self.debug.event("press", {"label": label, "ms": round(ms, 1)})
+
+    def debug_info(self) -> dict[str, Any]:
+        return self.debug.info()
 
     def set_login_mode(self, mode: LoginMode, role: Role, actor: str) -> None:
         """«Innlogging» in the technician's settings (D-057). Card login needs the card reader
@@ -862,6 +916,8 @@ class Studio:
         self.deps.recorder.update(now)
         self.apply(self.sessions.pearl_status(self.deps.recorder.state, now))
         result = self.runtime.tick()
+        if self.debug.expire():
+            self._debug_off()
         if self.notice and now >= self.notice_until:
             self.notice = None
         if now - self._last_meters_ms >= METERS_EVERY_MS:
@@ -1711,6 +1767,7 @@ class Studio:
 
     def _on_decision(self, d: Decision) -> None:
         item = d.model_dump(mode="json")
+        self.debug.event("decision", item)
         self.decisions.append(item)
         self.hub.publish("decision", item)
 
@@ -1806,6 +1863,7 @@ class Studio:
                 show_id=self.show.id,
                 inputs=self._inputs(),
                 support_email=self.devices.support.email or None,
+                debug_until=self.debug.info()["until"],
             ),
             session=session.model_copy(deep=True) if session else None,
             touch=TouchInfo(

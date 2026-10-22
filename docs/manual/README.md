@@ -150,7 +150,7 @@ Teknikervinduet åpnes i en nettleser på `http://<regi-PC>:8080/tech/`, og over
 | Oversikt | Multiview (klikk på en rute for å klippe selv), hva som er på lufta og på preview, mikrofonene, de siste 60 sekundene og de siste beslutningene. **Auto på/av**, **Lås bildet** og **Bird nå** | Operatør |
 | Kameraer | Bilde og status per kamera, presets (tett og vid), små justeringer og AI-tracking. Bare kameraer som ikke er på lufta kan flyttes | Operatør |
 | Opptak | Pearl og økta nå, ISO-opptak i ATEM og dagens opptak | Operatør |
-| Helse | Alle sjekkene (grønn, gul, rød), åpne varsler og prosessene. **Kjør alle nå** | Operatør |
+| Helse | Alle sjekkene (grønn, gul, rød), åpne varsler og prosessene. **Kjør alle nå**. **Feilsøkingsmodus** (admin slår av og på) | Operatør |
 | Logg | Hver beslutning med regel og grunn. Filter for kutt, sikkerhet og skygge. CSV og feilsøkingspakke | Operatør |
 | Regi | Tempo (Rolig, Standard, Energisk), finjustering og bryterne (av, skygge, på) | Admin |
 | Oppsett | Setup-hjelperen, adresser, rutekart, mikrofonfasit og fargematching | Admin |
@@ -189,6 +189,7 @@ Grunnmodus klipper på lyden og er alltid på; alt annet er brytere som slås p�
 - **ISO-opptak** i ATEM som reserve, fra Opptak eller sammen med Pearl.
 - **Morgensjekk** kl. 07:00 og ved oppstart; resultatet vises som en prikk på touch.
 - **Nattlig vedlikehold:** rydding og kopi av databasen.
+- **Feilsøkingsmodus** (Helse, admin): i 1, 8 eller 24 timer tas alt som kommer inn til motoren opp, med beslutningene og hvor lang tid hvert kutt tok. Slår seg av selv. Brukes i studioperioden og når noe skal feilsøkes.
 
 Kommer senere: innlogging med adgangskort, e-postvarsling og publisering til Panopto.
 
@@ -257,7 +258,9 @@ Sendingen og opptaket går videre selv om CutCut har problemer; start alltid und
 | Ingen kamerabilder i teknikervinduet | `H-VID-1` | INOGENI i en USB 3-port; ingen andre programmer har kortet åpent |
 | Etter strømbrudd | – | PC-en starter selv. Sjekk at Helse er grønn før neste opptak |
 
-**Feilsøkingspakke:** Logg → «Feilsøkingspakke» (admin). Den har ingen passord og kan sendes til support.
+**Feilsøkingsmodus:** skjer noe som er vanskelig å forklare, slå på feilsøkingsmodus under Helse (for eksempel 8 timer) og prøv igjen. Alt motoren fikk inn og bestemte, tas da opp.
+
+**Feilsøkingspakke:** Logg → «Feilsøkingspakke» (admin). Den har ingen passord, tar med siste time av feilsøkingsopptaket og kan sendes til support.
 
 **Mer informasjon i repoet** ([github.com/multimediesenteret/CutCutStudio](https://github.com/multimediesenteret/CutCutStudio)):
 
@@ -283,7 +286,7 @@ Alt CutCut bruker, ligger på regi-PC-en under `C:\CutCut`, og skjermene nås p�
 | Pearl | HTTPS 443 |
 | Programmet | `C:\CutCut\current` (lenke til `versions\<versjon>`) |
 | Studio-oppsettet (utgangspunkt) | `C:\CutCut\site` |
-| Database, logger, kopier | `C:\CutCut\data` (`logs`, `backup`, `oppsett`, `hwtest`) |
+| Database, logger, kopier | `C:\CutCut\data` (`logs`, `backup`, `oppsett`, `hwtest`, `debug`) |
 
 ## Ordliste
 
