@@ -1,8 +1,10 @@
 """Machine test for the capture card (VI-4, docs/plans/vision.md 5).
 
-``cutcut hwtest vision --site C:\\CutCut\\site [--device 0] [--user tekniker1]`` reads the ATEM
-multiview through the INOGENI 4KXUSB3 with the same code as ``cutcut vision``, and writes the
-same report as the other machine tests.
+``cutcut hwtest vision --site C:\\CutCut\\site [--device N] [--user tekniker1]`` reads the ATEM
+multiview through the capture card with the same code as ``cutcut vision``, and writes the same
+report as the other machine tests. In the studio the card is the DeckLink Mini Recorder HD
+(D-062), found by name from ``video`` in devices.yaml; ``--device`` picks a number instead.
+Set the ATEM multiview output to 1080p50; the DeckLink gives no picture without a signal.
 
 | Step | What |
 | --- | --- |
@@ -298,7 +300,7 @@ class CompanionPreview:
 
 def main(
     site_dir: Path,
-    device: int,
+    device: int | None,
     minutes: float,
     out: Path,
     api_url: str | None,
@@ -315,8 +317,15 @@ def main(
     if site.multiview is None:
         print("Studioet har ikke noe rutekart (equipment/multiview_map.yaml).")
         return 2
-    source = OpenCvSource(device)
-    print(f"Maskintest INOGENI · enhet {device} · {len(site.multiview.tiles)} ruter")
+    video = site.devices.video
+    source = OpenCvSource(
+        device if device is not None else video.index,
+        width=video.width,
+        height=video.height,
+        fps=video.fps,
+        device_name=None if device is not None else video.name,
+    )
+    print(f"Maskintest capture-kort · {source.name} · {len(site.multiview.tiles)} ruter")
     test = VisionTest(site.multiview, source, ConsoleOperator(), switch, minutes)
     locked = api is not None and api.post("/api/lock", json={"on": True}).status_code == 200
     try:

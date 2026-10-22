@@ -15,7 +15,7 @@ Fylles ut av tekniker i studio. Agenten trenger dette for å skrive `site/multim
 | Kamera 4 | | | | | Rolle: |
 | Fugleperspektiv | | | | | |
 | Laptop-inngang | – | – | – | | |
-| Capture-kort | INOGENI 4KXUSB3 | | USB | multiview-utgang | |
+| Capture-kort | Blackmagic DeckLink Mini Recorder HD (D-062) | | PCIe | multiview-utgang | |
 | Kortleser | ELATEC TWN3 MIFARE USB | | COM? | – | Modus og skript |
 | Touch-skjerm | iiyama T2254MSC-B2AG | – | – | – | Kabellengde |
 | Regi-PC | | Windows-versjon | | – | CPU, GPU, RAM |

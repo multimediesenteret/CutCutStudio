@@ -23,8 +23,6 @@ features:                       # grunnmodus er alltid på; dette er bryterne i 
   framing_variety: false
   slow_zoom: false
   layouts: false
-  live_transcript: false
-  turn_prediction: false
 layouts:                        # gjelder bare når features.layouts er på
   pip_speaker_content: false
   pip_two_people: false

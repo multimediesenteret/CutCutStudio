@@ -31,7 +31,8 @@ def editable_keys(devices: Devices) -> list[str]:
         "alerts.enabled",
         "alerts.email",
         "alerts.smtp.host",
-    ]  # Innstillinger → Varsling (HS-3)
+        "support.email",
+    ]  # Innstillinger → Varsling (HS-3, D-065)
     return keys
 
 
@@ -69,7 +70,7 @@ def _why(exc: ValidationError) -> str:
     err = exc.errors()[0]
     loc = ".".join(str(x) for x in err["loc"])
     msg = str(err["msg"])
-    if loc.startswith("alerts.email"):
+    if loc.startswith(("alerts.email", "support.email")):
         return f"Ugyldig e-postadresse. {msg.removeprefix('Value error, ')}."
     if "own IP" in msg:
         return "To enheter kan ikke ha samme IP-adresse."
@@ -86,7 +87,7 @@ def rows(base: Devices, effective: Devices, overrides: dict[str, str]) -> list[d
     e = effective.model_dump(mode="json")
     out = []
     for key in editable_keys(base):
-        if key.startswith("alerts."):
+        if key.startswith(("alerts.", "support.")):
             continue  # shown under Innstillinger → Varsling, not with the equipment
         out.append(
             {

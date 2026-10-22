@@ -358,6 +358,9 @@ export function Rec({ state, act }: { state: StudioState; act: Act }) {
         >
           <Icon name="help" />
           <span>{state.touch.help ? "Teknikeren er varslet" : "Trenger du hjelp?"}</span>
+          {state.touch.help && state.studio.support_email && (
+            <small className="support">Haster det: {state.studio.support_email}</small>
+          )}
         </button>
         <HoldButton
           className="stop"

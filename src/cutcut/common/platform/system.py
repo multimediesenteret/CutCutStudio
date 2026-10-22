@@ -22,9 +22,19 @@ class SystemSnapshot:
     process_rss_mb: float
 
 
+@dataclass(frozen=True)
+class NetInterface:
+    """A network card as Windows names it, whether it is up, and its IPv4 addresses."""
+
+    name: str
+    up: bool
+    ipv4: tuple[str, ...]
+
+
 class System(Protocol):
     def snapshot(self, data_dir: Path) -> SystemSnapshot: ...
     def set_priority(self, priority: Priority) -> None: ...
+    def interfaces(self) -> list[NetInterface]: ...
 
 
 class PsutilSystem:
@@ -57,6 +67,19 @@ class PsutilSystem:
         elif priority == "low":  # raising priority needs root on Linux; only lower it
             proc.nice(10)
 
+    def interfaces(self) -> list[NetInterface]:
+        import socket
+
+        import psutil
+
+        stats = psutil.net_if_stats()
+        out = []
+        for name, addrs in psutil.net_if_addrs().items():
+            ipv4 = tuple(a.address for a in addrs if a.family == socket.AF_INET)
+            st = stats.get(name)
+            out.append(NetInterface(name, bool(st and st.isup), ipv4))
+        return out
+
 
 class FakeSystem:
     """Fixed numbers, adjustable from tests and the simulator (to fake a full disk etc.)."""
@@ -71,9 +94,18 @@ class FakeSystem:
             process_rss_mb=120.0,
         )
         self.priority: Priority = "normal"
+        # D-064: one card on the studio switch, one on the campus network
+        self.nics: list[NetInterface] = [
+            NetInterface("Studio", True, ("10.10.10.2",)),
+            NetInterface("Campus", True, ("192.168.50.20",)),
+            NetInterface("Loopback", True, ("127.0.0.1",)),
+        ]
 
     def snapshot(self, data_dir: Path) -> SystemSnapshot:
         return self.value
 
     def set_priority(self, priority: Priority) -> None:
         self.priority = priority
+
+    def interfaces(self) -> list[NetInterface]:
+        return list(self.nics)

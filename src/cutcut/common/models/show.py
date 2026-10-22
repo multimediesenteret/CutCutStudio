@@ -45,6 +45,9 @@ class ContentConfig(_Strict):
     audio_mic: MicId = MicId.M5
 
 
+RETIRED_FEATURES = frozenset({"live_transcript", "turn_prediction"})  # D-063
+
+
 class Features(_Strict):
     """Switches from spec 5.13. Base mode is always on; bird and content default on."""
 
@@ -55,8 +58,15 @@ class Features(_Strict):
     framing_variety: bool = False
     slow_zoom: bool = False
     layouts: bool = False
-    live_transcript: bool = False
-    turn_prediction: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def _retired(cls, data: object) -> object:
+        """Live text and turn prediction were taken out of v1 (D-063). Saved settings and old
+        show files that still name them load as before."""
+        if isinstance(data, dict):
+            return {k: v for k, v in data.items() if k not in RETIRED_FEATURES}
+        return data
 
 
 class LayoutSwitches(_Strict):

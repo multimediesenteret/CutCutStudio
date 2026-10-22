@@ -661,6 +661,10 @@ h2 {
   width: 34px;
   height: 34px;
 }
+.help .support {
+  font-size: 18px;
+  color: var(--muted);
+}
 .help.sent {
   border-color: var(--pvw);
   color: var(--pvw);

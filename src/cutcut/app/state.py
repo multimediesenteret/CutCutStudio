@@ -26,6 +26,7 @@ class StudioInfo(_S):
     # ATEM input per multiview tile key (P1–P4, BIRD, WIDE, CONTENT), so the screens can
     # use the same «Camera n» names as the ATEM multiview (D-054).
     inputs: dict[str, int]
+    support_email: str | None = None  # shown on touch at «Hjelp» (D-065)
 
 
 class SeatAudio(_S):

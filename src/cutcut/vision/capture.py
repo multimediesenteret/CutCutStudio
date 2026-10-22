@@ -1,8 +1,11 @@
 """Where the multiview picture comes from (VI-1).
 
-* :class:`OpenCvSource` – the INOGENI 4KXUSB3 (a UVC camera to Windows, DirectShow) or a
-  video file. Frames are taken at 15 Hz; the rest are dropped early to save CPU. A device that
-  stops delivering is opened again every 5 s, forever.
+* :class:`OpenCvSource` – the capture card through DirectShow, or a video file. In the studio
+  that is the Blackmagic DeckLink Mini Recorder HD (D-062), found by part of its DirectShow
+  name («DeckLink») so the index can change without a setting. Frames are taken at 15 Hz; the
+  rest are dropped early to save CPU. A device that stops delivering is opened again every
+  5 s, forever. The DeckLink delivers nothing without an input signal, so «ingen bilder» first
+  means: is the ATEM multiview reaching the card, in 1080p50?
 * :class:`SyntheticSource` – draws a multiview from the rutekart (tests, simulator, demo):
   grey cameras, a moving square where someone moves, and the laptop tile as black (no signal),
   a still slide or video.
@@ -37,8 +40,28 @@ class Source(Protocol):
     def close(self) -> None: ...
 
 
+def dshow_devices() -> list[str]:
+    """DirectShow video inputs in the order OpenCV numbers them (Windows, pygrabber). Empty
+    elsewhere or when the list cannot be read."""
+    try:
+        from pygrabber.dshow_graph import FilterGraph  # type: ignore[import-not-found]
+    except ImportError:
+        return []
+    try:
+        return [str(n) for n in FilterGraph().get_input_devices()]
+    except Exception as exc:  # COM errors: fall back to the index
+        log.warning("Video: kan ikke liste DirectShow-enheter: %s", exc)
+        return []
+
+
+def find_device(name: str, devices: list[str]) -> int | None:
+    """Index of the first device whose name contains ``name`` (case-insensitive)."""
+    want = name.casefold()
+    return next((i for i, d in enumerate(devices) if want and want in d.casefold()), None)
+
+
 class OpenCvSource:
-    """A capture device (index) or a file (path) through OpenCV."""
+    """A capture device (index, or found by name) or a file (path) through OpenCV."""
 
     def __init__(
         self,
@@ -46,16 +69,25 @@ class OpenCvSource:
         *,
         width: int = 1920,
         height: int = 1080,
+        fps: int = 50,
+        device_name: str | None = None,
+        list_devices: Callable[[], list[str]] = dshow_devices,
         loop: bool = True,
         clock: Callable[[], float] = time.monotonic,
         cv2: Any = None,
     ) -> None:
         self.spec = spec
-        self.width, self.height = width, height
+        self.width, self.height, self.fps = width, height, fps
+        self.device_name = device_name
+        self.list_devices = list_devices
+        self.found_as: str | None = None  # the DirectShow name that matched
         self.loop = loop
         self.clock = clock
         self._cv2 = cv2
-        self.name = f"enhet {spec}" if isinstance(spec, int) else f"fil {spec}"
+        if isinstance(spec, int):
+            self.name = f"«{device_name}»" if device_name else f"enhet {spec}"
+        else:
+            self.name = f"fil {spec}"
         self._cap: Any = None
         self._next_open = 0.0
         self._last_frame = 0.0
@@ -78,10 +110,10 @@ class OpenCvSource:
             import sys
 
             api = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
-            cap = cv2.VideoCapture(int(self.spec), api)
+            cap = cv2.VideoCapture(self._index(), api)
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
-            cap.set(cv2.CAP_PROP_FPS, 50)
+            cap.set(cv2.CAP_PROP_FPS, self.fps)
         if not cap.isOpened():
             cap.release()
             raise OSError(f"kan ikke åpne {self.name}")
@@ -90,6 +122,23 @@ class OpenCvSource:
         self._last_frame = self.clock()
         self.last_error = None
         log.info("Video: %s åpnet", self.name)
+
+    def _index(self) -> int:
+        """The device by name when one is given and found, else the index."""
+        if self.device_name:
+            devices = self.list_devices()
+            i = find_device(self.device_name, devices)
+            if i is not None:
+                self.found_as = devices[i]
+                return i
+            if devices:
+                log.warning(
+                    "Video: fant ingen enhet med «%s» i navnet (%s); bruker nummer %s",
+                    self.device_name,
+                    ", ".join(devices),
+                    self.spec,
+                )
+        return int(self.spec)
 
     def read(self) -> Frame | None:
         now = self.clock()

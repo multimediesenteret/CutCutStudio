@@ -1886,6 +1886,11 @@ export interface components {
             };
             /** Simulator */
             simulator: boolean;
+            /**
+             * Support Email
+             * @default null
+             */
+            support_email: string | null;
             /** Version */
             version: string;
         };

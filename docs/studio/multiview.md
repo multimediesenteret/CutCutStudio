@@ -25,7 +25,7 @@ Bekreftet av Magnus Lian 2026-10-21: Camera 1 = programleder, Camera 2–4 = gje
 
 1. **Mikseren er en ATEM Television Studio HD8 ISO**, ikke en ATEM Mini Extreme ISO som spesifikasjonen antar. Den har 8 SDI-innganger (3G-SDI, med format- og bildefrekvensomformer på alle), SDI- og HDMI-utgang for multiview, 2 mediaspillere, ISO-opptak av alle innganger til USB-disk og 4 nettverksporter ([Blackmagic HD8 ISO-spesifikasjoner via forhandler](https://www.visuals.co.uk/blackmagic-atem-television-studio-hd8-iso.html)).
    - Kameraene er koblet til mikseren (HDMI eller HD-SDI avhengig av studio); det påvirker ikke CutCut.
-   - Multiview kan tas ut på **HDMI** til INOGENI-kortet, som planlagt.
+   - Multiview tas ut på SDI eller HDMI til DeckLink-kortet i regi-PC-en (D-062).
    - `atem-connection` og Companion sin ATEM-modul støtter Television Studio-serien; det verifiseres i maskintesten i M2 (ADR-0012, Q7).
    - Spesifikasjonen 2.2 er skrevet for Mini Extreme ISO. Innstillingene (1080p50, utganger, makroer, eksport) gjelder fortsatt, men inngangene er SDI og modelltabellen er ikke lenger aktuell.
 2. **Layouten er allerede 2 store + 8 små**, som spesifikasjonen 2.1 krever, med preview til venstre. Rutekartet ligger i `site/multimediesenteret/equipment/multiview_map.yaml`.

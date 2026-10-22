@@ -15,8 +15,8 @@ Alt utover grunnmodus. Hver bryter bygges, testes i simulator, og **testes alene
 | 3 | `reactions` | `R1`–`R3`, `V3` | Videolag | – |
 | 4 | `slow_zoom` | `Z1`–`Z3` | Laveste zoomfart målt per kamera | – |
 | 5 | `layouts` | `L1`–`L4` | ATEM-makroer 10–40, `H-ATEM-3` grønn | – |
-| 6 | `live_transcript` | – | GPU, NB-Whisper | `stt` |
-| 7 | `turn_prediction` | – | Voice Activity Projection, bare to personer | i `stt` eller egen |
+| 6 | ~~`live_transcript`~~ | – | Tatt ut av v1 (D-063) | – |
+| 7 | ~~`turn_prediction`~~ | – | Tatt ut av v1 (D-063) | – |
 | – | `ai_tracking` | `AT1`–`AT6` | OBSBOT med `SetAiEnable` (Q16) | – |
 
 `bird` og `content` er på som standard og bygges i grunnmodus (`core.md`, `vision.md`).
@@ -57,8 +57,8 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 | F-5 | `slow_zoom` | Testrapport godkjent per kamera |
 | F-6 | `layouts` | Testrapport godkjent |
 | F-7 | `ai_tracking` | Testrapport godkjent |
-| F-8 | `live_transcript` (`stt`) | Testrapport godkjent |
-| F-9 | `turn_prediction` | Testrapport godkjent |
+| F-8 | ~~`live_transcript`~~ | Tatt ut av v1 (D-063) |
+| F-9 | ~~`turn_prediction`~~ | Tatt ut av v1 (D-063) |
 | F-10 | Fargematching | Gråkort-test i studio |
 | F-11 | Panopto | Når Q5 er avklart |
 

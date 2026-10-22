@@ -20,7 +20,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 
-from cutcut.common.platform.system import SystemSnapshot
+from cutcut.common.platform.system import NetInterface, SystemSnapshot
 from cutcut.devices.atem.macros import LAYOUT_MACROS
 from cutcut.devices.atem.macros import check as atem_macro_check
 from cutcut.health.engine import FuncCheck
@@ -176,7 +176,8 @@ def video(
                 "H-VID-1",
                 "yellow",
                 f"{fps} bilder/s",
-                "Videolaget får for få bilder. Sjekk USB 3-porten til INOGENI.",
+                "Videolaget får for få bilder. Sjekk at multiviewen fra ATEM går i 1080p50 til "
+                "DeckLink-kortet.",
                 now,
                 expected=expected,
             )
@@ -291,6 +292,67 @@ def pc(snapshot: Callable[[], SystemSnapshot], now: Callable[[], datetime]) -> l
         FuncCheck("H-PC-1", 30.0, disk, level="working"),
         FuncCheck("H-PC-2", 30.0, memory, level="working"),
         FuncCheck("H-PC-3", 30.0, cpu, level="working"),
+    ]
+
+
+# -- H-NET: the two network cards (D-064) -----------------------------------------------------
+
+
+def _same_net(a: str, b: str) -> bool:
+    """Same /24 as the equipment's addresses (the studio switch has one flat network)."""
+    return a.rsplit(".", 1)[0] == b.rsplit(".", 1)[0]
+
+
+def _outside(ip: str) -> bool:
+    return not ip.startswith(("127.", "169.254."))
+
+
+def network(
+    interfaces: Callable[[], list[NetInterface]],
+    studio_ip: Callable[[], str],
+    now: Callable[[], datetime],
+) -> list[FuncCheck]:
+    """``H-NET-1``: a card on the studio switch, in the same network as the ATEM (red: CutCut
+    reaches no equipment). ``H-NET-2``: a second card with an address outside the studio
+    network, for e-mail and updates (yellow; the studio works without it)."""
+
+    def studio() -> CheckResult:
+        ref = studio_ip()
+        net = ref.rsplit(".", 1)[0] + ".x"
+        for nic in interfaces():
+            ip = next((a for a in nic.ipv4 if _same_net(a, ref)), None)
+            if ip is not None and nic.up:
+                return _result(
+                    "H-NET-1",
+                    "green",
+                    f"{nic.name}: {ip}",
+                    "Studio-nettet er koblet til.",
+                    now,
+                    expected=net,
+                )
+        msg = (
+            f"PC-en har ikke noe nettverkskort på studio-nettet ({net}). Sjekk kabelen til "
+            "studio-switchen og den faste adressen på kortet."
+        )
+        return _result("H-NET-1", "red", "ikke tilkoblet", msg, now, expected=net)
+
+    def outside() -> CheckResult:
+        ref = studio_ip()
+        for nic in interfaces():
+            ip = next((a for a in nic.ipv4 if _outside(a) and not _same_net(a, ref)), None)
+            if ip is not None and nic.up:
+                return _result(
+                    "H-NET-2", "green", f"{nic.name}: {ip}", "Nettet ut er koblet til.", now
+                )
+        msg = (
+            "Ingen nettverkskort på campusnettet. Studioet virker, men e-post og oppdateringer "
+            "kommer ikke ut."
+        )
+        return _result("H-NET-2", "yellow", "ikke tilkoblet", msg, now, expected="ett kort ut")
+
+    return [
+        FuncCheck("H-NET-1", 10.0, studio, level="connected"),
+        FuncCheck("H-NET-2", 30.0, outside, level="connected"),
     ]
 
 

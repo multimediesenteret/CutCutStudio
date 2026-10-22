@@ -64,12 +64,14 @@ uv run cutcut hwtest camera --site C:\CutCut\site --camera C2
 
 Steg som flytter kameraet eller endrer fargen, spør først. Bekreft bare når kameraet ikke er på program eller preview (I2). Canon hopper over KA6 og KA7 til XC er på plass (Q6).
 
-## Capture-kortet INOGENI (VI-4)
+## Capture-kortet DeckLink (VI-4)
+
+Studio-PC-en har en Blackmagic DeckLink Mini Recorder HD (D-062). Installer Blackmagic Desktop Video, koble multiview-utgangen fra ATEM til kortet, og sjekk i Desktop Video Setup at inngangen viser 1080p50. CutCut finner kortet på navnet (`video.name` i `devices.yaml`, standard «DeckLink»); `--device` velger et nummer i stedet.
 
 Stopp videolaget først: kortet kan bare åpnes av ett program om gangen. Med `--user` måles også forsinkelsen, og da må CutCut og Companion kjøre:
 
 ```powershell
-uv run cutcut hwtest vision --site C:\CutCut\site --device 0 --user tekniker1
+uv run cutcut hwtest vision --site C:\CutCut\site --user tekniker1
 ```
 
 | Steg | Hva skjer | Svarer på |

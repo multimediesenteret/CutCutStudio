@@ -6,7 +6,7 @@ Samme steg som setup-hjelperen på teknikersiden (`/tech` → Oppsett). Hvert st
 
 | Steg | Sjekkes med | Fiks for meg |
 | --- | --- | --- |
-| 1 Nett og IP | `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-C*` | – |
+| 1 Nett og IP | `H-NET-*`, `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-C*` | – |
 | 2 PC og Windows | `H-PC-*`, `H-PROC-*` | – |
 | 3 ATEM | `H-ATEM-1`, `H-ATEM-2`, `H-ATEM-4`, `H-VID-2` | Gi inngangene riktige navn |
 | 4 Kameraer | `H-CAM-C*`, `H-CAM-MOVE` | – |
@@ -21,22 +21,25 @@ Samme steg som setup-hjelperen på teknikersiden (`/tech` → Oppsett). Hvert st
 
 Alt utstyr må ha fast IP, ellers finner ikke CutCut det igjen etter en omstart.
 
-1. Gi hver enhet fast IP etter IP-planen for studioet (ikke DHCP).
-2. Legg alt på studio-nettet eller eget VLAN.
-3. Skriv adressene inn under **Enheter** på oppsettsiden.
-4. ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **XC** (Canon).
+1. Koble alt utstyret til **studio-switchen** (egen switch, ingen VLAN): ATEM, Pearl, kameraene og regi-PC-en.
+2. Gi hver enhet fast IP etter IP-planen for studioet (ikke DHCP).
+3. Regi-PC-en har **to nettverkskort**: ett på studio-switchen med fast adresse i samme nett som utstyret, uten gateway, og ett på **campusnettet** for e-post og oppdateringer.
+4. Skriv adressene inn under **Enheter** på oppsettsiden.
+5. ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **XC** (Canon).
 
-**Sjekk:** `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-C*`.
+**Sjekk:** `H-NET-*`, `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-C*`.
 
 ## 2. PC og Windows
 
 Strømsparing og oppdateringer midt i et opptak er den vanligste grunnen til at en studio-PC stopper.
 
-1. Strømplan: **Høy ytelse**, skjerm og disk slås aldri av.
-2. Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**.
-3. Windows Update → Aktive timer: **07:00–23:00**.
-4. Tid: synkroniser mot **NTP** (samme tid som Pearl).
-5. Noter driverversjonene for NVIDIA, RØDECaster ASIO, capture-kortet og TWN3. **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
+1. Strøm: PC, ATEM, RØDECaster og studio-switchen på **UPS**. BIOS: **slå på etter strømbrudd**.
+2. Installer **Blackmagic Desktop Video** (DeckLink-kortet), **NVIDIA-driveren** og **Companion** på denne PC-en.
+3. Strømplan: **Høy ytelse**, skjerm og disk slås aldri av.
+4. Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**.
+5. Windows Update → Aktive timer: **07:00–23:00**.
+6. Tid: synkroniser mot **NTP** (samme tid som Pearl).
+7. Noter driverversjonene for NVIDIA, Desktop Video, RØDECaster ASIO og TWN3. **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
 
 **Sjekk:** `H-PC-*`, `H-PROC-*`.
 
@@ -81,10 +84,11 @@ CutCut kutter etter hvem som snakker, så hver mikrofon må komme inn på sitt e
 
 CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde.
 
-1. INOGENI 4KXUSB3: velg **1080p50 YUY2** som kilde i CutCut.
-2. Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden.
-3. Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**.
-4. Forsinkelsen fra ATEM til PC måles med et blinkende testbilde.
+1. ATEM: multiview ut på SDI eller HDMI til **DeckLink-kortet** i regi-PC-en, i **1080p50**.
+2. Blackmagic Desktop Video Setup: inngangen på kortet skal vise **1080p50**. CutCut finner kortet på navnet (`video` i devices.yaml).
+3. Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden.
+4. Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**.
+5. Forsinkelsen fra ATEM til PC måles med et blinkende testbilde.
 
 **Sjekk:** `H-VID-1`, `H-VID-2`, `H-VID-3`.
 

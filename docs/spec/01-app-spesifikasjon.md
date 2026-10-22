@@ -135,7 +135,7 @@ Mediaspiller 1 i ATEM har en fast grafikk for «Kun lyd» (CutCut Studio-logo og
 | HDMI-utganger | 2 | 3, og multiview kan legges på hvilken som helst |
 | ISO-opptak | Alle innganger + program til USB-disk, med DaVinci Resolve-prosjekt | Alle 8 innganger (H.264 opptil 70 Mb/s) + program, lyd som WAV, DaVinci Resolve-prosjekt; til CFexpress eller USB-C |
 | Nett | 1G | 1G + 10G for opptak og nettverkslagring |
-| Utgangsbruk i CutCut | Ut 1 program → Pearl; ut 2 multiview → INOGENI | Ut 1 program → Pearl; ut 2 multiview → INOGENI; ut 3 multiview eller program til skjerm i studio |
+| Utgangsbruk i CutCut | Ut 1 program → Pearl; ut 2 multiview → capture-kortet (DeckLink, D-062) | Ut 1 program → Pearl; ut 2 multiview → capture-kortet (DeckLink, D-062); ut 3 multiview eller program til skjerm i studio |
 | Støtte i `atem-connection` og Companion | Godt etablert | Må verifiseres før produksjon, fordi modellen er ny |
 
 G2 er det beste valget ved nytt kjøp, fordi den tredje utgangen gir en egen skjerm i studio uten å låne multiview-signalet. Før innkjøp bør det sjekkes at `atem-connection` og Companion sin ATEM-modul støtter G2 med lesing av tilstand, makroer, SuperSource og opptak. Gjør de ikke det, er Extreme ISO det trygge valget. Tallene er fra [Blackmagic sine tekniske spesifikasjoner](https://www.blackmagicdesign.com/products/atemmini/techspecs/W-APS-44).
@@ -180,7 +180,7 @@ Fugleperspektivet `C5` kan være hvilket som helst kamera med HDMI. Det står fa
 | Del | Krav |
 | --- | --- |
 | PC | Windows 11 Pro, 8+ kjerner, 32 GB RAM, NVIDIA RTX i mellomklassen, NVMe-disk (anslag; måles i uke 5) |
-| Capture | INOGENI 4KXUSB3: HDMI inn, USB 3.0 ut som vanlig webkamera (UVC, uten driver), ukomprimert YUY2 i 1080p50, og HDMI gjennomgang som kan gå til en multiview-skjerm i studio. Kobles til en egen USB 3-port direkte på hovedkortet, ikke via hub. Forsinkelsen er ikke oppgitt og måles i setup-hjelperen |
+| Capture | **Endret (D-062):** Blackmagic DeckLink Mini Recorder HD i regi-PC-en (PCIe, SDI og HDMI inn, opptil 1080p60), lest som DirectShow-enhet med Blackmagic Desktop Video. Opprinnelig plan: INOGENI 4KXUSB3: HDMI inn, USB 3.0 ut som vanlig webkamera (UVC, uten driver), ukomprimert YUY2 i 1080p50, og HDMI gjennomgang som kan gå til en multiview-skjerm i studio. Kobles til en egen USB 3-port direkte på hovedkortet, ikke via hub. Forsinkelsen er ikke oppgitt og måles i setup-hjelperen |
 | Skjermer | Teknikerskjerm på PC-en. Touch-skjerm ved bordet: iiyama ProLite T2254MSC-B2AG (21,5″, 1920 × 1080, 10-punkts touch over USB, HDMI og DisplayPort). Kortleseren kobles i skjermens USB-hub, så én USB-kabel til PC-en tar både touch og kort |
 | Nett | Eget switch eller VLAN for studio, fast IP på alt, ingen DHCP for utstyr |
 | Strøm | UPS for PC, ATEM, RØDECaster og switch |
@@ -202,7 +202,7 @@ Fugleperspektivet `C5` kan være hvilket som helst kamera med HDMI. Det står fa
 
 Programmet er delt i flere prosesser, slik at klippingen fortsetter på lyd alene hvis bildeanalysen stopper. En supervisor kjører som Windows-tjeneste og restarter det som faller ut.
 
-**Prosesser (D-042):** `core` (regimotor, API, skjermer), `audio-capture` (lyd fra RØDECaster via ASIO, ADR-0014), `vision` (multiview og bildeanalyse), `stt` (live tekst, bryter) og `atem-bridge` (Node.js med `atem-connection`, ADR-0012), alle under `supervisor`. ADR-0012 og ADR-0014 er akseptert (D-046); `audio-capture` sender målinger, ikke rå lyd, til `core`. Tegningen under viser den opprinnelige inndelingen.
+**Prosesser (D-042, D-063: `stt` er tatt ut):** `core` (regimotor, API, skjermer), `audio-capture` (lyd fra RØDECaster via ASIO, ADR-0014), `vision` (multiview og bildeanalyse) og `atem-bridge` (Node.js med `atem-connection`, ADR-0012), alle under `supervisor`. ADR-0012 og ADR-0014 er akseptert (D-046); `audio-capture` sender målinger, ikke rå lyd, til `core`. Tegningen under viser den opprinnelige inndelingen.
 
 &#91;embedded content: programvare · prosesser og moduler på regi-PC-en\]
 
@@ -219,11 +219,11 @@ Videolaget sender resultater til regi-core over lokal ZeroMQ (pub/sub). Skjermen
 | Frasegrenser | Pause, energi og tonehøyde per mic (egen kode, YIN-basert tonehøyde) | CPU |
 | Bilde | OpenCV eller FFmpeg (DirectShow) for capture; ONNX Runtime med CUDA/TensorRT | DirectML som reserve |
 | Modeller | SCRFD eller YuNet (ansikt), MediaPipe Face Landmarker (munn, hode, smil), Light-ASD (taler) | Lagres i `models/` med versjon og sjekksum |
-| Live tekst (bryter) | NB-Whisper via whisper.cpp eller ONNX, strømming med lokal enighet (Whisper-Streaming-metoden) | Egen prosess, lavest prioritet |
-| Turbytte (bryter) | Voice Activity Projection | Eksperimentell, bare to personer |
+| Live tekst (bryter) | **Tatt ut av v1 (D-063).** Var: NB-Whisper via whisper.cpp eller ONNX | – |
+| Turbytte (bryter) | **Tatt ut av v1 (D-063).** Var: Voice Activity Projection | – |
 | Kortleser | `pyserial` mot ELATEC TWN3 i virtuell COM-port-modus | UID leses lokalt og forlater aldri motoren |
 | Pålogging | `httpx` mot kort-API med tjenestenøkkel | 3 s tidsavbrudd, ingen hurtigbuffer av kortnummer |
-| Intern meldingsbuss | ZeroMQ pub/sub | vision og stt → core |
+| Intern meldingsbuss | ZeroMQ pub/sub | audio-capture, vision og atem-bridge → core |
 | Server | FastAPI + uvicorn, Pydantic v2 for alle modeller | Samme modeller brukes i API og konfig |
 | Enhetsklienter | `httpx` (Companion, Pearl, Canon XC), egen UDP-klient (VISCA), `python-osc`; ATEM leses og styres av `atem-bridge` med `atem-connection` (ADR-0012; PyATEMMax var tidligere forslag) | Kø, tidsavbrudd, gjenoppkobling og kretsbryter per enhet |
 | Lagring | YAML for oppsett (i git), SQLite (WAL) for kjøredata og økthistorikk, JSON-linjer for logg | Logg roteres daglig, beholdes 30 dager |
@@ -520,7 +520,7 @@ Grunnmodus er lyd, regler, preview først, kuttpunkt, hold og release. Alt annet
 
 Kommandoen for av og på (`SetAiEnable`) står ikke i OBSBOT sin OSC-tabell, men brukes av Companion sin offisielle OBSBOT-modul fra versjon 1.2.0 (oktober 2026). Den bekreftes på kameraet i setup-hjelperen før bryteren kan slås på. Kameraet sier ikke tilbake om tracking er på, så CutCut kontrollerer det ved å lese posisjonen: med tracking av skal kameraet stå stille (`H-CAM-MOVE`).
 
-**Live tekst:** Hver mic transkriberes for seg med [NB-Whisper](https://huggingface.co/NbAiLabBeta/nb-whisper-medium/blob/4b385df7b3683972d66b7165837267cdd52f978f/README.md?code=true) fra Nasjonalbiblioteket (Apache 2.0, størrelser fra tiny til large, finnes blant annet som ONNX og whisper.cpp). Da er det alltid kjent hvem som sa hva. Strømming med Whisper gir noen sekunders forsinkelse; [Whisper-Streaming](https://arxiv.org/html/2307.14743) målte 3,3 s i snitt på engelsk med stor modell. Teksten er derfor for sen til å styre kuttpunkt, og brukes bare til tre ting:
+**Live tekst (tatt ut av v1, D-063):** teksten kommer flere sekunder for sent til å hjelpe klippingen, og klippingen bygger på lydanalysen. Teksten under står som bakgrunn. Hver mic transkriberes for seg med [NB-Whisper](https://huggingface.co/NbAiLabBeta/nb-whisper-medium/blob/4b385df7b3683972d66b7165837267cdd52f978f/README.md?code=true) fra Nasjonalbiblioteket (Apache 2.0, størrelser fra tiny til large, finnes blant annet som ONNX og whisper.cpp). Da er det alltid kjent hvem som sa hva. Strømming med Whisper gir noen sekunders forsinkelse; [Whisper-Streaming](https://arxiv.org/html/2307.14743) målte 3,3 s i snitt på engelsk med stor modell. Teksten er derfor for sen til å styre kuttpunkt, og brukes bare til tre ting:
 
 - live tekst per person i teknikervinduet, lagret med beslutningsloggen;
 - forvarsel: sier en vert navnet til en gjest og stiller et spørsmål, legges gjesten tidlig på preview, men kuttet krever fortsatt `T2`;
@@ -528,7 +528,7 @@ Kommandoen for av og på (`SetAiEnable`) står ikke i OBSBOT sin OSC-tabell, men
 
 Live tekst kjører i egen prosess med lavest prioritet, og stopper selv hvis GPU-en trengs til videolaget.
 
-**Forvarsel om turbytte:** [Voice Activity Projection](https://arxiv.org/html/2401.04868v1) spår hvem som snakker de neste 2 sekundene fra lyden til to personer, og nådde 76 % balansert treffsikkerhet i sanntid. Modellen er ikke trent på norsk og fungerer bare for to personer. Den brukes derfor bare til å legge en kandidat tidligere på preview, aldri til å ta et kutt.
+**Forvarsel om turbytte (tatt ut av v1, D-063):** [Voice Activity Projection](https://arxiv.org/html/2401.04868v1) spår hvem som snakker de neste 2 sekundene fra lyden til to personer, og nådde 76 % balansert treffsikkerhet i sanntid. Modellen er ikke trent på norsk og fungerer bare for to personer. Den brukes derfor bare til å legge en kandidat tidligere på preview, aldri til å ta et kutt.
 
 ## 6. Videolaget
 
@@ -865,7 +865,7 @@ Stegene og innholdet ligger i `site/<studio>/setup/*.yaml`, ikke i koden. Den sa
 | 3 ATEM | 1080p50, inngangsnavn (`C1`–`C4`, `BIRD`, `LAPTOP`, `C7`), HDMI ut 2 = multiview, multiview-layout og ruter, lydkilder, mediaspiller 1 og 2, disk for ISO-opptak (modell finnes automatisk) | Inngangsnavn og multiview-ruter via ATEM-protokollen (`atem-connection`) | Leser format, navn, multiview og mediaspillere |
 | 4 Kameraer | **OBSBOT Tail 2:** fast IP, VISCA over IP og OSC på, NDI av, HDMI 1080p50, manuell hvitbalanse og eksponering. **Canon CR-N300:** fast IP, XC-protokoll på, egen API-bruker, HDMI/SDI 1080/50P, manuell hvitbalanse og eksponering. **Fugleperspektiv:** HDMI 1080p50, manuell hvitbalanse | Presets lagres fra veiviseren; grenser og fart settes i oppsettsiden (skisse under) | Svar fra protokollen, manuell modus, posisjon kan leses, bilde i riktig multiview-rute |
 | 5 RØDECaster | Fader 1–4 = M1–M4, fader 5 = laptop, USB 1 multitrack pre-fader, hovedmiks til ATEM | – | Hver person sier noen ord: riktig spor reagerer, lekkasje til andre spor måles og lagres |
-| 6 Multiview | INOGENI 4KXUSB3 valgt som kilde i 1080p50 YUY2; rutekart over multiviewen; forsinkelse fra ATEM til PC måles med et blinkende testbilde | Rutekartet foreslås automatisk fra bildet; hjørner kan dras | Hver rute viser riktig kilde (ATEM bytter preview gjennom kildene og videolaget sjekker) |
+| 6 Multiview | DeckLink-kortet (D-062) får multiviewen i 1080p50 og velges på navnet; rutekart over multiviewen; forsinkelse fra ATEM til PC måles med et blinkende testbilde | Rutekartet foreslås automatisk fra bildet; hjørner kan dras | Hver rute viser riktig kilde (ATEM bytter preview gjennom kildene og videolaget sjekker) |
 | 7 Companion | Import av `cutcut-pages.companionconfig` (side 10 og 11), ATEM- og Pearl-tilkobling i Companion | – (Companion har ikke API for import) | Leser `cutcut_pages_version`; trykker hver preview-knapp og leser ATEM-preview tilbake |
 | 8 Makroer og grafikk | Makroer fra 7.2, «Kun lyd»-grafikk og bakgrunn i mediaspillerne | Grafikk kan lastes opp via ATEM-protokollen | Makroene finnes med riktig nummer og navn; hver kjøres og SuperSource leses tilbake |
 | 9 Pearl og kort | Pearl-bruker, opptaker, inngang fra ATEM, NTP; TWN3 i COM-port-modus; kort-API-nøkkel | – | 5 s testopptak startes, stoppes og finnes; et testkort gir brukernavn |
@@ -913,7 +913,7 @@ En egen helsetjeneste i regi-core sjekker hele tiden at alt er tilkoblet, svarer
 | `H-PROC-*` | Hjerteslag fra core, audio-capture, vision, stt, atem-bridge, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
 | `H-PC-*` | Disk, minne, CPU, GPU-temperatur, klokke (NTP) | 30 s | Under grenser; klokkeavvik under 1 s | Gult |
 
-I tillegg: `H-ATEM-4` sjekker ISO-disk og opptak hvert 10. sekund (gult under 60 minutter igjen, rødt hvis disken mangler når showet skal ta opp ISO), og `H-VID-2` sjekker at INOGENI-kortet leverer 1080p50 og at forsinkelsen er som målt ved oppsett.
+I tillegg: `H-ATEM-4` sjekker ISO-disk og opptak hvert 10. sekund (gult under 60 minutter igjen, rødt hvis disken mangler når showet skal ta opp ISO), og `H-VID-2` sjekker at capture-kortet (DeckLink, D-062) leverer 1080p50 og at forsinkelsen er som målt ved oppsett.
 
 `H-CAM-MOVE` leser posisjonen til hvert PTZ-kamera hvert 2. sekund og varsler rødt hvis et kamera har flyttet seg uten at CutCut ba om det og uten at AI-tracking er slått på for kameraet.
 
@@ -1229,7 +1229,7 @@ Repoet er `github.com/multimediesenteret/CutCutStudio`. Ved overlevering skal de
 
 | # | Mangler | Trengs til | Ansvar | Blokkerer |
 | --- | --- | --- | --- | --- |
-| 1 | **Opptak fra ekte sendinger:** 3–5 episoder med hvert mic-spor som WAV (fra RØDECaster multitrack), multiview som video (INOGENI), og ATEM ISO-filer | Tuning av lydreglene, tester med avspilling, videolaget | Multimediesenteret | Steg 4 og 7 |
+| 1 | **Opptak fra ekte sendinger:** 3–5 episoder med hvert mic-spor som WAV (fra RØDECaster multitrack), multiview som video (capture-kortet), og ATEM ISO-filer | Tuning av lydreglene, tester med avspilling, videolaget | Multimediesenteret | Steg 4 og 7 |
 | 2 | **Menneskelig klippeliste** for de samme opptakene: tidspunkt og kilde for hvert kutt, laget av en erfaren klipper | Fasit for «feilkutt per 10 minutter» (10.4) | Multimediesenteret | Akseptanse |
 | 3 | **Studiotegning og bilder:** bordplan, kameraplassering, lys, bilder av hvert kamerautsnitt | Rutekart, presets, utsnittsregler | Multimediesenteret | Steg 6–8 |
 | 4 | **Kort-API:** nøkkel, svarformat, eksempel på svar, kortformat (hex og byte-rekkefølge fra Crestron) | Kortinnlogging | Multimediesenteret IT | Steg 6 |
