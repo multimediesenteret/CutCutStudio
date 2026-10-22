@@ -1,5 +1,44 @@
 {
   "$defs": {
+    "AlertsConfig": {
+      "additionalProperties": false,
+      "description": "Alerts outside the studio (HS-3, Q29): email when something is red for over a minute,\nand at once when a recording fails.",
+      "properties": {
+        "email": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Email",
+          "type": "array"
+        },
+        "max_per_hour": {
+          "default": 10,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Per Hour",
+          "type": "integer"
+        },
+        "red_after_s": {
+          "default": 60.0,
+          "maximum": 3600,
+          "minimum": 0,
+          "title": "Red After S",
+          "type": "number"
+        },
+        "smtp": {
+          "$ref": "#/$defs/SmtpConfig",
+          "default": {
+            "host": "",
+            "port": 587,
+            "sender": "cutcut-studio@ntnu.no",
+            "starttls": true,
+            "username": ""
+          }
+        }
+      },
+      "title": "AlertsConfig",
+      "type": "object"
+    },
     "AtemDevice": {
       "additionalProperties": false,
       "properties": {
@@ -312,10 +351,60 @@
       ],
       "title": "PearlDevice",
       "type": "object"
+    },
+    "SmtpConfig": {
+      "additionalProperties": false,
+      "description": "The mail relay the studio PC sends alerts through (HS-3). Empty host: no email.",
+      "properties": {
+        "host": {
+          "default": "",
+          "title": "Host",
+          "type": "string"
+        },
+        "port": {
+          "default": 587,
+          "maximum": 65535,
+          "minimum": 1,
+          "title": "Port",
+          "type": "integer"
+        },
+        "sender": {
+          "default": "cutcut-studio@ntnu.no",
+          "title": "Sender",
+          "type": "string"
+        },
+        "starttls": {
+          "default": true,
+          "title": "Starttls",
+          "type": "boolean"
+        },
+        "username": {
+          "default": "",
+          "title": "Username",
+          "type": "string"
+        }
+      },
+      "title": "SmtpConfig",
+      "type": "object"
     }
   },
   "additionalProperties": false,
   "properties": {
+    "alerts": {
+      "$ref": "#/$defs/AlertsConfig",
+      "default": {
+        "email": [],
+        "max_per_hour": 10,
+        "red_after_s": 60.0,
+        "smtp": {
+          "host": "",
+          "port": 587,
+          "sender": "cutcut-studio@ntnu.no",
+          "starttls": true,
+          "username": ""
+        }
+      }
+    },
     "api_port": {
       "default": 8080,
       "maximum": 65535,

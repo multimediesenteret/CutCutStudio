@@ -2470,6 +2470,52 @@
         ]
       }
     },
+    "/api/settings/alerts": {
+      "get": {
+        "description": "Email alerts (HS-3): who gets them, the relay, and how the last one went.",
+        "operationId": "get_alerts_api_settings_alerts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Alerts Api Settings Alerts Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Alerts",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/alerts/test": {
+      "post": {
+        "description": "«Send testvarsel»: one email now. Admin only; 409 with the reason if it fails.\nChange the address with ``PUT /api/settings/devices {\"alerts.email\": \"…\"}``.",
+        "operationId": "test_alert_api_settings_alerts_test_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Test Alert",
+        "tags": [
+          "config"
+        ]
+      }
+    },
     "/api/settings/devices": {
       "get": {
         "description": "Equipment addresses: the value in use, the value in devices.yaml, and what is changed.",

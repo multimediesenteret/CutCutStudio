@@ -27,6 +27,7 @@ class DeviceSettingsError(ValueError):
 def editable_keys(devices: Devices) -> list[str]:
     keys = ["atem.ip", "pearl.ip", "companion.url"]
     keys += [f"cameras.{cid.value}.ip" for cid in devices.cameras]
+    keys += ["alerts.email", "alerts.smtp.host"]  # Innstillinger → Varsling (HS-3)
     return keys
 
 
@@ -64,6 +65,8 @@ def _why(exc: ValidationError) -> str:
     err = exc.errors()[0]
     loc = ".".join(str(x) for x in err["loc"])
     msg = str(err["msg"])
+    if loc.startswith("alerts.email"):
+        return f"Ugyldig e-postadresse. {msg.removeprefix('Value error, ')}."
     if "own IP" in msg:
         return "To enheter kan ikke ha samme IP-adresse."
     if "IPv4" in msg or "ip" in loc:
@@ -79,6 +82,8 @@ def rows(base: Devices, effective: Devices, overrides: dict[str, str]) -> list[d
     e = effective.model_dump(mode="json")
     out = []
     for key in editable_keys(base):
+        if key.startswith("alerts."):
+            continue  # shown under Innstillinger → Varsling, not with the equipment
         out.append(
             {
                 "key": key,

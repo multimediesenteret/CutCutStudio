@@ -14,3 +14,9 @@ cameras:
   C5: { model: "Oversikt (Camera 6 på ATEM)" }      # fugleperspektiv / overview
 card_reader: { usb_id: "09D8:0320" }
 api_port: 8080
+# Varsel på e-post når noe er rødt i over ett minutt (HS-3, Q29: Magnus Lian, 2026-10-22).
+# SMTP-reléet settes når NTNU-IT har gitt adresse (Q40); passord, om det trengs, er
+# smtp_password i Credential Manager.
+alerts:
+  email: [magnus.lian@ntnu.no]
+  smtp: { host: "", port: 587, starttls: true, sender: "cutcut-studio@ntnu.no" }

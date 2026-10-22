@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -40,7 +41,8 @@ from cutcut.common.bus.zmq_bus import (
 )
 from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_rule_presets, load_show_types, load_site
-from cutcut.common.models.site import Devices
+from cutcut.common.models.site import Devices, SmtpConfig
+from cutcut.common.platform.mail import SmtpMailer
 from cutcut.common.platform.secrets import SecretMissingError, SecretStore
 from cutcut.common.platform.system import PsutilSystem
 from cutcut.common.store import Store
@@ -95,6 +97,21 @@ def _pearl_api(dev: Devices, secrets: SecretStore) -> PearlHttp:
     p = dev.pearl
     port = f":{p.port}" if p.port else ""
     return PearlHttp(f"{p.scheme}://{p.ip}{port}", p.username, password, verify_tls=p.verify_tls)
+
+
+def _mailer(secrets: SecretStore) -> Callable[[SmtpConfig, list[str], str, str], None]:
+    """Email alerts (HS-3). The relay's password, if it needs one, is ``smtp_password``."""
+
+    def send(cfg: SmtpConfig, to: list[str], subject: str, body: str) -> None:
+        password = ""
+        if cfg.username:
+            try:
+                password = secrets.get("smtp_password")
+            except SecretMissingError:
+                log.error("smtp_password mangler i Credential Manager")
+        SmtpMailer(cfg, password).send(to, subject, body)
+
+    return send
 
 
 def build_core(opts: CoreOptions) -> Core:
@@ -153,6 +170,7 @@ def build_core(opts: CoreOptions) -> Core:
             system=PsutilSystem(),
             data_dir=opts.data_dir,
             cameras=cameras,
+            send_mail=_mailer(opts.secrets),
         )
     )
     cameras.on_moving = studio.runtime.feed_cameras_moving  # S1, from the position read-back

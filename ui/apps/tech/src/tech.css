@@ -972,6 +972,11 @@ td {
   }
 }
 /* setup */
+.field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
 .addr {
   width: 100%;
   max-width: 260px;

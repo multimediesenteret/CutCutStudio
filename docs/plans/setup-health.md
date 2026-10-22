@@ -27,7 +27,7 @@ class CheckResult(BaseModel):
 - **Hysterese:** grønt i 30 s før et varsel regnes som løst; hvert varsel logges én gang med start og slutt (8.5).
 - **Aldri skadelige sjekker i drift:** sjekker som trykker knapper eller flytter noe finnes bare i setup-hjelperen.
 - `GET /api/health` og `GET /api/health/checks` (10.1).
-- **Varsling:** teknikervindu (lyd ved rødt), touch (bare rødt som brukeren må vite om), Companion `regi_health`, og valgfritt e-post/Teams ved rødt over 1 min (Q29), sendt fra en egen oppgave som aldri påvirker motoren.
+- **Varsling:** teknikervindu (lyd ved rødt), touch (bare rødt som brukeren må vite om), Companion `regi_health`, og e-post ved rødt over 1 min til magnus.lian@ntnu.no (Q29, D-058), sendt fra en egen oppgave som aldri påvirker motoren.
 - **Morgensjekk:** ved oppstart og kl. 07:00 kjøres hele katalogen; resultatet vises som prikk på hvileskjermen.
 
 **Setup-steg som data:** `site/<studio>/setup/NN-<navn>.yaml` med tekst (hva og hvorfor, slik gjør du), forventede verdier, hvilken sjekk som brukes og om «Fiks for meg» finnes. Samme filer genererer oppsettsguiden i `docs/setup/` (12.1).
@@ -66,6 +66,6 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 
 ## 7. Åpne spørsmål
 
-- Q29: varsling utenfor studio: e-post, Teams eller begge, og til hvem?
+- Q29: besvart (D-058): e-post til magnus.lian@ntnu.no. Q40: SMTP-relé fra NTNU-IT.
 - Q30: når kan morgensjekken og eventuelle omstarter kjøres (åpningstider)?
 - Q12: tekniker som tester setup-stegene i studio.
