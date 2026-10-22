@@ -11,6 +11,8 @@ name: release
 on:
   push:
     tags: ["v*"]
+  release:
+    types: [published]  # a release made in GitHub's web page also builds the package
   pull_request:
     paths:
       # the long Windows test runs only when packaging or installing itself changes (D-059)
@@ -180,7 +182,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           ls -la out
-          gh release create "${{ github.ref_name }}" out/* --repo "${{ github.repository }}" \
-            --title "CutCut Studio ${{ github.ref_name }}" \
-            --notes "Windows-pakke med sjekksum og SBOM. Installeres med installer/install.ps1 (docs/studio/tjenester.md)." \
-            ${{ contains(github.ref_name, '-') && '--prerelease' || '' }}
+          # The release may already exist: made by a person in GitHub (Releases → Draft a new
+          # release), which also makes the tag. Then the files are added to it.
+          if gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload "${{ github.ref_name }}" out/* --clobber --repo "${{ github.repository }}"
+          else
+            gh release create "${{ github.ref_name }}" out/* --repo "${{ github.repository }}" \
+              --title "CutCut Studio ${{ github.ref_name }}" \
+              --notes "Windows-pakke med sjekksum og SBOM. Installeres med installer/install.ps1 (docs/studio/tjenester.md)." \
+              ${{ contains(github.ref_name, '-') && '--prerelease' || '' }}
+          fi
