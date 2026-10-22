@@ -123,6 +123,7 @@ jobs:
           if ((Get-Item "$env:RUNNER_TEMP\CutCut\current").Target -notlike "*\versions\$v") { throw "current peker feil" }
           Write-Host "Rullet tilbake til $v"
           Get-Content "$env:RUNNER_TEMP\CutCut\data\logs\install.log"
+          $global:LASTEXITCODE = 0  # install.ps1 was meant to fail (exit 1); the step itself passed
 
       - name: A wrong checksum changes nothing
         shell: pwsh
@@ -131,6 +132,7 @@ jobs:
           $failed = $false
           try { .\installer\install.ps1 -Zip $zip -Root "$env:RUNNER_TEMP\CutCut" -Port 8092 -Sha256 ("0" * 64) } catch { $failed = $true; Write-Host $_ }
           if (-not $failed) { throw "Feil sjekksum ble ikke stoppet" }
+          $global:LASTEXITCODE = 0
 
       - name: Service log on failure
         if: failure()
