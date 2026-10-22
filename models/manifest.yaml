@@ -7,3 +7,8 @@ models:
     sha256: 2623a2953f6ff3d2c1e61740c6cdb7168133479b267dfef114a4a3cc5bdd788f
     licence: MIT
     used_by: audio-capture (VAD, docs/plans/audio.md)
+  face_detection_yunet_2023mar.onnx:
+    url: https://media.githubusercontent.com/media/opencv/opencv_zoo/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx
+    sha256: 8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4
+    licence: MIT
+    used_by: vision (faces, mouth, smile and nod per camera window, P6)

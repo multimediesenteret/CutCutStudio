@@ -78,11 +78,18 @@ class LiveSim:
         rt.feed_cameras_moving(frozenset(self.moving))
         if self.vision is not None:
             rb = self.atem.readback()
+            show = self.studio.show
+            talking = {
+                show.participant(pid).camera.value
+                for pid, v in self.voices.voices.items()
+                if v.talking
+            }
             self.vision.tick(
                 now,
                 rb.program if rb else None,
                 rb.preview if rb else None,
                 {c.value for c in self.moving},
+                talking,
             )
 
     def multiview_wrong(self, on: bool) -> None:

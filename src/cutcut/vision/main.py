@@ -21,6 +21,7 @@ from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_site
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.vision.capture import OpenCvSource, Source, SyntheticSource
+from cutcut.vision.faces import load as load_faces
 from cutcut.vision.process import run
 
 log = logging.getLogger(__name__)
@@ -28,7 +29,12 @@ log = logging.getLogger(__name__)
 WANT_S = 10.0  # thumbnails are sent this long after the last request
 
 
-def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool) -> int:
+MODELS = Path(__file__).resolve().parents[3] / "models"
+
+
+def main(
+    site_dir: Path, device: int | None, file: Path | None, synthetic: bool, faces: bool = True
+) -> int:
     site = load_site(site_dir)
     if site.multiview is None:
         print("Studio-oppsettet mangler equipment/multiview_map.yaml (rutekartet).")
@@ -86,6 +92,7 @@ def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool)
                 pub.publish,
                 want_thumbs=lambda: time.monotonic() < wanted_until[0],
                 current_map=lambda: current[0],
+                faces=analyzer,
             )
         finally:
             task.cancel()
@@ -93,7 +100,11 @@ def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool)
             sub.close()
             pub.close()
 
-    print(f"vision: {source.name} · {len(site.multiview.tiles)} ruter")
+    analyzer = load_faces(MODELS) if faces else None
+    print(
+        f"vision: {source.name} · {len(site.multiview.tiles)} ruter"
+        + (" · ansikt og munn" if analyzer else "")
+    )
     use_selector_event_loop()
     asyncio.run(go())
     return 0

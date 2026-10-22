@@ -31,7 +31,7 @@ Teknologi, versjoner og verktøy for CutCut Studio. Spesifikasjonen 3.1 er fasit
 | Konfig | PyYAML/ruamel.yaml, Pydantic | JSON Schema genereres til `config/schema/` |
 | Lyd | `sounddevice` (PortAudio) med `SD_ENABLE_ASIO`, `numpy` | RØDE ASIO-driver, 20 kanaler, 48 kHz; Silero i 512-sampler-blokker ved 16 kHz. Se Q21 og ADR-0014 |
 | Tale | Silero VAD (ONNX) | |
-| Bilde | OpenCV / FFmpeg, ONNX Runtime | |
+| Bilde | OpenCV / FFmpeg, ONNX Runtime | Capture-kortet via DirectShow, funnet på navnet (`pygrabber`, MIT). Ansikt: YuNet (OpenCV Zoo, MIT) gjennom OpenCV `FaceDetectorYN`, på CPU (D-067) |
 | Meldingsbuss | `pyzmq` | |
 | Enheter | `httpx`, `python-osc`, egen VISCA-UDP-klient | |
 | ATEM | `atem-connection` i Node-prosessen `atem-bridge` | ADR-0012, akseptert (D-046). Erstatter PyATEMMax |

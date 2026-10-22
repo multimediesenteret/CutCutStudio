@@ -12,6 +12,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P6 (VI-6, D-067): ansikt, munn, smil og nikk per kamerarute.
+  - Videolaget finner ansiktet i hver kamerarute fem ganger i sekundet med YuNet (MIT) på CPU. Det regner ut om ansiktet er brukbart, om munnen beveger seg (og ikke bare hodet), smil og nikk.
+  - Uten modellen går det lette videolaget som før. Modellen lastes ned med `tools/fetch_models.py`.
+  - Når videolaget melder ansikter, kan bryterne «Videolag bekrefter» og «Reaksjonsklipp» slås på. I simulatoren (`--vision`) beveger munnen seg på den som snakker.
+  - `cutcut hwtest faces --site … --file opptak.mp4` måler hvor ofte ansiktet finnes per rute og hvor lang tid analysen tar, på et opptak fra studio.
 - P5 (F-7): AI-tracking og kamerastyring i teknikervinduet.
   - Kameraer-siden har nå styring per kamera: hent «Tett» og «Vid», små steg i pan, tilt og zoom, «Lagre som tett/vid» (admin) og AI-tracking for OBSBOT. Kameravakten avviser alt som ville flyttet et kamera på program eller preview, og grunnen vises.
   - AI-tracking krever bryteren (Regi → Brytere). Tracking starter med rolige innstillinger fra OBSBOTs OSC-tabell: én person, fart «Lazy», ingen auto-zoom og «Only Me» av.

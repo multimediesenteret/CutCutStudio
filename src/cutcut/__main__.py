@@ -105,6 +105,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     vis.add_argument("--file", type=Path, default=None, help="videofil i stedet for enhet")
     vis.add_argument("--synthetic", action="store_true", help="tegnet multiview (demo, test)")
+    vis.add_argument(
+        "--no-faces", action="store_true", help="uten ansikt og munn (bare det lette videolaget)"
+    )
 
     hw = sub.add_parser(
         "hwtest",
@@ -113,9 +116,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     hw.add_argument(
         "what",
-        choices=["audio", "atem", "camera", "vision"],
+        choices=["audio", "atem", "camera", "vision", "faces"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
-        "vision: capture-kortet, DeckLink (VI-4)",
+        "vision: capture-kortet, DeckLink (VI-4); faces: ansikt og munn på et opptak (P6)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument(
@@ -130,6 +133,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--user", default=None, help="teknikerens brukernavn (atem; vision: med forsinkelsestest)"
     )
     hw.add_argument("--camera", default=None, help="kameraet som testes, f.eks. C2 (camera)")
+    hw.add_argument("--file", type=Path, default=None, help="opptak av multiviewen (faces)")
+    hw.add_argument(
+        "--rounds", type=int, default=1500, help="analyserunder (faces; standard 1500 = 5 min)"
+    )
     hw.add_argument(
         "--device",
         type=int,
@@ -202,7 +209,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "vision":
         from cutcut.vision.main import main as vision_main
 
-        return vision_main(args.site, args.device, args.file, args.synthetic)
+        return vision_main(args.site, args.device, args.file, args.synthetic, not args.no_faces)
     if args.command == "hwtest":
         from cutcut.app.core import default_data_dir
 
@@ -219,6 +226,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.site is None:
                 parser.error("hwtest vision trenger --site")
             return vision_test(args.site, args.device, args.minutes, out, args.api, args.user)
+        if args.what == "faces":
+            from cutcut.hwtest.faces import main as faces_test
+
+            if args.site is None or args.file is None:
+                parser.error("hwtest faces trenger --site og --file (opptak av multiviewen)")
+            return faces_test(args.site, args.file, args.rounds, out)
         if args.what == "camera":
             from cutcut.hwtest.camera import main as camera_test
 

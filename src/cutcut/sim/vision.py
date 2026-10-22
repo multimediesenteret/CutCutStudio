@@ -27,6 +27,7 @@ class SimVision:
     _last_slow: int = -(10**9)
     _last_status: int = -(10**9)
     _last_thumbs: int = -(10**9)
+    _last_faces: int = -(10**9)
     frames: int = 0
 
     def __post_init__(self) -> None:
@@ -44,7 +45,12 @@ class SimVision:
         self.wanted_until = now + 10_000
 
     def tick(
-        self, now: int, program: SourceId | None, preview: SourceId | None, panning: set[str]
+        self,
+        now: int,
+        program: SourceId | None,
+        preview: SourceId | None,
+        panning: set[str],
+        talking: set[str] | None = None,
     ) -> None:
         if now - self._last_frame < FRAME_MS:
             return
@@ -62,7 +68,24 @@ class SimVision:
         rt.feed_bus("vision.frame", {"tiles": rows})
         if now - self._last_status >= 1000:
             self._last_status = now
-            rt.feed_bus("vision.status", {"source": "simulator", "fps": 15, "frames": self.frames})
+            rt.feed_bus(
+                "vision.status",
+                {"source": "simulator", "fps": 15, "frames": self.frames, "faces": True},
+            )
+        if now - self._last_faces >= 200:  # P6: the drawn people have faces; a talker's
+            self._last_faces = now  # mouth moves, so video_confirm and reactions can run
+            for cam in self._tile_of:
+                if cam is None or not cam.value.startswith("C") or cam is SourceId.C5:
+                    continue
+                speaking = talking is not None and cam.value in talking
+                rt.feed_bus(
+                    "vision.tile",
+                    {
+                        "source": cam.value,
+                        "face": {"found": True, "size_ok": self._tile_of[cam] not in s.panning},
+                        "mouth": 0.7 if speaking else 0.05,
+                    },
+                )
         if now - self._last_slow >= 200:
             self._last_slow = now
             rt.feed_bus("vision.moving", {"moving": self.vision.moving(now, rows)})
