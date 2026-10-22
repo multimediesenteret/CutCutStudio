@@ -12,6 +12,13 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P5 (F-7): AI-tracking og kamerastyring i teknikervinduet.
+  - Kameraer-siden har nå styring per kamera: hent «Tett» og «Vid», små steg i pan, tilt og zoom, «Lagre som tett/vid» (admin) og AI-tracking for OBSBOT. Kameravakten avviser alt som ville flyttet et kamera på program eller preview, og grunnen vises.
+  - AI-tracking krever bryteren (Regi → Brytere). Tracking starter med rolige innstillinger fra OBSBOTs OSC-tabell: én person, fart «Lazy», ingen auto-zoom og «Only Me» av.
+  - Mens tracking er på, flytter ikke CutCut kameraet selv. Rolig tracking holder ikke kameraet tilbake fra kutt (under 3 °/s).
+  - Tracking slås av når økten slutter. Show-typen kan slå på tracking for bestemte kameraer (`ai_tracking` i `show_types.yaml`).
+  - `cutcut sim --cameras` kjører simulatoren med falske PTZ-kameraer bak den ekte kameravakten, så utsnitt, zoom og tracking kan prøves uten studio.
+  - API: `GET /api/cameras` og `POST /api/cameras/{kamera}/preset|nudge|tracking`.
 - P4 (F-3, F-5): vekslende utsnitt og langsom zoom.
   - Med `framing_variety` får et nærbildekamera som går av lufta det andre utsnittet (preset `tight` eller `wide`), og motoren venter til det står stille før den klipper dit. Kandidaten til neste kutt flyttes aldri.
   - Med `slow_zoom` zoomer kameraet litt inn på en taler som har stått en stund, i små steg med kameraets laveste fart. Zoomen stopper straks et annet bilde er klart på preview. Bare kameraer med `slow_zoom: true` i showet brukes.

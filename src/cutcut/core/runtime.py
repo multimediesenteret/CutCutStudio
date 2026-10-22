@@ -97,6 +97,7 @@ class CoreRuntime:
         self._last_vision_ms: int | None = None
         self._atem: AtemReadback | None = None
         self._moving: frozenset[CameraId] = frozenset()
+        self._tracking: frozenset[CameraId] = frozenset()
         self._moving_vision: frozenset[CameraId] = frozenset()
         self._moving_vision_ms: int | None = None
         self.vision_pgm: dict[str, Any] = {}
@@ -145,6 +146,11 @@ class CoreRuntime:
     def feed_cameras_moving(self, moving: frozenset[CameraId]) -> None:
         """What the cameras themselves report (drivers, simulator)."""
         self._moving = moving
+
+    def feed_cameras_tracking(self, tracking: frozenset[CameraId]) -> None:
+        """Cameras with AI-tracking on (AT3). The video layer sees them move on purpose, so
+        only their own position read-back (with the AT4 tolerance) counts for S1."""
+        self._tracking = tracking
 
     def feed_vision_moving(self, moving: frozenset[CameraId]) -> None:
         """What the video layer sees move (VI-3). ``S1`` uses both: either is enough."""
@@ -208,7 +214,8 @@ class CoreRuntime:
             vision=dict(self._vision) if vision_ok else None,
             content=self._content,
             atem=self._atem,
-            cameras_moving=self._moving | self._vision_moving(now),
+            cameras_moving=self._moving | (self._vision_moving(now) - self._tracking),
+            cameras_tracking=self._tracking,
             commands=commands,
         )
 

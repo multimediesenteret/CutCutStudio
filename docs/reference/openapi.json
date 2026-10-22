@@ -81,6 +81,27 @@
         "title": "Approval",
         "type": "object"
       },
+      "CameraPresetIn": {
+        "additionalProperties": false,
+        "properties": {
+          "n": {
+            "maximum": 255.0,
+            "minimum": 0.0,
+            "title": "N",
+            "type": "integer"
+          },
+          "store": {
+            "default": false,
+            "title": "Store",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "n"
+        ],
+        "title": "CameraPresetIn",
+        "type": "object"
+      },
       "CheckResult": {
         "additionalProperties": false,
         "properties": {
@@ -802,6 +823,34 @@
           "tiles"
         ],
         "title": "MultiviewMap",
+        "type": "object"
+      },
+      "NudgeIn": {
+        "additionalProperties": false,
+        "properties": {
+          "pan": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Pan",
+            "type": "number"
+          },
+          "tilt": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Tilt",
+            "type": "number"
+          },
+          "zoom": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Zoom",
+            "type": "number"
+          }
+        },
+        "title": "NudgeIn",
         "type": "object"
       },
       "Ok": {
@@ -2189,6 +2238,192 @@
         "summary": "Auto",
         "tags": [
           "override"
+        ]
+      }
+    },
+    "/api/cameras": {
+      "get": {
+        "description": "The PTZ cameras CutCut steers: online, AI-tracking, position, last refusal.",
+        "operationId": "cameras_api_cameras_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Cameras Api Cameras Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Cameras",
+        "tags": [
+          "cameras"
+        ]
+      }
+    },
+    "/api/cameras/{cam}/nudge": {
+      "post": {
+        "description": "A small step in pan, tilt or zoom (spec 7.3). Refused on program and preview.",
+        "operationId": "camera_nudge_api_cameras__cam__nudge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cam",
+            "required": true,
+            "schema": {
+              "title": "Cam",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NudgeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Camera Nudge",
+        "tags": [
+          "cameras"
+        ]
+      }
+    },
+    "/api/cameras/{cam}/preset": {
+      "post": {
+        "description": "Recall a preset, or save one (admin). Refused on program and preview (I2).",
+        "operationId": "camera_preset_api_cameras__cam__preset_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cam",
+            "required": true,
+            "schema": {
+              "title": "Cam",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CameraPresetIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Camera Preset",
+        "tags": [
+          "cameras"
+        ]
+      }
+    },
+    "/api/cameras/{cam}/tracking": {
+      "post": {
+        "description": "AI-tracking on or off (AT1). On needs the switch and the camera off air; off is\nalways allowed (AT5).",
+        "operationId": "camera_tracking_api_cameras__cam__tracking_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cam",
+            "required": true,
+            "schema": {
+              "title": "Cam",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Camera Tracking",
+        "tags": [
+          "cameras"
         ]
       }
     },

@@ -56,12 +56,12 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `Z1` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `Z2` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `Z3` | Implementert | `src/cutcut/app/studio.py` | 2 |
-| `AT1` | Planlagt: M4 – ai_tracking | – | 0 |
-| `AT2` | Planlagt: M4 – ai_tracking | – | 0 |
-| `AT3` | Planlagt: M4 – ai_tracking | – | 0 |
-| `AT4` | Planlagt: M4 – ai_tracking | – | 0 |
-| `AT5` | Planlagt: M4 – ai_tracking | – | 0 |
-| `AT6` | Planlagt: M4 – ai_tracking | – | 0 |
+| `AT1` | Implementert | `src/cutcut/app/studio.py` | 2 |
+| `AT2` | Implementert | `src/cutcut/app/studio.py` | 1 |
+| `AT3` | Implementert | `src/cutcut/core/engine.py`, `src/cutcut/devices/cameras/guarded.py` | 2 |
+| `AT4` | Implementert | `src/cutcut/devices/cameras/service.py` | 1 |
+| `AT5` | Implementert | `src/cutcut/app/studio.py` | 1 |
+| `AT6` | Implementert | `src/cutcut/app/studio.py` | 1 |
 | `V1` | Planlagt: M4 – video_confirm / reactions | – | 0 |
 | `V2` | Planlagt: M4 – video_confirm / reactions | – | 0 |
 | `V3` | Planlagt: M4 – video_confirm / reactions | – | 0 |

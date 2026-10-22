@@ -21,7 +21,7 @@ from cutcut.app import devices, export, setup_file
 from cutcut.app.hub import TOPICS
 from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
-from cutcut.common.ids import Shot
+from cutcut.common.ids import CameraId, Shot
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.session import ShowChoice, TouchStep, User
 from cutcut.common.models.show import RulesPreset
@@ -78,6 +78,17 @@ class StepIn(_In):
 
 class RecordingIn(_In):
     action: Literal["start", "stop"]
+
+
+class CameraPresetIn(_In):
+    n: int = Field(ge=0, le=255)
+    store: bool = False
+
+
+class NudgeIn(_In):
+    pan: float = Field(default=0.0, ge=-1, le=1)
+    tilt: float = Field(default=0.0, ge=-1, le=1)
+    zoom: float = Field(default=0.0, ge=-1, le=1)
 
 
 class OnIn(_In):
@@ -552,6 +563,40 @@ def create_app(
             studio.start_recording(by, me.role, me.actor)
         else:
             studio.stop_recording(by, me.role, me.actor)
+        return Ok()
+
+    @app.get("/api/cameras", tags=["cameras"])
+    async def cameras(me: Who) -> list[dict[str, Any]]:
+        """The PTZ cameras CutCut steers: online, AI-tracking, position, last refusal."""
+        require(me, "operator")
+        return studio.cameras_info()
+
+    def _cam(cam: str) -> CameraId:
+        try:
+            return CameraId(cam)
+        except ValueError as exc:
+            raise HTTPException(404, f"Ukjent kamera {cam}") from exc
+
+    @app.post("/api/cameras/{cam}/preset", tags=["cameras"])
+    async def camera_preset(cam: str, body: CameraPresetIn, me: Who) -> Ok:
+        """Recall a preset, or save one (admin). Refused on program and preview (I2)."""
+        require(me, "admin" if body.store else "operator")
+        studio.camera_preset(_cam(cam), body.n, body.store, me.role, me.actor)
+        return Ok()
+
+    @app.post("/api/cameras/{cam}/nudge", tags=["cameras"])
+    async def camera_nudge(cam: str, body: NudgeIn, me: Who) -> Ok:
+        """A small step in pan, tilt or zoom (spec 7.3). Refused on program and preview."""
+        require(me, "operator")
+        studio.camera_nudge(_cam(cam), body.pan, body.tilt, body.zoom, me.role, me.actor)
+        return Ok()
+
+    @app.post("/api/cameras/{cam}/tracking", tags=["cameras"])
+    async def camera_tracking(cam: str, body: OnIn, me: Who) -> Ok:
+        """AI-tracking on or off (AT1). On needs the switch and the camera off air; off is
+        always allowed (AT5)."""
+        require(me, "operator")
+        studio.set_tracking(_cam(cam), body.on, me.role, me.actor)
         return Ok()
 
     @app.post("/api/recording/iso", tags=["session"])

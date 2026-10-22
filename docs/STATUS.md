@@ -4,7 +4,7 @@ Oppdatert: 2026-10-22 · av: Multimediesenteret (agent: Claude)
 
 ## Hvor vi er
 
-- **Fase:** alt som kan lages uten studio, lages før studioperioden (D-066). Plan og rekkefølge: `docs/plans/for-studio.md` (P1–P9). P1 (DeckLink, nett, support-e-post) P2 (skygge per bryter), P3 (layouter) og P4 (utsnitt og zoom) er gjort. M2 og M3 er bygget; det som står igjen der, prøves i studioperioden.
+- **Fase:** alt som kan lages uten studio, lages før studioperioden (D-066). Plan og rekkefølge: `docs/plans/for-studio.md` (P1–P9). P1 (DeckLink, nett, support-e-post) P2 (skygge per bryter), P3 (layouter), P4 (utsnitt og zoom) og P5 (AI-tracking og kamerastyring) er gjort. M2 og M3 er bygget; det som står igjen der, prøves i studioperioden.
 - **Milepæl:** M4 «Brytere» (issues P1–P9 og F-1–F-11), med M2 og M3 åpne til studioprøvene er gjort.
 - **Spesifikasjon:** v1 med endringer fra beslutningsloggen; repoet er fasit (D-040).
 - **Vercel:** web-simulatoren er forsiden på https://cutcutstudio2026.vercel.app (U-9, U-10). Konseptet ligger som arkiv på `/concept/`. Utrulling hoppes over når ingen skjermfiler er endret (D-050).

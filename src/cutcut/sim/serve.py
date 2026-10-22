@@ -37,12 +37,18 @@ class SimOptions:
     ui_dir: Path | None = None
     site_dir: Path | None = None  # default: the fictional site/example
     vision: bool = False  # a drawn video layer (D-056 cut-outs, H-VID-*)
+    cameras: bool = False  # fake PTZ cameras behind the real guard (P4, P5)
 
 
 def build_sim_app(opts: SimOptions) -> FastAPI:
     sim, auth = build_live_sim(
-        SystemClock(), seed=opts.seed, site_dir=opts.site_dir, vision=opts.vision
+        SystemClock(),
+        seed=opts.seed,
+        site_dir=opts.site_dir,
+        vision=opts.vision,
+        cameras=opts.cameras,
     )
+    cams = sim.studio.deps.cameras
     return create_app(
         sim.studio,
         auth,
@@ -50,6 +56,7 @@ def build_sim_app(opts: SimOptions) -> FastAPI:
         run_loop=True,
         before_tick=sim.before_tick,
         extra_routes=sim_routes(sim),
+        background=[cams.run] if cams is not None else [],
     )
 
 

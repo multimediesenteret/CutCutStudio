@@ -56,7 +56,7 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 | F-4 | `reactions` | Testrapport godkjent |
 | F-5 | `slow_zoom` | Testrapport godkjent per kamera. Reglene er bygget (P4); laveste zoomfart måles per kamera i studio (`slow_zoom_speed` i kameragrensene) |
 | F-6 | `layouts` | Testrapport godkjent. Reglene er bygget og testet mot simulator (P3); prøves i studio |
-| F-7 | `ai_tracking` | Testrapport godkjent |
+| F-7 | `ai_tracking` | Testrapport godkjent. Reglene er bygget og testet mot falske kameraer (P5); `SetAiEnable` og innstillingene prøves på kameraet (Q16) |
 | F-8 | ~~`live_transcript`~~ | Tatt ut av v1 (D-063) |
 | F-9 | ~~`turn_prediction`~~ | Tatt ut av v1 (D-063) |
 | F-10 | Fargematching | Gråkort-test i studio |

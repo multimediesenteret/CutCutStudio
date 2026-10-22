@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { useDecisions, useRules } from "../hooks";
 import { Alerts } from "./Alerts";
 import { IsoPanel } from "./Iso";
+import { CameraControls, useCameras } from "./CameraControls";
 import { SetupFile, Technicians } from "./SetupFile";
 import { LivePicture } from "../live";
 import { hms, isCut, isError, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
@@ -362,11 +363,12 @@ export function Cameras({ ctx }: { ctx: Ctx }) {
   const pgm = tileOf(state.engine.program);
   const pvw = tileOf(state.engine.preview);
   const cams = show ? Object.entries(show.cameras) : [];
+  const steered = useCameras();
   return (
     <>
       <p className="muted" style={{ marginBottom: 12 }}>
         Presets og utsnitt kan bare endres på kamera som ikke er på program eller preview (I2).
-        Styring fra denne siden kommer med kameradriverne (M2).
+        {steered && steered.length === 0 && " Kameraene styres ikke fra denne PC-en."}
       </p>
       {!show && <p className="muted">Kameraoppsettet er ikke tilgjengelig.</p>}
       <div className="grid3">
@@ -408,6 +410,10 @@ export function Cameras({ ctx }: { ctx: Ctx }) {
                 <span>Hvitbalanse</span>
                 <span>{c.driver === "none" ? "Fast" : "Manuell · 5600 K"}</span>
               </div>
+              {(() => {
+                const ci = steered?.find((s) => s.id === id);
+                return ci ? <CameraControls ctx={ctx} cam={ci} /> : null;
+              })()}
             </div>
           );
         })}

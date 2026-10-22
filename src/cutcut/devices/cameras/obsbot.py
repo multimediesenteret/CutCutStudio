@@ -26,6 +26,14 @@ OSC_ISO = f"{GENERAL}/SetISO"
 # Not in OBSBOT's published table; named in spec 7.3. Whether the studio's firmware has it is
 # Q16, checked by the machine test (CA-5).
 OSC_AI_ENABLE = "/OBSBOT/Camera/Tail2/SetAiEnable"
+# AT2, from OBSBOT's Tail 2 OSC table (site/<studio>/equipment/obsbot/): one person, «Lazy»
+# speed, no auto zoom (CutCut keeps the zoom), «Only Me» off.
+TAIL2 = "/OBSBOT/Camera/Tail2"
+OSC_AI_MODE = f"{TAIL2}/SetAiMode"  # 0 single person, 1 several
+OSC_TRACKING_SPEED = f"{TAIL2}/SetTrackingSpeed"  # 0 super lazy, 1 lazy, … (5 ints)
+OSC_AUTO_ZOOM = f"{TAIL2}/SetAutoZoom"  # 0 none
+OSC_ONLY_ME = f"{TAIL2}/SetOnlyMe"  # 0 off
+LAZY = 1
 KELVIN = (2000, 10000)
 SHUTTERS = frozenset(
     {6400, 5000, 3200, 2500, 2000, 1600, 1250, 1000, 800, 640, 500, 400, 320, 240, 200, 160}
@@ -74,6 +82,12 @@ class ObsbotDriver(ViscaPtz):
             await self.osc.send(address, v)
 
     async def set_auto_tracking(self, on: bool) -> None:
+        """AT2: calm settings first, then tracking on. Off is just off (AT5: it stays)."""
+        if on:
+            await self.osc.send(OSC_AI_MODE, 0)
+            await self.osc.send(OSC_TRACKING_SPEED, LAZY, 0, 1, 0, 1)
+            await self.osc.send(OSC_AUTO_ZOOM, 0)
+            await self.osc.send(OSC_ONLY_ME, 0)
         await self.osc.send(OSC_AI_ENABLE, 1 if on else 0)
 
     def close(self) -> None:

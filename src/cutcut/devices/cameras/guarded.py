@@ -52,7 +52,9 @@ MAX_QUEUE: Final = 8
 PRESETS: Final = range(256)  # VISCA 00–FF
 SLOW_STEP_MAX: Final = 0.02  # Z: the largest zoom step allowed on air, share of the range
 
-Verdict = Literal["queued", "on_program", "on_preview", "no_atem", "breaker_open", "invalid"]
+Verdict = Literal[
+    "queued", "on_program", "on_preview", "no_atem", "breaker_open", "invalid", "tracking"
+]
 
 
 @dataclass(frozen=True)
@@ -130,6 +132,8 @@ class GuardedCamera:
         """Why ``cmd`` may not reach the camera now (I2, ``PV2``), or ``None``."""
         if not moves_or_colours(cmd):
             return None
+        if self.st.tracking and not isinstance(cmd, AutoTracking):
+            return "tracking"  # AT3: the camera follows the person; CutCut does not move it
         air = self.air()
         if air is None:
             return "no_atem"
@@ -158,6 +162,7 @@ class GuardedCamera:
             "on_program": "på program (I2)",
             "on_preview": f"på preview ({RuleId.PV2.value})",
             "no_atem": "ATEM kan ikke leses",
+            "tracking": f"styrt av AI-tracking ({RuleId.AT3.value})",
         }.get(why, why)
         self.st.last_refused = f"{cmd.kind}: {text}"
         log.info("%s: %s avvist, kameraet er %s", self.id, cmd.kind, text)

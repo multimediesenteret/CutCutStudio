@@ -21,12 +21,16 @@ from cutcut.common.clock import Clock
 from cutcut.common.config import example_site_dir, load_rule_presets, load_show_types, load_site
 from cutcut.common.ids import CameraId, ParticipantId
 from cutcut.common.models.session import User
-from cutcut.common.models.site import SmtpConfig
+from cutcut.common.models.site import CameraDevice, SmtpConfig
 from cutcut.common.platform.secrets import FakeSecretStore
 from cutcut.common.platform.system import FakeSystem
 from cutcut.common.store import Store
 from cutcut.core.inputs import ContentState
+from cutcut.devices.cameras.base import CameraDriver
+from cutcut.devices.cameras.guarded import on_air
+from cutcut.devices.cameras.service import CameraService
 from cutcut.setup.multiview import readback_from_map
+from cutcut.sim.fake_camera import FakeCamera
 from cutcut.sim.fakes import FakeAtem, FakeCardApi, FakeCardReader, FakePearl
 from cutcut.sim.vision import SimVision
 from cutcut.sim.voices import Conversation, Voices
@@ -114,10 +118,22 @@ def build_live_sim(
     store: Store | None = None,
     site_dir: Path | None = None,
     vision: bool = False,
+    cameras: bool = False,
     send_mail: Callable[[SmtpConfig, list[str], str, str], None] | None = None,
 ) -> tuple[LiveSim, Auth]:
+    """``cameras``: the PTZ cameras as in-process fakes behind the real camera guard, so
+    framing, slow zoom, AI-tracking and the Kameraer page can be tried without a studio."""
     site = load_site(site_dir or example_site_dir())
     atem, pearl = FakeAtem(), FakePearl()
+    service: CameraService | None = None
+    if cameras:
+
+        def make(cam: CameraId, dev: CameraDevice) -> CameraDriver | None:
+            return FakeCamera(cam) if dev.ip is not None else None
+
+        service = CameraService.from_devices(
+            site.devices, lambda: on_air(atem.readback(), list(site.devices.cameras)), make=make
+        )
     if site.multiview is not None:
         atem.multiview = readback_from_map(site.multiview)
     deps = StudioDeps(
@@ -131,8 +147,11 @@ def build_live_sim(
         simulator=True,
         system=FakeSystem(),
         send_mail=send_mail,  # tests only: the simulator sends no email
+        cameras=service,
     )
     studio = Studio(deps)
+    if service is not None:
+        service.on_moving = studio.runtime.feed_cameras_moving  # S1 from the position polls
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})
     auth = Auth(studio.staff, secrets, dev_admin=True)
     studio.on_staff = lambda staff: setattr(auth, "staff", staff)
