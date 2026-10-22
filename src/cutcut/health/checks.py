@@ -529,3 +529,31 @@ def camera_move(get: Callable[[], list[CameraReading]], now: Callable[[], dateti
         return _result("H-CAM-MOVE", "green", "i ro", "Ingen kameraer har flyttet seg selv.", now)
 
     return FuncCheck("H-CAM-MOVE", 2.0, run, level="as_agreed")
+
+
+# -- H-VARSEL-1: email alerts can be sent (HS-3) ----------------------------------------------
+
+
+def alert_mail(info: Callable[[], dict[str, object]], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-VARSEL-1``: alerts outside the studio can reach someone. Yellow when nobody is set
+    up to get them or the last email failed: the studio works, but nobody hears about red."""
+
+    def run() -> CheckResult:
+        a = info()
+        cid, expected = "H-VARSEL-1", "e-post kan sendes"
+        if not a.get("email"):
+            msg = "Ingen får varsel på e-post. Legg inn en adresse under Innstillinger → Varsling."
+            return _result(
+                cid, "yellow", "ingen mottaker", msg, now, expected=expected, level="as_agreed"
+            )
+        if not a.get("smtp_host"):
+            msg = "Ingen SMTP-server er satt opp, så varsler kan ikke sendes på e-post."
+            return _result(
+                cid, "yellow", "ingen SMTP", msg, now, expected=expected, level="as_agreed"
+            )
+        if a.get("last_error"):
+            msg = f"Siste varsel på e-post feilet: {a['last_error']}"
+            return _result(cid, "yellow", "feilet", msg, now, expected=expected, level="working")
+        return _result(cid, "green", "klar", "Varsler sendes på e-post.", now, expected=expected)
+
+    return FuncCheck("H-VARSEL-1", 30.0, run, level="as_agreed")

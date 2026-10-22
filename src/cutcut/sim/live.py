@@ -21,6 +21,7 @@ from cutcut.common.clock import Clock
 from cutcut.common.config import example_site_dir, load_rule_presets, load_show_types, load_site
 from cutcut.common.ids import CameraId, ParticipantId
 from cutcut.common.models.session import User
+from cutcut.common.models.site import SmtpConfig
 from cutcut.common.platform.secrets import FakeSecretStore
 from cutcut.common.platform.system import FakeSystem
 from cutcut.common.store import Store
@@ -113,6 +114,7 @@ def build_live_sim(
     store: Store | None = None,
     site_dir: Path | None = None,
     vision: bool = False,
+    send_mail: Callable[[SmtpConfig, list[str], str, str], None] | None = None,
 ) -> tuple[LiveSim, Auth]:
     site = load_site(site_dir or example_site_dir())
     atem, pearl = FakeAtem(), FakePearl()
@@ -128,6 +130,7 @@ def build_live_sim(
         store=store,
         simulator=True,
         system=FakeSystem(),
+        send_mail=send_mail,  # tests only: the simulator sends no email
     )
     studio = Studio(deps)
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})

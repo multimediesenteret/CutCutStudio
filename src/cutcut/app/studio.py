@@ -60,7 +60,7 @@ from cutcut.common.models.session import (
     User,
 )
 from cutcut.common.models.show import Features, RulesPreset, ShowConfig
-from cutcut.common.models.site import Devices
+from cutcut.common.models.site import Devices, SmtpConfig
 from cutcut.common.platform.system import System
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
@@ -74,11 +74,13 @@ from cutcut.core.inputs import (
     SetLock,
     SetShadow,
 )
+from cutcut.core.intents import SetCompanionVariable
 from cutcut.core.runtime import CoreRuntime, Executor
 from cutcut.devices.atem.macros import check as macro_check
 from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
 from cutcut.health import checks as health_checks
+from cutcut.health.notify import Notifier
 from cutcut.session.manager import (
     DONE_LOGOUT_MS,
     Action,
@@ -204,6 +206,8 @@ class StudioDeps:
     system: System | None = None  # PC numbers for H-PC-*; None: no PC checks
     data_dir: Path = Path(".")  # the disk H-PC-1 watches
     cameras: CameraService | None = None  # PTZ cameras in core (CA-6); None: no H-CAM checks
+    # Email alerts (HS-3): (smtp, to, subject, body), blocking. None: no email (simulator).
+    send_mail: Callable[[SmtpConfig, list[str], str, str], None] | None = None
 
 
 @dataclass
@@ -235,6 +239,19 @@ class Studio:
         )
         self.alerts: list[AlertRecord] = []
         clock = self.deps.clock
+        self.notifier: Notifier | None = None
+        send_mail = self.deps.send_mail
+        if send_mail is not None:
+            self.notifier = Notifier(
+                lambda to, subject, body: send_mail(self.devices.alerts.smtp, to, subject, body),
+                lambda: self.devices.alerts.email,
+                self.devices.studio,
+                mono_s=lambda: clock.mono_ms() / 1000,
+                now=clock.now,
+                red_after_s=self.devices.alerts.red_after_s,
+                max_per_hour=self.devices.alerts.max_per_hour,
+            )
+        self._regi_health: str | None = None
         self.health = HealthEngine(
             self._health_checks(),
             mono_s=lambda: clock.mono_ms() / 1000,
@@ -625,10 +642,14 @@ class Studio:
         """An issue opens or changes: an alert. It closes (30 s green): its alerts go away."""
         r = ev.result
         if ev.kind == "resolved":
+            if self.notifier is not None:
+                self.notifier.on_health(ev)
             for a in self.alerts:
                 if a.code == r.id:
                     a.acknowledged = True
             return
+        if self.notifier is not None:
+            self.notifier.on_health(ev)
         level: Literal["warn", "error"] = "error" if r.status == "red" else "warn"
         # The touch screen reads the live check (state.health), not the alert, so the user is
         # not held back during the 30 s the technician's issue stays open after a fix.
@@ -656,6 +677,8 @@ class Studio:
         system = self.deps.system
         if system is not None:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
+        if self.notifier is not None:
+            checks.append(health_checks.alert_mail(self.alerts_info, now))
         cams = self.deps.cameras
         if cams is not None and cams.guards:
             for cam in sorted(cams.guards, key=lambda c: c.value):
@@ -766,10 +789,59 @@ class Studio:
         while True:
             try:
                 await self.health.step()
+                self._publish_regi_health()
+                if self.notifier is not None:
+                    await self.notifier.tick()
                 await self._maybe_morning_check()
             except Exception:  # health must never take core down
                 log.exception("helsesjekkene feilet")
             await asyncio.sleep(every_s)
+
+    def _publish_regi_health(self) -> None:
+        """Companion's ``regi_health`` follows the worst open issue (a Stream Deck button)."""
+        value = {"green": "ok", "yellow": "warn", "red": "error"}[self.health.overall()]
+        if value != self._regi_health:
+            self._regi_health = value
+            self.deps.executor.submit(SetCompanionVariable("regi_health", value))
+
+    # -- alerts outside the studio (HS-3) ----------------------------------------------------
+
+    def alerts_info(self) -> dict[str, Any]:
+        a, n = self.devices.alerts, self.notifier
+        return {
+            "email": a.email,
+            "smtp_host": a.smtp.host,
+            "red_after_s": a.red_after_s,
+            "enabled": n is not None and bool(a.email) and bool(a.smtp.host),
+            "sent": n.sent if n else 0,
+            "last_sent": n.last_sent.isoformat() if n and n.last_sent else None,
+            "last_error": n.last_error if n else None,
+        }
+
+    async def test_alert(self, role: Role, actor: str) -> list[str]:
+        """«Send testvarsel»: one email now, so the technician knows it arrives."""
+        send = self.deps.send_mail
+        a = self.devices.alerts
+        if send is None:
+            raise CommandError("E-postvarsel finnes ikke i simulatoren.")
+        if not a.email:
+            raise CommandError("Skriv inn minst én e-postadresse først.")
+        subject = f"[CutCut {self.devices.studio}] Testvarsel"
+        body = (
+            f"Dette er et testvarsel fra CutCut i {self.devices.studio}, sendt av {actor}.\n"
+            f"Varsler sendes når noe har vært rødt i over {a.red_after_s:.0f} s, og med en gang "
+            "når et opptak ikke starter eller stopper av seg selv."
+        )
+        self._audit(role, actor, "alerts.test", to=", ".join(a.email))
+        try:
+            await asyncio.to_thread(send, a.smtp, a.email, subject, body)
+        except Exception as e:
+            if self.notifier is not None:
+                self.notifier.last_error = str(e)
+            raise CommandError(str(e) or "Testvarselet ble ikke sendt.") from e
+        if self.notifier is not None:
+            self.notifier.last_error, self.notifier.last_sent = None, self.deps.clock.now()
+        return a.email
 
     def _local_now(self) -> datetime:
         return self.deps.clock.now().astimezone(self.local_tz)
@@ -986,6 +1058,8 @@ class Studio:
         del self.alerts[:-50]
         if log_it:  # health checks log their own start and end
             log.log(logging.ERROR if level == "error" else logging.INFO, msg, extra={"check": code})
+            if level == "error" and self.notifier is not None:
+                self.notifier.on_alert(code, msg)  # a recording failed: email at once (HS-3)
         self.hub.publish("alert", self._alert_info(rec).model_dump(mode="json"))
 
     @staticmethod

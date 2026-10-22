@@ -26,6 +26,7 @@ Slik oppfører `HealthEngine` seg:
 | `H-VID-3` | Programruta viser det ATEM sier er på program (VI-3) | 2 s | Gult etter 3 s uenighet. Sjekk rutekartet |
 | `H-CAM-C1`… | Hvert PTZ-kamera svarer under 200 ms og står i manuell hvitbalanse og eksponering (CA-6) | 10 s | Gult: bildet kommer fortsatt, men CutCut kan ikke styre kameraet |
 | `H-CAM-MOVE` | Ingen kameraer har flyttet seg uten at CutCut ba om det og uten AI-tracking (posisjonen leses hvert 2. s) | 2 s | Rødt i 10 s etter at det skjedde |
+| `H-VARSEL-1` | Varsler kan sendes på e-post: mottaker og SMTP-relé er satt, og siste e-post gikk (HS-3) | 30 s | Gult: ingen hører om rødt utenfor studio |
 | `H-COMP-1` | Companions HTTP-API og `cutcut_pages_version` | 5 s | Rødt: svarer ikke (`S5` tar over), sidene mangler eller har feil versjon |
 
 Lagringen på Pearl regnes om til minutter med 20 Mbit/s til bitraten er målt i maskintesten (DA-5). Dette kommer senere:
@@ -44,3 +45,5 @@ Touch-skjermen leser sjekkene direkte, ikke varslene. Den sperrer start bare men
 - Teknikervinduet viser hvilke sjekker som ikke var grønne.
 
 Sjekker trykker aldri knapper og flytter aldri noe. Slikt finnes bare i setup-hjelperen.
+
+**Varsling (HS-3, `notify.py`):** rødt i over ett minutt gir én e-post, og «OK igjen» når saken lukkes. Et opptak som ikke starter eller stopper av seg selv (`H-PRL-1`, `H-PRL-2`), gir e-post med en gang. Høyst ti i timen. Sendes fra helseløkka i en egen tråd, aldri fra motorens tikk. Mottakere og SMTP-relé står i `alerts` i `devices.yaml` og kan endres under Innstillinger → Varsling (D-058). Companion-variabelen `regi_health` følger verste åpne sak (`ok`, `warn`, `error`).

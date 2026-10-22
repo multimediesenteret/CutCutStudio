@@ -367,6 +367,20 @@ def create_app(
         studio.start_without_card(me.role, me.actor)
         return Ok()
 
+    @app.get("/api/settings/alerts", tags=["config"])
+    async def get_alerts(me: Who) -> dict[str, Any]:
+        """Email alerts (HS-3): who gets them, the relay, and how the last one went."""
+        require(me, "operator")
+        return studio.alerts_info()
+
+    @app.post("/api/settings/alerts/test", tags=["config"])
+    async def test_alert(me: Who) -> Ok:
+        """«Send testvarsel»: one email now. Admin only; 409 with the reason if it fails.
+        Change the address with ``PUT /api/settings/devices {"alerts.email": "…"}``."""
+        require(me, "admin")
+        await studio.test_alert(me.role, me.actor)
+        return Ok()
+
     @app.get("/api/settings/login", tags=["config"])
     async def get_login(me: Who) -> dict[str, str]:
         require(me, "operator")

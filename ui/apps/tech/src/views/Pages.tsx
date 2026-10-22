@@ -10,6 +10,7 @@ import {
 import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
+import { Alerts } from "./Alerts";
 import { LivePicture } from "../live";
 import { hms, isCut, isError, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
 
@@ -1090,6 +1091,7 @@ export function Settings({
         </div>
       </div>
       <Login ctx={ctx} />
+      <Alerts ctx={ctx} />
       <div className="panel">
         <div className="ph">
           <span className="lbl">Utstyr og multiview</span>

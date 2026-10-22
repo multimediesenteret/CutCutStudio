@@ -5,10 +5,11 @@ Shows live in ``site/<studio>/shows/*.yaml`` (models.show). Secrets are never he
 
 from __future__ import annotations
 
+import re
 from ipaddress import IPv4Address
 from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 from cutcut.common.ids import CameraId, SourceId, is_layout, is_shot
 
@@ -86,6 +87,44 @@ class NtnuApi(_Strict):
     timeout_s: float = Field(default=3.0, gt=0, le=10)
 
 
+class SmtpConfig(_Strict):
+    """The mail relay the studio PC sends alerts through (HS-3). Empty host: no email."""
+
+    host: str = ""
+    port: int = Field(default=587, ge=1, le=65535)
+    starttls: bool = True
+    sender: str = "cutcut-studio@ntnu.no"
+    username: str = ""  # password in Windows Credential Manager (smtp_password)
+
+
+EMAIL = re.compile(r"^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$")
+
+
+class AlertsConfig(_Strict):
+    """Alerts outside the studio (HS-3, Q29): email when something is red for over a minute,
+    and at once when a recording fails."""
+
+    email: list[str] = Field(default_factory=list)
+    red_after_s: float = Field(default=60.0, ge=0, le=3600)
+    max_per_hour: int = Field(default=10, ge=1, le=100)
+    smtp: SmtpConfig = SmtpConfig()
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _split(cls, v: object) -> object:
+        if isinstance(v, str):  # «a@ntnu.no, b@ntnu.no» from the setup screen
+            return [x.strip() for x in re.split(r"[,;\s]+", v) if x.strip()]
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def _valid(cls, v: list[str]) -> list[str]:
+        for addr in v:
+            if not EMAIL.match(addr):
+                raise ValueError(f"ugyldig e-postadresse: {addr}")
+        return v
+
+
 class Devices(_Strict):
     schema_version: int = 1
     studio: str = Field(pattern=r"^[a-z0-9-]+$")
@@ -96,6 +135,7 @@ class Devices(_Strict):
     audio: AudioDevice = AudioDevice()
     card_reader: CardReaderDevice = CardReaderDevice()
     ntnu_api: NtnuApi = NtnuApi()
+    alerts: AlertsConfig = AlertsConfig()
     api_port: int = Field(default=8080, ge=1024, le=65535)
 
     @model_validator(mode="after")
