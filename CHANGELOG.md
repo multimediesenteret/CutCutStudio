@@ -6,7 +6,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 
 ### Changed
 - Live tekst og forvarsel om turbytte er tatt ut av v1 (D-063): bryterne er borte fra regi-siden, og prosessen `stt` er fjernet fra dokumentene. Lagrede innstillinger som nevner dem, lastes som før.
-- Capture-kortet er DeckLink Mini Recorder HD, ikke INOGENI (D-062).
+- Capture-kortet er INOGENI 4KXUSB3 som planlagt. DeckLink-kortet som sto i PC-spesifikasjonen brukes ikke; tekstene som sa noe annet er rettet (D-068).
 - Ingen konkurrenter er nevnt, og prosjektet omtales som Multimediesenteret (D-061). Studio-mappen heter `site/multimediesenteret`, oppslaget fra kort til bruker heter kort-API, og sjekken for det heter `H-CARD-2`. PDF-eksportene av spesifikasjonen er fjernet; Markdown-filene er fasit.
 - `site/multimediesenteret` har bare eksempeladresser og ingen varslingsmottakere.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
@@ -40,11 +40,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
   - Feiler en bryter, går den selv til skygge og teknikeren får et gult varsel. Grunnmodus klipper som før.
   - `POST /api/features` tar `"off"`, `"shadow"` eller `"on"` i tillegg til `true`/`false`. AI-tracking har fått sin bryter.
 - P1 (D-062–D-065): studio-PC-en.
-  - Videolaget leser multiviewen fra DeckLink-kortet. Kortet finnes på navnet (`video` i `devices.yaml`, standard «DeckLink»), så nummeret kan endre seg. `cutcut hwtest vision` bruker det samme.
+  - Videolaget finner capture-kortet på navnet (`video` i `devices.yaml`, standard «INOGENI»), så nummeret kan endre seg. `cutcut hwtest vision` bruker det samme.
   - Supervisoren starter nå videolaget når studioet har capture-kort og rutekart; før måtte det startes for hånd.
   - `H-NET-1` sjekker at PC-en har et nettverkskort på studio-switchen i samme nett som ATEM (rødt). `H-NET-2` sjekker kortet mot campusnettet (gult; studioet virker uten).
   - Support-e-post under Innstillinger → Varsling. Touch viser den når brukeren har trykket «Trenger du hjelp?». Standard er eierens adresse.
-  - Setup-steg 1, 2 og 6 beskriver switchen, de to nettverkskortene, UPS, Desktop Video, Companion på samme PC og DeckLink i 1080p50.
+  - Setup-steg 1, 2 og 6 beskriver switchen, de to nettverkskortene, UPS, Companion på samme PC og INOGENI i 1080p50.
 - DA-8: ISO-opptak i ATEM (spes. 7.7).
   - Under Opptak kan teknikeren starte og stoppe ISO-opptaket. Panelet viser disk, ledig tid, lengde og filnavn, og toppen viser en ISO-teller mens det går.
   - Filnavnet er økten: `<dato>_<show-type>_<brukernavn>`. Alle innganger tas opp.

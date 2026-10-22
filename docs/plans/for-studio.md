@@ -6,7 +6,7 @@ Status: godkjent av eier 2026-10-22 (D-066) · Erstatter rekkefølgen i `feature
 
 Studioet kan bare bookes i én periode. Alt som kan lages og prøves uten studio, lages derfor før perioden. Da brukes perioden bare til tre ting:
 
-1. **Maskintester:** ATEM, Companion, Pearl, RØDECaster, kameraer og DeckLink-kortet.
+1. **Maskintester:** ATEM, Companion, Pearl, RØDECaster, kameraer og capture-kortet (INOGENI).
 2. **Kalibrering:** setup-hjelperens ti steg, rutekart, mikrofonfasit, presets, kamerafart og farge.
 3. **Prøving:** grunnmodus først, så hver bryter alene i skyggemodus og deretter live.
 
@@ -16,7 +16,7 @@ Til perioden kommer en ferdig sjekkliste der hvert punkt sier hva som prøves, h
 
 | Hva | Beslutning |
 | --- | --- |
-| Regi-PC | i5-12500, 16 GB, RTX 4060 Ti, DeckLink Mini Recorder HD, 250 GB SSD; vanlig Windows; Companion på samme PC (D-062) |
+| Regi-PC | i5-12500, 16 GB, RTX 4060 Ti, 250 GB SSD; vanlig Windows; Companion på samme PC (D-062). Multiviewen tas inn med INOGENI 4KXUSB3 som planlagt (D-068) |
 | Live tekst og turbytte | Ut av v1, prosessen `stt` utgår (D-063) |
 | Nett | Egen uadministrert switch for utstyret; PC-en har ett kort mot switchen og ett mot campusnettet for trafikk ut (D-064) |
 | Drift | Eget servicevindu; UPS og strøm i sjekklistene; ingen teknikerlister nå; support-e-post i appen (D-065) |
@@ -28,7 +28,7 @@ Hver pakke er én PR (D-059). Rekkefølgen er valgt slik at det som trengs i stu
 
 | # | Pakke | Innhold | Prøves før studio med | I studio |
 | --- | --- | --- | --- | --- |
-| P1 | Studio-PC, nett og support | DeckLink som capture-kilde i videolaget (DirectShow, valgt med navn; format sjekkes mot 1080p50). Maskintesten `hwtest vision` for DeckLink. Setup-steg 1 og 2 for to nettverkskort, og en helsesjekk for studio-kortet (`H-NET-1`). Support-e-post under Innstillinger, vist på touch ved «Hjelp» og i varsler. Live tekst og turbytte fjernes (D-063). Tekst om INOGENI erstattes | Videofil og syntetisk kilde; falske nettverkskort | Kortet leser multiviewen i 1080p50; begge nettverkskortene |
+| P1 | Studio-PC, nett og support | Capture-kortet (INOGENI) funnet på navnet i videolaget, og videolaget startet av supervisoren. Setup-steg 1 og 2 for to nettverkskort, og en helsesjekk for studio-kortet (`H-NET-1`). Support-e-post under Innstillinger, vist på touch ved «Hjelp» og i varsler. Live tekst og turbytte fjernes (D-063). Tekst om INOGENI erstattes | Videofil og syntetisk kilde; falske nettverkskort | Kortet leser multiviewen i 1080p50; begge nettverkskortene |
 | P2 | Skyggemodus per bryter (F-1) | Hver bryter har `av`, `skygge` og `på`. I skygge kjører reglene og logges med `shadow: true`, uten å påvirke kuttene. Forutsetninger sjekkes (GPU, makrosjekk grønn, kamera støtter fart), og teknikervinduet viser hvorfor en bryter er sperret. En bryter som feiler, går selv til skygge og varsler gult | Regeltester og simulator | Hver bryter prøves alene i skygge før den slås på |
 | P3 | Layouter (F-6, `L1`–`L4`) | Reglene for bilde-i-bilde og firedelt, med makroene 10–40 (7.2). Regnes på lufta først når ATEM bekrefter; `LAYOUT_RESET` ved tvil | Regeltester; simulatorscenario med fire personer og laptop | Makroene lages i ATEM (steg 8); prøves i skygge, så live |
 | P4 | Vekslende utsnitt og langsom zoom (F-3 `F1`–`F3`, F-5 `Z1`–`Z3`) | Utsnitt tett/videre når kameraet er av lufta; zoom inn sakte på samme taler; aldri på kandidat, aldri med pan og tilt samtidig | Falske kameraer (VISCA/OSC) og simulator | Laveste zoomfart måles per kamera |
@@ -51,7 +51,7 @@ Web-simulatoren med motoren i nettleseren (PL-03 trinn 2) og avspilling av ekte 
 
 | # | Leveranse | Ferdig når |
 | --- | --- | --- |
-| P1 | Studio-PC, nett og support | DeckLink-kilde og maskintest finnes; `H-NET-1`; support-e-post; D-063 gjennomført |
+| P1 | Studio-PC, nett og support | Capture-kortet finnes på navnet; `H-NET-1`; support-e-post; D-063 gjennomført |
 | P2 | Skyggemodus per bryter | Tester grønne; teknikervinduet viser sperre og skygge |
 | P3 | Layouter | `L1`–`L4` testet; scenario i simulatoren |
 | P4 | Utsnitt og zoom | `F1`–`F3`, `Z1`–`Z3` testet mot falske kameraer |

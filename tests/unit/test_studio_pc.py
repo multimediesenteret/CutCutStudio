@@ -1,4 +1,4 @@
-"""P1 (D-062–D-065): the studio PC. The DeckLink card is found by name, the video layer is
+"""P1 (D-062–D-065, D-068): the studio PC. The capture card is found by name, the video layer is
 started by the supervisor, both network cards are checked, the support e-mail reaches touch,
 and live text and turn prediction are gone without breaking saved settings."""
 
@@ -21,7 +21,7 @@ from cutcut.vision.capture import OpenCvSource, find_device
 from tests.unit.api.test_api import Rig
 
 T0 = datetime(2026, 10, 22, 9, 0, tzinfo=UTC)
-DSHOW = ["OBS Virtual Camera", "Decklink Video Capture", "Blackmagic WDM Capture"]
+DSHOW = ["OBS Virtual Camera", "INOGENI 4KXUSB3", "USB Video Device"]
 
 
 class FakeCap:
@@ -58,19 +58,19 @@ class FakeCv2:
         return cap
 
 
-def test_the_decklink_is_found_by_name() -> None:
-    assert find_device("DeckLink", DSHOW) == 1
-    assert find_device("decklink", DSHOW) == 1
-    assert find_device("INOGENI", DSHOW) is None
+def test_the_capture_card_is_found_by_name() -> None:
+    assert find_device("INOGENI", DSHOW) == 1
+    assert find_device("inogeni", DSHOW) == 1
+    assert find_device("DeckLink", DSHOW) is None
     cv2 = FakeCv2()
-    src = OpenCvSource(0, device_name="DeckLink", list_devices=lambda: DSHOW, cv2=cv2)
+    src = OpenCvSource(0, device_name="INOGENI", list_devices=lambda: DSHOW, cv2=cv2)
     src.read()
     assert cv2.opened[0].index == 1
-    assert src.found_as == "Decklink Video Capture"
+    assert src.found_as == "INOGENI 4KXUSB3"
     assert cv2.opened[0].props[FakeCv2.CAP_PROP_FPS] == 50
     # no card with that name: the number from devices.yaml
     cv2 = FakeCv2()
-    src = OpenCvSource(2, device_name="DeckLink", list_devices=lambda: ["Webcam"], cv2=cv2)
+    src = OpenCvSource(2, device_name="INOGENI", list_devices=lambda: ["Webcam"], cv2=cv2)
     src.read()
     assert cv2.opened[0].index == 2
 

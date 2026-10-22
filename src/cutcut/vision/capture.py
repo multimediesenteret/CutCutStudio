@@ -1,11 +1,10 @@
 """Where the multiview picture comes from (VI-1).
 
 * :class:`OpenCvSource` – the capture card through DirectShow, or a video file. In the studio
-  that is the Blackmagic DeckLink Mini Recorder HD (D-062), found by part of its DirectShow
-  name («DeckLink») so the index can change without a setting. Frames are taken at 15 Hz; the
-  rest are dropped early to save CPU. A device that stops delivering is opened again every
-  5 s, forever. The DeckLink delivers nothing without an input signal, so «ingen bilder» first
-  means: is the ATEM multiview reaching the card, in 1080p50?
+  that is the INOGENI 4KXUSB3 (a UVC device, no driver), found by part of its DirectShow name
+  («INOGENI») so the number can change without a setting. Frames are taken at 15 Hz; the rest
+  are dropped early to save CPU. A device that stops delivering is opened again every 5 s,
+  forever.
 * :class:`SyntheticSource` – draws a multiview from the rutekart (tests, simulator, demo):
   grey cameras, a moving square where someone moves, and the laptop tile as black (no signal),
   a still slide or video.

@@ -2,9 +2,9 @@
 
 ``cutcut hwtest vision --site C:\\CutCut\\site [--device N] [--user tekniker1]`` reads the ATEM
 multiview through the capture card with the same code as ``cutcut vision``, and writes the same
-report as the other machine tests. In the studio the card is the DeckLink Mini Recorder HD
-(D-062), found by name from ``video`` in devices.yaml; ``--device`` picks a number instead.
-Set the ATEM multiview output to 1080p50; the DeckLink gives no picture without a signal.
+report as the other machine tests. In the studio the card is the INOGENI 4KXUSB3, found by name
+from ``video`` in devices.yaml; ``--device`` picks a number instead. Set the ATEM multiview
+output to 1080p50, and use a USB 3 port straight on the motherboard.
 
 | Step | What |
 | --- | --- |

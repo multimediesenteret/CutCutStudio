@@ -85,12 +85,12 @@ class AudioDevice(_Strict):
 
 
 class VideoDevice(_Strict):
-    """Where the video layer takes the ATEM multiview from (D-062): the DeckLink Mini Recorder
-    HD as a DirectShow device, found by part of its name. ``index`` is used when no name
+    """Where the video layer takes the ATEM multiview from: the INOGENI 4KXUSB3 (a UVC device
+    to Windows, D-068), found by part of its DirectShow name. ``index`` is used when no name
     matches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone."""
 
-    kind: Literal["decklink", "uvc", "none"] = "decklink"
-    name: str = "DeckLink"  # part of the DirectShow name, case-insensitive
+    kind: Literal["uvc", "none"] = "uvc"
+    name: str = "INOGENI"  # part of the DirectShow name, case-insensitive
     index: int = Field(default=0, ge=0, le=15)
     width: int = 1920
     height: int = 1080

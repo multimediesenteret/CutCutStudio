@@ -423,7 +423,7 @@
     },
     "VideoDevice": {
       "additionalProperties": false,
-      "description": "Where the video layer takes the ATEM multiview from (D-062): the DeckLink Mini Recorder\nHD as a DirectShow device, found by part of its name. ``index`` is used when no name\nmatches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.",
+      "description": "Where the video layer takes the ATEM multiview from: the INOGENI 4KXUSB3 (a UVC device\nto Windows, D-068), found by part of its DirectShow name. ``index`` is used when no name\nmatches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.",
       "properties": {
         "fps": {
           "default": 50,
@@ -445,9 +445,8 @@
           "type": "integer"
         },
         "kind": {
-          "default": "decklink",
+          "default": "uvc",
           "enum": [
-            "decklink",
             "uvc",
             "none"
           ],
@@ -455,7 +454,7 @@
           "type": "string"
         },
         "name": {
-          "default": "DeckLink",
+          "default": "INOGENI",
           "title": "Name",
           "type": "string"
         },
@@ -563,8 +562,8 @@
         "fps": 50,
         "height": 1080,
         "index": 0,
-        "kind": "decklink",
-        "name": "DeckLink",
+        "kind": "uvc",
+        "name": "INOGENI",
         "width": 1920
       }
     }

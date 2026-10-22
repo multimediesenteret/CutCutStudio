@@ -9,7 +9,7 @@ Dette er det viktigste Multimediesenteret kan levere. Uten ekte lydspor og en fa
 | Fil | Kilde | Format |
 | --- | --- | --- |
 | `mic1.wav` … `micN.wav` | RØDECaster multitrack, USB 1, **pre-fader** | 48 kHz, 24 bit, mono per spor |
-| `multiview.mp4` | ATEM multiview-utgang via capture-kortet (samme oppsett som i drift) | 1080p50 |
+| `multiview.mp4` | ATEM multiview-utgang via INOGENI (samme oppsett som i drift) | 1080p50 |
 | `program.mp4` | ATEM program (ISO-mappen) | som tatt opp |
 | `iso/` | ATEM ISO-filer per inngang | som tatt opp |
 | `meta.yaml` | Se under | YAML |

@@ -47,13 +47,13 @@ def main(
         source = OpenCvSource(str(file))
     elif device is not None:
         source = OpenCvSource(device, width=video.width, height=video.height, fps=video.fps)
-    else:  # the card from devices.yaml, found by name (D-062)
+    else:  # the card from devices.yaml, found by name
         source = OpenCvSource(
             video.index,
             width=video.width,
             height=video.height,
             fps=video.fps,
-            device_name=video.name if video.kind == "decklink" else None,
+            device_name=video.name or None,
         )
 
     wanted_until = [0.0]

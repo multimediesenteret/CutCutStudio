@@ -22,7 +22,7 @@ flowchart LR
     LOGS[["JSON-linjer<br/>data/logs/"]]
   end
   RODE["RØDECaster Pro II<br/>USB 1 multitrack"] --> AUD
-  ATEM["ATEM Television Studio HD8 ISO"] -- "multiview 1080p50<br/>DeckLink (D-062)" --> VIS
+  ATEM["ATEM Television Studio HD8 ISO"] -- "multiview 1080p50<br/>INOGENI (USB 3)" --> VIS
   AUD -- "målinger 50 Hz<br/>ZeroMQ PUB→:5560" --> CORE
   VIS -- "fliser, content" --> CORE
   CORE -- "kutt, preview<br/>(HTTP)" --> COMP
