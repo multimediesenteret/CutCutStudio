@@ -52,6 +52,7 @@ class TileFrame:
     mouth: float = 0.0
     smile: float = 0.0
     moving: bool = False
+    nod: float = 0.0  # R1, V3 (P6)
 
 
 class ContentState(StrEnum):

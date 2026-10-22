@@ -55,7 +55,7 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 | VI-3 | Bevegelse per rute og PGM-bekreftelse | `S1` får ekte data |
 | VI-4 | Maskintest capture-kortet (DeckLink, D-062) | Rapport i issue |
 | VI-5 | Rutekart-forslag i setup steg 6 | Hjørner kan dras i GUI. Gjort mot simulator; prøves på studiobildet i steg 6 |
-| VI-6 | Tung del: ansikt, munn, smil, ASD (M4) | `video_confirm` testet alene i studio |
+| VI-6 | Tung del: ansikt, munn, smil, nikk (M4, P6, D-067) | `video_confirm` testet alene i studio. Analysen er bygget (`vision/faces.py`) og testet på tegnede bilder; treffsikkerhet og tid måles på studioopptak med `cutcut hwtest faces` |
 
 ## 7. Åpne spørsmål
 

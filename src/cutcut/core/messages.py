@@ -54,6 +54,7 @@ class TilePayload(_Payload):
     face: FacePayload = FacePayload()
     mouth: float = 0.0
     smile: float = 0.0
+    nod: float = 0.0
     moving: bool = False
 
 
@@ -79,7 +80,11 @@ def content_state(payload: dict[str, Any]) -> ContentState:
 def tile(payload: dict[str, Any]) -> tuple[SourceId, TileFrame]:
     p = TilePayload.model_validate(payload)
     return p.source, TileFrame(
-        face_ok=p.face.found and p.face.size_ok, mouth=p.mouth, smile=p.smile, moving=p.moving
+        face_ok=p.face.found and p.face.size_ok,
+        mouth=p.mouth,
+        smile=p.smile,
+        moving=p.moving,
+        nod=p.nod,
     )
 
 

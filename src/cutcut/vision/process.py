@@ -30,6 +30,7 @@ import numpy as np
 from cutcut.common.models.multiview import MultiviewMap
 from cutcut.vision.capture import Source
 from cutcut.vision.content import ContentDetector
+from cutcut.vision.faces import FACES_HZ, FaceAnalyzer
 from cutcut.vision.motion import MotionTracker, match_program, thumb
 from cutcut.vision.tiles import Cut, Frame, cuts
 
@@ -129,6 +130,14 @@ class Vision:
                 out[key] = base64.b64encode(jpg.tobytes()).decode("ascii")
         return out
 
+    def camera_windows(self, frame: Frame) -> dict[str, Frame]:
+        """The cut-out of every camera window (not the laptop or SuperSource), for faces."""
+        return {
+            m.cut.tile.camera.value: m.cut.of(frame)
+            for m in self.meters
+            if m.cut.tile.camera is not None and m.cut.tile.camera.value.startswith("C")
+        }
+
     def content_state(self, now_ms: int, rows: list[dict[str, Any]]) -> dict[str, Any] | None:
         row = next((r for r in rows if r["tile"] == self.laptop), None)
         if row is None:
@@ -162,6 +171,7 @@ async def run(
     clock: Callable[[], float] = time.monotonic,
     want_thumbs: Callable[[], bool] = lambda: False,
     current_map: Callable[[], MultiviewMap] | None = None,
+    faces: FaceAnalyzer | None = None,
 ) -> int:
     """Run until ``max_frames`` (or forever). Returns the number of frames measured.
     ``current_map`` gives a new rutekart from the setup helper (``vision.map``, VI-5); the
@@ -173,6 +183,7 @@ async def run(
     last_slow = -1.0
     last_thumbs = -1.0
     last_status = -1.0
+    last_faces = -1.0
     period = 1.0 / fps
     window: list[float] = []
     size: tuple[int, int] | None = None
@@ -194,6 +205,8 @@ async def run(
                     "size": list(size) if size else None,
                     "ok": frame is not None,
                     "last_error": getattr(source, "last_error", None),
+                    "faces": faces is not None,  # P6: the switches that need faces can run
+                    "faces_ms": faces.last_ms if faces is not None else None,
                 },
             )
         if current_map is not None and current_map() is not vision.mv:
@@ -212,6 +225,10 @@ async def run(
                 pgm = vision.program(frame)
                 if pgm is not None:
                     await publish("vision.pgm", pgm)
+            if faces is not None and t0 - last_faces >= 1.0 / FACES_HZ:
+                last_faces = t0
+                for src, reading in faces.analyze(t0, vision.camera_windows(frame)).items():
+                    await publish("vision.tile", reading.payload(src))
             if t0 - last_thumbs >= THUMB_EVERY_S and want_thumbs():
                 last_thumbs = t0
                 thumbs = vision.thumbnails(frame)
