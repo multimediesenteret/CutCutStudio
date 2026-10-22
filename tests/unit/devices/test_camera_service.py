@@ -209,3 +209,36 @@ def test_studio_shows_a_check_per_camera(tmp_path: Path) -> None:
         assert res.status == "red"
     finally:
         rig.store.close()
+
+
+def test_slow_zoom_on_air_in_small_steps_and_stop() -> None:
+    """Z1/Z2 (P4): the one move allowed on air, step by step, and stopped at once."""
+    svc, fakes = service()
+    cam = CameraId.C1  # on program
+    g = svc.guards[cam]
+    fakes[cam].zoom = 0.40
+
+    async def go(allowed: bool, stop_after: float | None) -> None:
+        g.slow_zoom_ok = lambda: allowed
+        await g.refresh()
+        runner = asyncio.create_task(g.run())
+        assert svc.slow_zoom(cam, 0.05, 0.25)
+        if stop_after is not None:
+            await asyncio.sleep(stop_after)
+            svc.stop_zoom(cam)
+        await asyncio.sleep(0.4)
+        runner.cancel()
+
+    asyncio.run(go(allowed=True, stop_after=None))
+    assert 0.44 <= fakes[cam].zoom <= 0.46  # zoomed in 5 % on air
+    fakes[cam].zoom = 0.40
+    asyncio.run(go(allowed=False, stop_after=None))
+    assert fakes[cam].zoom == 0.40  # switch off: the guard refuses on air (I2)
+    asyncio.run(go(allowed=True, stop_after=0.06))
+    assert 0.40 < fakes[cam].zoom < 0.45  # Z2: stopped part way
+
+
+def test_framing_preset_is_refused_on_air() -> None:
+    svc, _fakes = service()
+    assert svc.frame(CameraId.C1, 2) == "on_program"  # I2
+    assert svc.frame(CameraId.C2, 2) == "queued"  # off air

@@ -61,6 +61,11 @@ standard:
   R1_speaker_min_s: 6
   R1_shot_s: 2.5
   R2_min_gap_s: 20
+  F2_settle_s: 0.5
+  F_reframe_grace_s: 1.5
+  Z1_after_s: 3
+  Z1_max_zoom: 0.10
+  Z1_duration_s: 15
 
 rolig:
   T1_vad_threshold: 0.7
@@ -119,6 +124,11 @@ rolig:
   R1_speaker_min_s: 6
   R1_shot_s: 2.5
   R2_min_gap_s: 20
+  F2_settle_s: 0.5
+  F_reframe_grace_s: 1.5
+  Z1_after_s: 3
+  Z1_max_zoom: 0.10
+  Z1_duration_s: 20
 
 energisk:
   T1_vad_threshold: 0.5
@@ -177,3 +187,8 @@ energisk:
   R1_speaker_min_s: 6
   R1_shot_s: 2.5
   R2_min_gap_s: 20
+  F2_settle_s: 0.5
+  F_reframe_grace_s: 1.5
+  Z1_after_s: 3
+  Z1_max_zoom: 0.10
+  Z1_duration_s: 10

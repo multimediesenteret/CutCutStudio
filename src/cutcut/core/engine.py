@@ -29,6 +29,7 @@ from cutcut.common.ids import (
     QUAD3C,
     QUAD4,
     WIDE,
+    CameraId,
     MicId,
     Mode,
     ParticipantId,
@@ -58,11 +59,14 @@ from cutcut.core.inputs import (
 )
 from cutcut.core.intents import (
     DirectCut,
+    FrameCamera,
     Intent,
     PrepareLayout,
     SetCompanionVariable,
     SetPreview,
     ShowAudioOnly,
+    SlowZoom,
+    StopZoom,
     Take,
 )
 from cutcut.core.speakers import Speakers
@@ -183,6 +187,15 @@ class Engine:
         self.content = ContentTracker()
         self.failed_switches: set[str] = set()  # F-1: the studio moves these to shadow
         self.layout_ended: dict[str, int] = {}
+        # F1–F3, Z1–Z3: which framing each camera has, cameras waiting to be reframed, and
+        # the slow zoom that runs (shot, camera, start)
+        self.framing: dict[CameraId, str] = {}
+        self.reframe_until: dict[CameraId, int] = {}
+        self._reframe_pending: set[CameraId] = set()
+        self._on_air_before: set[CameraId] = set()
+        self._zoomed: set[CameraId] = set()
+        self._f3_waiting: set[CameraId] = set()
+        self._zoom: tuple[str, CameraId, int] | None = None
         self._shadow_seen: dict[tuple[str, str, str, RuleId], int] = {}
         self.last_bird_ms = -(10**9)
         self._now = now_ms
@@ -259,6 +272,7 @@ class Engine:
             self._audio_only()
         elif not self._safety(inp) and not self.paused:
             self._auto(inp)
+            self._cameras(inp)
         self._companion_variables()
         return StepResult(self._decisions, self._intents)
 
@@ -373,6 +387,8 @@ class Engine:
         camera = shots.camera_of(shot, self.show)
         if camera is not None and camera in inp.cameras_moving:
             return RuleId.S1
+        if camera is not None and self._now < self.reframe_until.get(camera, -1):
+            return RuleId.F2  # just reframed: wait until it has moved and stands still
         video = self._mode("video_confirm")
         if video != "off" and inp.vision is not None and camera is not None:
             tile = inp.vision.get(SourceId(camera.value))
@@ -1065,6 +1081,129 @@ class Engine:
             if self.vars.get(name) != value:
                 self.vars[name] = value
                 self._intent(SetCompanionVariable(name, value))
+
+    # -- framing variety (F1–F3) and slow zoom (Z1–Z3), spec 5.13 ----------------------------
+
+    def _cameras_on_air(self) -> set[CameraId]:
+        out: set[CameraId] = set()
+        for shot in (self.program, self.preview):
+            if shot is None or shot == AUDIO_ONLY:
+                continue
+            if is_layout(shot):
+                out |= {self.show.participant(p).camera for p in shot_participants(shot)}
+                continue
+            cam = shots.camera_of(shot, self.show)
+            if cam is not None:
+                out.add(cam)
+        return out
+
+    def _cameras(self, inp: Inputs) -> None:
+        on_air = self._cameras_on_air()
+        self._reframe_pending |= self._on_air_before - on_air  # F1: just went off air
+        self._on_air_before = on_air
+        for name, fn in (("framing_variety", self._reframe), ("slow_zoom", self._slow_zoom)):
+            try:
+                fn(inp, on_air)
+            except Exception as exc:  # a switch never stops base mode (F-1)
+                self._switch_failed(name, exc)
+
+    def _close_up_of(self, cam: CameraId) -> str | None:
+        p = next((p for p in self.show.participants if p.camera == cam), None)
+        return close_up(p.id) if p is not None else None
+
+    def _reframe(self, inp: Inputs, on_air: set[CameraId]) -> None:
+        """F1: a camera that went off program and preview gets the other framing (tight or
+        wide), so the same person does not get the same framing twice in a row. F3: never the
+        camera that is the candidate for the next cut. A camera that was slowly zoomed in goes
+        back to its framing even with F off."""
+        mode = self._mode("framing_variety")
+        zoom_on = self._mode("slow_zoom") == "on"
+        for cam in sorted(self._reframe_pending):
+            cfg = self.show.cameras.get(cam)
+            shot = self._close_up_of(cam)
+            usable = (
+                cfg is not None
+                and cfg.driver != "none"
+                and cfg.role == "closeup"
+                and {"tight", "wide"} <= set(cfg.presets)
+                and shot is not None
+            )
+            if not usable or shot is None or cam in on_air:
+                self._reframe_pending.discard(cam)
+                continue
+            cand = self.candidate
+            if cand is not None and shots.camera_of(cand.shot, self.show) == cam:
+                if cam not in self._f3_waiting:  # F3: wait until it is no longer the candidate
+                    self._f3_waiting.add(cam)
+                    self._decide("wait", shot, RuleId.F3, f"{cam.value} er neste kandidat")
+                continue
+            self._f3_waiting.discard(cam)
+            if cam in inp.cameras_moving:
+                continue
+            now_framing = self.framing.get(cam, "tight")
+            zoomed = cam in self._zoomed
+            self._reframe_pending.discard(cam)
+            self._zoomed.discard(cam)
+            if mode == "off":
+                if zoomed and zoom_on:
+                    self._send_frame(cam, now_framing, shot, RuleId.Z2, "zoomet ut igjen")
+                continue
+            nxt = "wide" if now_framing == "tight" else "tight"
+            word = "videre" if nxt == "wide" else "tett"
+            if mode == "shadow":
+                self._shadow_note(
+                    "framing_variety", "hold", shot, RuleId.F1, f"Ville gitt {word} utsnitt"
+                )
+                if zoomed and zoom_on:
+                    self._send_frame(cam, now_framing, shot, RuleId.Z2, "zoomet ut igjen")
+                continue
+            self._send_frame(cam, nxt, shot, RuleId.F1, f"{word} utsnitt mens det er av lufta")
+
+    def _send_frame(self, cam: CameraId, framing: str, shot: str, rule: RuleId, why: str) -> None:
+        self.framing[cam] = framing
+        self.reframe_until[cam] = self._now + int(
+            (self.rules.F_reframe_grace_s + self.rules.F2_settle_s) * 1000
+        )
+        self._intent(FrameCamera(cam, "wide" if framing == "wide" else "tight"))
+        self._decide("hold", shot, rule, f"{cam.value}: {why}")
+
+    def _slow_zoom(self, inp: Inputs, on_air: set[CameraId]) -> None:
+        """Z1: the same speaker has stood a while → zoom in a little over a long time, on the
+        camera on air. Z2: stops at once when another shot is armed on preview or the shot
+        changes. Z3: only cameras with ``slow_zoom`` in the show."""
+        r, now = self.rules, self._now
+        if self._zoom is not None:
+            shot, cam, start = self._zoom
+            ended = now - start >= r.Z1_duration_s * 1000
+            armed = self.candidate is not None and self.candidate.shot != shot
+            if self.program != shot or armed:
+                self._intent(StopZoom(cam))
+                self._decide("hold", shot, RuleId.Z2, f"{cam.value}: langsom zoom stoppet")
+                self._zoom = None
+            elif ended:
+                self._zoom = None
+            return
+        mode = self._mode("slow_zoom")
+        if mode == "off":
+            return
+        pid = shots.speaker_of(self.program)
+        if pid is None or self.candidate is not None:
+            return
+        cam = self.show.participant(pid).camera
+        cfg = self.show.cameras.get(cam)
+        if cfg is None or not cfg.slow_zoom or cfg.driver == "none" or cam in self._zoomed:
+            return
+        talker = self.speakers.get(pid)
+        if not talker.speaking or now - self.program_since < r.Z1_after_s * 1000:
+            return
+        why = f"{cam.value}: langsom zoom inn {r.Z1_max_zoom:.0%} over {r.Z1_duration_s:g} s"
+        if mode == "shadow":
+            self._shadow_note("slow_zoom", "hold", self.program, RuleId.Z1, why)
+            return
+        self._intent(SlowZoom(cam, r.Z1_max_zoom, int(r.Z1_duration_s * 1000)))
+        self._decide("hold", self.program, RuleId.Z1, why)
+        self._zoom = (self.program, cam, now)
+        self._zoomed.add(cam)
 
     # -- switches (spec 5.13, F-1) ------------------------------------------------------------
 

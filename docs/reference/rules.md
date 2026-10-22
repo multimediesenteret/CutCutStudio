@@ -61,3 +61,8 @@ Ikke rediger for hånd.
 | `R1_speaker_min_s` | 6 | 6 | 6 |
 | `R1_shot_s` | 2,5 | 2,5 | 2,5 |
 | `R2_min_gap_s` | 20 | 20 | 20 |
+| `F2_settle_s` | 0,5 | 0,5 | 0,5 |
+| `F_reframe_grace_s` | 1,5 | 1,5 | 1,5 |
+| `Z1_after_s` | 3 | 3 | 3 |
+| `Z1_max_zoom` | 0,1 | 0,1 | 0,1 |
+| `Z1_duration_s` | 20 | 15 | 10 |

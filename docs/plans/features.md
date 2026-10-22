@@ -52,9 +52,9 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 | --- | --- | --- |
 | F-1 | `shadow`-tilstand per bryter og forutsetningssjekk | Teknikervinduet viser hvorfor en bryter er sperret. Gjort (P2) |
 | F-2 | `video_confirm` | Testrapport godkjent |
-| F-3 | `framing_variety` | Testrapport godkjent |
+| F-3 | `framing_variety` | Testrapport godkjent. Reglene er bygget og testet mot falske kameraer (P4); prøves i studio |
 | F-4 | `reactions` | Testrapport godkjent |
-| F-5 | `slow_zoom` | Testrapport godkjent per kamera |
+| F-5 | `slow_zoom` | Testrapport godkjent per kamera. Reglene er bygget (P4); laveste zoomfart måles per kamera i studio (`slow_zoom_speed` i kameragrensene) |
 | F-6 | `layouts` | Testrapport godkjent. Reglene er bygget og testet mot simulator (P3); prøves i studio |
 | F-7 | `ai_tracking` | Testrapport godkjent |
 | F-8 | ~~`live_transcript`~~ | Tatt ut av v1 (D-063) |

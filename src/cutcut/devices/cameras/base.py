@@ -119,6 +119,7 @@ class MoveTo:
 class ZoomTo:
     zoom: float
     speed: float = 0.3
+    slow: bool = False  # Z1: a small step of a slow zoom, the one move allowed on air (I2)
     kind: Literal["zoom_to"] = "zoom_to"
 
 

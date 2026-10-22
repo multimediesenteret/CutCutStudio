@@ -50,6 +50,7 @@ FAILS_TO_OPEN: Final = 3
 OPEN_S: Final = 10.0
 MAX_QUEUE: Final = 8
 PRESETS: Final = range(256)  # VISCA 00–FF
+SLOW_STEP_MAX: Final = 0.02  # Z: the largest zoom step allowed on air, share of the range
 
 Verdict = Literal["queued", "on_program", "on_preview", "no_atem", "breaker_open", "invalid"]
 
@@ -110,6 +111,7 @@ class GuardedCamera:
     limits: CameraLimits
     air: Callable[[], OnAir | None]  # from the ATEM read-back, never from the engine
     guard_preview: bool = True  # PV2: a camera on preview counts as on air
+    slow_zoom_ok: Callable[[], bool] = lambda: False  # Z: switch on and camera allowed
     clock: Callable[[], float] = time.monotonic
     timeout_s: float = TIMEOUT_S
     _queue: deque[CameraCommand] = field(default_factory=deque, init=False)
@@ -131,11 +133,24 @@ class GuardedCamera:
         air = self.air()
         if air is None:
             return "no_atem"
+        if isinstance(cmd, ZoomTo) and cmd.slow and self._slow_step_ok(cmd):
+            return None  # I2's one exception: a small, slow zoom step (Z)
         if self.id in air.program:
             return "on_program"
         if self.guard_preview and self.id in air.preview:
             return "on_preview"
         return None
+
+    def _slow_step_ok(self, cmd: ZoomTo) -> bool:
+        """Slow zoom is on for this camera, it zooms in (never out on air), the step is small
+        and the speed is the camera's slow speed."""
+        at = self.st.position
+        return (
+            self.slow_zoom_ok()
+            and at is not None
+            and at.zoom - 0.001 <= cmd.zoom <= at.zoom + SLOW_STEP_MAX
+            and cmd.speed <= self.limits.slow_zoom_speed + 1e-9
+        )
 
     def _refuse(self, cmd: CameraCommand, why: Verdict) -> Verdict:
         self.st.refused += 1
@@ -164,6 +179,8 @@ class GuardedCamera:
                 out = replace(cmd, speed=c(s, 0.01, top))
             case MoveTo(pan=p, tilt=t, speed=s):
                 out = replace(cmd, pan=c(p, *lim.pan), tilt=c(t, *lim.tilt), speed=c(s, 0.01, top))
+            case ZoomTo(zoom=z, speed=s, slow=True):
+                out = replace(cmd, zoom=c(z, *lim.zoom), speed=c(s, 0.001, lim.slow_zoom_speed))
             case ZoomTo(zoom=z, speed=s):
                 out = replace(cmd, zoom=c(z, *lim.zoom), speed=c(s, 0.01, top))
             case Nudge(pan=p, tilt=t, zoom=z):
