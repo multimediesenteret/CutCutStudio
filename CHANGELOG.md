@@ -12,6 +12,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P4 (F-3, F-5): vekslende utsnitt og langsom zoom.
+  - Med `framing_variety` får et nærbildekamera som går av lufta det andre utsnittet (preset `tight` eller `wide`), og motoren venter til det står stille før den klipper dit. Kandidaten til neste kutt flyttes aldri.
+  - Med `slow_zoom` zoomer kameraet litt inn på en taler som har stått en stund, i små steg med kameraets laveste fart. Zoomen stopper straks et annet bilde er klart på preview. Bare kameraer med `slow_zoom: true` i showet brukes.
+  - Kameravakten slipper bare slike små, langsomme zoomsteg gjennom på lufta. Alt annet på program og preview avvises fortsatt (I2).
+  - Nye regelverdier: `F2_settle_s`, `F_reframe_grace_s`, `Z1_after_s`, `Z1_max_zoom` og `Z1_duration_s`. Kameragrensene har fått `slow_zoom_speed` (måles i KA5).
 - P3 (F-6): layouter, `L1`–`L4`.
   - Med bryteren `layouts` på eller i skygge kan motoren velge bilde-i-bilde med taler og content (`L1`), to personer ved ping-pong (`L2`), firedelt når tre eller flere har snakket (`L3`), og firedelt med content når tre er med (`L4`).
   - En layout står minst 6 s og brukes ikke igjen innen 30 s.

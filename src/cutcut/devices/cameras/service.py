@@ -24,7 +24,14 @@ from typing import Final
 
 from cutcut.common.ids import CameraId
 from cutcut.common.models.site import CameraDevice, Devices
-from cutcut.devices.cameras.base import AutoTracking, CameraCommand, CameraDriver, PTZPosition
+from cutcut.devices.cameras.base import (
+    AutoTracking,
+    CameraCommand,
+    CameraDriver,
+    PTZPosition,
+    RecallPreset,
+    ZoomTo,
+)
 from cutcut.devices.cameras.factory import make_driver
 from cutcut.devices.cameras.guarded import GuardedCamera, OnAir, Verdict
 
@@ -35,6 +42,8 @@ STATUS_S: Final = 10.0  # H-CAM-*
 MOVE_DEG: Final = 0.5  # less than this is noise in the read-back
 MOVE_ZOOM: Final = 0.01
 SETTLE_S: Final = 15.0  # a slow preset move CutCut asked for may still be under way
+FRAME_SPEED: Final = 0.3  # F2: reframing off air, slow enough to look calm on the multiview
+ZOOM_STEP: Final = 0.01  # Z1: one step of a slow zoom, share of the zoom range
 
 
 def moved(a: PTZPosition, b: PTZPosition) -> bool:
@@ -56,6 +65,7 @@ class CameraService:
     unexpected: dict[CameraId, float] = field(default_factory=dict)  # when it moved by itself
     started: float | None = None
     _tasks: dict[CameraId, asyncio.Task[None]] = field(default_factory=dict)
+    _zooms: dict[CameraId, asyncio.Task[None]] = field(default_factory=dict)
 
     @classmethod
     def from_devices(
@@ -118,6 +128,46 @@ class CameraService:
         """Queue ``cmd`` for ``cam``; ``None`` when CutCut does not steer that camera."""
         g = self.guards.get(cam)
         return None if g is None else g.submit(cmd)
+
+    # --- framing and slow zoom from the engine (F1, Z1, Z2) ---------------------------------
+
+    def frame(self, cam: CameraId, preset: int) -> Verdict | None:
+        """F1: recall a framing preset. The guard refuses it on program or preview (I2)."""
+        return self.submit(cam, RecallPreset(preset, speed=FRAME_SPEED))
+
+    def slow_zoom(self, cam: CameraId, amount: float, duration_s: float) -> bool:
+        """Z1: zoom in by ``amount`` over ``duration_s`` in small steps at the camera's slow
+        speed. Each step passes the guard on its own (I2's one exception)."""
+        g = self.guards.get(cam)
+        if g is None:
+            return False
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            log.info("%s: langsom zoom uten hendelsesløkke, hoppet over", cam.value)
+            return False
+        self.stop_zoom(cam)
+        self._zooms[cam] = loop.create_task(
+            self._zoom(g, amount, duration_s), name=f"zoom-{cam.value}"
+        )
+        return True
+
+    async def _zoom(self, g: GuardedCamera, amount: float, duration_s: float) -> None:
+        start = g.st.position or await g.refresh()
+        if start is None:
+            return
+        steps = max(1, round(amount / ZOOM_STEP))
+        for i in range(1, steps + 1):
+            target = min(g.limits.zoom[1], start.zoom + amount * i / steps)
+            if g.submit(ZoomTo(target, speed=g.limits.slow_zoom_speed, slow=True)) != "queued":
+                return  # refused (switch off, camera off air …): stop quietly
+            await asyncio.sleep(duration_s / steps)
+
+    def stop_zoom(self, cam: CameraId) -> None:
+        """Z2: stop a slow zoom at once."""
+        task = self._zooms.pop(cam, None)
+        if task is not None:
+            task.cancel()
 
     # --- polls -------------------------------------------------------------------------------
 

@@ -131,6 +131,7 @@
               -170.0,
               170.0
             ],
+            "slow_zoom_speed": 0.02,
             "tilt": [
               -30.0,
               90.0
@@ -193,6 +194,13 @@
           ],
           "title": "Pan",
           "type": "array"
+        },
+        "slow_zoom_speed": {
+          "default": 0.02,
+          "exclusiveMinimum": 0,
+          "maximum": 0.2,
+          "title": "Slow Zoom Speed",
+          "type": "number"
         },
         "tilt": {
           "default": [

@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from cutcut.common.ids import SourceId
+from cutcut.common.ids import CameraId, SourceId
 
 
 @dataclass(frozen=True)
@@ -49,4 +49,42 @@ class SetCompanionVariable:
     value: str
 
 
-Intent = SetPreview | PrepareLayout | Take | DirectCut | ShowAudioOnly | SetCompanionVariable
+@dataclass(frozen=True)
+class FrameCamera:
+    """F1: recall the camera's ``tight`` or ``wide`` preset while it is off air (never on
+    program or preview: the camera guard refuses that, I2)."""
+
+    camera: CameraId
+    framing: Literal["tight", "wide"]
+
+
+@dataclass(frozen=True)
+class SlowZoom:
+    """Z1: zoom in by ``amount`` (share of the zoom range) over ``duration_ms``, in small
+    steps, on the camera that is on air. The only movement allowed on air (I2)."""
+
+    camera: CameraId
+    amount: float
+    duration_ms: int
+
+
+@dataclass(frozen=True)
+class StopZoom:
+    """Z2: stop a slow zoom now."""
+
+    camera: CameraId
+
+
+CameraIntent = FrameCamera | SlowZoom | StopZoom
+
+Intent = (
+    SetPreview
+    | PrepareLayout
+    | Take
+    | DirectCut
+    | ShowAudioOnly
+    | SetCompanionVariable
+    | FrameCamera
+    | SlowZoom
+    | StopZoom
+)

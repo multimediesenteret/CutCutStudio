@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import functools
 import logging
 from collections import deque
 from collections.abc import Callable
@@ -85,7 +86,7 @@ from cutcut.core.inputs import (
     SetLock,
     SetShadow,
 )
-from cutcut.core.intents import SetCompanionVariable
+from cutcut.core.intents import FrameCamera, Intent, SetCompanionVariable, SlowZoom, StopZoom
 from cutcut.core.runtime import CoreRuntime, Executor
 from cutcut.devices.atem import iso
 from cutcut.devices.atem.bridge import AtemStateRaw
@@ -118,7 +119,9 @@ LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
 # Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
-IMPLEMENTED_SWITCHES: Final = frozenset({"video_confirm", "layouts"})
+IMPLEMENTED_SWITCHES: Final = frozenset(
+    {"video_confirm", "layouts", "framing_variety", "slow_zoom"}
+)
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
@@ -283,6 +286,10 @@ class Studio:
             on_decision=self._on_decision,
             on_step=self._on_step,
         )
+        if self.deps.cameras is not None:
+            self.runtime.camera_sink = self._camera_intent
+            for cam, guard in self.deps.cameras.guards.items():
+                guard.slow_zoom_ok = functools.partial(self._slow_zoom_allowed, cam)
         self.alerts: list[AlertRecord] = []
         clock = self.deps.clock
         self.notifier: Notifier | None = None
@@ -2003,6 +2010,31 @@ class Studio:
         self.runtime.command(SetContentEnabled(enabled=enabled))
         self._audit(role, actor, "content", enabled=enabled)
 
+    # -- framing and slow zoom on the PTZ cameras (F1, Z1, Z2) -------------------------------
+
+    def _slow_zoom_allowed(self, cam: CameraId) -> bool:
+        """The camera guard lets a slow zoom step through on air only when the switch is on
+        and the show allows slow zoom on that camera (Z3)."""
+        cfg = self.show.cameras.get(cam)
+        return self.features.mode("slow_zoom") == "on" and cfg is not None and cfg.slow_zoom
+
+    def _camera_intent(self, intent: Intent) -> None:
+        cams = self.deps.cameras
+        if cams is None:
+            return
+        match intent:
+            case FrameCamera(camera=cam, framing=framing):
+                cfg = self.show.cameras.get(cam)
+                preset = cfg.presets.get(framing) if cfg is not None else None
+                if preset is not None:
+                    verdict = cams.frame(cam, preset)
+                    if verdict not in (None, "queued"):
+                        log.info("%s: utsnitt %s ikke sendt (%s)", cam.value, framing, verdict)
+            case SlowZoom(camera=cam, amount=amount, duration_ms=ms):
+                cams.slow_zoom(cam, amount, ms / 1000)
+            case StopZoom(camera=cam):
+                cams.stop_zoom(cam)
+
     # -- switches: off, shadow, on (spec 5.13, F-1) -------------------------------------------
 
     def _switch_prereq(self, name: str) -> tuple[bool, bool, str | None]:
@@ -2013,6 +2045,24 @@ class Studio:
         if name in ("video_confirm", "reactions") and not self.runtime.vision_status.get("faces"):
             why = "Krever den tunge delen av videolaget (ansikt og munn på GPU)."
             return False, False, why
+        steered = set(self.deps.cameras.guards) if self.deps.cameras is not None else set()
+        if name == "framing_variety":
+            ok = [
+                c
+                for c, cfg in self.show.cameras.items()
+                if c in steered and cfg.role == "closeup" and {"tight", "wide"} <= set(cfg.presets)
+            ]
+            if not ok:
+                why = "Ingen nærbildekameraer med presetene «tight» og «wide» styres av CutCut."
+                return True, False, why
+        if name == "slow_zoom":
+            ok = [c for c, cfg in self.show.cameras.items() if c in steered and cfg.slow_zoom]
+            if not ok:
+                why = (
+                    "Ingen kameraer har langsom zoom slått på i showet "
+                    f"({RuleId.Z3.value}, prøves per kamera)."
+                )
+                return True, False, why
         if name == "layouts":
             found = self._atem_macros()
             problems = macro_check(found) if found is not None else ["ATEM kan ikke leses"]

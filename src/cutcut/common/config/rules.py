@@ -84,6 +84,13 @@ class RuleParams(BaseModel):
     R1_speaker_min_s: float = Field(ge=0, le=120)
     R1_shot_s: float = Field(ge=0.5, le=10)
     R2_min_gap_s: float = Field(ge=0, le=600)
+    # Framing variety (5.13, switch F): the camera must be still this long after a reframe
+    F2_settle_s: float = Field(ge=0, le=5)
+    F_reframe_grace_s: float = Field(ge=0, le=10)  # counts as moving until it reports
+    # Slow zoom (5.13, switch Z)
+    Z1_after_s: float = Field(ge=0, le=60)
+    Z1_max_zoom: float = Field(ge=0, le=0.3)  # share of the zoom range
+    Z1_duration_s: float = Field(ge=5, le=60)
 
     @model_validator(mode="after")
     def _ranges(self) -> Self:

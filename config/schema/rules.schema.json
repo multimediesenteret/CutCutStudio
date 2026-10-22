@@ -103,6 +103,18 @@
           "title": "Ct4 Revisit S",
           "type": "number"
         },
+        "F2_settle_s": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "F2 Settle S",
+          "type": "number"
+        },
+        "F_reframe_grace_s": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "F Reframe Grace S",
+          "type": "number"
+        },
         "H1_factor": {
           "maximum": 5,
           "minimum": 1,
@@ -331,6 +343,24 @@
           "title": "T9 Max Wait Pause Ms",
           "type": "integer"
         },
+        "Z1_after_s": {
+          "maximum": 60,
+          "minimum": 0,
+          "title": "Z1 After S",
+          "type": "number"
+        },
+        "Z1_duration_s": {
+          "maximum": 60,
+          "minimum": 5,
+          "title": "Z1 Duration S",
+          "type": "number"
+        },
+        "Z1_max_zoom": {
+          "maximum": 0.3,
+          "minimum": 0,
+          "title": "Z1 Max Zoom",
+          "type": "number"
+        },
         "manual_quiet_s": {
           "maximum": 60,
           "minimum": 0,
@@ -394,7 +424,12 @@
         "manual_quiet_s",
         "R1_speaker_min_s",
         "R1_shot_s",
-        "R2_min_gap_s"
+        "R2_min_gap_s",
+        "F2_settle_s",
+        "F_reframe_grace_s",
+        "Z1_after_s",
+        "Z1_max_zoom",
+        "Z1_duration_s"
       ],
       "title": "RuleParams",
       "type": "object"

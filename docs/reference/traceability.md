@@ -50,12 +50,12 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `R1` | Planlagt: M4 – reactions | – | 0 |
 | `R2` | Planlagt: M4 – reactions | – | 0 |
 | `R3` | Planlagt: M4 – reactions | – | 0 |
-| `F1` | Planlagt: M4 – framing_variety | – | 0 |
-| `F2` | Planlagt: M4 – framing_variety | – | 0 |
-| `F3` | Planlagt: M4 – framing_variety | – | 0 |
-| `Z1` | Planlagt: M4 – slow_zoom | – | 0 |
-| `Z2` | Planlagt: M4 – slow_zoom | – | 0 |
-| `Z3` | Planlagt: M4 – slow_zoom | – | 0 |
+| `F1` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `F2` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `F3` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `Z1` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `Z2` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `Z3` | Implementert | `src/cutcut/app/studio.py` | 2 |
 | `AT1` | Planlagt: M4 – ai_tracking | – | 0 |
 | `AT2` | Planlagt: M4 – ai_tracking | – | 0 |
 | `AT3` | Planlagt: M4 – ai_tracking | – | 0 |

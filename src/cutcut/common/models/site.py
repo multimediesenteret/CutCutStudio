@@ -51,6 +51,8 @@ class CameraLimits(_Strict):
     tilt: tuple[float, float] = (-30.0, 90.0)
     zoom: tuple[float, float] = (0.0, 1.0)
     max_speed: float = Field(default=0.5, gt=0, le=1)
+    # Z3: the lowest zoom speed this camera does smoothly, measured in the machine test (KA5)
+    slow_zoom_speed: float = Field(default=0.02, gt=0, le=0.2)
 
     @model_validator(mode="after")
     def _ordered(self) -> Self:

@@ -27,7 +27,9 @@ from cutcut.common.store import Store
 from cutcut.core import messages
 from cutcut.core.engine import Engine, StepResult
 from cutcut.core.inputs import AtemReadback, Command, ContentState, Inputs, MicFrame, TileFrame
-from cutcut.core.intents import Intent
+from cutcut.core.intents import FrameCamera, Intent, SlowZoom, StopZoom
+
+CAMERA_INTENTS = (FrameCamera, SlowZoom, StopZoom)
 
 log = logging.getLogger(__name__)
 
@@ -80,6 +82,7 @@ class CoreRuntime:
         self.store = store
         self.on_decision = on_decision
         self.on_step = on_step
+        self.camera_sink: Callable[[Intent], None] | None = None  # set when core has cameras
         self.stats = RuntimeStats()
         self._mics: dict[MicId, MicFrame] = {}
         self._last_audio_ms: int | None = None
@@ -223,7 +226,10 @@ class CoreRuntime:
             self._handle_decision(decision)
         for intent in result.intents:
             try:
-                self.executor.submit(intent)
+                if self.camera_sink is not None and isinstance(intent, CAMERA_INTENTS):
+                    self.camera_sink(intent)  # F1, Z1, Z2: the PTZ cameras, not Companion
+                else:
+                    self.executor.submit(intent)
             except Exception:  # an executor bug must never stop the loop
                 log.exception("executor failed for %r", intent)
         if self.on_step is not None:
