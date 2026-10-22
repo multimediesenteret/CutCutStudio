@@ -104,7 +104,7 @@ def test_no_commands_while_the_atem_is_not_readable() -> None:
     assert "ikke tilkoblet" in (c.status().last_error or "")
 
 
-def test_companion_down_cuts_through_the_bridge_S5() -> None:
+def test_S5_companion_down_cuts_through_the_bridge() -> None:
     """End to end on the reserve path: Companion executor → bridge client → atem.cmd."""
     from cutcut.common.config import example_site_dir
     from cutcut.core.intents import SetPreview

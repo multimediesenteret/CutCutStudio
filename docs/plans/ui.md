@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M1 · Spes. 8, 12.5; D-036–D-039, D-043, D-045; ADR-0007, ADR-0013 · Mappe: `ui/`
 
+**Leveransestatus 2026-10-22:** U-1–U-10 er bygget; web-simulatoren er forsiden på Vercel.
+
 ## 1. Formål og avgrensning
 
 De ekte skjermene i React + TypeScript, bygget etter `concept/` og `docs/design/`. Samme apper kjører i studio (mot motoren) og på Vercel (mot simulerte data).

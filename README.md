@@ -2,11 +2,11 @@
 
 *You speak. We cut cut.*
 
-CutCut Studio er Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM-mikseren (i studioet en Television Studio HD8 ISO); PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren logger inn med adgangskortet på en touch-skjerm.
+CutCut Studio er Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM-mikseren (i studioet en Television Studio HD8 ISO); PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren trykker Start på en touch-skjerm (innlogging med adgangskort kommer senere).
 
 ## Status
 
-**M1 Simulator er nesten ferdig:** motor, simulator, API og begge skjermene virker; web-simulatoren ligger på https://cutcutstudio2026.vercel.app/sim/. Planene er godkjent (`docs/plans/`); se `docs/STATUS.md`.
+**Klar for studioperioden.** Alt som kan bygges uten studio, er bygget og testet i CI: motor med grunnmodus og alle brytere, lyd, utstyr, videolag, skjermer, oppsett, helse og drift. Det som står igjen, er maskintester og prøving i studio etter [`docs/studio/testdag.md`](docs/studio/testdag.md). Web-simulatoren ligger på https://cutcutstudio2026.vercel.app. Se [`docs/STATUS.md`](docs/STATUS.md).
 
 ## Lisens
 
@@ -17,6 +17,9 @@ Apache-2.0, opphavsrett Multimediesenteret. Se `LICENSE` og `NOTICE`.
 | Hva | Hvor |
 | --- | --- |
 | **Start her** (agenter og mennesker) | [`AGENTS.md`](AGENTS.md) |
+| Sjekkliste for studioperioden | [`docs/studio/testdag.md`](docs/studio/testdag.md) |
+| Maskintester | [`docs/studio/maskintest.md`](docs/studio/maskintest.md) |
+| Implementasjonsplaner per modul | [`docs/plans/`](docs/plans/README.md) |
 | Arkitektur (prosesser, dataflyt, Mermaid) | [`docs/architecture/`](docs/architecture/README.md) |
 | Runbooks for feil i studio | [`docs/runbooks/`](docs/runbooks/README.md): ingen lyd, touch svart, opptak startet ikke, kamera, strømbrudd |
 | Stack og utviklingsmiljø | [`docs/stack.md`](docs/stack.md) |
@@ -57,17 +60,19 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-## I studio (M2)
+## I studio
 
-Prosessene startes av supervisor (kommer i SO-1/SO-2); for hånd ser det slik ut:
+I studio kjører CutCut som Windows-tjenesten `CutCut`. Den starter `cutcut supervisor`, som starter og passer på `core` (motor, API og skjermer på :8080), `audio-capture`, `atem-bridge` og `vision`. Installasjon og oppdatering: [`docs/studio/tjenester.md`](docs/studio/tjenester.md). Første oppsett gjøres i teknikervinduet: adresser under Oppsett → Utstyr og nettverk, og setup-hjelperens ti steg.
+
+For hånd (feilsøking):
 
 ```bash
-uv run cutcut core --site site/multimediesenteret            # motor, API og skjermer på :8080
-pnpm --filter @cutcut/atem-bridge start -- --ip <ATEM-IP>
-uv run cutcut audio --wav test.wav                     # ekte lydkort (ASIO) kommer i AU-5
+uv run cutcut supervisor --site site/multimediesenteret --data data   # alt, som tjenesten
+uv run cutcut core --site site/multimediesenteret                     # bare motor, API og skjermer
+uv run cutcut hwtest <audio|atem|camera|vision|faces|soak> --site …   # maskintestene
 ```
 
-Passord og PIN-er ligger i Windows Credential Manager (`pearl_password`, `operator_pin`, `admin_pin`). Adressene til utstyret settes under Oppsett i teknikervinduet.
+Passord og PIN-er ligger i Windows Credential Manager (`pearl_password`, `operator_pin`, `admin_pin`). Ekte IP-adresser, teknikere og varsling legges inn i appen og ligger bare på studio-PC-en (D-060).
 
 ## Bidra
 

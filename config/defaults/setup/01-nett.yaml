@@ -8,7 +8,7 @@ how:
   - "Koble alt utstyret til **studio-switchen** (egen switch, ingen VLAN): ATEM, Pearl, kameraene og regi-PC-en."
   - "Gi hver enhet fast IP etter IP-planen for studioet (ikke DHCP)."
   - "Regi-PC-en har **to nettverkskort**: ett på studio-switchen med fast adresse i samme nett som utstyret, uten gateway, og ett på **campusnettet** for e-post og oppdateringer."
-  - "Skriv adressene inn under **Enheter** på oppsettsiden."
-  - "ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **XC** (Canon)."
+  - "Skriv adressene inn under **Utstyr og nettverk** på oppsettsiden."
+  - "ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **VISCA** (Canon, til XC-kommandoene finnes, Q6)."
 checks: ["H-NET-*", "H-ATEM-1", "H-COMP-1", "H-PRL-1", "H-CAM-C*"]
 panel: devices

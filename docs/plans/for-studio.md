@@ -2,6 +2,8 @@
 
 Status: godkjent av eier 2026-10-22 (D-066) · Erstatter rekkefølgen i `features.md` for M4 · Spes. 5.6, 5.13, 6, 7, 8.4, 11 steg 10–11
 
+**Leveransestatus 2026-10-22:** P1–P9 er bygget og slått sammen (issues #176–#184). Bryterne er ferdige først når de er prøvd i studio etter `docs/studio/testdag.md` blokk 5; P9 venter på gjennomlesing av eier.
+
 ## 1. Mål
 
 Studioet kan bare bookes i én periode. Alt som kan lages og prøves uten studio, lages derfor før perioden. Da brukes perioden bare til tre ting:

@@ -11,8 +11,8 @@ Plan: [`docs/plans/api.md`](../../../docs/plans/api.md). Spesifikasjonen 10.1, 1
 
 | Rolle | Hvem | Kan |
 | --- | --- | --- |
-| `touch` | Forespørsler fra PC-en selv uten innlogging | Økt, showvalg, opptak, hjelp, logg ut |
-| `operator` | Tekniker på teknikerlisten (`site/<studio>/staff.yaml`) med PIN | I tillegg AUTO, LÅS, kutt, preview, content, forhåndsvalg, logg, kvittere varsler |
+| `touch` | Forespørsler fra PC-en selv uten innlogging | Start uten kort («Gjest», D-057), økt, showvalg, opptak, hjelp, logg ut |
+| `operator` | Tekniker på teknikerlisten med PIN. Listen ligger i appen (Innstillinger → Teknikere, D-060); `site/<studio>/staff.yaml` er bare utgangspunktet. Er listen tom, slipper admin-PIN-en inn som admin, så en ny PC kan settes opp | I tillegg AUTO, LÅS, kutt, preview, content, forhåndsvalg, logg, kvittere varsler |
 | `admin` | Administrator på listen med admin-PIN | I tillegg brytere og skyggemodus |
 
 Andre maskiner uten innlogging får bare `GET /api/health`. I simulatoren (`dev_admin`) er lokale forespørsler admin, så teknikervinduet kan prøves uten PIN.

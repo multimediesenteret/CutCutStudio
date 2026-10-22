@@ -69,8 +69,10 @@ Steg som flytter kameraet eller endrer fargen, spør først. Bekreft bare når k
 Stopp videolaget først: kortet kan bare åpnes av ett program om gangen. Med `--user` måles også forsinkelsen, og da må CutCut og Companion kjøre:
 
 ```powershell
-uv run cutcut hwtest vision --site C:\CutCut\site --device 0 --user tekniker1
+uv run cutcut hwtest vision --site C:\CutCut\site --user tekniker1
 ```
+
+Kortet finnes på navnet fra `video` i `devices.yaml` (standard «INOGENI»). Finner testen det ikke, kan det velges etter nummer med `--device 0`.
 
 | Steg | Hva skjer | Svarer på |
 | --- | --- | --- |
@@ -81,6 +83,22 @@ uv run cutcut hwtest vision --site C:\CutCut\site --device 0 --user tekniker1
 | V5 Stabilitet | Leser bilder i `--minutes` (60): tapte bilder, svarte bilder og gjenåpninger | |
 
 Motoren låses (LÅS) mens testen kjører, og låses opp etterpå.
+
+## Ansikt og munn på et opptak (P6)
+
+Kjøres på et opptak av multiviewen fra en testsending (`multiview.mp4` fra `docs/intake/opptak-og-klippeliste.md`), ikke på kortet direkte. Trenger modellen (`uv run python tools/fetch_models.py`) og ekstraen `vision`.
+
+```powershell
+uv run cutcut hwtest faces --site C:\CutCut\site --file D:\opptak\multiview.mp4
+```
+
+| Steg | Hva | Godkjent når |
+| --- | --- | --- |
+| F1 Ansikt per rute | Andel av rundene med ansikt, og med brukbart ansikt (`V2`) | Minst 90 % brukbart i hver kamerarute |
+| F2 Munn i bevegelse | Hvor ofte munnen regnes som i bevegelse per rute, til sammenligning med hvem som snakket | Tallene stemmer med opptaket (vurderes) |
+| F3 Tid per runde | Alle rutene analysert, snitt og høyest | Under 200 ms, så 5 runder i sekundet holder |
+
+`--rounds` (standard 1500, ca. 5 minutter) gir hvor mye av opptaket som brukes. Tallene brukes til å justere grensene i `vision/faces.py` og `V1`/`V2` før `video_confirm` prøves (`docs/studio/testdag.md` 4.3 og 5.5).
 
 ## 72-timerstesten (SO-8)
 

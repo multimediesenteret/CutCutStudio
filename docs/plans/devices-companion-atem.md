@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M2 (lesing og klipping via preview, D-049) og M3 (ISO, Companion-sider) · Spes. 2.2, 5.6, 5.7 (`S5`), 7.1, 7.2, 7.7, 8.4 steg 3, 7, 8, 8.5 (`H-ATEM-*`, `H-COMP-1`); ADR-0004, 0005, 0009, 0012; Q7 · Mapper: `src/cutcut/devices/companion/`, `src/cutcut/devices/atem/`, `bridges/atem/`
 
+**Leveransestatus 2026-10-22:** DA-1–DA-9 er bygget. Maskintesten (DA-5) og klipping via preview i studio (DA-6) gjøres i studioperioden.
+
 ## 1. Formål og avgrensning
 
 - **Companion-klienten** trykker knapper på side 10 (preview, layout, TAKE) og skriver `regi_*`-variablene (7.1). Kutt og layouter går alltid hit i drift (ADR-0009).
@@ -67,7 +69,7 @@ Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64
 - `S5`: Companion dør midt i scenario → neste kutt går via broen.
 - Avstemming: falsk ATEM endrer program uten motoren → motoren venter 5 s og loggfører.
 - Ytelse: fra `Take` i kjernen til HTTP-kall mot falsk Companion under 20 ms (del av 150 ms-kravet).
-- **Maskintester:** `tools/hw-test/atem.py` (modell, fastvare, lesing av alt i `atem.state`, makroliste, ISO-status, direkte kutt bare med bekreftelse) og `tools/hw-test/companion.py` (versjon, `cutcut_pages_version`, trykk på hver preview-knapp og les ATEM tilbake). Avgjør Q7 og endelig ADR-0012.
+- **Maskintester:** `cutcut hwtest atem` (B1–B6: modell og videoformat, multiview mot rutekartet, makroer, Companion og `cutcut_pages_version`, hver preview-knapp lest tilbake fra ATEM, TAKE bare med bekreftelse; `docs/studio/maskintest.md`). Avgjør Q7 og endelig ADR-0012.
 
 ## 6. Leveranser
 
@@ -81,7 +83,7 @@ Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64
 | DA-6 | Klipping via preview + TAKE i `LIVE` | Motoren klipper via preview i studio (spes. 11 steg 5, M2) |
 | DA-7 | `S5` reservekutt og makrosjekk ved oppstart | Tester grønne |
 | DA-8 | ISO-opptak fra teknikervinduet (7.7) | Start/stopp/status mot falsk og ekte ATEM. Gjort mot falsk ATEM og fiksturen; mot ekte ATEM i maskintesten. Knappen på Companion side 11 venter på at handlingen i ATEM-modulen er prøvd i studio |
-| DA-9 | Companion-eksport `cutcut-pages.companionconfig` side 10 og 11 | Importert i studio, versjon leses |
+| DA-9 | Companion-eksport: `cutcut-side-10`, `cutcut-side-11` og `cutcut-variabler` (`.companionconfig`, laget med `cutcut companion-pages`) | Importert i studio, versjon leses |
 
 ## 7. Åpne spørsmål
 

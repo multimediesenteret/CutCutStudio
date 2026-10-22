@@ -5,6 +5,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Changed
+- Dokumentasjonen er gått gjennom mot koden og beslutningene: status, arkitektur, stack, planer, runbooks, studio-dokumenter og README-er per modul er oppdatert, og `cutcut.setup` og `cutcut.hwtest` har fått egen README. Setup-steg 9 heter nå «Pearl og innlogging» og beskriver Start-knappen; Canon vises som «VISCA (XC senere)» under Kameraer.
 - Live tekst og forvarsel om turbytte er tatt ut av v1 (D-063): bryterne er borte fra regi-siden, og prosessen `stt` er fjernet fra dokumentene. Lagrede innstillinger som nevner dem, lastes som før.
 - Capture-kortet er INOGENI 4KXUSB3 som planlagt. DeckLink-kortet som sto i PC-spesifikasjonen brukes ikke; tekstene som sa noe annet er rettet (D-068).
 - Ingen konkurrenter er nevnt, og prosjektet omtales som Multimediesenteret (D-061). Studio-mappen heter `site/multimediesenteret`, oppslaget fra kort til bruker heter kort-API, og sjekken for det heter `H-CARD-2`. PDF-eksportene av spesifikasjonen er fjernet; Markdown-filene er fasit.

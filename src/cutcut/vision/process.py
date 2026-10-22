@@ -4,8 +4,8 @@ Frames are taken at 15 Hz. For each tile the light part measures what the later 
 build on: is there a picture (``signal``), how bright, and how much changed since the last
 frame (``change``, VI-2 and VI-3 turn that into content and movement). Published:
 
-* ``vision.frame`` with every tile, 15 Hz. (``vision.tile`` with face and mouth, which the
-  engine's ``video_confirm`` reads, comes with the heavy part in M4.)
+* ``vision.frame`` with every tile, 15 Hz. ``vision.tile`` carries face, mouth,
+  smile and nod per camera (P6, :mod:`cutcut.vision.faces`), 5 Hz.
 * ``vision.content`` from the laptop tile (VI-2, :mod:`cutcut.vision.content`), 5 Hz and at
   once when the state changes;
 * ``vision.moving`` – cameras that move or moved in the last 0.5 s (VI-3, ``S1``), 5 Hz;

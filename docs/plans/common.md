@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M1 · Spes. 3, 4, 5.8, 7.5, 12.1–12.4; ADR-0002, 0006, 0010 · Mappe: `src/cutcut/common/`
 
+**Leveransestatus 2026-10-22:** C-1–C-8 er bygget (M1).
+
 ## 1. Formål og avgrensning
 
 Felles grunnmur som alle andre moduler bygger på. Ingen regler og ingen enhetskode her.

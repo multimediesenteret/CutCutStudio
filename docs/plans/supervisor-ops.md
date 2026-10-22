@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: grunnversjon i M2 (PL-07), full drift i M3 · Spes. 2.6, 3, 8.2 (kiosk), 9 (alle), 10.4, 12.2–12.4; D-019, D-042; ADR-0001, 0003, 0007 · Mapper: `src/cutcut/supervisor/`, `installer/`, `tools/`
 
+**Leveransestatus 2026-10-22:** SO-1–SO-9 er bygget. Verktøyet for 72-timerstesten (SO-8) er `cutcut hwtest soak`; selve kjøringen gjøres i studioperioden.
+
 ## 1. Formål og avgrensning
 
 Det som gjør at CutCut står i måneder uten tekniker: prosesser som restartes, en PC som starter selv, en touch-skjerm som alltid kommer tilbake, og oppdateringer som ruller tilbake av seg selv.
@@ -14,13 +16,13 @@ Det som gjør at CutCut står i måneder uten tekniker: prosesser som restartes,
 | --- | --- | --- |
 | PC-en | BIOS + UPS | «Power on after AC loss», UPS med ryddig nedstenging, automatisk innlogging for kiosk-brukeren (Q31) |
 | Windows-tjenesten `CutCut` (supervisor) | Windows tjenestebehandler via WinSW | Automatisk start, omstart ved krasj (5 s, 10 s, 30 s) |
-| `core`, `audio-capture`, `vision`, `stt`, `atem-bridge` | supervisor | Hjerteslag hvert sekund; 3 tapte = drep og start; økende pause (1, 2, 5, 10, 30 s) og varsel hvis en prosess starter mer enn 5 ganger på 10 min |
+| `core`, `audio-capture`, `vision`, `atem-bridge` (`stt` tatt ut, D-063) | supervisor | Hjerteslag hvert sekund; 3 tapte = drep og start; økende pause (1, 2, 5, 10, 30 s) og varsel hvis en prosess starter mer enn 5 ganger på 10 min |
 | Companion | egen WinSW-tjeneste (Q35) | Automatisk start og omstart; låst versjon |
 | Touch (Edge kiosk) | Windows tilordnet tilgang + `kiosk-vakt` | Tilordnet tilgang starter Edge på nytt; vakten (liten oppgave i kiosk-brukerens økt, startet av Oppgaveplanlegger ved innlogging) laster siden på nytt hvis touch-hjerteslaget stopper i 10 s |
 
 Tjenester kan ikke vise vinduer på skjermen (Windows' økt 0). Derfor kjører alt som har skjerm (Edge kiosk, kiosk-vakt) i kiosk-brukerens økt, og alt annet som tjenester.
 
-**Supervisor:** liten Python-prosess uten avhengigheter utover `common`. Leser prosesslisten fra konfig, starter prosessene med riktig prioritet (`core` og `audio-capture` høy, `vision` normal, `stt` lav), samler hjerteslag over bussen, og rapporterer `H-PROC-*`. Den er bevisst enkel: ingen regler, ingen nett utover lokal buss.
+**Supervisor:** liten Python-prosess uten avhengigheter utover `common`. Leser prosesslisten fra konfig, starter prosessene med riktig prioritet (`core` og `audio-capture` høy, `vision` normal), samler hjerteslag over bussen, og rapporterer `H-PROC-*`. Den er bevisst enkel: ingen regler, ingen nett utover lokal buss.
 
 **På regi-PC-en (12.2):**
 
@@ -39,11 +41,11 @@ C:\CutCut\
 - `install.ps1` (kjøres av tekniker i servicevindu): sjekker sjekksum → pakker ut ved siden av → prøver den nye versjonen mot studio-oppsettet → bytter `current` → restarter tjenesten → venter til den nye versjonen svarer på `/api/health`. Feiler den: `current` tilbake og tjenesten restartes. Tre siste versjoner beholdes. Konfigmigrering kommer med første `schema_version` 2; i dag leser den nye versjonen oppsettet slik det er (gjort, SO-4).
 - Ingen automatisk oppdatering av CutCut, Windows, drivere eller fastvare utenfor servicevinduet.
 
-**Windows-oppsett (9.2) som skript:** `tools/windows/setup-pc.ps1` gjør alt som kan gjøres lokalt (strømplan, USB-strømsparing av, aktive timer, kiosk-bruker, brannmurregel for 8080, tjenester) og skriver rapport. Skriptet kan kjøres på nytt og endrer bare det som avviker. Om det er lov avhenger av Q8 (sentralt administrert PC).
+**Windows-oppsett (9.2) som skript:** `installer/setup-pc.ps1` gjør alt som kan gjøres lokalt (strømplan, USB-strømsparing av, aktive timer, kiosk-bruker, brannmurregel for 8080, tjenester) og skriver rapport. Skriptet kan kjøres på nytt og endrer bare det som avviker. Om det er lov avhenger av Q8 (sentralt administrert PC).
 
 **Rydding:** logger 30 dager, økthistorikk etter Q10, eksporter 30 dager, nattlig kopi av `cutcut.db` til `data\backup\` (7 kopier). Diskplass under 10 % gir gult; under 5 % slettes eldste eksporter først, aldri opptak.
 
-**Nattlig vedlikehold (forslag, Q30):** kl. 04:00 hvis ingen økt er aktiv: touch lastes på nytt og `stt`/`vision` restartes. `core` og `audio-capture` restartes ikke uten grunn. Ingen omstart av PC-en uten servicevindu.
+**Nattlig vedlikehold (forslag, Q30):** kl. 04:00 hvis ingen økt er aktiv: touch lastes på nytt og `vision` restartes. `core` og `audio-capture` restartes ikke uten grunn. Ingen omstart av PC-en uten servicevindu.
 
 ## 3. Tilstander og feil
 

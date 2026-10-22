@@ -1,6 +1,6 @@
 # CutCut som Windows-tjeneste (SO-2)
 
-CutCut kjører som Windows-tjenesten **CutCut Studio** (`CutCut`). Tjenesten starter `cutcut supervisor`, som starter og passer på `core`, `atem-bridge` og `audio-capture`. Ansvaret er delt slik:
+CutCut kjører som Windows-tjenesten **CutCut Studio** (`CutCut`). Tjenesten starter `cutcut supervisor`, som starter og passer på `core`, `atem-bridge`, `audio-capture` og `vision` (videolaget, når studioet har rutekart og capture-kort). Ansvaret er delt slik:
 
 | Hvis | Så |
 | --- | --- |
@@ -14,7 +14,7 @@ Last ned `cutcut-<versjon>-win64.zip` og `.sha256` fra GitHub-releasen (Releases
 
 ```powershell
 # 1. Studio-oppsettet
-git clone <studio-repo> C:\CutCut\site            # eller kopier site\multimediesenteret dit
+# kopier site\multimediesenteret fra repoet til C:\CutCut\site (bare utgangspunkt; det ekte legges inn i appen)
 
 # 2. Pakken: pakkes ut, prøves mot oppsettet, og tjenesten installeres og startes
 Expand-Archive .\cutcut-1.0.0-win64.zip -DestinationPath $env:TEMP\cutcut-pkg   # bare for å få tak i install.ps1
@@ -39,9 +39,9 @@ Sjekk:
 Det som er spesielt for studioet (IP-adresser, teknikere, varsling), legges inn i appen og lagres på PC-en, ikke i noe repo (D-060).
 
 1. Åpne teknikervinduet og logg inn med et brukernavn og **admin-PIN**. Så lenge teknikerlisten er tom, slipper admin-PIN inn.
-2. **Innstillinger → Teknikere:** legg inn teknikerne og deg selv som admin. Fra nå slipper bare de inn.
+2. **Innstillinger → Teknikere** (valgfritt, D-065): legg inn teknikere og deg selv som admin. Da slipper bare de inn. Uten liste gir admin-PIN-en tilgang.
 3. **Oppsett → Utstyr og nettverk:** IP-adressene.
-4. **Innstillinger → Varsling:** mottakere og SMTP, hvis varsling skal på.
+4. **Innstillinger → Varsling:** support-e-post (vises på touch ved «Hjelp»). E-postvarsling er av og settes opp etter at studioet er tatt i bruk (D-065).
 5. **Innstillinger → Oppsett → Lagre oppsett:** ta en kopi av filen og legg den et trygt sted.
 
 Ny PC eller tilbake til et tidligere oppsett: **Innstillinger → Oppsett → Hent oppsett** viser hva filen endrer, og «Bruk oppsettet» tar den i bruk. CutCut tar også en kopi selv ved hver endring, i `C:\CutCut\data\oppsett\` (de 20 nyeste og `oppsett-siste.yaml`).
@@ -80,4 +80,4 @@ pnpm --filter "./ui/**" build
 
 ## Companion (Q35)
 
-Companion skal også starte selv. `-Companion -CompanionExe <sti>` installerer den som tjenesten `CutCut-Companion`. Companion sin Windows-utgave er laget for å kjøre med skjerm. Derfor avgjøres på test-PC-en om den skal være tjeneste, eller startes ved innlogging av kiosk-brukeren (SO-6). Til da startes Companion som før.
+Companion skal også starte selv. `-Companion -CompanionExe <sti>` installerer den som tjenesten `CutCut-Companion`. Companion sin Windows-utgave er laget for å kjøre med skjerm. Derfor avgjøres ved installasjonen i studioperioden (`testdag.md` 1.8) om den skal være tjeneste, eller startes ved innlogging av kiosk-brukeren (SO-6). Til da startes Companion som før.

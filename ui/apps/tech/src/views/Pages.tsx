@@ -1,5 +1,5 @@
 // The technician pages behind the rail (U-7, U-8): Regi, Kameraer, Opptak, Helse, Logg,
-// Innstillinger and the Oppsett placeholder (the setup wizard comes in M3).
+// Innstillinger. Oppsett has its own files (Setup.tsx, Wizard.tsx).
 import {
   useStudio,
   type Decision,
@@ -339,10 +339,10 @@ export function Regi({ ctx }: { ctx: Ctx }) {
   );
 }
 
-// -- Kameraer (read only in M1; control comes with the camera drivers in M2) -------------
+// -- Kameraer: pictures, presets, nudge and AI-tracking (CameraControls.tsx) ---------------
 
 const DRIVER: Record<string, string> = {
-  canon_xc: "Canon CR-N300 · XC over HTTP",
+  canon_xc: "Canon CR-N300 · VISCA (XC senere)",
   obsbot: "OBSBOT Tail 2 · VISCA + OSC",
   none: "Fast kamera · ingen styring",
 };

@@ -8,6 +8,7 @@ Plan: [`docs/plans/session.md`](../../../docs/plans/session.md). Spesifikasjonen
 
 **Regler som er bygget inn:**
 
+- Innlogging: standard i studio er Start-knappen (brukeren blir «Gjest», `login_mode: open`, D-057). Kortreglene under gjelder når kortinnlogging slås på senere.
 - Én aktiv økt. Nytt kort under opptak avvises; samme kort igjen gjør ingenting.
 - Aldri utlogging under nedtelling eller opptak (D-043). Utlogging 30 s etter ferdig opptak, eller etter 3 min uten trykk på klar-skjermen.
 - «Starter…» vises til Pearl bekrefter (12.5). Starter ikke Pearl innen 10 s: én setning til brukeren, varsel til tekniker, tilbake til klar.
@@ -15,7 +16,7 @@ Plan: [`docs/plans/session.md`](../../../docs/plans/session.md). Spesifikasjonen
 - Start og stopp kan komme fra touch, tekniker og Stream Deck i hvilken som helst rekkefølge; to trykk er det samme som ett.
 - Kun lyd gir modus `A`. Kortnummer kommer aldri inn i modulen, bare brukeren som er slått opp (I8).
 
-Kortleser, kort-API og Pearl-klient kommer i SE-2–SE-5 (M2–M3).
+Pearl-klienten ligger i `cutcut.devices.pearl`. Kortleser og kort-API (SE-4, SE-5) bygges etter at studioet er tatt i bruk (D-057, D-065).
 
 **Show-type (SE-6, D-036):** studioets type (`podcast`, `intervju`, `panel`, `kun-lyd` i `config/defaults/show_types.yaml`) velges under Innstillinger → Show-type og lagres i appen. Touch sender bare antall personer og video; typen settes av studioet. Ved ny økt brukes typens regel-forhåndsvalg; `kun-lyd` gir modus `A` (grafikken på program, ingen kutt til kameraer), og `iso_record` gjør at `H-ATEM-4` krever ISO-disk.
 

@@ -21,10 +21,10 @@ CutCut flytter aldri et kamera som er på program eller preview (I2), så «kame
 
 ## Løs det
 
-1. Svarer ikke: sjekk strøm og nett. Kameraets IP står under **Oppsett → Utstyr**.
+1. Svarer ikke: sjekk strøm og nett. Kameraets IP står under **Oppsett → Utstyr og nettverk**.
 2. Ikke manuell: sett manuell hvitbalanse og eksponering i kameraets meny eller app.
-3. `H-CAM-MOVE` rød: noen har dyttet eller snudd kameraet, eller AI-tracking står på. Slå av tracking i kameraets app, og hent riktig preset.
-4. Feil IP: rett den under **Oppsett → Utstyr**. Den tas i bruk uten omstart.
+3. `H-CAM-MOVE` rød: noen har dyttet eller snudd kameraet, eller AI-tracking er slått på utenfor CutCut. Slå tracking av under **Kameraer** (eller i kameraets app), og hent riktig preset. Tracking som er slått på fra CutCut, gir ikke `H-CAM-MOVE`.
+4. Feil IP: rett den under **Oppsett → Utstyr og nettverk**. Den tas i bruk uten omstart.
 5. Bekreft at sjekken er grønn i 30 s.
 
 ## Hvis det ikke hjelper

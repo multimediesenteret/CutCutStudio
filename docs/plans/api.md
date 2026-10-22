@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M1 · Spes. 10.1, 10.2, 12.4, 12.5; D-036, D-045 · Mappe: `src/cutcut/api/`
 
+**Leveransestatus 2026-10-22:** A-1–A-6 er bygget.
+
 ## 1. Formål og avgrensning
 
 Ett API for touch, tekniker, Companion side 11 og ekstern overvåkning. Alle endringer som påvirker sendingen logges med hvem (rolle og bruker) og når. Alle stier fra 10.1 og 10.2 implementeres, pluss `POST /touch/step` (D-036) og `POST /touch/again` (U-5), `POST /rules/overrides` (U-8), og eksportene `GET /log.csv`, `/sessions`, `/sessions.csv`, `/debug-package` (A-6).

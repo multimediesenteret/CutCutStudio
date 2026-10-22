@@ -26,7 +26,6 @@ OUT_RULES = ROOT / "docs" / "reference" / "rules.md"
 
 # Rules implemented outside the engine or in later milestones (docs/plans/milestones.md).
 PLANNED: dict[str, str] = {
-    "S5": "M2 – Companion/ATEM-utfører",
     "V6": "senere – blikkretning, eksperimentell (6.5)",
 }
 

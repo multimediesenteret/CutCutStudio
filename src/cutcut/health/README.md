@@ -35,8 +35,8 @@ Slik oppfører `HealthEngine` seg:
 | `H-COMP-1` | Companions HTTP-API og `cutcut_pages_version` | 5 s | Rødt: svarer ikke (`S5` tar over), sidene mangler eller har feil versjon |
 
 Lagringen på Pearl regnes om til minutter med 20 Mbit/s til bitraten er målt i maskintesten (DA-5). Dette kommer senere:
-- `H-PC` for GPU-temperatur og klokke (NTP) kommer med test-PC-en (Q8, Q20).
-- `H-AUD-2` (støy i stillhet) trenger støygulvet i `baseline.yaml` fra setup steg 5.
+- `H-PC` for klokke (NTP): `setup-pc.ps1` setter NTP; en egen sjekk kommer etter studioperioden. GPU brukes ikke av videolaget (D-067), så GPU-temperatur sjekkes ikke.
+- `H-AUD-2` (støy i stillhet): støygulvet måles og lagres i steg 5 (`baseline.yaml`), men selve sjekken er ikke bygget.
 - `H-PRL-2`, opptak som stopper av seg selv, er en hendelse og varsles av økta (I7).
 
 I studioet blir et åpent avvik et varsel i teknikervinduet: rødt gir feil, gult gir advarsel. Når avviket lukkes, forsvinner varselet av seg selv.
@@ -55,6 +55,4 @@ Sjekker trykker aldri knapper og flytter aldri noe. Slikt finnes bare i setup-hj
 
 `H-CARD-1` (kortleseren) og `H-CARD-2` (kort-API) kommer med kortinnloggingen (SE-4, SE-5, M4). Studioet bruker Start-knappen til appen har vært testet en stund (D-057), så de ville bare vært gule.
 
-**Setup-hjelperen (HS-5, HS-6, `cutcut/setup/steps.py`):** ti steg som data i `config/defaults/setup/`. Hvert steg peker på helsesjekkene som viser resultatet (`H-CAM-C*` er lov). «Sjekk steget» kjører dem med en gang (`HealthEngine.run_matching`); de er de samme sjekkene som i drift og bare leser. «Godkjenn steget» lagres med tekniker og tid i databasen (`setup.approvals`) og logges; et steg med rød sjekk kan ikke godkjennes, og en godkjenning skjuler aldri en sjekk som er rød senere. «Fiks for meg» finnes bare der det er trygt (nå: ATEM-inngangsnavn i steg 3), krever bekreftelse og er sperret under opptak. API: `GET /api/setup/steps`, `POST /api/setup/steps/{steg}/check|fix|approve`.
-
-**Fargematching (P8, `cutcut/setup/color.py`, spes. 6.4):** setup-steg 4 finner gråkortet i hver kamerarute (jevne, fargeløse blokker, verken mørke eller utbrent), måler rødt mot blått og lysstyrke, og justerer hvitbalanse og gain mot referansekameraet i høyst fem runder til forskjellen er under 3 %. Kamerakommandoene går gjennom kameravakten, så et kamera på lufta hoppes over. Siste resultat lagres i appen (`setup.color`).
+**Setup-hjelperen og fargematchingen** (HS-5, HS-6, P8) bruker de samme sjekkene, men ligger i `cutcut.setup`: se [`src/cutcut/setup/README.md`](../setup/README.md).

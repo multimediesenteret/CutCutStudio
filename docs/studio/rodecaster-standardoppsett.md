@@ -13,7 +13,7 @@ Dette er oppsettet CutCut Studio forventer. Setup-hjelperen (spesifikasjonen 8.4
 | Automatisk oppdatering | Av. Oppdateres bare i servicevindu etter test i skyggemodus | Kanalkart og driver kan endre seg |
 | PC-driver | Siste **RØDECaster ASIO-driver** kompatibel med 1.7.3+ (ny driver kom med 1.7.3) | Se `docs/research/lyd-fra-rodecaster.md` |
 | Virtual Devices-driver | **Ikke** installert | Kan ikke kjøre samtidig med ASIO |
-| Versjoner noteres | `site/<studio>/equipment/versions.yaml` | Morgensjekken varsler ved avvik |
+| Versjoner noteres | `site/<studio>/equipment/versions.yaml` | Skrives av `installer/setup-pc.ps1 -VersionsYaml …`. Sammenligning i morgensjekken er ikke bygget |
 
 ## Plassering og faderkart
 
@@ -48,13 +48,13 @@ Hovedmiks ligger alltid på kanal 1–2.
 | Mic-kanal 1–4 | Kanalfarge | Se fargetabellen; nærmeste farge i RØDE-paletten |
 | Mic-kanal 1–4 | Kanalnavn (hvis firmware tillater) | `PROG`, `GJEST 1`, `GJEST 2`, `GJEST 3` |
 | Automatiske funksjoner | Auto-mute, ducking og lignende | Av. CutCut skal se de samme signalene som deltakerne lager |
-| Hovedmiks ut | Til ATEM | 3,5 mm-inngang på ATEM (spesifikasjonen 2.3) |
+| Hovedmiks ut | Til ATEM | Analog lydinngang på ATEM (spesifikasjonen 2.3 var skrevet for Mini Extreme; på HD8 ISO bekreftes inngangen i studio) |
 
 ## Når programlederen demper en mic
 
 Programlederen betjener mikseren og kan dempe en gjest eller dra ned en fader. Med pre-fader multitrack hører CutCut trolig fortsatt den dempede mic-en, og kunne klippet til noen som ikke høres i sendingen.
 
-Tiltak (forslag til regel `S6`, må med i implementasjonsplanen for lyd):
+Tiltak (regel `S6`, bygget i AU-4):
 
 - CutCut sammenligner hver mic med hovedmiksen (kanal 1–2). Er mic-en aktiv, men bidraget i hovedmiksen mangler (lav korrelasjon over 0,5 s), regnes den som **dempet**: ingen kutt til den personen, og mic-stripen viser «dempet på mikser».
 - Maskintesten for lyd skal bekrefte om pre-fader-sporet faktisk inneholder lyd fra en dempet kanal, og om post-fader er et bedre valg (Q24).

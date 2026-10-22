@@ -150,7 +150,7 @@ def test_variables_are_coalesced_and_rate_limited(
     assert state.variables == {"regi_shot": "CU:P2", "regi_rule": "T1"}
 
 
-def test_companion_down_opens_the_breaker_and_cuts_via_bridge_S5() -> None:
+def test_S5_companion_down_opens_the_breaker_and_cuts_via_bridge() -> None:
     clock = Clock()
     bridge = Bridge()
     with fake_companion(FakeCompanionState(fail=True)) as (url, state):

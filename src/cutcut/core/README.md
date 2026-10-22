@@ -31,11 +31,15 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 | Gruppe | Status |
 | --- | --- |
 | `T1`–`T9`, `T12`, roller (5.12) | Ferdig |
-| `PV1`, `PV4`, preview-tilstander | Ferdig. `PV2` håndheves i kameradriverne (M3), `PV3` med videolaget (M4) |
+| `PV1`, `PV4`, preview-tilstander | Ferdig. `PV2` håndheves i kameravakten (`GuardedCamera`), `PV3` med videolaget (P7) |
 | `K1`–`K4`, `H1`–`H4` | Ferdig |
 | `S1`–`S4`, `S6` | Ferdig. `S5` (Companion nede) avgjøres i skallet ved utføring |
 | `B1`–`B5` | Ferdig |
 | `CT1`–`CT6` | Ferdig (`content.py`): aktiv etter 2 s, ny slide, video og laptop-lyd, retur via kort fugleperspektiv, tapt signal kuttes bort straks |
+| `L1`–`L4` (bryter `layouts`) | Ferdig (P3) |
+| `F1`–`F3`, `Z1`–`Z3` (bryterne `framing_variety`, `slow_zoom`) | Ferdig (P4) |
+| `AT1`–`AT6` (bryter `ai_tracking`) | Ferdig (P5) |
+| `V1`–`V5`, `PV3`, `R1`–`R3` (bryterne `video_confirm`, `reactions`) | Ferdig (P7). `V6` (blikkretning) er eksperimentell og står i `PLANNED` |
 | Overstyring (`MANUAL`): manuelt kutt, AUTO, LÅS, manuell preview, endring på ATEM av en person (I5), Kun lyd (`A`) | Ferdig |
 
 ## Valg som ikke står eksplisitt i spesifikasjonen

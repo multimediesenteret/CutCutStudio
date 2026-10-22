@@ -16,7 +16,7 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 **Oppsett** (gjøres av eier, ikke av agent):
 
 - Repoet `multimediesenteret/CutCutStudio` er koblet til Vercel-prosjektet `cutcutstudio2026`: gren `main` til produksjon, pull requests til forhåndsvisning.
-- **Nå (konsept):** Vercel-prosjektet `multimediesenteret/cutcutstudio2026` (https://cutcutstudio2026.vercel.app) bygger fra repo-roten med Framework Preset «Other» og ingen byggekommando. `vercel.json` i roten sender `/` til `/concept/`, `/touch` og `/tech` til hver skjerm, og alle andre stier til konseptet, så resten av repoet (dokumentasjon, utstyrsfiler) ikke kan åpnes fra nettsiden.
+- Vercel-prosjektet `multimediesenteret/cutcutstudio2026` (https://cutcutstudio2026.vercel.app) bygger fra repo-roten med Framework Preset «Other». Bare `.vercel-out/` publiseres, så resten av repoet (dokumentasjon, utstyrsfiler) kan ikke åpnes fra nettsiden.
 - **Bygg (U-9):** `vercel.json` setter alt, så innstillingene i Vercel-prosjektet trenger ikke endres:
   - installering: `pnpm install --frozen-lockfile`
   - bygg: `pnpm --filter "@cutcut/simulator..." run build && node ui/scripts/vercel-out.mjs`
@@ -28,9 +28,9 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
 
 **Hobby-planen har to begrensninger som styrer hvordan vi jobber:**
 
-1. *Forfatter må være kontoeier.* Hobby blokkerer utrulling fra private repoer når commit-forfatteren ikke har tilgang til Vercel-prosjektet («does not support collaboration for private repositories»). Derfor har alle commits forfatter `Multimediesenteret <magnus.lian@ntnu.no>`, uten `Co-authored-by`-linjer, og CI-jobben `commit-identity` sjekker det. Se `AGENTS.md` 3.
+1. *Forfatter må være kontoeier.* Hobby blokkerte utrulling da repoet var privat og commit-forfatteren ikke hadde tilgang til Vercel-prosjektet. Repoet er nå offentlig (D-059), men regelen beholdes så historikken er ryddig og utrullingen aldri stopper av den grunnen. Derfor har alle commits forfatter `Multimediesenteret <magnus.lian@ntnu.no>`, uten `Co-authored-by`-linjer, og CI-jobben `commit-identity` sjekker det. Se `AGENTS.md` 3.
 2. *Ikke-kommersiell bruk.* Hobby er for ikke-kommersielle prosjekter. Multimediesenteret bruker det til intern prototyping ved et universitet, uten kommersiell bruk; det holder (Q22, besvart 2026-10-21).
 
 ## Windows-pakke
 
-Bygges av CI ved tag `vX.Y.Z` (se `docs/RELEASE.md`): Python, avhengigheter, bygget UI, `atem-bridge`, WinSW-definisjoner, SBOM og sjekksum. Modellfiler lastes ned ved installasjon etter `models/manifest.yaml`. Installeres i servicevindu etter spesifikasjonen 12.3, med automatisk tilbakerulling hvis morgensjekken feiler.
+Bygges av CI ved tag `vX.Y.Z` (se `docs/RELEASE.md`): Python, avhengigheter, bygget UI, `atem-bridge`, WinSW-definisjoner, SBOM og sjekksum. Modellfilene (`models/`, etter `models/manifest.yaml`) ligger i pakken, så studio-PC-en ikke trenger nett for dem. Installeres i servicevindu med `installer/install.ps1` (spesifikasjonen 12.3); svarer ikke den nye versjonen på `/api/health`, ruller skriptet tilbake selv.

@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sup = sub.add_parser(
         "supervisor",
-        help="start core, atem-bridge og lyd, og start dem på nytt når de faller ut (SO-1)",
+        help="start core, atem-bridge, lyd og videolag, og start dem på nytt ved feil (SO-1)",
         description="Kjøres som tjeneste i studio. Status vises under Helse i teknikervinduet.",
     )
     sup.add_argument("--site", type=Path, required=True, help="studio-oppsett")

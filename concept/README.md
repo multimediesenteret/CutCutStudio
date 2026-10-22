@@ -20,7 +20,7 @@ cd concept && python3 -m http.server 8765
 
 ## Vercel
 
-Publisert på https://cutcutstudio2026.vercel.app (forside), `/touch` og `/tech`. Prosjektet bygger fra repo-roten uten byggekommando; `vercel.json` i roten sender alt til `concept/`. Se `docs/publishing.md`.
+Konseptet er et arkiv. Forsiden på https://cutcutstudio2026.vercel.app er web-simulatoren (`/sim/`), og konseptet ligger på `/concept/` (D-053). Se `vercel.json` og `docs/publishing.md`.
 
 ## Antagelser
 
@@ -28,6 +28,6 @@ Kamerakart, IP-adresser og noen standardverdier er antatt for å kunne vise skje
 
 ## Hva som er konsept og hva som blir appen
 
-- Utseende, flyt, tekster, farger og oppsett av skjermene er ment å videreføres i `ui/apps/touch` og `ui/apps/tech` (React + TypeScript, spesifikasjonen 12.5).
+- De ekte skjermene er bygget i `ui/apps/touch` og `ui/apps/tech` etter dette konseptet. Ved uenighet gjelder `ui/`.
 - `sim.js` er en forenklet regelmotor for demo. Den ekte motoren er Python og sender tilstand over WebSocket; `BroadcastChannel` brukes bare her.
 - Alt bruker teknologi som virker i Edge/WebView2 på Windows uten nett: systemskrift (Segoe UI Variable, Cascadia Mono), ren CSS og SVG, ingen CDN, ingen service worker. Se `docs/design/gui-konsept.md`.

@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M1 · Spes. 5 (alle underseksjoner), 9.1, 10.4; D-010, D-035, D-041; I2–I5, I7 · Mappe: `src/cutcut/core/`
 
+**Leveransestatus 2026-10-22:** K-1–K-10 er bygget (M1). Bryterreglene (`L`, `F`, `Z`, `AT`, `V`, `R`) er bygget før studioperioden (P2–P7, `for-studio.md`).
+
 ## 1. Formål og avgrensning
 
 Motoren som bestemmer hva som skal på preview og program. Grunnmodus i M1: moduser (5.1), prioritetsrekkefølge (5.2), `T` (5.3), `S` (5.7), `PV` (5.9), `K` (5.10), `H` (5.11), roller (5.12), overstyring. `B` og `CT` bygges i M1 mot simulerte målinger, og tas i bruk i studio når videolaget finnes (M3). `V`, `R`, `F`, `Z`, `L`, `AT` er brytere (M4, `features.md`), men plassen i motoren lages nå.

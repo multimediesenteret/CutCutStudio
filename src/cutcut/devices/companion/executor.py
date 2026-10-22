@@ -24,7 +24,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Final, Protocol
 
-from cutcut.common.ids import SourceId
+from cutcut.common.ids import RuleId, SourceId
 from cutcut.common.models.site import CompanionButton, CompanionMap
 from cutcut.core.intents import (
     DirectCut,
@@ -162,7 +162,11 @@ class CompanionExecutor:
             self._drop("reservekutt uten kilde")
             return
         self._status.reserve_cuts += 1
-        log.warning("S5: Companion nede, reservekutt til %s via atem-bridge", self._preview_target)
+        log.warning(
+            "%s: Companion nede, reservekutt til %s via atem-bridge",
+            RuleId.S5.value,
+            self._preview_target,
+        )
         self._to_fallback(DirectCut(self._preview_target))
 
     def _to_fallback(self, intent: Intent) -> None:
