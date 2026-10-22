@@ -2,25 +2,11 @@ name: python
 
 # Lint, types and tests for the Python code. Runs only when Python-related files change,
 # to save Actions minutes on the free plan (docs/plans/milestones.md, D-050).
-# Linux on every PR; Windows only on main, weekly and on demand (Windows minutes cost more).
+# Linux on every PR; Windows weekly and on demand (Windows minutes cost more).
 
+# Not on push to main: every PR is rebased on main and tested before it is merged (CI budget, D-059).
 on:
   pull_request:
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "sim/**"
-      - "config/**"
-      - "site/**"
-      - "tools/**"
-      - "docs/reference/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "models/manifest.yaml"
-      - ".python-version"
-      - ".github/workflows/python.yml"
-  push:
-    branches: [main]
     paths:
       - "src/**"
       - "tests/**"

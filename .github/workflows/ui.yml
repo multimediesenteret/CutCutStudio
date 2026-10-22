@@ -5,28 +5,9 @@ name: ui
 # Also runs when the parts of the engine the screens talk to change (API, studio, session, sim),
 # and for the Node bridges (bridges/), which share the pnpm workspace.
 
+# Not on push to main: the PR was tested on top of main (D-059). Vercel builds on its own.
 on:
   pull_request:
-    paths:
-      - "ui/**"
-      - "bridges/**"
-      - "tests/fixtures/atem/**"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "eslint.config.js"
-      - ".prettierrc.json"
-      - ".prettierignore"
-      - "docs/reference/openapi.json"
-      - "src/cutcut/api/**"
-      - "src/cutcut/app/**"
-      - "src/cutcut/session/**"
-      - "src/cutcut/sim/**"
-      - ".github/workflows/ui.yml"
-      - "concept/**"
-      - "vercel.json"
-  push:
-    branches: [main]
     paths:
       - "ui/**"
       - "bridges/**"
