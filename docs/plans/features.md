@@ -1,6 +1,6 @@
 # Plan: brytere og steg 11 – farge og Panopto
 
-Status: godkjent (D-046) · Milepæl: M4 · Spes. 5.6, 5.13, 6.4, 6.5, 7.6, 11 steg 10–11; D-006, D-009, D-011, D-023; ADR-0011 · Moduler: `core/rules/`, `vision/`, `stt/`, `devices/cameras/`, `session/`
+Status: godkjent (D-046). Rekkefølgen før studio står i `for-studio.md` (D-066); live tekst og turbytte er tatt ut (D-063) · Milepæl: M4 · Spes. 5.6, 5.13, 6.4, 6.5, 7.6, 11 steg 10–11; D-006, D-009, D-011, D-023; ADR-0011 · Moduler: `core/rules/`, `vision/`, `stt/`, `devices/cameras/`, `session/`
 
 ## 1. Formål og avgrensning
 
