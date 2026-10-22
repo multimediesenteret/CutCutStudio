@@ -8,6 +8,7 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 
 ## Hvor vi er
 
+- **Versjon:** `0.1.0` (2026-10-22), første release med Windows-pakke på GitHub. Endringer: `CHANGELOG.md`.
 - **Fase:** klar for studioperioden. Plan og rekkefølge for arbeidet før perioden: [`docs/plans/for-studio.md`](plans/for-studio.md) (P1–P9, alle ferdige).
 - **Milepæler:** M0 og M1 er ferdige. M2 (studiotest), M3 (grunnmodus i drift) og M4 (brytere) er bygget; de lukkes når studioprøvene i `testdag.md` er gjort og rapportert i issuene.
 - **Spesifikasjon:** v1 med endringer fra beslutningsloggen (D-001–D-069); repoet er fasit (D-040).

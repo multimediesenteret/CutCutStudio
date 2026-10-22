@@ -14,7 +14,7 @@ def _version() -> str:
         data = _json.loads((_Path(__file__).resolve().parents[2] / "BUILD.json").read_text("utf-8"))
         return str(data["version"])
     except (OSError, ValueError, KeyError, TypeError):
-        return "0.1.0.dev0"
+        return "0.1.0"
 
 
 __version__ = _version()

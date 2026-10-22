@@ -1,6 +1,6 @@
 [project]
 name = "cutcut"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "CutCut Studio – live auto-regi for videopodcast (Multimediesenteret)"
 readme = "README.md"
 license = "Apache-2.0"
