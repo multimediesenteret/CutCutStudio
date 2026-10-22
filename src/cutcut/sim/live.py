@@ -140,6 +140,7 @@ def build_live_sim(
     if vision and site.multiview is not None:
         sim.vision = SimVision(site.multiview, studio.runtime)
         studio.on_vision_want = lambda: sim.vision.want(studio.now) if sim.vision else None
+        studio.on_vision_map = lambda m: sim.vision.use_map(m) if sim.vision else None
     return sim, auth
 
 

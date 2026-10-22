@@ -190,6 +190,15 @@ def build_core(opts: CoreOptions) -> Core:
     studio.on_devices = on_devices
     studio.on_audio_config = lambda cfg: send("audio.config", cfg)  # setup step 5 → audio-capture
     studio.on_vision_want = lambda: send("vision.want", {})  # thumbnails while someone looks
+    studio.on_vision_map = lambda m: send("vision.map", m.model_dump(mode="json"))
+
+    async def map_pusher() -> None:
+        """The rutekart saved in the app, again every 10 s: a restarted video layer reads the
+        file first and gets this within seconds (VI-5)."""
+        while True:
+            if studio.multiview_in_app and studio.deps.site.multiview is not None:
+                send("vision.map", studio.deps.site.multiview.model_dump(mode="json"))
+            await asyncio.sleep(10)
 
     def before_tick() -> None:
         studio.runtime.feed_atem(bridge.readback())
@@ -218,7 +227,7 @@ def build_core(opts: CoreOptions) -> Core:
         auth,
         ui_dir=opts.ui_dir,
         before_tick=before_tick,
-        background=[bus_reader, cameras.run, upkeep.run],
+        background=[bus_reader, cameras.run, upkeep.run, map_pusher],
     )
     core = Core(app, studio, bridge, companion, pearl, store, cameras)
     core._closers += [

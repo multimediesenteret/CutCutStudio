@@ -10,6 +10,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- VI-5: rutekartet fra bildet i setup-steg 6.
+  - «Foreslå fra bildet» finner de 2 + 8 rutene i bildet av multiviewen, også med svarte kanter og forskyvning, og leser fra ATEM hva hver rute viser. Uten ATEM finnes program på den røde tally-rammen.
+  - Forslaget tegnes på bildet, og teknikeren kan dra hjørnene før «Lagre rutekart». Et rutekart som ville lest feil kamera eller har ruter som overlapper, avvises.
+  - Rutekartet lagres i appen over `equipment/multiview_map.yaml`, følger med i «Lagre oppsett» og tas i bruk av videolaget med en gang (`vision.map`). «Tilbake til filen» angrer. Sperret under opptak.
 - HS-5, HS-6: setup-hjelperen på teknikersiden (Oppsett). Ti steg fra tomt studio til «Klar for produksjon» (spes. 8.4).
   - Hvert steg viser hva og hvorfor, slik gjør du, sjekkene med forventet og faktisk verdi, og «Godkjenn steget» med navn og tid. Et steg med rød sjekk kan ikke godkjennes.
   - «Sjekk steget» kjører stegets helsesjekker med en gang; de bare leser.

@@ -1,6 +1,7 @@
 # Rutekart for multiviewen i studioet (spesifikasjonen 6.1, plan vision.md).
 # Laget fra bilde av multiview-skjermen 2026-10-21 (D-053). Inngangskartet er bekreftet av
-# Magnus Lian samme dag (D-054). Koordinatene måles på nytt i setup-hjelperen (M3).
+# Magnus Lian samme dag (D-054). Koordinatene kan måles på nytt i setup-steg 6 («Foreslå fra
+# bildet»); da lagres rutekartet i appen og brukes over denne filen (VI-5).
 #
 # Mikser: ATEM Television Studio HD8 ISO. Layout: 2 store + 8 små ruter, preview til venstre.
 # Koordinater er andel av bildet (0–1): x, y, bredde, høyde. Hver rute kuttes 4 % inn på

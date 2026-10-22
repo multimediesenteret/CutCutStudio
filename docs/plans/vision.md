@@ -54,7 +54,7 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 | VI-2 | Content-deteksjon 6.2 | Kriteriene i 10.4 for content grønne |
 | VI-3 | Bevegelse per rute og PGM-bekreftelse | `S1` får ekte data |
 | VI-4 | Maskintest INOGENI | Rapport i issue |
-| VI-5 | Rutekart-forslag i setup steg 6 | Hjørner kan dras i GUI |
+| VI-5 | Rutekart-forslag i setup steg 6 | Hjørner kan dras i GUI. Gjort mot simulator; prøves på studiobildet i steg 6 |
 | VI-6 | Tung del: ansikt, munn, smil, ASD (M4) | `video_confirm` testet alene i studio |
 
 ## 7. Åpne spørsmål

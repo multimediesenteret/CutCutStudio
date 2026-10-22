@@ -14,6 +14,7 @@ Findings carry check IDs (``H-MV-n``) and Norwegian text for the technician.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal
 
@@ -139,6 +140,69 @@ def recommended(studio: StudioInputs, switcher: str | None = None) -> MultiviewM
         layout="2+8, preview venstre",
         tiles=tiles,
     )
+
+
+Rect = tuple[float, float, float, float]
+
+
+def suggest_map(
+    big: tuple[Rect, Rect],
+    small: Sequence[Rect],
+    studio: StudioInputs,
+    *,
+    readback: MultiviewReadback | None,
+    current: MultiviewMap | None,
+    program_side: str | None = None,
+    switcher: str | None = None,
+) -> tuple[MultiviewMap, list[str]]:
+    """A rutekart from the picture (where the windows are) and the ATEM (what they show).
+
+    The windows come from :func:`cutcut.vision.grid.find_grid`. What each window shows comes
+    from the ATEM when it can be read, otherwise from the rutekart in use, otherwise from the
+    recommended layout. Returns the map and one Norwegian line per choice, for the screen.
+    """
+    notes: list[str] = []
+    rec = recommended(studio, switcher)
+    if readback is not None:
+        sources = list(readback.windows)
+        labels = list(readback.labels) if len(readback.labels) == 8 else []
+        notes.append("Kildene i rutene er lest fra ATEM.")
+    elif current is not None and len(current.small_windows()) == 8:
+        sources = [t.source for t in current.small_windows()]
+        labels = [t.label for t in current.small_windows()]
+        notes.append("ATEM kan ikke leses nå: kildene er tatt fra rutekartet som brukes.")
+    else:
+        sources = [t.source for t in rec.small_windows()]
+        labels = []
+        notes.append("ATEM kan ikke leses nå: kildene er tatt fra det anbefalte oppsettet.")
+    if readback is not None:
+        preview_left = readback.preview_left
+    elif program_side is not None:
+        preview_left = program_side == "right"
+        notes.append("Program er funnet på den røde tally-rammen.")
+    else:
+        preview_left = current.preview_left if current is not None else True
+    by_input = {n: sid for sid, n in studio.inputs.items()}
+    tiles = [
+        Tile(id="PVW", label="Preview", rect=big[0 if preview_left else 1], source="preview"),
+        Tile(id="PGM", label="Program", rect=big[1 if preview_left else 0], source="program"),
+    ]
+    for i, (source, rect) in enumerate(zip(sources, small, strict=True), start=1):
+        n = input_number(source)
+        camera: SourceId | None = by_input.get(n) if n is not None else None
+        if source == "supersource" and SourceId.SUPERSOURCE in {t.camera for t in rec.tiles}:
+            camera = SourceId.SUPERSOURCE
+        label = labels[i - 1] if labels else source_name(source)
+        tiles.append(Tile(id=f"W{i}", label=label, rect=rect, source=source, camera=camera))
+    side = "venstre" if preview_left else "høyre"
+    out = MultiviewMap(
+        status="suggested",
+        source="Forslag fra bildet i setup-hjelperen",
+        switcher=switcher,
+        layout=f"2+8, preview {side}",
+        tiles=tiles,
+    )
+    return out, notes
 
 
 def check_map(mv: MultiviewMap | None, studio: StudioInputs) -> list[Finding]:

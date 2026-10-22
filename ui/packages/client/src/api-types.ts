@@ -760,9 +760,18 @@ export interface paths {
          * @description Rutekart against shows and ATEM, plus the recommended layout (D-055).
          */
         get: operations["multiview_api_setup_multiview_get"];
-        put?: never;
+        /**
+         * Multiview Save
+         * @description «Lagre rutekart»: kept in the app and used by the video layer at once. 409 during a
+         *     recording or when a camera would be read from the wrong window.
+         */
+        put: operations["multiview_save_api_setup_multiview_put"];
         post?: never;
-        delete?: never;
+        /**
+         * Multiview Reset
+         * @description Back to the rutekart in ``equipment/multiview_map.yaml``.
+         */
+        delete: operations["multiview_reset_api_setup_multiview_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -782,6 +791,27 @@ export interface paths {
          * @description Check the multiview now and warn if it is wrong (also done once at start-up).
          */
         post: operations["multiview_check_api_setup_multiview_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/setup/multiview/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Multiview Suggest
+         * @description «Foreslå fra bildet»: windows found in the multiview picture, sources from the ATEM
+         *     (setup step 6, VI-5). Nothing is saved.
+         */
+        get: operations["multiview_suggest_api_setup_multiview_suggest_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1347,6 +1377,33 @@ export interface components {
             /** Ts */
             ts: string;
         };
+        /** MultiviewMap */
+        MultiviewMap: {
+            /**
+             * Layout
+             * @default 2+8, preview venstre
+             */
+            layout: string;
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /**
+             * Source
+             * @default
+             */
+            source: string;
+            /**
+             * Status
+             * @default draft
+             */
+            status: string;
+            /** Switcher */
+            switcher?: string | null;
+            /** Tiles */
+            tiles: components["schemas"]["Tile"][];
+        };
         /** Ok */
         Ok: {
             /**
@@ -1699,6 +1756,12 @@ export interface components {
             /** Type */
             type: string;
         };
+        /**
+         * SourceId
+         * @description Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.
+         * @enum {string}
+         */
+        SourceId: "C1" | "C2" | "C3" | "C4" | "C5" | "LAPTOP" | "C7" | "SUPERSOURCE";
         /** StaffIn */
         StaffIn: {
             /** Admins */
@@ -1777,6 +1840,26 @@ export interface components {
             session: components["schemas"]["Session"] | null;
             studio: components["schemas"]["StudioInfo"];
             touch: components["schemas"]["TouchInfo"];
+        };
+        /** Tile */
+        Tile: {
+            camera?: components["schemas"]["SourceId"] | null;
+            /** Id */
+            id: string;
+            /**
+             * Label
+             * @default
+             */
+            label: string;
+            /** Rect */
+            rect: [
+                number,
+                number,
+                number,
+                number
+            ];
+            /** Source */
+            source: string;
         };
         /** TouchInfo */
         TouchInfo: {
@@ -3084,7 +3167,86 @@ export interface operations {
             };
         };
     };
+    multiview_save_api_setup_multiview_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MultiviewMap"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    multiview_reset_api_setup_multiview_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     multiview_check_api_setup_multiview_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    multiview_suggest_api_setup_multiview_suggest_get: {
         parameters: {
             query?: never;
             header?: never;

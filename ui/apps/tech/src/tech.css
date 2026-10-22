@@ -1106,3 +1106,80 @@ a.btn {
   color: var(--pvw);
   font-weight: 600;
 }
+
+/* Rutekart på bildet av multiviewen (VI-5) */
+.mapbox {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-width: 960px;
+  background: #000;
+  border-radius: 6px;
+  touch-action: none;
+  user-select: none;
+}
+.mapbox img.live {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.mapph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #aaa;
+  font-size: 13px;
+}
+.maptile {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px dashed rgba(255, 255, 255, 0.7);
+}
+.maptile.cam {
+  border: 2px solid var(--pvw);
+}
+.maptile span {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.maptile .corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--wait);
+  cursor: grab;
+}
+.maptile .corner.nw {
+  left: -7px;
+  top: -7px;
+}
+.maptile .corner.ne {
+  right: -7px;
+  top: -7px;
+}
+.maptile .corner.sw {
+  left: -7px;
+  bottom: -7px;
+}
+.maptile .corner.se {
+  right: -7px;
+  bottom: -7px;
+}
+.mapedit {
+  display: grid;
+  gap: 8px;
+  margin-block: 8px;
+  padding: 8px;
+}

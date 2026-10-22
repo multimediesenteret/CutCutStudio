@@ -34,6 +34,12 @@ class SimVision:
         self.vision = Vision(self.mv)
         self._tile_of = {t.camera: t.id for t in self.mv.tiles if t.camera is not None}
 
+    def use_map(self, mv: MultiviewMap) -> None:
+        """A new rutekart from the setup helper: read the drawn multiview with it. The drawing
+        stays as it is: that is what the «ATEM» shows (VI-5)."""
+        if mv != self.vision.mv:
+            self.vision = Vision(mv)
+
     def want(self, now: int) -> None:
         self.wanted_until = now + 10_000
 

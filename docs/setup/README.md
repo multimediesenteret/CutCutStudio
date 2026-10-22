@@ -82,8 +82,9 @@ CutCut kutter etter hvem som snakker, så hver mikrofon må komme inn på sitt e
 CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde.
 
 1. INOGENI 4KXUSB3: velg **1080p50 YUY2** som kilde i CutCut.
-2. Bruk rutekartet under **Multiview** på oppsettsiden; det anbefalte oppsettet vises ved siden av.
-3. Forsinkelsen fra ATEM til PC måles med et blinkende testbilde.
+2. Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden.
+3. Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**.
+4. Forsinkelsen fra ATEM til PC måles med et blinkende testbilde.
 
 **Sjekk:** `H-VID-1`, `H-VID-2`, `H-VID-3`.
 
