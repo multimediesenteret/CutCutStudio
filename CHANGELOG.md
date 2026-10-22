@@ -10,6 +10,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
   - E-post med en gang når et opptak ikke starter eller stopper av seg selv. Høyst ti i timen.
   - Innstillinger → Varsling: mottakere, SMTP-relé og knappen «Send testvarsel». `H-VARSEL-1` er gul når varsler ikke kan sendes.
   - Companion-variabelen `regi_health` følger helsestatusen.
+  - Varsel på e-post er av som standard og slås på under Innstillinger → Varsling. Mens det er av, samles ingenting opp, og `H-VARSEL-1` er grønn («av»).
 - SO-9: runbooks i `docs/runbooks/` for «Ingen lyd», «Touch er svart», «Opptak startet ikke», «Kamera beveger seg ikke» og «Etter strømbrudd». De gjennomgås med tekniker i studio.
 - SO-7: nattlig vedlikehold i `core`.
   - Gamle rader slettes etter oppbevaringstiden. Før ble databasen aldri ryddet.

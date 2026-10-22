@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { hms, type Ctx } from "../lib";
 
 interface AlertsInfo {
+  on: boolean;
   email: string[];
   smtp_host: string;
   red_after_s: number;
@@ -37,6 +38,14 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
 
   if (!info) return null;
   const changed = email.trim() !== info.email.join(", ") || host.trim() !== info.smtp_host;
+
+  const toggle = (on: boolean) => {
+    setMsg(null);
+    transport
+      .send("PUT", "/api/settings/devices", { "alerts.enabled": on ? "true" : null })
+      .then(load)
+      .catch(fail);
+  };
 
   const fail = (x: unknown) =>
     setMsg({ ok: false, text: (x as { message?: string }).message ?? "Noe gikk galt." });
@@ -73,13 +82,33 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
     <form className="panel" onSubmit={save}>
       <div className="ph">
         <span className="lbl">Varsling</span>
-        <span className={`small ${info.enabled ? "muted" : "err-text"}`}>
-          {info.enabled ? "på" : "ikke satt opp"}
+        <span className={`small ${info.on && !info.enabled ? "err-text" : "muted"}`}>
+          {!info.on ? "av" : info.enabled ? "på" : "på, men ikke satt opp"}
         </span>
+      </div>
+      <div className="seg" role="group" aria-label="Varsel på e-post">
+        {(
+          [
+            [false, "Av"],
+            [true, "På"],
+          ] as const
+        ).map(([on, label]) => (
+          <button
+            key={label}
+            type="button"
+            className={info.on === on ? "sel" : ""}
+            aria-pressed={info.on === on}
+            disabled={!admin}
+            onClick={() => toggle(on)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
       <p className="muted">
         E-post når noe har vært rødt i over {Math.round(info.red_after_s)} s, og med en gang når et
-        opptak ikke starter eller stopper av seg selv. Høyst ti i timen.
+        opptak ikke starter eller stopper av seg selv. Høyst ti i timen. «Send testvarsel» virker
+        også når varsling er av.
       </p>
       <label className="field">
         <span className="small muted">Mottakere</span>

@@ -58,6 +58,7 @@ class Notifier:
     now: Callable[[], datetime]
     red_after_s: float = 60.0
     max_per_hour: int = 10
+    on: Callable[[], bool] = lambda: True  # off: nothing is queued, so nothing piles up
     sent: int = 0
     dropped: int = 0
     last_sent: datetime | None = None
@@ -117,6 +118,8 @@ class Notifier:
         return "\n".join(lines)
 
     def _queue(self, subject: str, body: str) -> None:
+        if not self.on():
+            return
         self._outbox.append(Mail(f"[CutCut {self.studio}] {subject}", body))
         while len(self._outbox) > OUTBOX:
             self._outbox.popleft()
@@ -131,6 +134,9 @@ class Notifier:
                 self._queue(f"Rødt: {cid}", self._body(cid, message))
 
     async def flush(self) -> None:
+        if not self.on():
+            self._outbox.clear()  # turned off: old news is not sent the day it is turned on
+            return
         to = self.to()
         t = self.mono_s()
         if not to or t < self._retry_at:

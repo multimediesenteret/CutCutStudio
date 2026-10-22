@@ -11,6 +11,11 @@
           "title": "Email",
           "type": "array"
         },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
         "max_per_hour": {
           "default": 10,
           "maximum": 100,
@@ -394,6 +399,7 @@
       "$ref": "#/$defs/AlertsConfig",
       "default": {
         "email": [],
+        "enabled": false,
         "max_per_hour": 10,
         "red_after_s": 60.0,
         "smtp": {

@@ -250,6 +250,7 @@ class Studio:
                 now=clock.now,
                 red_after_s=self.devices.alerts.red_after_s,
                 max_per_hour=self.devices.alerts.max_per_hour,
+                on=lambda: self.devices.alerts.enabled,
             )
         self._regi_health: str | None = None
         self.health = HealthEngine(
@@ -809,10 +810,11 @@ class Studio:
     def alerts_info(self) -> dict[str, Any]:
         a, n = self.devices.alerts, self.notifier
         return {
+            "on": a.enabled,
             "email": a.email,
             "smtp_host": a.smtp.host,
             "red_after_s": a.red_after_s,
-            "enabled": n is not None and bool(a.email) and bool(a.smtp.host),
+            "enabled": n is not None and a.enabled and bool(a.email) and bool(a.smtp.host),
             "sent": n.sent if n else 0,
             "last_sent": n.last_sent.isoformat() if n and n.last_sent else None,
             "last_error": n.last_error if n else None,
