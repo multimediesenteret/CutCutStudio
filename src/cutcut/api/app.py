@@ -48,6 +48,11 @@ class SetupChanges(BaseModel):
     changes: list[str]
 
 
+class ShowTypeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    type: str
+
+
 class LoginModeIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     mode: Literal["open", "card"]
@@ -61,7 +66,7 @@ class SessionIn(_In):
 class ShowIn(_In):
     guests: int = Field(ge=0, le=3)
     video: bool = True
-    type: str | None = None
+    type: str | None = None  # ignored: the studio's show type decides (D-036)
     laptop: bool = False
 
 
@@ -361,7 +366,7 @@ def create_app(
     async def set_show(body: ShowIn, me: Who) -> Ok:
         studio.set_show(
             ShowChoice(
-                type=body.type or studio.deps.show_types.default,
+                type=studio.show_type,  # the studio decides, not the touch screen (D-036)
                 guests=body.guests,
                 video=body.video,
                 laptop=body.laptop,
@@ -439,6 +444,14 @@ def create_app(
         Change the address with ``PUT /api/settings/devices {"alerts.email": "…"}``."""
         require(me, "admin")
         await studio.test_alert(me.role, me.actor)
+        return Ok()
+
+    @app.put("/api/settings/show-type", tags=["config"])
+    async def put_show_type(body: ShowTypeIn, me: Who) -> Ok:
+        """The studio's show type (SE-6, D-036): rules preset for new sessions, «Kun lyd»
+        records audio only, ISO on the ATEM. Admin only."""
+        require(me, "admin")
+        studio.set_show_type(body.type, me.role, me.actor)
         return Ok()
 
     @app.get("/api/settings/login", tags=["config"])

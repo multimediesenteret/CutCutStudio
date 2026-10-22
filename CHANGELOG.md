@@ -10,6 +10,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- SE-6: show-typer. Studioets type velges under Innstillinger → Show-type (admin), ikke av brukeren (D-036).
+  - Typen gir regel-forhåndsvalget når en økt starter. Finjusteringer beholdes.
+  - «Kun lyd» tar bare opp lyd, med «Kun lyd»-grafikken på program og uten kutt til kameraer.
+  - ISO-opptak i ATEM følger typen (`H-ATEM-4`), og typen følger med i «Lagre oppsett».
+- SE-7: Panopto vises som forberedt. Touch lover ikke lenger at opptaket havner i Panopto, men sier at det er lagret i studioet; teknikervinduet viser «forberedt, ikke slått på».
 - HS-7: resten av helsekatalogen for grunnmodus.
   - `H-ATEM-2`: ATEM som i fasiten (videoformat, inngangsnavn, AUX-utgangene); rødt når multiviewen er endret.
   - `H-ATEM-4`: ISO-disken i ATEM, gult under 60 minutter ledig og rødt når showet skal ta opp ISO uten disk.

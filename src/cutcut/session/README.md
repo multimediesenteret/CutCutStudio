@@ -16,3 +16,7 @@ Plan: [`docs/plans/session.md`](../../../docs/plans/session.md). Spesifikasjonen
 - Kun lyd gir modus `A`. Kortnummer kommer aldri inn i modulen, bare brukeren som er slått opp (I8).
 
 Kortleser, kort-API og Pearl-klient kommer i SE-2–SE-5 (M2–M3).
+
+**Show-type (SE-6, D-036):** studioets type (`podcast`, `intervju`, `panel`, `kun-lyd` i `config/defaults/show_types.yaml`) velges under Innstillinger → Show-type og lagres i appen. Touch sender bare antall personer og video; typen settes av studioet. Ved ny økt brukes typens regel-forhåndsvalg; `kun-lyd` gir modus `A` (grafikken på program, ingen kutt til kameraer), og `iso_record` gjør at `H-ATEM-4` krever ISO-disk.
+
+**Panopto (SE-7, spes. 7.6):** feltene finnes i økten (`publish`), men publisering er slått av (`disabled`). Da sier touch at opptaket er lagret i studioet, og lover ikke Panopto.

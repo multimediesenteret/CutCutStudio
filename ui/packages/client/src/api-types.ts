@@ -621,6 +621,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/show-type": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Show Type
+         * @description The studio's show type (SE-6, D-036): rules preset for new sessions, «Kun lyd»
+         *     records audio only, ISO on the ATEM. Admin only.
+         */
+        put: operations["put_show_type_api_settings_show_type_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings/staff": {
         parameters: {
             query?: never;
@@ -1545,6 +1566,11 @@ export interface components {
              */
             video: boolean;
         };
+        /** ShowTypeIn */
+        ShowTypeIn: {
+            /** Type */
+            type: string;
+        };
         /** StaffIn */
         StaffIn: {
             /** Admins */
@@ -1566,6 +1592,11 @@ export interface components {
             name: string;
             /** Show Id */
             show_id: string;
+            /**
+             * Show Type
+             * @default podcast
+             */
+            show_type: string;
             /** Show Types */
             show_types: {
                 [key: string]: string;
@@ -2659,6 +2690,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SetupChanges"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_show_type_api_settings_show_type_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShowTypeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
                 };
             };
             /** @description Validation Error */
