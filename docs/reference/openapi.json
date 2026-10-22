@@ -450,6 +450,102 @@
         "title": "HealthInfo",
         "type": "object"
       },
+      "IsoInfo": {
+        "additionalProperties": false,
+        "description": "ISO recording on the ATEM's disk (spec 7.7, DA-8).",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "disk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Disk"
+          },
+          "duration_s": {
+            "default": 0,
+            "title": "Duration S",
+            "type": "integer"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Filename"
+          },
+          "started_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started By"
+          },
+          "state": {
+            "enum": [
+              "idle",
+              "recording",
+              "stopping",
+              "unknown"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time_available_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Time Available S"
+          },
+          "wanted": {
+            "default": false,
+            "title": "Wanted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available",
+          "state"
+        ],
+        "title": "IsoInfo",
+        "type": "object"
+      },
       "LiveMessage": {
         "additionalProperties": false,
         "description": "Messages on ``/ws``. ``state`` carries changed top-level keys of ``StudioState``\n(all of them when ``full`` is true); ``meters`` maps mic id to ``Meter``.",
@@ -910,6 +1006,17 @@
             ],
             "default": null,
             "title": "Firmware"
+          },
+          "iso": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoInfo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           },
           "online": {
             "default": true,
@@ -2557,6 +2664,48 @@
           }
         },
         "summary": "Recording",
+        "tags": [
+          "session"
+        ]
+      }
+    },
+    "/api/recording/iso": {
+      "post": {
+        "description": "ISO recording on the ATEM's disk (spec 7.7). Stopped only by a person (I7).",
+        "operationId": "iso_recording_api_recording_iso_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordingIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Iso Recording",
         "tags": [
           "session"
         ]

@@ -279,6 +279,13 @@ function TopBar({
           Ikke opptak
         </span>
       )}
+      {(state.recording.iso?.state === "recording" ||
+        state.recording.iso?.state === "stopping") && (
+        <button type="button" className="pill rec" onClick={() => go("opptak")}>
+          <span className="d" />
+          ISO <span className="tnum">{clock(state.recording.iso.duration_s)}</span>
+        </button>
+      )}
       {rec ? (
         <button
           type="button"

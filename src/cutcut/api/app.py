@@ -554,6 +554,16 @@ def create_app(
             studio.stop_recording(by, me.role, me.actor)
         return Ok()
 
+    @app.post("/api/recording/iso", tags=["session"])
+    async def iso_recording(body: RecordingIn, me: Who) -> Ok:
+        """ISO recording on the ATEM's disk (spec 7.7). Stopped only by a person (I7)."""
+        require(me, "operator")
+        if body.action == "start":
+            studio.iso_start(me.role, me.actor)
+        else:
+            studio.iso_stop(me.role, me.actor)
+        return Ok()
+
     # -- override and tuning (operator / admin) ---------------------------------------------
 
     @app.post("/api/auto", tags=["override"])

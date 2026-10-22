@@ -11,6 +11,7 @@ import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
 import { Alerts } from "./Alerts";
+import { IsoPanel } from "./Iso";
 import { SetupFile, Technicians } from "./SetupFile";
 import { LivePicture } from "../live";
 import { hms, isCut, isError, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
@@ -475,6 +476,7 @@ export function Recording({ ctx }: { ctx: Ctx }) {
           <p className="muted">Ingen er logget inn.</p>
         )}
       </div>
+      <IsoPanel ctx={ctx} />
       <SessionTable ctx={ctx} />
     </div>
   );

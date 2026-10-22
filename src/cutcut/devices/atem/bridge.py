@@ -24,6 +24,8 @@ from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.show import ShowConfig
 from cutcut.core.inputs import AtemReadback
 from cutcut.core.intents import DirectCut, Intent, SetPreview, ShowAudioOnly
+from cutcut.devices.atem.iso import IsoStatus
+from cutcut.devices.atem.iso import from_raw as iso_from_raw
 
 log = logging.getLogger(__name__)
 
@@ -205,19 +207,35 @@ class AtemBridgeClient:
             case _:
                 log.info("atem-bridge tar ikke %s", type(intent).__name__)
 
+    def _op(self, op: str, args: dict[str, Any], what: str) -> bool:
+        """A command that is not a cut: setup and ISO. Never touches program or preview."""
+        if self._fresh() is None:
+            self.failed += 1
+            self.last_error = f"{what}: ATEM er ikke tilkoblet"
+            return False
+        cid = f"a{next(self._ids)}"
+        self._waiting[cid] = what
+        self.sent += 1
+        self.send("atem.cmd", {"id": cid, "op": op, "args": args})
+        return True
+
     def set_input_name(self, number: int, long: str) -> bool:
         """«Fiks for meg» in setup step 3. The short name is the first four letters. Changes
         only the label; the picture on program and preview is not touched."""
-        if self._fresh() is None:
-            self.failed += 1
-            self.last_error = f"navn på inngang {number}: ATEM er ikke tilkoblet"
-            return False
-        cid = f"a{next(self._ids)}"
-        self._waiting[cid] = f"navn på inngang {number}"
-        self.sent += 1
         args = {"input": number, "long": long[:20], "short": long[:4]}
-        self.send("atem.cmd", {"id": cid, "op": "input_name", "args": args})
-        return True
+        return self._op("input_name", args, f"navn på inngang {number}")
+
+    def iso_start(self, filename: str) -> bool:
+        """ISO recording of every input on the ATEM's disk, under ``filename`` (spec 7.7)."""
+        return self._op("iso_start", {"filename": filename}, "start ISO-opptak")
+
+    def iso_stop(self) -> bool:
+        """Only when a person asks (I7)."""
+        return self._op("iso_stop", {}, "stopp ISO-opptak")
+
+    def iso_status(self) -> IsoStatus | None:
+        raw = self._fresh()
+        return iso_from_raw(raw.iso) if raw is not None else None
 
     def _number(self, source: SourceId) -> int | None:
         return next((n for n, s in self.inputs.items() if s is source), None)

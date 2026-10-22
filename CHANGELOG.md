@@ -10,6 +10,12 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- DA-8: ISO-opptak i ATEM (spes. 7.7).
+  - Under Opptak kan teknikeren starte og stoppe ISO-opptaket. Panelet viser disk, ledig tid, lengde og filnavn, og toppen viser en ISO-teller mens det går.
+  - Filnavnet er økten: `<dato>_<show-type>_<brukernavn>`. Alle innganger tas opp.
+  - Når show-typen eller showet har `iso_record`, starter ISO sammen med Pearl. Starter det ikke, går Pearl-opptaket som vanlig og teknikeren får et varsel.
+  - Bare en person stopper ISO (I7). Når Pearl stoppes og ISO går, får teknikeren et varsel i stedet.
+  - `atem-bridge` har fått kommandoene `iso_start` (filnavnet sjekkes) og `iso_stop`. API: `POST /api/recording/iso`.
 - VI-5: rutekartet fra bildet i setup-steg 6.
   - «Foreslå fra bildet» finner de 2 + 8 rutene i bildet av multiviewen, også med svarte kanter og forskyvning, og leser fra ATEM hva hver rute viser. Uten ATEM finnes program på den røde tally-rammen.
   - Forslaget tegnes på bildet, og teknikeren kan dra hjørnene før «Lagre rutekart». Et rutekart som ville lest feil kamera eller har ruter som overlapper, avvises.

@@ -342,6 +342,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/recording/iso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Iso Recording
+         * @description ISO recording on the ATEM's disk (spec 7.7). Stopped only by a person (I7).
+         */
+        post: operations["iso_recording_api_recording_iso_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/rules": {
         parameters: {
             query?: never;
@@ -1283,6 +1303,54 @@ export interface components {
             status: "green" | "yellow" | "red";
         };
         /**
+         * IsoInfo
+         * @description ISO recording on the ATEM's disk (spec 7.7, DA-8).
+         */
+        IsoInfo: {
+            /** Available */
+            available: boolean;
+            /**
+             * Disk
+             * @default null
+             */
+            disk: string | null;
+            /**
+             * Duration S
+             * @default 0
+             */
+            duration_s: number;
+            /**
+             * Error
+             * @default null
+             */
+            error: string | null;
+            /**
+             * Filename
+             * @default null
+             */
+            filename: string | null;
+            /**
+             * Started By
+             * @default null
+             */
+            started_by: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "idle" | "recording" | "stopping" | "unknown";
+            /**
+             * Time Available S
+             * @default null
+             */
+            time_available_s: number | null;
+            /**
+             * Wanted
+             * @default false
+             */
+            wanted: boolean;
+        };
+        /**
          * LiveMessage
          * @description Messages on ``/ws``. ``state`` carries changed top-level keys of ``StudioState``
          *     (all of them when ``full`` is true); ``meters`` maps mic id to ``Meter``.
@@ -1516,6 +1584,8 @@ export interface components {
              * @default null
              */
             firmware: string | null;
+            /** @default null */
+            iso: components["schemas"]["IsoInfo"] | null;
             /**
              * Online
              * @default true
@@ -2419,6 +2489,39 @@ export interface operations {
         };
     };
     recording_api_recording_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    iso_recording_api_recording_iso_post: {
         parameters: {
             query?: never;
             header?: never;

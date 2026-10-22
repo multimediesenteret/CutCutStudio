@@ -73,6 +73,20 @@ class ParticipantInfo(_S):
     color: Literal["magenta", "cyan", "lilla", "oransje"]
 
 
+class IsoInfo(_S):
+    """ISO recording on the ATEM's disk (spec 7.7, DA-8)."""
+
+    available: bool  # the ATEM can be read
+    state: Literal["idle", "recording", "stopping", "unknown"]
+    disk: str | None = None
+    time_available_s: int | None = None
+    error: str | None = None
+    filename: str | None = None
+    duration_s: int = 0
+    started_by: str | None = None
+    wanted: bool = False  # the show type or show records ISO with Pearl
+
+
 class RecordingInfo(_S):
     pearl: Literal["idle", "starting", "started", "stopped", "error", "disabled"]
     duration_s: int
@@ -82,6 +96,7 @@ class RecordingInfo(_S):
     error: str | None = None
     firmware: str | None = None
     storage_free_pct: int | None = None
+    iso: IsoInfo | None = None
 
 
 class RulesInfo(_S):
