@@ -25,7 +25,8 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 | Økt og skjermer | Touch med Start-knapp («Gjest»), teknikervindu med roller, show-typer, «Kun lyd», web-simulator | `session.md`, `ui.md` |
 | Oppsett og helse | Setup-hjelperen med ti steg (rutekart, mikrofonfasit, fargematching), helsekatalogen, morgensjekk, varsling (av), support-e-post | `setup-health.md` |
 | Drift | Supervisor, Windows-tjeneste, kiosk, `setup-pc.ps1`, pakke med tilbakerulling, nattlig backup, runbooks, 72-timerstest (`cutcut hwtest soak`) | `supervisor-ops.md` |
-| Maskintester | `cutcut hwtest audio · atem · camera · vision · faces · soak` | `docs/studio/maskintest.md` |
+| Maskintester og akseptanse | `cutcut hwtest audio · atem · camera · vision · pearl · faces · soak · akseptanse` | `docs/studio/maskintest.md` |
+| Feilsøkingsmodus | Under Helse: tar opp alt som kommer inn til motoren i 1–72 timer (`data\debug`), for studioperioden og feilsøking | `docs/studio/maskintest.md` |
 
 Manual for oppsett og drift: [`docs/manual/`](manual/README.md) (PDF ved siden av, `pnpm manual`). Hvordan det henger sammen: [`docs/architecture/`](architecture/README.md). Hva som er endret for brukeren: `CHANGELOG.md` under `[Unreleased]`.
 
