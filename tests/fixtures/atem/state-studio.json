@@ -35,5 +35,34 @@
       "number": 30,
       "name": "QUAD4"
     }
-  ]
+  ],
+  "inputs": [
+    {
+      "number": 1,
+      "short": "CAM1",
+      "long": "Camera 1"
+    },
+    {
+      "number": 2,
+      "short": "CAM2",
+      "long": "Camera 2"
+    },
+    {
+      "number": 6,
+      "short": "CAM6",
+      "long": "Camera 6"
+    }
+  ],
+  "aux": [
+    "program",
+    "input6"
+  ],
+  "iso": {
+    "state": "Idle",
+    "error": null,
+    "time_available_s": 5400,
+    "disk": "ISO-SSD",
+    "disk_status": "Active",
+    "all_inputs": true
+  }
 }

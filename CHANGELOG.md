@@ -10,6 +10,12 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- HS-7: resten av helsekatalogen for grunnmodus.
+  - `H-ATEM-2`: ATEM som i fasiten (videoformat, inngangsnavn, AUX-utgangene); rødt når multiviewen er endret.
+  - `H-ATEM-4`: ISO-disken i ATEM, gult under 60 minutter ledig og rødt når showet skal ta opp ISO uten disk.
+  - `H-VID-2`: capture-kortet gir hele multiviewen.
+  - Oppsett → ATEM viser hva CutCut leser, mot fasiten, med knappen «Lagre ATEM som fasit».
+  - atem-bridge sender nå inngangsnavn, AUX-utganger og ISO-disken.
 - Oppsettet ligger i appen, ikke i repoet (D-060).
   - Innstillinger → Teknikere: hvem som kan logge inn, lagret på PC-en. Med tom liste slipper admin-PIN inn for førstegangsoppsett, og ingen kan låse seg selv ute.
   - Innstillinger → Oppsett: «Lagre oppsett» laster ned alt som er lagt inn i appen som én fil uten PIN eller passord. «Hent oppsett» viser hva en fil endrer, og tar den i bruk etter bekreftelse.

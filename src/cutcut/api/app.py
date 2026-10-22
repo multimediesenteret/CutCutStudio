@@ -283,6 +283,12 @@ def create_app(
             raise HTTPException(404, "Ingen bilder fra videolaget nå")
         return Response(data, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
+    @app.post("/api/setup/atem/fasit", tags=["setup"])
+    async def atem_fasit(me: Who) -> dict[str, Any]:
+        """«Lagre ATEM som fasit»: format, input names and AUX outputs as now (H-ATEM-2)."""
+        require(me, "admin")
+        return studio.save_atem_baseline(me.role, me.actor)
+
     @app.get("/api/setup/mics", tags=["setup"])
     async def mics(me: Who) -> dict[str, Any]:
         """Setup step 5: what has been measured, and what is saved as fasit (AU-7)."""

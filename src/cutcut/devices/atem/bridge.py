@@ -59,6 +59,23 @@ class AtemMacroRaw(_Payload):
     name: str
 
 
+class AtemInputName(_Payload):
+    number: int
+    short: str = ""
+    long: str = ""
+
+
+class AtemIso(_Payload):
+    """ISO recording on the ATEM's own disk (H-ATEM-4)."""
+
+    state: str | None = None
+    error: str | None = None
+    time_available_s: float | None = None
+    disk: str | None = None
+    disk_status: str | None = None
+    all_inputs: bool = False
+
+
 class AtemStateRaw(_Payload):
     connected: bool = True
     model: str = "Unknown"
@@ -67,6 +84,9 @@ class AtemStateRaw(_Payload):
     multiview: MultiviewReadback | None = None
     recording: str | None = None
     macros: list[AtemMacroRaw] = []
+    inputs: list[AtemInputName] = []
+    aux: list[str] = []
+    iso: AtemIso | None = None
 
 
 @dataclass

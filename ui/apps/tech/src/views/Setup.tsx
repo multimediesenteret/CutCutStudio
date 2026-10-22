@@ -3,6 +3,7 @@
 import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";
+import { AtemSetup } from "./AtemSetup";
 
 interface DeviceRow {
   key: string;
@@ -529,6 +530,9 @@ export function Setup({ ctx }: { ctx: Ctx }) {
       </div>
       <div className="span">
         <Multiview />
+      </div>
+      <div className="span">
+        <AtemSetup ctx={ctx} />
       </div>
       <div className="span">
         <Mics ctx={ctx} />

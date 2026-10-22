@@ -666,6 +666,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/setup/atem/fasit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atem Fasit
+         * @description «Lagre ATEM som fasit»: format, input names and AUX outputs as now (H-ATEM-2).
+         */
+        post: operations["atem_fasit_api_setup_atem_fasit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/setup/mics": {
         parameters: {
             query?: never;
@@ -2710,6 +2730,28 @@ export interface operations {
         };
     };
     atem_api_setup_atem_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    atem_fasit_api_setup_atem_fasit_post: {
         parameters: {
             query?: never;
             header?: never;

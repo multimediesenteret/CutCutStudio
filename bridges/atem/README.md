@@ -4,7 +4,7 @@ Liten Node-prosess mellom ATEM-mikseren og CutCut `core` (ADR-0012). Den har ing
 
 | Retning | Emne | Innhold |
 | --- | --- | --- |
-| bro → core | `atem.state` | Ved endring (samlet i 30 ms) og hvert sekund: `model`, `program_input`, `preview_input`, `multiview` (layout, preview til venstre, ruter, safe area, lydmålere, tally, videoformat), `recording` |
+| bro → core | `atem.state` | Ved endring (samlet i 30 ms) og hvert sekund: `model`, `program_input`, `preview_input`, `multiview` (layout, preview til venstre, ruter, safe area, lydmålere, tally, videoformat), `recording`, `macros`, `inputs` (navn på inngang 1–8), `aux` (hva hver AUX-utgang viser) og `iso` (ISO-disk, ledig tid, feil) |
 | bro → core | `atem.status` | `connected`, `last_error`, `model` hvert sekund |
 | core → bro | `atem.cmd` | `{id, op: "cut" | "preview" | "run_macro", args}` |
 | bro → core | `atem.ack` | `{id, ok, error}` |

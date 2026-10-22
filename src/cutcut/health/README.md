@@ -27,6 +27,9 @@ Slik oppfører `HealthEngine` seg:
 | `H-CAM-C1`… | Hvert PTZ-kamera svarer under 200 ms og står i manuell hvitbalanse og eksponering (CA-6) | 10 s | Gult: bildet kommer fortsatt, men CutCut kan ikke styre kameraet |
 | `H-CAM-MOVE` | Ingen kameraer har flyttet seg uten at CutCut ba om det og uten AI-tracking (posisjonen leses hvert 2. s) | 2 s | Rødt i 10 s etter at det skjedde |
 | `H-VARSEL-1` | Varsler kan sendes på e-post: mottaker og SMTP-relé er satt, og siste e-post gikk (HS-3) | 30 s | Gult: ingen hører om rødt utenfor studio |
+| `H-ATEM-2` | ATEM som i fasiten: videoformat, inngangsnavn og AUX-utgangene (HDMI ut 2). Fasiten lagres under Oppsett → ATEM | 30 s | Gult ved avvik; rødt når multiview-sjekken fant at multiviewen er endret |
+| `H-ATEM-4` | ATEMs ISO-disk: finnes, formatert, ledig tid | 10 s | Gult under 60 min; rødt når showet skal ta opp ISO og disken mangler eller er full |
+| `H-VID-2` | Capture-kortet gir hele multiviewen (1920 × 1080) og videolaget holder følge | 5 s | Gult |
 | `H-COMP-1` | Companions HTTP-API og `cutcut_pages_version` | 5 s | Rødt: svarer ikke (`S5` tar over), sidene mangler eller har feil versjon |
 
 Lagringen på Pearl regnes om til minutter med 20 Mbit/s til bitraten er målt i maskintesten (DA-5). Dette kommer senere:
@@ -47,3 +50,5 @@ Touch-skjermen leser sjekkene direkte, ikke varslene. Den sperrer start bare men
 Sjekker trykker aldri knapper og flytter aldri noe. Slikt finnes bare i setup-hjelperen.
 
 **Varsling (HS-3, `notify.py`):** av som standard (`alerts.enabled`), slås på under Innstillinger → Varsling. Når det er på: rødt i over ett minutt gir én e-post, og «OK igjen» når saken lukkes. Et opptak som ikke starter eller stopper av seg selv (`H-PRL-1`, `H-PRL-2`), gir e-post med en gang. Høyst ti i timen. Sendes fra helseløkka i en egen tråd, aldri fra motorens tikk. Mottakere og SMTP-relé står i `alerts` i `devices.yaml` og kan endres under Innstillinger → Varsling (D-058). Companion-variabelen `regi_health` følger verste åpne sak (`ok`, `warn`, `error`).
+
+`H-CARD-1` (kortleseren) og `H-CARD-2` (kort-API) kommer med kortinnloggingen (SE-4, SE-5, M4). Studioet bruker Start-knappen til appen har vært testet en stund (D-057), så de ville bare vært gule.
