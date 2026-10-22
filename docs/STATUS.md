@@ -27,7 +27,7 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 | Drift | Supervisor, Windows-tjeneste, kiosk, `setup-pc.ps1`, pakke med tilbakerulling, nattlig backup, runbooks, 72-timerstest (`cutcut hwtest soak`) | `supervisor-ops.md` |
 | Maskintester | `cutcut hwtest audio · atem · camera · vision · faces · soak` | `docs/studio/maskintest.md` |
 
-Hvordan det henger sammen: [`docs/architecture/`](architecture/README.md). Hva som er endret for brukeren: `CHANGELOG.md` under `[Unreleased]`.
+Manual for oppsett og drift: [`docs/manual/`](manual/README.md) (PDF ved siden av, `pnpm manual`). Hvordan det henger sammen: [`docs/architecture/`](architecture/README.md). Hva som er endret for brukeren: `CHANGELOG.md` under `[Unreleased]`.
 
 ## Åpne GitHub-issues
 

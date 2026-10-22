@@ -15,6 +15,7 @@ on:
       - "site/**"
       - "tools/**"
       - "docs/reference/**"
+      - "docs/manual/**"
       - "pyproject.toml"
       - "uv.lock"
       - "models/manifest.yaml"

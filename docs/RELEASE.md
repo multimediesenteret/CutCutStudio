@@ -39,6 +39,7 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 - [ ] Runbooks for hendelser i perioden
 - [ ] `docs/spec/*.md` oppdatert hvis oppførselen er endret (Markdown er fasit; det finnes ingen PDF-er, D-061)
 - [ ] Oppsettsguide (`docs/setup/`) regenerert hvis setup-stegene er endret
+- [ ] Manualen (`docs/manual/README.md`) stemmer med versjonen, og PDF-en er bygget på nytt med `pnpm manual` (testen `test_manual` feiler ellers)
 
 **Kvalitet**
 

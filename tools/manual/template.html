@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<title>CutCut Studio – manual</title>
+<style>
+  @page { size: A4; margin: 18mm 18mm 20mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Inter", "Segoe UI", sans-serif; color: #141821; font-size: 10.5pt; line-height: 1.5; }
+  .logo-ui { width: 26mm; }
+
+  /* contents */
+  .toc { page-break-after: always; }
+  .toc h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 22pt; margin: 3mm 0 2mm; letter-spacing: -0.01em; border: 0; padding: 0; }
+  .toc p.lead { color: #4a5363; font-size: 11pt; margin: 0 0 4mm; }
+  .toc > ol { list-style: none; padding: 0; margin: 0; counter-reset: c; }
+  .toc > ol > li { counter-increment: c; display: flex; align-items: baseline; font-size: 11pt; padding: 0.8mm 0; }
+  .toc > ol > li::before { content: counter(c); width: 9mm; color: #2f6fd6; font-weight: 600; }
+  .toc > ol > li a { color: inherit; text-decoration: none; white-space: nowrap; }
+  .toc > ol > li .dots { flex: 1; border-bottom: 1px dotted #b8bfca; margin: 0 3mm; transform: translateY(-1mm); }
+  .toc > ol > li .n { font-variant-numeric: tabular-nums; color: #4a5363; }
+  .toc .group { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.08em; color: #8a93a0; margin: 3mm 0 0.5mm; }
+  .quick { margin-top: 4mm; border: 1px solid #d5dbe4; border-radius: 3mm; padding: 4mm 6mm; font-size: 10pt; background: #f5f7fa; }
+  .quick h3 { margin: 0 0 2mm; font-size: 12pt; }
+  .quick ol { padding-left: 5mm; margin: 0; }
+  .quick li { padding: 0.5mm 0; }
+  .note { margin-top: 5mm; font-size: 9pt; color: #8a93a0; }
+
+  /* body */
+  main h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 18pt; margin: 9mm 0 3mm; padding-bottom: 2mm; border-bottom: 2px solid #2f6fd6; letter-spacing: -0.01em; page-break-after: avoid; }
+  main h2 .mark { font-size: 1px; color: #fff; position: absolute; }
+  main h2 .no { color: #2f6fd6; margin-right: 3mm; }
+  main h2.newpage { page-break-before: always; margin-top: 0; }
+  main p { margin: 0 0 3mm; }
+  main ul, main ol { margin: 0 0 3mm; padding-left: 6mm; }
+  main li { margin: 0 0 1.2mm; }
+  main strong { font-weight: 600; }
+  main code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; background: #eef1f5; padding: 0.2mm 1mm; border-radius: 1mm; }
+  main pre { background: #0c0f14; color: #e9edf3; padding: 3mm 4mm; border-radius: 2mm; font-size: 8.5pt; white-space: pre-wrap; page-break-inside: avoid; }
+  main pre code { background: none; color: inherit; padding: 0; }
+  main table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9pt; page-break-inside: auto; }
+  main th { text-align: left; background: #eef1f5; font-weight: 600; }
+  main th, main td { border: 1px solid #d5dbe4; padding: 1.6mm 2.2mm; vertical-align: top; }
+  main tr { page-break-inside: avoid; }
+  main img { width: 100%; margin: 2mm 0 3mm; page-break-inside: avoid; }
+  main a { color: #2f6fd6; text-decoration: none; }
+  main blockquote { margin: 0 0 3mm; padding: 2mm 4mm; border-left: 3px solid #2f6fd6; background: #f5f7fa; }
+</style>
+</head>
+<body>
+
+<section class="toc">
+  __LOGO_LIGHT__
+  <h2>Innhold</h2>
+  <p class="lead">__LEAD__</p>
+  <ol>
+    __TOC__
+  </ol>
+  <div class="quick">
+    <h3>Kom i gang på fem steg</h3>
+    <ol>
+      <li>Koble utstyret som på tegningen i «Fysisk oppsett», med UPS og studio-switch.</li>
+      <li>Installer Windows-drivere, Companion og CutCut-pakken («Installasjon steg for steg»).</li>
+      <li>Åpne teknikervinduet på <b>http://&lt;regi-PC&gt;:8080/tech/</b> og logg inn med admin-PIN.</li>
+      <li>Gå gjennom setup-hjelperens ti steg under <b>Oppsett</b>, og lagre oppsettet.</li>
+      <li>Ta et testopptak fra touch-skjermen: Start, Start opptak, hold inne Avslutt.</li>
+    </ol>
+  </div>
+  <div class="note">CutCut Studio er laget av Multimediesenteret. Kilden til denne manualen er <code>docs/manual/README.md</code> i github.com/multimediesenteret/CutCutStudio.</div>
+</section>
+
+<main>
+__BODY__
+</main>
+</body>
+</html>

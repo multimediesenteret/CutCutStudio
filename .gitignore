@@ -21,3 +21,6 @@ playwright-report/
 test-results/
 .vercel-out/
 dist-bundle/
+
+# manual build (pnpm manual)
+docs/manual/.manual.*

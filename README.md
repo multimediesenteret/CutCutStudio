@@ -17,6 +17,7 @@ Apache-2.0, opphavsrett Multimediesenteret. Se `LICENSE` og `NOTICE`.
 | Hva | Hvor |
 | --- | --- |
 | **Start her** (agenter og mennesker) | [`AGENTS.md`](AGENTS.md) |
+| **Manual** for oppsett og drift (med PDF) | [`docs/manual/`](docs/manual/README.md) · [PDF](docs/manual/CutCut-Studio-manual.pdf) |
 | Sjekkliste for studioperioden | [`docs/studio/testdag.md`](docs/studio/testdag.md) |
 | Maskintester | [`docs/studio/maskintest.md`](docs/studio/maskintest.md) |
 | Implementasjonsplaner per modul | [`docs/plans/`](docs/plans/README.md) |

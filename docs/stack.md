@@ -73,6 +73,7 @@ uv sync                       # Python 3.12 og avhengigheter (uv.lock)
 uv run pytest                 # tester
 uv run ruff check . && uv run ruff format --check . && uv run mypy
 corepack enable && pnpm install && pnpm build
+pnpm manual                   # bygger docs/manual/CutCut-Studio-manual.pdf fra docs/manual/README.md
 uv run cutcut sim             # alt simulert på http://127.0.0.1:8080/touch/ og /tech/
 ```
 
