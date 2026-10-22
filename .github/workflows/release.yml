@@ -141,11 +141,14 @@ jobs:
         if: failure()
         shell: pwsh
         run: |
-          Get-ChildItem "$env:RUNNER_TEMP\CutCut\data\logs" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
-            $name = $_.Name
-            Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 40
-            Get-Content $_.FullName -Tail 15 | ForEach-Object { Write-Output "::error title=${name}::$_" }
-          }
+          # GitHub shows at most 10 annotations per step: the newest lines of install.log first
+          $log = "$env:RUNNER_TEMP\CutCut\data\logs\install.log"
+          if (Test-Path $log) { Get-Content $log -Tail 6 | ForEach-Object { Write-Output "::error title=install.log::$_" } }
+          Get-ChildItem "$env:RUNNER_TEMP\CutCut\data\logs\service" -File -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime | Select-Object -Last 1 | ForEach-Object {
+              $name = $_.Name
+              Get-Content $_.FullName -Tail 3 | ForEach-Object { Write-Output "::error title=${name}::$_" }
+            }
 
       - name: Clean up
         if: always()
