@@ -74,6 +74,15 @@ describe("ReplayTransport (SIM-7 trace)", () => {
     expect(replay.status().t_ms).toBeLessThan(1000);
   });
 
+  it("answers the pages' GET requests with what the real API answered", async () => {
+    const { replay } = player();
+    const steps = await replay.get<{ step: { title: string } }[]>("/api/setup/steps");
+    expect(steps[0]?.step.title).toBe("Nett og IP");
+    const sessions = await replay.get<unknown[]>("/api/sessions?days=1");
+    expect(Array.isArray(sessions)).toBe(true);
+    await expect(replay.get("/api/finnes-ikke")).rejects.toThrow(/opptak/);
+  });
+
   it("refuses commands with a Norwegian message", async () => {
     const { replay } = player();
     await expect(replay.send()).rejects.toThrow(/opptak/);

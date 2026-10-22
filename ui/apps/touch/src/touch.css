@@ -236,8 +236,9 @@ h2 {
 }
 .reader .ncard b {
   font-family: var(--f-display);
-  font-size: 30px;
-  letter-spacing: 0.08em;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 .reader .ncard span {
   font-size: 18px;

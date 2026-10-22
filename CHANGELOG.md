@@ -5,6 +5,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Changed
+- Web-simulatoren på Vercel speiler appen slik den er satt opp i studio: Start-knapp i stedet for kortskanning, og Oppsett, Kameraer, regelverdiene, sjekkene under Helse, økthistorikken og Teknikere og Varsling viser det den ekte motoren svarte i stedet for tomme sider. Kortet på hvileskjermen og deltakerfargene under Innstillinger brytes ikke lenger utenfor rammen.
 - Dokumentasjonen er gått gjennom mot koden og beslutningene: status, arkitektur, stack, planer, runbooks, studio-dokumenter og README-er per modul er oppdatert, og `cutcut.setup` og `cutcut.hwtest` har fått egen README. Setup-steg 9 heter nå «Pearl og innlogging» og beskriver Start-knappen; Canon vises som «VISCA (XC senere)» under Kameraer.
 - Live tekst og forvarsel om turbytte er tatt ut av v1 (D-063): bryterne er borte fra regi-siden, og prosessen `stt` er fjernet fra dokumentene. Lagrede innstillinger som nevner dem, lastes som før.
 - Capture-kortet er INOGENI 4KXUSB3 som planlagt. DeckLink-kortet som sto i PC-spesifikasjonen brukes ikke; tekstene som sa noe annet er rettet (D-068).

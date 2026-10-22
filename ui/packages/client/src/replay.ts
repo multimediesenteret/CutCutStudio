@@ -10,6 +10,8 @@ export interface Trace {
   duration_ms: number;
   keyframe_ms: number;
   messages: [number, ServerMessage][];
+  /** Answers of the GET endpoints the pages read, from the real API: [t_ms, path, answer]. */
+  rest?: [number, string, unknown][];
 }
 
 export interface ReplayStatus {
@@ -66,8 +68,19 @@ export class ReplayTransport implements Transport {
     return Promise.reject(new CommandError("Dette er et opptak – knappene virker i studio.", 409));
   }
 
-  get<T>(): Promise<T> {
-    return Promise.reject(new CommandError("Ikke tilgjengelig i et opptak.", 409));
+  /** The newest recorded answer for the path (query ignored) at the current time. */
+  get<T>(path: string): Promise<T> {
+    const key = path.split("?")[0];
+    let found: unknown;
+    let has = false;
+    for (const [t, p, body] of this.trace.rest ?? []) {
+      if (p !== key) continue;
+      if (t > this.t && has) break;
+      found = body;
+      has = true;
+    }
+    if (!has) return Promise.reject(new CommandError("Ikke tilgjengelig i et opptak.", 409));
+    return Promise.resolve(structuredClone(found) as T);
   }
 
   post<T>(): Promise<T> {
