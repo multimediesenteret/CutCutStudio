@@ -163,7 +163,7 @@ Write-Log "Pakket ut"
 
 # 3. Try the new version against the studio setup before anything changes
 $py = Join-Path $Target "python\python.exe"
-$probe = "import cutcut; from cutcut.common.config import load_site; s = load_site(r'$Site'); print(cutcut.__version__, s.devices.studio)"
+$probe = "import cutcut; from pathlib import Path; from cutcut.common.config import load_site; s = load_site(Path(r'$Site')); print(cutcut.__version__, s.devices.studio)"
 $ErrorActionPreference = "Continue"  # Python's warnings on stderr are not failures
 $out = (& $py -I -c $probe 2>&1 | Out-String).Trim()
 $code = $LASTEXITCODE
