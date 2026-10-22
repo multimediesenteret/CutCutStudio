@@ -66,6 +66,7 @@ CutCut flytter bare kameraer som svarer på protokollen og står i manuell modus
 2. **Canon CR-N300:** fast IP, **XC-protokoll** på, egen API-bruker, HDMI/SDI **1080/50P**, manuell hvitbalanse og eksponering.
 3. **Fugleperspektiv:** HDMI **1080p50**, manuell hvitbalanse.
 4. Kjør maskintesten per kamera: `cutcut hwtest camera --camera C2`.
+5. Farge: hold et **gråkort** foran hvert kamera, velg referansekameraet og trykk **Start fargematching**. Kameraer på program eller preview hoppes over.
 
 **Sjekk:** `H-CAM-C*`, `H-CAM-MOVE`.
 

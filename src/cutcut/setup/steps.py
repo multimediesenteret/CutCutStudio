@@ -24,7 +24,7 @@ from ruamel.yaml import YAML
 from cutcut.health.model import CheckResult
 
 FixAction = Literal["atem_input_names"]
-Panel = Literal["devices", "atem", "mics", "multiview"]
+Panel = Literal["devices", "atem", "mics", "multiview", "color"]
 StepState = Literal["not_checked", "red", "yellow", "green", "approved"]
 
 

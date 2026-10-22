@@ -4,6 +4,7 @@ import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";
 import { AtemSetup } from "./AtemSetup";
+import { ColorMatch } from "./ColorMatch";
 import { type EditMap, MapEditor } from "./MapEditor";
 import { Wizard } from "./Wizard";
 
@@ -542,6 +543,7 @@ export function Setup({ ctx }: { ctx: Ctx }) {
         multiview: <Multiview ctx={ctx} />,
         atem: <AtemSetup ctx={ctx} />,
         mics: <Mics ctx={ctx} />,
+        color: <ColorMatch ctx={ctx} />,
       }}
     />
   );

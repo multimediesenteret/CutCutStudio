@@ -59,7 +59,7 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 | F-7 | `ai_tracking` | Testrapport godkjent. Reglene er bygget og testet mot falske kameraer (P5); `SetAiEnable` og innstillingene prøves på kameraet (Q16) |
 | F-8 | ~~`live_transcript`~~ | Tatt ut av v1 (D-063) |
 | F-9 | ~~`turn_prediction`~~ | Tatt ut av v1 (D-063) |
-| F-10 | Fargematching | Gråkort-test i studio |
+| F-10 | Fargematching | Gråkort-test i studio. Bygget og testet mot en kamera-modell (P8, `setup/color.py`, oppsett steg 4) |
 | F-11 | Panopto | Når Q5 er avklart |
 
 ## 7. Åpne spørsmål

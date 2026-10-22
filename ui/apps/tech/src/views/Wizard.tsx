@@ -25,7 +25,7 @@ export interface StepView {
     how: string[];
     checks: string[];
     fix: { action: string; label: string; confirm: string } | null;
-    panel: "devices" | "atem" | "mics" | "multiview" | null;
+    panel: "devices" | "atem" | "mics" | "multiview" | "color" | null;
   };
   state: StepState;
   results: Result[];

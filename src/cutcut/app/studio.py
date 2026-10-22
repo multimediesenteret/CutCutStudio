@@ -99,7 +99,14 @@ from cutcut.devices.atem import iso
 from cutcut.devices.atem.bridge import AtemStateRaw
 from cutcut.devices.atem.iso import IsoRecorder, IsoStatus
 from cutcut.devices.atem.macros import check as macro_check
-from cutcut.devices.cameras.base import CameraCommand, Nudge, RecallPreset, StorePreset
+from cutcut.devices.cameras.base import (
+    CameraCommand,
+    Exposure,
+    Nudge,
+    RecallPreset,
+    StorePreset,
+    WhiteBalance,
+)
 from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
 from cutcut.health import checks as health_checks
@@ -116,6 +123,7 @@ from cutcut.session.manager import (
     SessionManager,
 )
 from cutcut.setup import multiview as mv
+from cutcut.setup.color import CameraColor, ColorMatcher
 from cutcut.setup.mic_check import MicCheck, write_baseline
 from cutcut.setup.steps import Approval, SetupStep, StepView, load_steps, results_for, step_state
 
@@ -138,6 +146,7 @@ VERDICT_TEXT: Final[dict[str, str]] = {
     "invalid": "Ugyldig preset.",
     "tracking": "Kameraet følger personen selv (AT3). Slå av AI-tracking først.",
 }
+COLOR_KEY: Final = "setup.color"  # the last colour match (6.4): kelvin and gain per camera
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
@@ -280,6 +289,8 @@ class Studio:
         self._approved: dict[str, Approval] | None = None
         self._failed_seen: set[str] = set()  # switches already moved to shadow (F-1)
         self._had_session = False  # AT6
+        self._color: ColorMatcher | None = None  # 6.4
+        self._color_task: asyncio.Task[None] | None = None
         self._iso_since: int | None = None  # when CutCut started ISO (engine ms)
         self._iso_file: str | None = None
         self._iso_by: str | None = None
@@ -2040,6 +2051,85 @@ class Studio:
         and the show allows slow zoom on that camera (Z3)."""
         cfg = self.show.cameras.get(cam)
         return self.features.mode("slow_zoom") == "on" and cfg is not None and cfg.slow_zoom
+
+    # -- colour matching with a grey card (spec 6.4, setup step 4, F-10) --------------------
+
+    def _grab(self, cam: CameraId) -> Any | None:
+        """The newest cut-out of a camera window from the video layer, as a BGR array."""
+        data = self.vision_thumb(cam.value)
+        if data is None:
+            return None
+        try:
+            import cv2
+            import numpy as np
+        except ImportError:
+            return None
+        return cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR)
+
+    def _apply_color(self, cam: CameraId, kelvin: int, gain_db: float) -> str | None:
+        cams = self.deps.cameras
+        if cams is None:
+            return None
+        verdict = cams.submit(cam, WhiteBalance(kelvin=kelvin))
+        if verdict == "queued":
+            cams.submit(cam, Exposure(gain_db=gain_db))
+        return verdict
+
+    def color_status(self) -> dict[str, Any]:
+        cams = self.deps.cameras
+        steered = sorted(c.value for c in cams.guards) if cams is not None else []
+        saved = self.deps.store.get_kv(COLOR_KEY) if self.deps.store is not None else None
+        out: dict[str, Any] = {"cameras": steered, "saved": saved, "run": None}
+        if self._color is not None:
+            out["run"] = self._color.status()
+        return out
+
+    def start_color_match(self, reference: CameraId, role: Role, actor: str) -> dict[str, Any]:
+        """Start a colour match against ``reference``. Needs the video layer (cut-outs) and the
+        steered cameras; cameras on air are skipped by the guard (6.4, I2)."""
+        cams = self.deps.cameras
+        if cams is None:
+            raise CommandError("Kameraene styres ikke fra denne PC-en.")
+        if not self.runtime.vision_status:
+            raise CommandError("Videolaget kjører ikke, så CutCut ser ikke gråkortet.")
+        if self._color is not None and self._color.state == "måler":
+            raise CommandError("Fargematchingen går allerede.")
+        if reference not in self.show.cameras:
+            raise CommandError(f"Ukjent referansekamera {reference.value}.")
+        saved = self.deps.store.get_kv(COLOR_KEY) if self.deps.store is not None else None
+        start = saved.get("cameras", {}) if isinstance(saved, dict) else {}
+        others = {
+            c: CameraColor(
+                kelvin=int(start.get(c.value, {}).get("kelvin", 5600)),
+                gain_db=float(start.get(c.value, {}).get("gain_db", 0.0)),
+            )
+            for c in cams.guards
+            if c != reference
+        }
+        matcher = ColorMatcher(reference, others, self._grab, self._apply_color)
+        self._color = matcher
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError as exc:
+            raise CommandError("Fargematching trenger at CutCut kjører.") from exc
+
+        async def go() -> None:
+            await matcher.run()
+            if self.deps.store is not None:
+                data = {
+                    "reference": reference.value,
+                    "at": self.deps.clock.now().isoformat(),
+                    "by": actor,
+                    "cameras": {
+                        c.value: {"kelvin": s.kelvin, "gain_db": s.gain_db}
+                        for c, s in matcher.cameras.items()
+                    },
+                }
+                self.deps.store.put_kv(COLOR_KEY, data, self.deps.clock.now())
+            self._audit(role, actor, "color_match", reference=reference.value)
+
+        self._color_task = loop.create_task(go(), name="fargematching")
+        return self.color_status()
 
     # -- the cameras from the technician window (Kameraer, AT1–AT6) ---------------------------
 
