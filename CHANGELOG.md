@@ -12,6 +12,9 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P9: sjekkliste for studioperioden (`docs/studio/testdag.md`): rom, strøm og nett, maskintester, setup-hjelperens ti steg, grunnmodus med opptak til Q1, bryterne én og én i skygge og live, 72-timerstesten og hvor hvert akseptansekriterium i 10.4 sjekkes.
+  - `cutcut hwtest soak` måler minne og håndtak per prosess, omstarter, tilkoblinger og helse hvert 10. minutt i 72 timer, og skriver rapport (SO-8). `/api/health` viser nå pid per prosess.
+  - Loggen i teknikervinduet har filteret «Skygge», og CSV-eksporten har bryteren i egen kolonne.
 - P8 (F-10): fargematching med gråkort, i setup-steg 4.
   - Med et gråkort foran hvert kamera finner CutCut kortet i hver kamerarute og måler farge og lys. Deretter justeres hvitbalanse (kelvin) og gain mot et valgt referansekamera, i høyst fem runder, til forskjellen er under 3 %.
   - Kameraer på program eller preview hoppes over. Resultatet lagres i appen og brukes som start neste gang.

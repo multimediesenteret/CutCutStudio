@@ -978,6 +978,18 @@
             "title": "Name",
             "type": "string"
           },
+          "pid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pid"
+          },
           "restarts_10min": {
             "default": 0,
             "title": "Restarts 10Min",

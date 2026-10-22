@@ -1,6 +1,6 @@
 # Maskintester på test-PC-en og i studio
 
-Maskintestene sjekker det CI ikke kan: det ekte utstyret. Hver test kjøres med én kommando, og teknikeren følger instruksjonene på skjermen. Til slutt skrives en rapport som Markdown og JSON. Markdown-filen limes inn i GitHub-issuet.
+Maskintestene sjekker det CI ikke kan: det ekte utstyret, og om CutCut går i dager uten å vokse. Hver test kjøres med én kommando, og teknikeren følger instruksjonene på skjermen. Til slutt skrives en rapport som Markdown og JSON. Markdown-filen limes inn i GitHub-issuet.
 
 ## Lyd: RØDECaster (AU-6)
 
@@ -81,3 +81,23 @@ uv run cutcut hwtest vision --site C:\CutCut\site --device 0 --user tekniker1
 | V5 Stabilitet | Leser bilder i `--minutes` (60): tapte bilder, svarte bilder og gjenåpninger | |
 
 Motoren låses (LÅS) mens testen kjører, og låses opp etterpå.
+
+## 72-timerstesten (SO-8)
+
+Kjøres ved siden av CutCut-tjenesten i hele testperioden (spes. 10.4). Den logger ikke inn og endrer ingenting: prosessene og helsen leses fra `/api/health`, og minne og håndtak måles med psutil på samme PC.
+
+```powershell
+uv run cutcut hwtest soak --site C:\CutCut\site --hours 72
+```
+
+| Steg | Hva | Godkjent når |
+| --- | --- | --- |
+| D1 Minne | RSS per prosess, med barneprosesser | Under 5 % vekst etter første time (eller under 10 MB) |
+| D2 Håndtak | Håndtak per prosess (åpne filer utenfor Windows) | Under 5 % vekst etter første time (eller under 50) |
+| D3 Omstarter | Ny pid eller kortere oppetid mellom to målinger | Ingen |
+| D4 Tilkoblinger | `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-*` og `H-AUD-1` | Ingen går fra grønn til noe annet |
+| D5 Helse | Samlet status fra `/api/health` | Grønn eller gul i alle målinger |
+
+- **Første time** regnes ikke med i veksten: modeller og hurtigbuffere fylles da.
+- **Målingene** skrives fortløpende til `72-timer-<tid>.jsonl` i rapportmappen. `--every 1 --hours 2` gir en rask prøve.
+- **Ctrl+C** avbryter, og rapporten skrives med det som er målt. Er testen for kort til å vurdere vekst, sier D1 og D2 det.

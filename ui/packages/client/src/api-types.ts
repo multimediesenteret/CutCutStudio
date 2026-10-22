@@ -1674,6 +1674,11 @@ export interface components {
             /** Name */
             name: string;
             /**
+             * Pid
+             * @default null
+             */
+            pid: number | null;
+            /**
              * Restarts 10Min
              * @default 0
              */

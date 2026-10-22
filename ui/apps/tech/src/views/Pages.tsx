@@ -910,13 +910,13 @@ function Processes({ processes }: { processes: Proc[] }) {
 
 // -- Logg ----------------------------------------------------------------------------------
 
-type Filter = "all" | "cut" | "set" | "err";
+type Filter = "all" | "cut" | "set" | "err" | "shadow";
 
 function csv(rows: Decision[]): string {
   const q = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const head = ["tid", "handling", "bilde", "regel", "hvorfor", "modus", "korrelasjon"];
+  const head = ["tid", "handling", "bilde", "regel", "hvorfor", "modus", "bryter", "korrelasjon"];
   const lines = rows.map((d) =>
-    [d.ts, d.action, d.shot, d.rule, d.reason, d.mode, d.correlation_id].map(q).join(";"),
+    [d.ts, d.action, d.shot, d.rule, d.reason, d.mode, d.switch, d.correlation_id].map(q).join(";"),
   );
   return [head.join(";"), ...lines].join("\r\n");
 }
@@ -933,7 +933,9 @@ export function LogView({ ctx }: { ctx: Ctx }) {
         ? isCut(d)
         : filter === "err"
           ? isError(d)
-          : !isCut(d) && !isError(d) && d.action !== "wait",
+          : filter === "shadow"
+            ? !!d.switch
+            : !isCut(d) && !isError(d) && d.action !== "wait",
   );
   const download = () => {
     const blob = new Blob(["﻿" + csv(rows)], { type: "text/csv;charset=utf-8" });
@@ -953,6 +955,7 @@ export function LogView({ ctx }: { ctx: Ctx }) {
               ["cut", "Kutt"],
               ["set", "Preview og hold"],
               ["err", "Sikkerhet"],
+              ["shadow", "Skygge"],
             ] as const
           ).map(([k, label]) => (
             <button
