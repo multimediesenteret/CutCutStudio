@@ -88,7 +88,7 @@ class Core:
                 c()
 
 
-def _pearl_api(dev: Devices, secrets: SecretStore) -> PearlHttp:
+def pearl_api(dev: Devices, secrets: SecretStore) -> PearlHttp:
     try:
         password = secrets.get("pearl_password")
     except SecretMissingError:
@@ -150,7 +150,7 @@ def build_core(opts: CoreOptions) -> Core:
         operator_page=dev.companion.operator_page,
         fallback=bridge,
     )
-    pearl = PearlRecorder(_pearl_api(dev, opts.secrets), recorder_id=dev.pearl.recorder_id)
+    pearl = PearlRecorder(pearl_api(dev, opts.secrets), recorder_id=dev.pearl.recorder_id)
     # PTZ cameras: what is on air comes from the ATEM read-back, never from the engine (I2)
     cameras = CameraService.from_devices(
         dev, lambda: on_air(bridge.readback(), list(site.devices.cameras))
@@ -183,7 +183,7 @@ def build_core(opts: CoreOptions) -> Core:
 
     def on_devices(new: Devices) -> None:
         companion.api = CompanionHttp(str(new.companion.url))
-        pearl.api = _pearl_api(new, opts.secrets)
+        pearl.api = pearl_api(new, opts.secrets)
         cameras.reconfigure(new)
         log.info("Nye utstyrsadresser tatt i bruk (ATEM: ved neste omstart av atem-bridge)")
 

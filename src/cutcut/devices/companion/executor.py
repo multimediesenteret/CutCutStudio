@@ -59,6 +59,7 @@ class _Press:
     button: CompanionButton
     label: str
     is_preview: bool = False
+    queued: float = field(default_factory=time.monotonic)  # for the 150 ms criterion (10.4)
 
 
 @dataclass
@@ -82,6 +83,8 @@ class CompanionExecutor:
     fallback: Fallback | None = None
     clock: Callable[[], float] = time.monotonic
     start_thread: bool = True
+    # Feilsøkingsmodus: (label, ms from the engine's intent to Companion having answered)
+    on_sent: Callable[[str, float], None] | None = None
 
     _queue: deque[_Press] = field(init=False, default_factory=deque)
     _vars: dict[str, str] = field(init=False, default_factory=dict)
@@ -239,6 +242,8 @@ class CompanionExecutor:
         with self._cv:
             self._fails = 0
             self._status.sent += 1
+        if press is not None and self.on_sent is not None:
+            self.on_sent(press.label, (time.monotonic() - press.queued) * 1000)
         return True
 
     def _failed(self, error: str) -> None:

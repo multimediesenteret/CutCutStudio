@@ -279,6 +279,17 @@ function TopBar({
           Ikke opptak
         </span>
       )}
+      {state.studio.debug_until && (
+        <button
+          type="button"
+          className="pill warn"
+          title="Feilsøkingsmodus tar opp alt som kommer inn til motoren"
+          onClick={() => go("helse")}
+        >
+          <span className="d" />
+          Feilsøking
+        </button>
+      )}
       {(state.recording.iso?.state === "recording" ||
         state.recording.iso?.state === "stopping") && (
         <button type="button" className="pill rec" onClick={() => go("opptak")}>

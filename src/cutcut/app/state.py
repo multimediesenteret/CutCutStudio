@@ -27,6 +27,7 @@ class StudioInfo(_S):
     # use the same «Camera n» names as the ATEM multiview (D-054).
     inputs: dict[str, int]
     support_email: str | None = None  # shown on touch at «Hjelp» (D-065)
+    debug_until: str | None = None  # feilsøkingsmodus on until (Helse); None: off
 
 
 class SeatAudio(_S):

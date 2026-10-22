@@ -238,6 +238,22 @@
         "title": "ContentIn",
         "type": "object"
       },
+      "DebugIn": {
+        "additionalProperties": false,
+        "properties": {
+          "hours": {
+            "maximum": 72.0,
+            "minimum": 0.0,
+            "title": "Hours",
+            "type": "number"
+          }
+        },
+        "required": [
+          "hours"
+        ],
+        "title": "DebugIn",
+        "type": "object"
+      },
       "Decision": {
         "additionalProperties": false,
         "properties": {
@@ -1801,6 +1817,18 @@
       "StudioInfo": {
         "additionalProperties": false,
         "properties": {
+          "debug_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Debug Until"
+          },
           "inputs": {
             "additionalProperties": {
               "type": "integer"
@@ -2531,6 +2559,72 @@
         "summary": "Cut",
         "tags": [
           "override"
+        ]
+      }
+    },
+    "/api/debug": {
+      "get": {
+        "description": "Feilsøkingsmodus: on or off, until when, and how much is recorded.",
+        "operationId": "get_debug_api_debug_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Debug Api Debug Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Debug",
+        "tags": [
+          "status"
+        ]
+      },
+      "put": {
+        "description": "Feilsøkingsmodus on for ``hours`` (off by itself afterwards), or off with 0 (admin).\nWhile on, everything that reaches the engine is recorded in ``data/debug``.",
+        "operationId": "put_debug_api_debug_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DebugIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Put Debug Api Debug Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Debug",
+        "tags": [
+          "status"
         ]
       }
     },

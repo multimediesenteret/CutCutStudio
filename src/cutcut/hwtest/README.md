@@ -13,6 +13,8 @@ uv run cutcut hwtest <audio|atem|camera|vision|faces|soak> --site C:\CutCut\site
 | `camera.py` | Ett PTZ-kamera (`--camera C2`): protokoll, posisjon, presets, laveste zoomfart, farge, AI-tracking | KA1–KA7 | CA-5 |
 | `vision.py` | Capture-kortet (INOGENI): format, rutekart, forsinkelse, stabilitet | V1–V5 | VI-4 |
 | `faces.py` | Ansikt og munn på et opptak av multiviewen (`--file`) | F1–F3 | P6 |
+| `pearl.py` | Epiphan Pearl: svar, opptaker, lagring, 5 s testopptak, og at en stopp uten trykk varsles innen 5 s (`--user`) | P1–P5 | SE-3 |
+| `acceptance.py` | `hwtest akseptanse`: kriteriene i 10.4 fra beslutningene og feilsøkingsopptaket for en periode (`--since`, `--until`, `--data`) | A1–A5 | T-M3 |
 | `soak.py` | 72-timerstesten (`--hours`, `--every`): minne, håndtak, omstarter, tilkoblinger, helse | D1–D5 | SO-8 |
 | `report.py` | Felles rapportformat (`Report`, `Step`) | – | – |
 

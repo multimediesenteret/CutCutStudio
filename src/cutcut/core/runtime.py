@@ -83,6 +83,9 @@ class CoreRuntime:
         self.on_decision = on_decision
         self.on_step = on_step
         self.camera_sink: Callable[[Intent], None] | None = None  # set when core has cameras
+        # Feilsøkingsmodus (app/debugrec.py): every bus message and intent, as they come
+        self.on_bus: Callable[[str, dict[str, Any]], None] | None = None
+        self.on_intent: Callable[[Intent], None] | None = None
         self.stats = RuntimeStats()
         self._mics: dict[MicId, MicFrame] = {}
         self._last_audio_ms: int | None = None
@@ -168,6 +171,8 @@ class CoreRuntime:
 
     def feed_bus(self, topic: str, payload: dict[str, Any]) -> None:
         """Route one bus message. Invalid payloads are counted and dropped, never raised."""
+        if self.on_bus is not None:
+            self.on_bus(topic, payload)
         try:
             if topic == "audio.frame":
                 self.feed_audio(messages.mic_frames(payload))
@@ -232,6 +237,8 @@ class CoreRuntime:
         for decision in result.decisions:
             self._handle_decision(decision)
         for intent in result.intents:
+            if self.on_intent is not None:
+                self.on_intent(intent)
             try:
                 if self.camera_sink is not None and isinstance(intent, CAMERA_INTENTS):
                     self.camera_sink(intent)  # F1, Z1, Z2: the PTZ cameras, not Companion

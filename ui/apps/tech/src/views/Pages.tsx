@@ -11,6 +11,7 @@ import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
 import { Alerts } from "./Alerts";
+import { DebugPanel } from "./Debug";
 import { IsoPanel } from "./Iso";
 import { CameraControls, useCameras } from "./CameraControls";
 import { SetupFile, Technicians } from "./SetupFile";
@@ -746,6 +747,7 @@ export function Health({ ctx }: { ctx: Ctx }) {
           </table>
         </div>
       </div>
+      <DebugPanel ctx={ctx} />
       <div className="panel">
         <div className="ph">
           <span className="lbl">Motor</span>

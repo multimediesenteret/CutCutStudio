@@ -84,6 +84,22 @@ Kortet finnes på navnet fra `video` i `devices.yaml` (standard «INOGENI»). Fi
 
 Motoren låses (LÅS) mens testen kjører, og låses opp etterpå.
 
+## Pearl (SE-3)
+
+Snakker med Pearl med samme klient som CutCut, og passordet fra Credential Manager (`pearl_password`). Med `--user` brukes adressen fra teknikervinduet, og P5 kjøres. Kjøres aldri mens Pearl tar opp: da hoppes P4 og P5 over (I7).
+
+```powershell
+uv run cutcut hwtest pearl --site C:\CutCut\site --user tekniker1
+```
+
+| Steg | Hva skjer | Godkjent når |
+| --- | --- | --- |
+| P1 Pearl svarer | Fastvare og svartid | Svar innen 1 s |
+| P2 Opptaker | Opptakeren i oppsettet finnes, og hvilken tilstand den har | Ikke i feil |
+| P3 Lagring | Ledig plass | Over 10 % ledig |
+| P4 Testopptak | Starter, tar opp 5 s og stopper (spør først). Sjekk etterpå at filen finnes på Pearl | Starter innen 10 s og stopper |
+| P5 Stopp uten trykk | CutCut starter et opptak for «maskintest»; du stopper det på Pearl selv og trykker Enter | CutCut varsler innen 5 s (10.4) |
+
 ## Ansikt og munn på et opptak (P6)
 
 Kjøres på et opptak av multiviewen fra en testsending (`multiview.mp4` fra `docs/intake/opptak-og-klippeliste.md`), ikke på kortet direkte. Trenger modellen (`uv run python tools/fetch_models.py`) og ekstraen `vision`.
@@ -119,3 +135,31 @@ uv run cutcut hwtest soak --site C:\CutCut\site --hours 72
 - **Første time** regnes ikke med i veksten: modeller og hurtigbuffere fylles da.
 - **Målingene** skrives fortløpende til `72-timer-<tid>.jsonl` i rapportmappen. `--every 1 --hours 2` gir en rask prøve.
 - **Ctrl+C** avbryter, og rapporten skrives med det som er målt. Er testen for kort til å vurdere vekst, sier D1 og D2 det.
+
+## Akseptanse fra loggen (T-M3)
+
+Regner ut kriteriene i 10.4 som kan måles fra det CutCut har skrevet ned, for en periode: en testsending, en dag eller hele studioperioden. Leser beslutningene i databasen og, når feilsøkingsmodus var på, opptaket i `data\debug`. Sender ingenting, og CutCut kan kjøre samtidig.
+
+```powershell
+uv run cutcut hwtest akseptanse --since "2026-11-04 09:00" --until "2026-11-04 09:40"
+```
+
+| Steg | Kriterium | Krever |
+| --- | --- | --- |
+| A1 Kutt innen 150 ms | 95 % av kuttene når Companion innen 150 ms etter beslutningen; tregeste vises | Feilsøkingsmodus på |
+| A2 Kuttpunkt | Minst 90 % av taler-kuttene på `K1` eller `K2` | – |
+| A3 Preview før TAKE | Minst 300 ms på preview i 95 % av taler-kuttene | – |
+| A4 Ingen kutt tilbake | Ingen kutt tilbake til forrige bilde innen 4 s (`H2`); en persons kutt teller ikke | – |
+| A5 Kutt og overstyringer | Kutt per 10 min og hvor ofte en person tok over, til operatørens vurdering (Q2) | – |
+
+`--data` er CutCuts datamappe (standard `C:\CutCut\data`). Uten `--since` brukes dagen i dag.
+
+## Feilsøkingsmodus
+
+Ikke en test, men det som gjør testene og feilsøkingen mulig. Teknikervinduet → **Helse** → **Feilsøkingsmodus** → 1, 8 eller 24 timer (admin); den slår seg av selv. Mens den er på:
+
+- tas alt som kommer inn til motoren opp (lyd- og videomålinger, ATEM, kameraer), sammen med hver beslutning og hvor lang tid hvert Companion-kall tok, i `data\debug\<dato>T<time>.jsonl.gz`;
+- logger `core` mer (DEBUG);
+- vises «Feilsøking» øverst i teknikervinduet.
+
+Opptaket tas vare på i 7 dager og stopper selv ved 5 GB. Det har ingen passord, PIN eller kortnummer. «Feilsøkingspakke» under Logg tar med siste time. Ha den på hele studioperioden (`testdag.md` 1.11).

@@ -27,6 +27,7 @@ from cutcut.common.privacy import redact, redact_text
 if TYPE_CHECKING:
     from cutcut.app.studio import Studio
 
+DEBUG_IN_PACKAGE_BYTES: Final = 20_000_000
 DECISION_COLUMNS: Final = (
     "ts",
     "action",
@@ -116,7 +117,8 @@ def debug_package(studio: Studio, now: datetime) -> bytes:
             "audit.jsonl     hvem endret hva, siste 7 dager\n"
             "sessions.json   økter siste 7 dager\n"
             "site/           studio-oppsett uten personliste\n"
-            "logs/           siste linjer av hver logg\n\n"
+            "logs/           siste linjer av hver logg\n"
+            "debug/          siste time av feilsøkingsopptaket, når det er på\n\n"
             "Ingen hemmeligheter eller kortnummer er med.\n"
         ),
         "version.json": _json(
@@ -167,4 +169,8 @@ def debug_package(studio: Studio, now: datetime) -> bytes:
     with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name, text in files.items():
             z.writestr(f"cutcut-feilsok/{name}", text)
+        # Feilsøkingsmodus: the newest hour of the recording, when it is not too big
+        recorded = studio.debug.files()
+        if recorded and recorded[-1].stat().st_size <= DEBUG_IN_PACKAGE_BYTES:
+            z.write(recorded[-1], f"cutcut-feilsok/debug/{recorded[-1].name}")
     return buf.getvalue()

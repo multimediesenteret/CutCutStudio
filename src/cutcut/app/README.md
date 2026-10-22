@@ -11,6 +11,7 @@
 | `maintenance.py` | Nattlig vedlikehold (SO-7): gamle rader slettes etter oppbevaringstiden, og en konsistent kopi av `cutcut.db` legges i `data\backup\` (7 beholdes). Kl. 03–05, aldri under en økt; har PC-en vært av om natten, tas kopien ved første rolige stund |
 | `export.py` | CSV av logg og økter, og feilsøkingspakken (zip uten hemmeligheter, personliste eller kortnummer) |
 | `setup_file.py` | «Lagre oppsett» og «Hent oppsett» (D-060): alt som er lagt inn i appen (adresser, teknikere, varsling, rutekart, innlogging, farge) som én YAML uten PIN eller passord. Kopi i `data\oppsett\` ved hver endring (20 beholdes) |
+| `debugrec.py` | Feilsøkingsmodus: tar opp alt som kommer inn til motoren, hver beslutning, hvert ønske til utstyret og tiden hvert Companion-kall tok, i `data\debug\` (gzip, én fil per time, 7 dager). Slås på under Helse for 1–72 timer og av selv; overlever omstart (`debug.until`). API: `GET`/`PUT /api/debug` |
 | `hub.py` | Fordeling av live-meldinger til skjermene, med begrenset kø per klient |
 
 **Innlogging** (`login_mode`, Innstillinger → Innlogging): `open` er Start-knappen («Gjest») og standard i studio; `card` er kortinnlogging, som simulatoren bruker (D-057).

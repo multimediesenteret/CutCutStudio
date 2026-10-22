@@ -30,6 +30,7 @@ Rekkefølgen er viktig: hver del bygger på den forrige. Blokk 0 gjøres hjemme,
 | 1.8 | Companion på samme PC | Installer Companion, importer sidene (`docs/studio/companion.md`) | Helse → `H-COMP-1` viser «sider v1» | DA-9 (#92) |
 | 1.9 | INOGENI 4KXUSB3 | Direkte i en USB 3-port på PC-en (ikke hub). Multiview-utgangen fra ATEM inn på kortet, 1080p50 | Helse → `H-VID-1` grønn | – |
 | 1.10 | Support-e-post | Teknikervinduet → Innstillinger → Varsling. Standard er eierens adresse | Vises på touch under «Hjelp» | – |
+| 1.11 | Feilsøkingsmodus på | Teknikervinduet → Helse → Feilsøkingsmodus → **24 timer**. Slå den på igjen hver dag i perioden | «Feilsøking» vises øverst i teknikervinduet | – |
 
 ## 2. Maskintester
 
@@ -41,6 +42,7 @@ Kommandoene og stegene står i [`maskintest.md`](maskintest.md). Hver test skriv
 | 2.2 | ATEM og Companion | `uv run cutcut hwtest atem --site C:\CutCut\site --user …` | 10 min | DA-5 (#89), Q7 |
 | 2.3 | PTZ-kameraene, ett av gangen | `uv run cutcut hwtest camera --site C:\CutCut\site --camera C1` (så C2, C3 …) | 5 min per kamera | CA-5 (#142), Q16 |
 | 2.4 | Capture-kortet | Stopp `vision` under Helse → Prosesser, så `uv run cutcut hwtest vision --site C:\CutCut\site --user …` | ca. 65 min | VI-4 (#136) |
+| 2.5 | Pearl | `uv run cutcut hwtest pearl --site C:\CutCut\site --user …`. Ikke under et opptak | ca. 5 min | SE-3, 10.4 |
 
 Fra 2.3 skrives to tall inn i oppsettet før bryterne prøves:
 
@@ -75,7 +77,7 @@ Alle brytere **av**. Dette er sendingen slik den skal fungere fra første dag.
 | # | Gjør | Hvordan | Godkjent når | Rapport |
 | --- | --- | --- | --- | --- |
 | 4.1 | Første klipping via preview | En prøve med to personer, AUTO på. Operatøren følger med | Operatøren godtar kuttene | DA-6 (#90), T-M2 (#105) |
-| 4.2 | Tre testsendinger med opptak | Sendingene fra 0.5. Ta opp alt som står i [`opptak-og-klippeliste.md`](../intake/opptak-og-klippeliste.md): mic-spor, multiview, ISO, `meta.yaml`. Eksporter beslutningsloggen (Logg → CSV) | Filene ligger på godkjent lagringssted | Q1 |
+| 4.2 | Tre testsendinger med opptak | Sendingene fra 0.5. Ta opp alt som står i [`opptak-og-klippeliste.md`](../intake/opptak-og-klippeliste.md): mic-spor, multiview, ISO, `meta.yaml`. Eksporter beslutningsloggen (Logg → CSV). Etter hver sending: `uv run cutcut hwtest akseptanse --since "<start>"` | Filene ligger på godkjent lagringssted; akseptanserapporten lagt i T-M3 | Q1, T-M3 |
 | 4.3 | Ansikt på ekte bilde | `uv run cutcut hwtest faces --site C:\CutCut\site --file <multiview.mp4 fra 4.2>` | F1 minst 90 % brukbart per rute; F3 under 200 ms | P6 |
 | 4.4 | Feil underveis | Under en prøvesending: drep `vision`, så `core` i Oppgavebehandling | Kuttingen fortsetter uten `vision`; `core` tilbake innen 5 s med samme oppsett | – |
 | 4.5 | Lekkasje | Én person snakker høyt i 10 min | Ingen kutt til andre | – |
@@ -120,22 +122,22 @@ Godkjent når minne og håndtak vokser under 5 % etter første time, ingen prose
 
 ## 7. Akseptanse (10.4)
 
-Kriteriene for v1, og hvor i perioden de sjekkes. Kort, e-post og Panopto er tatt ut av perioden (gjøres etter at studioet er tatt i bruk).
+Kriteriene for v1, og hvor i perioden de sjekkes. Det som kan måles fra loggen, regner `cutcut hwtest akseptanse` ut (A1–A5, `maskintest.md`); feilsøkingsmodus må være på for A1. Kort, e-post og Panopto er tatt ut av perioden (gjøres etter at studioet er tatt i bruk).
 
 | Kriterium | Sjekkes i |
 | --- | --- |
-| Kutt innen 150 ms etter bekreftelsestiden | Beslutningsloggen fra 4.2 (tid fra lyd inn til Companion-kall) |
+| Kutt innen 150 ms etter bekreftelsestiden | `hwtest akseptanse` A1, sendingene i 4.2 |
 | Færre enn 2 kutt per 10 min som operatøren ville gjort annerledes | Klippelista (Q2) mot loggen fra 4.2 |
 | Ingen kutt til kamera i bevegelse eller tomt bilde | Alle prøvesendingene, til sammen minst 10 timer med 72-timerstesten |
 | Lekkasje: ingen kutt til andre i 10 min | 4.5 |
 | Content innen 1 s | 4.6 |
 | Modusene `N1`–`N4C` med riktig utvalg og reservebilder | Testsendingene i 4.2 (1, 2 og 3–4 personer, med og uten laptop) |
 | Videolaget kan drepes; `core` tilbake innen 5 s | 4.4 |
-| Pearl-status på touch stemmer; stopp uten trykk varsles innen 5 s | Steg 9; trekk nettverkskabelen til Pearl under et opptak |
+| Pearl-status på touch stemmer; stopp uten trykk varsles innen 5 s | `hwtest pearl` P4 og P5 (2.5); steg 9 |
 | 72 timer uten minnelekkasje eller tapte tilkoblinger | Blokk 6 |
-| Minst 90 % av taler-kuttene på `K1` eller `K2` | Beslutningsloggen fra 4.2 |
-| Preview viser neste bilde minst 300 ms før `TAKE` i 95 % av kuttene | Beslutningsloggen fra 4.2 |
-| Ingen kutt tilbake innen 4 s (`H2`) | Beslutningsloggen fra alle prøvesendingene |
+| Minst 90 % av taler-kuttene på `K1` eller `K2` | `hwtest akseptanse` A2 |
+| Preview viser neste bilde minst 300 ms før `TAKE` i 95 % av kuttene | `hwtest akseptanse` A3 |
+| Ingen kutt tilbake innen 4 s (`H2`) | `hwtest akseptanse` A4, alle prøvesendingene |
 | Alle brytere av gir samme resultat som grunnmodus | Slutten av blokk 5 |
 | Opptak fra touch vises i teknikervinduet innen 1 s, og omvendt | Steg 9 |
 | Kun lyd: lyd og «Kun lyd»-grafikk, ingen kamera beveger seg | En kort prøve med showtypen «Kun lyd» |
