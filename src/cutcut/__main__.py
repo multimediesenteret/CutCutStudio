@@ -96,7 +96,7 @@ def build_parser() -> argparse.ArgumentParser:
     vis = sub.add_parser(
         "vision",
         help="kjør videolaget: multiview inn, målinger per rute på bussen (VI-1)",
-        description="Leser multiviewen fra capture-kortet (DeckLink, D-062) eller en fil og "
+        description="Leser multiviewen fra capture-kortet (INOGENI) eller en fil og "
         "deler den i ruter. Kortet velges med `video` i devices.yaml.",
     )
     vis.add_argument("--site", type=Path, required=True, help="studio-oppsett (rutekartet)")
@@ -118,7 +118,7 @@ def build_parser() -> argparse.ArgumentParser:
         "what",
         choices=["audio", "atem", "camera", "vision", "faces"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
-        "vision: capture-kortet, DeckLink (VI-4); faces: ansikt og munn på et opptak (P6)",
+        "vision: capture-kortet, INOGENI (VI-4); faces: ansikt og munn på et opptak (P6)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument(

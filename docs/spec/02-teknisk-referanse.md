@@ -14,7 +14,7 @@ I drift brukes én protokoll per enhet: den som snakker direkte med enheten, er 
 | Canon CR-N300 | XC-protokollen (HTTP) | VISCA over IP | XC gir farge og eksponering med direkte verdier |
 | Epiphan Pearl Nexus | REST API v2.0 (HTTPS, Basic-autentisering) | Companion sin Pearl-modul for knapper | Offisielt API med status for opptak, innganger og lagring |
 | RØDECaster Pro II | ASIO, USB 1 multitrack | – | Rene spor med lav forsinkelse |
-| Blackmagic DeckLink Mini Recorder HD (D-062) | DirectShow via Blackmagic Desktop Video, 1080p50 | – | Kortet sitter i regi-PC-en; velges på navnet |
+| INOGENI 4KXUSB3 | UVC, YUY2 1080p50 | – | Standard webkamera i Windows, ingen driver |
 | ELATEC TWN3 | Virtuell COM-port | – | Uavhengig av tastaturfokus |
 | Kort-API | HTTPS med tjenestenøkkel | Tekniker kan starte økt uten kort | Bare ved innlogging, aldri i sanntid |
 
@@ -186,8 +186,7 @@ Fra OBSBOT sin OSC-definisjon for Tail 2. Kameraet er server: det tar imot på p
 | Enhet | Teknisk | Viktig å vite |
 | --- | --- | --- |
 | RØDECaster Pro II | USB 1, multitrack på, pre-fader; RØDECaster ASIO-driver | Virtual Devices-driveren er ikke kompatibel med ASIO og installeres ikke. USB 2 gir bare stereomiks |
-| Blackmagic DeckLink Mini Recorder HD (D-062) | PCIe; én SDI-inngang (3G) og én HDMI 2.0-inngang; SD og HD opptil 1080p60; 8- og 10-bit YUV 4:2:2 | Driver: Blackmagic Desktop Video. Gir ikke bilde uten signal; formatet settes eller oppdages i Desktop Video Setup. Forsinkelsen måles i maskintesten |
-| INOGENI 4KXUSB3 (ikke lenger i bruk, D-062) | HDMI 1.4a inn og gjennomgang; USB 3.0 UVC; YUY2/NV12 ukomprimert, MJPEG bare på USB 2; 1080p50 støttet; strøm fra USB (5 V, 900 mA) | Ingen driver. Forsinkelse er ikke oppgitt og måles. Har egen VISCA-port (RS-232) som ikke brukes |
+| INOGENI 4KXUSB3 | HDMI 1.4a inn og gjennomgang; USB 3.0 UVC; YUY2/NV12 ukomprimert, MJPEG bare på USB 2; 1080p50 støttet; strøm fra USB (5 V, 900 mA) | Ingen driver. Forsinkelse er ikke oppgitt og måles. Har egen VISCA-port (RS-232) som ikke brukes |
 | ELATEC TWN3 MIFARE (USB) | Moduser: tastatur-emulering, virtuell COM-port, transparent. Settes opp med TWNConfig (skriptet bestemmer format: hex, omvendt hex, desimal) | Bruk samme skript og format som i Crestron-studioene. USB-ID i COM-modus: `09D8:0320` |
 | Kort-API | adressen fra IT-avdelingen (settes i appen) | Nøkkel og svarformat kommer; skal gi brukernavn og visningsnavn |
 | iiyama ProLite T2254MSC-B2AG | 21,5″, 1920 × 1080, PCAP 10 punkt over USB, HDMI og DisplayPort, USB-hub, VESA 100 | Fungerer med Windows uten driver; kortleseren kan sitte i hubben |

@@ -4,8 +4,8 @@ id: multiview
 title: "Multiview"
 why: "CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde."
 how:
-  - "ATEM: multiview ut på SDI eller HDMI til **DeckLink-kortet** i regi-PC-en, i **1080p50**."
-  - "Blackmagic Desktop Video Setup: inngangen på kortet skal vise **1080p50**. CutCut finner kortet på navnet (`video` i devices.yaml)."
+  - "ATEM: multiview ut på **HDMI** til INOGENI 4KXUSB3, i **1080p50**."
+  - "CutCut finner INOGENI på navnet (`video` i devices.yaml) og leser **1080p50 YUY2**."
   - "Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden."
   - "Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**."
   - "Forsinkelsen fra ATEM til PC måles med et blinkende testbilde."
