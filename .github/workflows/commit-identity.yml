@@ -3,10 +3,9 @@ name: commit-identity
 # Every commit must be authored and committed by the Vercel account owner,
 # without Co-authored-by trailers (Vercel Hobby). See AGENTS.md section 3.
 
+# Only on PRs: what reaches main came through one (D-059).
 on:
   pull_request:
-  push:
-    branches: [main]
 
 jobs:
   check:

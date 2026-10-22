@@ -6,21 +6,16 @@ name: release
 #   2. installer/install.ps1 installs it as the CutCut service and it answers with its version,
 #   3. a broken next version is rolled back by itself, and the first one runs again.
 # On a tag v* (set by a person, docs/RELEASE.md) the files go on the GitHub release.
-# Pull requests that touch packaging or installing build and test the package too.
+# Pull requests that change packaging or install.ps1 build and test the package too.
 
 on:
   push:
     tags: ["v*"]
   pull_request:
     paths:
+      # the long Windows test runs only when packaging or installing itself changes (D-059)
       - "tools/build_bundle.py"
-      - "installer/**"
-      - "src/cutcut/__init__.py"
-      - "src/cutcut/supervisor/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "pnpm-lock.yaml"
-      - "bridges/atem/package.json"
+      - "installer/install.ps1"
       - ".github/workflows/release.yml"
   workflow_dispatch:
 

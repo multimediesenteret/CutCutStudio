@@ -4,18 +4,9 @@ name: windows-service
 # comes up, restarts a killed core, and leaves nothing behind when stopped. Runs only when the
 # installer or the supervisor change (Windows minutes cost more, D-050).
 
+# Not on push to main: the PR ran this already (D-059).
 on:
   pull_request:
-    paths:
-      - "src/cutcut/common/bus/**"
-      - "src/cutcut/app/core.py"
-      - "src/cutcut/audio/main.py"
-      - "installer/**"
-      - "src/cutcut/supervisor/**"
-      - "src/cutcut/api/**"
-      - ".github/workflows/windows-service.yml"
-  push:
-    branches: [main]
     paths:
       - "src/cutcut/common/bus/**"
       - "src/cutcut/app/core.py"
