@@ -36,7 +36,7 @@ C:\CutCut\
 **Installasjon og utrulling (12.3):**
 
 - CI bygger én zip per tag: Python, avhengigheter, bygget UI, `atem-bridge` med Node, WinSW-filer, SBOM og SHA-256.
-- `install.ps1` (kjøres av tekniker i servicevindu): sjekker sjekksum → pakker ut ved siden av → kjører konfigmigrering på en kopi → bytter `current` → restarter tjenesten → kjører morgensjekken. Feiler den: `current` tilbake og tjenesten restartes. Tre siste versjoner beholdes.
+- `install.ps1` (kjøres av tekniker i servicevindu): sjekker sjekksum → pakker ut ved siden av → prøver den nye versjonen mot studio-oppsettet → bytter `current` → restarter tjenesten → venter til den nye versjonen svarer på `/api/health`. Feiler den: `current` tilbake og tjenesten restartes. Tre siste versjoner beholdes. Konfigmigrering kommer med første `schema_version` 2; i dag leser den nye versjonen oppsettet slik det er (gjort, SO-4).
 - Ingen automatisk oppdatering av CutCut, Windows, drivere eller fastvare utenfor servicevinduet.
 
 **Windows-oppsett (9.2) som skript:** `tools/windows/setup-pc.ps1` gjør alt som kan gjøres lokalt (strømplan, USB-strømsparing av, aktive timer, kiosk-bruker, brannmurregel for 8080, tjenester) og skriver rapport. Skriptet kan kjøres på nytt og endrer bare det som avviker. Om det er lov avhenger av Q8 (NTNU-administrert PC).

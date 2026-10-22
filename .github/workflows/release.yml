@@ -1,0 +1,187 @@
+name: release
+
+# SO-3 and SO-4: builds the Windows package (tools/build_bundle.py) with its own Python, Node,
+# UI and atem-bridge, an SBOM and a SHA-256, and proves on a Windows runner that
+#   1. the package runs on its own (no uv, no repo, another working directory),
+#   2. installer/install.ps1 installs it as the CutCut service and it answers with its version,
+#   3. a broken next version is rolled back by itself, and the first one runs again.
+# On a tag v* (set by a person, docs/RELEASE.md) the files go on the GitHub release.
+# Pull requests that touch packaging or installing build and test the package too.
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "tools/build_bundle.py"
+      - "installer/**"
+      - "src/cutcut/__init__.py"
+      - "src/cutcut/supervisor/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pnpm-lock.yaml"
+      - "bridges/atem/package.json"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      ROOT: ${{ runner.temp }}\CutCut
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Version
+        id: v
+        shell: pwsh
+        run: |
+          $v = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}".TrimStart("v") } else { "0.0.0-ci.${{ github.run_number }}" }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Version $v"
+
+      - name: Screens, atem-bridge and models
+        shell: pwsh
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+          pnpm --filter @cutcut/atem-bridge --config.inject-workspace-packages=true --config.node-linker=hoisted deploy --prod "$env:RUNNER_TEMP\bridge"
+          uv sync --locked
+          uv run python tools/fetch_models.py
+
+      - name: Build the package
+        shell: pwsh
+        run: |
+          uv python install 3.12
+          $py = uv python find --managed-python 3.12
+          $pydir = Split-Path -Parent $py
+          $node = (Get-Command node).Source
+          uv run python tools/build_bundle.py --version "${{ steps.v.outputs.version }}" --python "$pydir" --node "$node" --bridge "$env:RUNNER_TEMP\bridge" --out "$env:RUNNER_TEMP\out"
+          Get-ChildItem "$env:RUNNER_TEMP\out" -File | Format-Table Name, Length
+
+      - name: The package runs on its own
+        shell: pwsh
+        run: |
+          $b = "$env:RUNNER_TEMP\out\cutcut-${{ steps.v.outputs.version }}"
+          Push-Location $env:RUNNER_TEMP
+          $env:PYTHONNOUSERSITE = "1"
+          & "$b\python\python.exe" -I -c "import cutcut, sys; print(cutcut.__version__); sys.exit(cutcut.__version__ != '${{ steps.v.outputs.version }}')"
+          if ($LASTEXITCODE) { throw "Feil versjon i pakken" }
+          & "$b\python\python.exe" -I -m cutcut sim --smoke --port 8131
+          if ($LASTEXITCODE) { throw "Simulatoren i pakken startet ikke" }
+          Pop-Location
+          Push-Location "$b\bridges\atem"
+          & "$b\node\node.exe" --input-type=module -e "const a = await import('atem-connection'); const z = await import('zeromq'); new z.Publisher(); console.log('atem-bridge: avhengigheter OK', typeof a.Atem)"
+          if ($LASTEXITCODE) { throw "atem-bridge i pakken mangler avhengigheter" }
+          Pop-Location
+
+      - name: Install it as the service
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:ROOT" | Out-Null
+          Copy-Item -Recurse site\example "$env:ROOT\site"
+          $zip = "$env:RUNNER_TEMP\out\cutcut-${{ steps.v.outputs.version }}-win64.zip"
+          .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092
+          if ($LASTEXITCODE) { throw "install.ps1 feilet" }
+          $h = Invoke-RestMethod -Uri "http://127.0.0.1:8092/api/health"
+          if ($h.version -ne "${{ steps.v.outputs.version }}") { throw "Feil versjon svarer: $($h.version)" }
+          (Get-Item "$env:ROOT\current").Target
+          Invoke-WebRequest -Uri "http://127.0.0.1:8092/tech/" -UseBasicParsing | Select-Object StatusCode
+
+      - name: A broken next version is rolled back
+        shell: pwsh
+        run: |
+          $v = "${{ steps.v.outputs.version }}"
+          $bad = "$v-broken"
+          $work = "$env:RUNNER_TEMP\broken"
+          New-Item -ItemType Directory -Force -Path $work | Out-Null
+          Copy-Item -Recurse "$env:RUNNER_TEMP\out\cutcut-$v" "$work\cutcut-$bad"
+          $info = Get-Content "$work\cutcut-$bad\BUILD.json" -Raw | ConvertFrom-Json
+          $info.version = $bad
+          $info | ConvertTo-Json | Set-Content "$work\cutcut-$bad\BUILD.json" -Encoding UTF8
+          # core cannot start without its web server
+          Remove-Item -Recurse -Force "$work\cutcut-$bad\python\Lib\site-packages\uvicorn"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = "$work\cutcut-$bad-win64.zip"
+          [System.IO.Compression.ZipFile]::CreateFromDirectory("$work\cutcut-$bad", $zip, "Optimal", $true)
+          "$((Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant())  cutcut-$bad-win64.zip" | Set-Content "$zip.sha256"
+          .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092 -HealthSeconds 45
+          if ($LASTEXITCODE -ne 1) { throw "install.ps1 skulle feilet og rullet tilbake (exit $LASTEXITCODE)" }
+          $h = Invoke-RestMethod -Uri "http://127.0.0.1:8092/api/health"
+          if ($h.version -ne $v) { throw "Etter tilbakerulling svarer $($h.version), ikke $v" }
+          if ((Get-Item "$env:ROOT\current").Target -notlike "*\versions\$v") { throw "current peker feil" }
+          Write-Host "Rullet tilbake til $v"
+          Get-Content "$env:ROOT\data\logs\install.log"
+
+      - name: A wrong checksum changes nothing
+        shell: pwsh
+        run: |
+          $zip = "$env:RUNNER_TEMP\out\cutcut-${{ steps.v.outputs.version }}-win64.zip"
+          $failed = $false
+          try { .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092 -Sha256 ("0" * 64) } catch { $failed = $true; Write-Host $_ }
+          if (-not $failed) { throw "Feil sjekksum ble ikke stoppet" }
+
+      - name: Service log on failure
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem "$env:ROOT\data\logs" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 40
+            Get-Content $_.FullName -Tail 15 | ForEach-Object { Write-Output "::error title=$($_.Name)::$_" }
+          }
+
+      - name: Clean up
+        if: always()
+        shell: pwsh
+        run: |
+          if (Get-Service CutCut -ErrorAction SilentlyContinue) {
+            & "$env:ROOT\current\installer\install-services.ps1" -Root "$env:ROOT" -Uninstall
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cutcut-${{ steps.v.outputs.version }}-win64
+          path: |
+            ${{ runner.temp }}\out\*.zip
+            ${{ runner.temp }}\out\*.sha256
+            ${{ runner.temp }}\out\*.cdx.json
+          retention-days: 14
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la out
+          gh release create "${{ github.ref_name }}" out/* --repo "${{ github.repository }}" \
+            --title "CutCut Studio ${{ github.ref_name }}" \
+            --notes "Windows-pakke med sjekksum og SBOM. Installeres med installer/install.ps1 (docs/studio/tjenester.md)." \
+            ${{ contains(github.ref_name, '-') && '--prerelease' || '' }}

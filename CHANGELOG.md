@@ -5,6 +5,15 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- SO-3: Windows-pakken bygges i CI (`tools/build_bundle.py`, workflow `release`).
+  - Én zip med egen Python og de låste avhengighetene, Node, atem-bridge, skjermene og modellene.
+  - Sjekksum (SHA-256) og SBOM (CycloneDX) for Python og Node følger med.
+  - På en tag `v*` legges filene på GitHub-releasen.
+  - CI prøver pakken alene, installerer den som tjeneste og sjekker at den svarer med riktig versjon.
+- SO-4: `installer/install.ps1` installerer en ny versjon ved siden av den gamle og ruller tilbake selv.
+  - Bytter først når sjekksummen stemmer og den nye versjonen kan lese studio-oppsettet.
+  - Svarer den ikke innen 120 s, går `current` tilbake til forrige versjon. De tre nyeste beholdes.
+  - CI installerer en ødelagt neste versjon og sjekker at den forrige kommer tilbake.
 - HS-3: varsling utenfor studio (Q29, D-058).
   - E-post til magnus.lian@ntnu.no når noe har vært rødt i over ett minutt, og «OK igjen» når det er løst.
   - E-post med en gang når et opptak ikke starter eller stopper av seg selv. Høyst ti i timen.

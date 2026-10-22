@@ -19,7 +19,7 @@
 [CmdletBinding()]
 param(
   [string]$Root = "C:\CutCut",
-  # Mappen med CutCut (pyproject.toml og .venv). Standard: Root\current.
+  # Mappen med CutCut: en pakke (python\) eller en git-utsjekk (.venv). Standard: Root\current.
   [string]$App = "",
   [string]$Site = "",
   [string]$Data = "",
@@ -126,9 +126,11 @@ if ($Uninstall) {
   exit 0
 }
 
-$python = Join-Path $App ".venv\Scripts\python.exe"
+# Pakken fra install.ps1 har sin egen Python (python\python.exe); en git-utsjekk har .venv.
+$python = Join-Path $App "python\python.exe"
+if (-not (Test-Path $python)) { $python = Join-Path $App ".venv\Scripts\python.exe" }
 if (-not $DryRun -and -not (Test-Path $python)) {
-  throw "Fant ikke $python. Kjør «uv sync --locked --extra silero» i $App først."
+  throw "Fant ikke Python i $App. Bruk install.ps1 med en pakke, eller kjør «uv sync --locked --extra silero» i $App først."
 }
 if (-not $DryRun -and -not (Test-Path (Join-Path $Site "devices.yaml"))) {
   throw "Fant ikke studio-oppsettet i $Site (devices.yaml)."
@@ -138,6 +140,9 @@ Invoke-Step "Lager $Data" {
 }
 
 $winsw = Get-WinSW
+if (-not $UiDir -and (Test-Path (Join-Path $App "ui\dist\tech\index.html"))) {
+  $UiDir = Join-Path $App "ui\dist"  # pakken har skjermene med seg
+}
 $uiArg = if ($UiDir) { " --ui-dir `"$UiDir`"" } else { "" }
 $xml = Expand-Template "CutCut.xml.tmpl" @{
   PYTHON = $python; SITE = $Site; DATA = $Data; PORT = $Port; WORKDIR = $App; UI_ARG = $uiArg
