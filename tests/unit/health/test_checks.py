@@ -135,6 +135,7 @@ def settle(rig: Rig, seconds: float) -> dict[str, str]:
 def test_the_simulator_is_all_green(rig: Rig) -> None:
     got = settle(rig, 20)
     want = {"H-AUD-1", "H-PRL-1", "H-ATEM-1", "H-ATEM-3", "H-COMP-1", "H-PC-1", "H-PC-2", "H-PC-3"}
+    want |= {"H-NET-1", "H-NET-2"}  # D-064: both network cards
     assert set(got) == want
     assert set(got.values()) == {"green"}
 

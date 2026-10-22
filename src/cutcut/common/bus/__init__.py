@@ -1,4 +1,4 @@
-"""Internal message bus (ZeroMQ) between core, audio-capture, vision, stt and atem-bridge."""
+"""Internal message bus (ZeroMQ) between core, audio-capture, vision and atem-bridge."""
 
 from cutcut.common.bus.tracking import SeqTracker, StaleWatcher
 from cutcut.common.bus.zmq_bus import (

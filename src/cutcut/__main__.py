@@ -91,10 +91,13 @@ def build_parser() -> argparse.ArgumentParser:
     vis = sub.add_parser(
         "vision",
         help="kjør videolaget: multiview inn, målinger per rute på bussen (VI-1)",
-        description="Leser multiviewen fra INOGENI (eller en fil) og deler den i ruter.",
+        description="Leser multiviewen fra capture-kortet (DeckLink, D-062) eller en fil og "
+        "deler den i ruter. Kortet velges med `video` i devices.yaml.",
     )
     vis.add_argument("--site", type=Path, required=True, help="studio-oppsett (rutekartet)")
-    vis.add_argument("--device", type=int, default=None, help="capture-enhet (standard 0)")
+    vis.add_argument(
+        "--device", type=int, default=None, help="capture-enhet etter nummer (overstyrer navnet)"
+    )
     vis.add_argument("--file", type=Path, default=None, help="videofil i stedet for enhet")
     vis.add_argument("--synthetic", action="store_true", help="tegnet multiview (demo, test)")
 
@@ -107,7 +110,7 @@ def build_parser() -> argparse.ArgumentParser:
         "what",
         choices=["audio", "atem", "camera", "vision"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
-        "vision: INOGENI (VI-4)",
+        "vision: capture-kortet, DeckLink (VI-4)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument(
@@ -122,7 +125,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--user", default=None, help="teknikerens brukernavn (atem; vision: med forsinkelsestest)"
     )
     hw.add_argument("--camera", default=None, help="kameraet som testes, f.eks. C2 (camera)")
-    hw.add_argument("--device", type=int, default=0, help="capture-enhet (vision, standard 0)")
+    hw.add_argument(
+        "--device",
+        type=int,
+        default=None,
+        help="capture-enhet etter nummer (vision; standard: kortet i devices.yaml etter navn)",
+    )
 
     trace = sub.add_parser(
         "trace",

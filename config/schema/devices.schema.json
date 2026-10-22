@@ -399,6 +399,66 @@
       },
       "title": "SmtpConfig",
       "type": "object"
+    },
+    "SupportConfig": {
+      "additionalProperties": false,
+      "description": "Who the user contacts when something is wrong (D-065). Shown on touch at «Hjelp» and\non the help screens. Set under Innstillinger → Varsling.",
+      "properties": {
+        "email": {
+          "default": "magnus.lian@ntnu.no",
+          "title": "Email",
+          "type": "string"
+        }
+      },
+      "title": "SupportConfig",
+      "type": "object"
+    },
+    "VideoDevice": {
+      "additionalProperties": false,
+      "description": "Where the video layer takes the ATEM multiview from (D-062): the DeckLink Mini Recorder\nHD as a DirectShow device, found by part of its name. ``index`` is used when no name\nmatches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.",
+      "properties": {
+        "fps": {
+          "default": 50,
+          "maximum": 60,
+          "minimum": 24,
+          "title": "Fps",
+          "type": "integer"
+        },
+        "height": {
+          "default": 1080,
+          "title": "Height",
+          "type": "integer"
+        },
+        "index": {
+          "default": 0,
+          "maximum": 15,
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "kind": {
+          "default": "decklink",
+          "enum": [
+            "decklink",
+            "uvc",
+            "none"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "default": "DeckLink",
+          "title": "Name",
+          "type": "string"
+        },
+        "width": {
+          "default": 1920,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "title": "VideoDevice",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -482,6 +542,23 @@
       "pattern": "^[a-z0-9-]+$",
       "title": "Studio",
       "type": "string"
+    },
+    "support": {
+      "$ref": "#/$defs/SupportConfig",
+      "default": {
+        "email": "magnus.lian@ntnu.no"
+      }
+    },
+    "video": {
+      "$ref": "#/$defs/VideoDevice",
+      "default": {
+        "fps": 50,
+        "height": 1080,
+        "index": 0,
+        "kind": "decklink",
+        "name": "DeckLink",
+        "width": 1920
+      }
     }
   },
   "required": [

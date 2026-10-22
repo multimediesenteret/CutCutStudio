@@ -82,6 +82,34 @@ class AudioDevice(_Strict):
     buffer: int = Field(default=256, ge=64, le=2048)  # samples; raise on dropouts
 
 
+class VideoDevice(_Strict):
+    """Where the video layer takes the ATEM multiview from (D-062): the DeckLink Mini Recorder
+    HD as a DirectShow device, found by part of its name. ``index`` is used when no name
+    matches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone."""
+
+    kind: Literal["decklink", "uvc", "none"] = "decklink"
+    name: str = "DeckLink"  # part of the DirectShow name, case-insensitive
+    index: int = Field(default=0, ge=0, le=15)
+    width: int = 1920
+    height: int = 1080
+    fps: int = Field(default=50, ge=24, le=60)
+
+
+class SupportConfig(_Strict):
+    """Who the user contacts when something is wrong (D-065). Shown on touch at «Hjelp» and
+    on the help screens. Set under Innstillinger → Varsling."""
+
+    email: str = "magnus.lian@ntnu.no"
+
+    @field_validator("email")
+    @classmethod
+    def _valid(cls, v: str) -> str:
+        v = v.strip()
+        if v and not EMAIL.match(v):
+            raise ValueError(f"ugyldig e-postadresse: {v}")
+        return v
+
+
 class CardApi(_Strict):
     """The lookup from card number to user (SE-5, M4). Address and key come from the IT
     department and are set on the PC; none until the card login is switched on (D-057)."""
@@ -137,6 +165,8 @@ class Devices(_Strict):
     pearl: PearlDevice
     cameras: dict[CameraId, CameraDevice]
     audio: AudioDevice = AudioDevice()
+    video: VideoDevice = VideoDevice()
+    support: SupportConfig = SupportConfig()
     card_reader: CardReaderDevice = CardReaderDevice()
     card_api: CardApi = CardApi()
     alerts: AlertsConfig = AlertsConfig()

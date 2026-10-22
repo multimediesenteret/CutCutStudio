@@ -19,6 +19,8 @@ Slik oppfører `HealthEngine` seg:
 | `H-PROC-<prosess>` | Prosessene, fra supervisor (SO-1). Legges til når supervisor melder dem | 1 s | Gult: nede eller over 5 omstarter på 10 min |
 | `H-PROC-supervisor` | Supervisor selv sender status | 2 s | Gult etter 10 s stille |
 | `H-PC-1`, `-2`, `-3` | Disk der data ligger, minne, CPU | 30 s | Gult under 20 GB / over 90 % / over 85 %; rødt under 2 GB disk |
+| `H-NET-1` | Et nettverkskort på studio-switchen, i samme nett som ATEM (D-064) | 10 s | Rødt |
+| `H-NET-2` | Et nettverkskort ut (campusnettet) for e-post og oppdateringer | 30 s | Gult; studioet virker uten |
 | `H-PRL-1` | Pearl svarer, har ingen feil, har plass | 5 s | Rødt (også for brukeren) når Pearl ikke svarer eller har under 15 min igjen; gult under 60 min |
 | `H-ATEM-1` | Program og preview kan leses | 1 s | Rødt (også for brukeren) etter 15 s oppstart |
 | `H-ATEM-3` | Layoutmakroene (7.2) finnes i ATEM med riktig navn (`cutcut.devices.atem.macros`) | 5 min, og i morgensjekken | Gult. Layout-bryteren kan ikke slås på |

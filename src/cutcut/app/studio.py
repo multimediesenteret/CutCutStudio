@@ -1125,6 +1125,9 @@ class Studio:
         system = self.deps.system
         if system is not None:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
+            checks += health_checks.network(
+                system.interfaces, lambda: str(self.devices.atem.ip), now
+            )
         if self.notifier is not None:
             checks.append(health_checks.alert_mail(self.alerts_info, now))
         source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
@@ -1331,6 +1334,7 @@ class Studio:
             "sent": n.sent if n else 0,
             "last_sent": n.last_sent.isoformat() if n and n.last_sent else None,
             "last_error": n.last_error if n else None,
+            "support_email": self.devices.support.email,
         }
 
     async def test_alert(self, role: Role, actor: str) -> list[str]:
@@ -1749,6 +1753,7 @@ class Studio:
                 show_type=self.show_type,
                 show_id=self.show.id,
                 inputs=self._inputs(),
+                support_email=self.devices.support.email or None,
             ),
             session=session.model_copy(deep=True) if session else None,
             touch=TouchInfo(

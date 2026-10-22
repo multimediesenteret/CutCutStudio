@@ -138,18 +138,6 @@ const FEATURES: { key: string; name: string; ids: string; d: string; base?: bool
   { key: "framing_variety", name: "Vekslende utsnitt", ids: "F1–F3", d: "Nær og halvnær off air" },
   { key: "slow_zoom", name: "Langsom zoom", ids: "Z1–Z3", d: "Maks 10 % over 15 s" },
   { key: "layouts", name: "Layouter (PiP/quad)", ids: "L1–L4", d: "ATEM-makroer via Companion" },
-  {
-    key: "live_transcript",
-    name: "Live tekst",
-    ids: "NB-Whisper",
-    d: "Tekst per mic, ca. 3 s forsinket",
-  },
-  {
-    key: "turn_prediction",
-    name: "Forvarsel om turbytte",
-    ids: "VAP",
-    d: "Armer preview tidligere",
-  },
 ];
 
 function fmt(v: number, unit: string): string {

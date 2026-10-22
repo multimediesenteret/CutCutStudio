@@ -1,4 +1,4 @@
-"""``cutcut supervisor``: starts core, atem-bridge and audio-capture and keeps them running.
+"""``cutcut supervisor``: starts core, atem-bridge, audio-capture and vision, and keeps them up.
 
 Run as a Windows service (WinSW, SO-2) in the studio. The ATEM address is read again before
 each start of atem-bridge, so an address changed on the setup screen is used after the next
@@ -8,6 +8,7 @@ restart of the bridge («Start atem-bridge på nytt» or a crash).
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import json
 import logging
 import shutil
@@ -111,7 +112,22 @@ def specs(opts: SupervisorOptions) -> list[ProcessSpec]:
     if model.exists():
         audio += ["--vad-model", str(model)]
     out.append(ProcessSpec("audio-capture", audio))
+    if video_layer_wanted(opts.site_dir):
+        out.append(ProcessSpec("vision", [*py, "vision", "--site", str(opts.site_dir)]))
     return out
+
+
+def video_layer_wanted(site_dir: Path) -> bool:
+    """The video layer runs when the studio has a capture card and a rutekart, and OpenCV is
+    installed (the «vision» extra; always in the Windows package). Without it CutCut cuts on
+    sound alone, as in base mode."""
+    try:
+        site = load_site(site_dir)
+    except Exception:
+        return False
+    if site.devices.video.kind == "none" or site.multiview is None:
+        return False
+    return importlib.util.find_spec("cv2") is not None
 
 
 def run(opts: SupervisorOptions) -> int:

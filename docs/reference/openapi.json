@@ -1738,6 +1738,18 @@
             "title": "Simulator",
             "type": "boolean"
           },
+          "support_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Support Email"
+          },
           "version": {
             "title": "Version",
             "type": "string"

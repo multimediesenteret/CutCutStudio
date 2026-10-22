@@ -34,12 +34,21 @@ def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool)
         print("Studio-oppsettet mangler equipment/multiview_map.yaml (rutekartet).")
         return 2
     source: Source
+    video = site.devices.video
     if synthetic:
         source = SyntheticSource(site.multiview)
     elif file is not None:
         source = OpenCvSource(str(file))
-    else:
-        source = OpenCvSource(device if device is not None else 0)
+    elif device is not None:
+        source = OpenCvSource(device, width=video.width, height=video.height, fps=video.fps)
+    else:  # the card from devices.yaml, found by name (D-062)
+        source = OpenCvSource(
+            video.index,
+            width=video.width,
+            height=video.height,
+            fps=video.fps,
+            device_name=video.name if video.kind == "decklink" else None,
+        )
 
     wanted_until = [0.0]
     current = [site.multiview]

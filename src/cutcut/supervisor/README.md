@@ -1,6 +1,6 @@
 # `cutcut.supervisor` – holder studioets prosesser i gang
 
-Egen liten prosess (SO-1, spesifikasjonen 9.1, `docs/plans/supervisor-ops.md`). Den starter `core`, `atem-bridge` og `audio-capture`. Når en prosess faller ut, starter den den på nytt. Den kjenner ingen regler, bare prosesser.
+Egen liten prosess (SO-1, spesifikasjonen 9.1, `docs/plans/supervisor-ops.md`). Den starter `core`, `atem-bridge`, `audio-capture` og `vision` (videolaget, når studioet har capture-kort og rutekart og OpenCV er installert). Når en prosess faller ut, starter den den på nytt. Den kjenner ingen regler, bare prosesser.
 
 | Fil | Innhold |
 | --- | --- |

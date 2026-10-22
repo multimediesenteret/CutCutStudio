@@ -13,6 +13,7 @@ interface AlertsInfo {
   sent: number;
   last_sent: string | null;
   last_error: string | null;
+  support_email: string;
 }
 
 export function Alerts({ ctx }: { ctx: Ctx }) {
@@ -20,6 +21,7 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
   const [info, setInfo] = useState<AlertsInfo | null>(null);
   const [email, setEmail] = useState("");
   const [host, setHost] = useState("");
+  const [support, setSupport] = useState("");
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const admin = ctx.role === "admin";
@@ -31,13 +33,17 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
         setInfo(i);
         setEmail(i.email.join(", "));
         setHost(i.smtp_host);
+        setSupport(i.support_email);
       })
       .catch(() => setInfo(null));
   }, [transport]);
   useEffect(load, [load]);
 
   if (!info) return null;
-  const changed = email.trim() !== info.email.join(", ") || host.trim() !== info.smtp_host;
+  const changed =
+    email.trim() !== info.email.join(", ") ||
+    host.trim() !== info.smtp_host ||
+    support.trim() !== info.support_email;
 
   const toggle = (on: boolean) => {
     setMsg(null);
@@ -57,6 +63,7 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
       .send("PUT", "/api/settings/devices", {
         "alerts.email": email.trim() || null,
         "alerts.smtp.host": host.trim() || null,
+        "support.email": support.trim() === info.support_email ? undefined : support.trim() || null,
       })
       .then(() => {
         setMsg({ ok: true, text: "Lagret." });
@@ -131,6 +138,19 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
           placeholder="fra IT-avdelingen"
           disabled={!admin}
           onChange={(e) => setHost(e.target.value)}
+        />
+      </label>
+      <label className="field">
+        <span className="small muted">
+          Support-e-post (vises på touch når brukeren trenger hjelp)
+        </span>
+        <input
+          className="addr"
+          aria-label="Support-e-post"
+          value={support}
+          inputMode="email"
+          disabled={!admin}
+          onChange={(e) => setSupport(e.target.value)}
         />
       </label>
       <div className="kv">

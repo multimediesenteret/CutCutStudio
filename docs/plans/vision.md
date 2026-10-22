@@ -4,7 +4,7 @@ Status: godkjent (D-046) · Milepæl: M3 (lett) og M4 (tungt) · Spes. 2.1, 2.6,
 
 ## 1. Formål og avgrensning
 
-Leser ATEM-multiviewen via INOGENI 4KXUSB3, deler bildet i ruter etter rutekartet og sender målinger per rute til `core` 5–15 ganger i sekundet. Tar aldri beslutninger selv (6).
+Leser ATEM-multiviewen via capture-kortet (DeckLink Mini Recorder HD, D-062), deler bildet i ruter etter rutekartet og sender målinger per rute til `core` 5–15 ganger i sekundet. Tar aldri beslutninger selv (6).
 
 **Delt i to (PL-06), så grunnmodus aldri avhenger av GPU:**
 
@@ -36,7 +36,7 @@ Prosessen kjører med lavere prioritet enn `core` og `audio-capture`.
 
 ## 4. Avhengigheter
 
-Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT) eller `onnxruntime-directml`, `mediapipe`, modellene i `models/manifest.yaml` med lisens og SHA-256. Utstyr: INOGENI 4KXUSB3 på egen USB 3-port, NVIDIA RTX (Q20).
+Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT) eller `onnxruntime-directml`, `mediapipe`, modellene i `models/manifest.yaml` med lisens og SHA-256. Utstyr: DeckLink Mini Recorder HD (D-062; opprinnelig INOGENI 4KXUSB3 på egen USB 3-port, NVIDIA RTX (Q20).
 
 ## 5. Testplan
 
@@ -53,7 +53,7 @@ Lett: `opencv-python-headless`, `numpy`. Tung: `onnxruntime-gpu` (CUDA/TensorRT)
 | VI-1 | Capture-adapter med falsk kilde (videofil) og rutekart | Ruter publiseres fra fil |
 | VI-2 | Content-deteksjon 6.2 | Kriteriene i 10.4 for content grønne |
 | VI-3 | Bevegelse per rute og PGM-bekreftelse | `S1` får ekte data |
-| VI-4 | Maskintest INOGENI | Rapport i issue |
+| VI-4 | Maskintest capture-kortet (DeckLink, D-062) | Rapport i issue |
 | VI-5 | Rutekart-forslag i setup steg 6 | Hjørner kan dras i GUI. Gjort mot simulator; prøves på studiobildet i steg 6 |
 | VI-6 | Tung del: ansikt, munn, smil, ASD (M4) | `video_confirm` testet alene i studio |
 

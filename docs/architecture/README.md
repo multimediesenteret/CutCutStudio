@@ -15,18 +15,16 @@ flowchart LR
     SUP["supervisor<br/>(WinSW-tjeneste)"]
     AUD["audio-capture<br/>ASIO, VAD, nivå"]
     VIS["vision<br/>multiview, content"]
-    STT["stt<br/>live tekst (bryter)"]
     CORE["core<br/>regimotor + API :8080"]
     BRIDGE["atem-bridge<br/>(Node, ADR-0012)"]
-    COMP["Companion<br/>(egen tjeneste)"]
+    COMP["Companion<br/>(samme PC, D-062)"]
     DB[("SQLite WAL<br/>data/cutcut.db")]
     LOGS[["JSON-linjer<br/>data/logs/"]]
   end
   RODE["RØDECaster Pro II<br/>USB 1 multitrack"] --> AUD
-  ATEM["ATEM Television Studio HD8 ISO"] -- multiview HDMI --> VIS
+  ATEM["ATEM Television Studio HD8 ISO"] -- "multiview 1080p50<br/>DeckLink (D-062)" --> VIS
   AUD -- "målinger 50 Hz<br/>ZeroMQ PUB→:5560" --> CORE
   VIS -- "fliser, content" --> CORE
-  STT -- tekst --> CORE
   CORE -- "kutt, preview<br/>(HTTP)" --> COMP
   COMP --> ATEM
   BRIDGE -- "tilbakelesing PGM/PVW" --> CORE
@@ -34,7 +32,7 @@ flowchart LR
   CORE -- "start/stopp, status" --> PEARL["Epiphan Pearl Nexus"]
   CORE --- DB
   CORE --- LOGS
-  SUP -. "starter, hjerteslag, omstart" .-> AUD & VIS & STT & CORE & BRIDGE
+  SUP -. "starter, hjerteslag, omstart" .-> AUD & VIS & CORE & BRIDGE
   CORE -- "HTTP + WebSocket" --> TOUCH["Touch-skjerm<br/>(Edge kiosk)"]
   CORE -- "HTTP + WebSocket" --> TECH["Teknikervindu"]
   CARD["Kortleser"] --> CORE
@@ -46,7 +44,6 @@ flowchart LR
 | `core` | Regimotor, økt, API, lagring, varsler | Nei – men sendingen går videre (I1), og `core` er tilbake innen 5 s med samme økt |
 | `audio-capture` | Leser mic-ene, sender målinger (ikke lyd) (ADR-0014, PL-02) | Nei – uten lyd går motoren til fugleperspektiv (`S4`) |
 | `vision` | Multiview: content, programbekreftelse, senere ansikt og munn | Ja |
-| `stt` | Live tekst | Ja |
 | `atem-bridge` | Tilbakelesing og makrosjekk mot ATEM | Ja (motoren stoler da på Companion-kvittering) |
 | `supervisor` | Starter alt, ser hjerteslag, restarter med økende pause | Ja (Windows restarter den) |
 

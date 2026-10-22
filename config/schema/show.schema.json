@@ -180,11 +180,6 @@
           "title": "Layouts",
           "type": "boolean"
         },
-        "live_transcript": {
-          "default": false,
-          "title": "Live Transcript",
-          "type": "boolean"
-        },
         "reactions": {
           "default": false,
           "title": "Reactions",
@@ -193,11 +188,6 @@
         "slow_zoom": {
           "default": false,
           "title": "Slow Zoom",
-          "type": "boolean"
-        },
-        "turn_prediction": {
-          "default": false,
-          "title": "Turn Prediction",
           "type": "boolean"
         },
         "video_confirm": {
@@ -340,10 +330,8 @@
         "content": true,
         "framing_variety": false,
         "layouts": false,
-        "live_transcript": false,
         "reactions": false,
         "slow_zoom": false,
-        "turn_prediction": false,
         "video_confirm": false
       }
     },

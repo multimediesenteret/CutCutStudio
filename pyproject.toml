@@ -26,8 +26,12 @@ dependencies = [
 # Silero VAD for audio-capture in the studio (docs/plans/audio.md). Without it the energy VAD
 # is used, which is what the tests and the simulator run on.
 silero = ["onnxruntime>=1.20,<2"]
-# The video layer (vision, docs/plans/vision.md): capture from the INOGENI, JPEG thumbnails.
-vision = ["opencv-python-headless>=4.10,<5"]
+# The video layer (vision, docs/plans/vision.md): capture from the DeckLink card (DirectShow,
+# found by name with pygrabber on Windows, D-062), JPEG thumbnails.
+vision = [
+    "opencv-python-headless>=4.10,<5",
+    "pygrabber>=0.2,<0.3; sys_platform == 'win32'",
+]
 
 [project.scripts]
 cutcut = "cutcut.__main__:main"
