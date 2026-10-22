@@ -101,6 +101,21 @@ def rows(base: Devices, effective: Devices, overrides: dict[str, str]) -> list[d
     return out
 
 
+def values(devices: Devices) -> dict[str, str]:
+    """Every address that can be set on screen, as the text the screen shows (setup file)."""
+    data = devices.model_dump(mode="json")
+    out: dict[str, str] = {}
+    for key in editable_keys(devices):
+        v = _get(data, key)
+        if isinstance(v, bool):
+            out[key] = "true" if v else "false"
+        elif isinstance(v, list):
+            out[key] = ", ".join(str(x) for x in v)
+        else:
+            out[key] = "" if v is None else str(v)
+    return out
+
+
 def to_yaml(devices: Devices) -> str:
     """The effective equipment list as a ``devices.yaml`` to commit to the studio repo."""
     yaml = YAML()

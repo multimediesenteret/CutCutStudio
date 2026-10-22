@@ -46,8 +46,10 @@ class Rig:
     def __init__(self) -> None:
         self.t = 0.0
         self.out = Outbox()
-        self.to = ["magnus.lian@ntnu.no"]
-        self.n = Notifier(self.out, lambda: self.to, "ntnu-studio", lambda: self.t, lambda: T0)
+        self.to = ["tekniker@example.org"]
+        self.n = Notifier(
+            self.out, lambda: self.to, "multimediesenteret", lambda: self.t, lambda: T0
+        )
 
     def ev(self, kind: str, cid: str, status: str, duration_s: float = 0.0) -> None:
         r = CheckResult(id=cid, status=status, value="", message=f"{cid} er {status}", ts=T0)  # type: ignore[arg-type]
@@ -65,15 +67,15 @@ def test_red_for_a_minute_sends_one_mail_and_ok_when_it_closes() -> None:
     assert r.out.mails == []
     r.at(60)
     r.at(120)
-    assert r.out.subjects == ["[CutCut ntnu-studio] Rødt: H-AUD-1"]
+    assert r.out.subjects == ["[CutCut multimediesenteret] Rødt: H-AUD-1"]
     to, _, body = r.out.mails[0]
-    assert to == ["magnus.lian@ntnu.no"]
-    assert "Studio: ntnu-studio" in body
+    assert to == ["tekniker@example.org"]
+    assert "Studio: multimediesenteret" in body
     assert "H-AUD-1 er red" in body
     assert "Runbook: docs/runbooks/h-aud-1-ingen-lyd.md" in body
     r.ev("resolved", "H-AUD-1", "green", duration_s=180)
     r.at(200)
-    assert r.out.subjects[-1] == "[CutCut ntnu-studio] OK igjen: H-AUD-1"
+    assert r.out.subjects[-1] == "[CutCut multimediesenteret] OK igjen: H-AUD-1"
     assert "etter 3 min" in r.out.mails[-1][2]
 
 
@@ -107,7 +109,7 @@ def test_a_failed_recording_mails_at_once_but_not_twice() -> None:
     r.n.on_alert("H-PRL-2", "Opptaket stoppet uten at noen trykket stopp")
     r.at(60)
     assert r.out.subjects == [
-        "[CutCut ntnu-studio] Rødt: Opptaket stoppet uten at noen trykket stopp"
+        "[CutCut multimediesenteret] Rødt: Opptaket stoppet uten at noen trykket stopp"
     ]
     r.at(700)
     r.n.on_alert("H-PRL-2", "Opptaket stoppet uten at noen trykket stopp")
@@ -147,14 +149,14 @@ def test_nobody_to_tell_keeps_the_mail() -> None:
     r.n.on_alert("H-PRL-1", "Pearl startet ikke")
     r.at(0)
     assert r.out.mails == []
-    r.to = ["magnus.lian@ntnu.no"]
+    r.to = ["tekniker@example.org"]
     r.at(1)
     assert len(r.out.mails) == 1
 
 
 def test_addresses_are_checked() -> None:
-    assert AlertsConfig(email="magnus.lian@ntnu.no, a@b.no").email == [  # type: ignore[arg-type]
-        "magnus.lian@ntnu.no",
+    assert AlertsConfig(email="tekniker@example.org, a@b.no").email == [  # type: ignore[arg-type]
+        "tekniker@example.org",
         "a@b.no",
     ]
     with pytest.raises(ValidationError, match="ugyldig e-postadresse: magnus"):
@@ -162,15 +164,16 @@ def test_addresses_are_checked() -> None:
     base = load_site(example_site_dir()).devices
     with pytest.raises(device_settings.DeviceSettingsError, match="Ugyldig e-postadresse"):
         device_settings.apply(base, {"alerts.email": "ikke-en-adresse"})
-    got = device_settings.apply(base, {"alerts.email": "x@ntnu.no", "alerts.smtp.host": "smtp"})
-    assert got.alerts.email == ["x@ntnu.no"]
+    got = device_settings.apply(base, {"alerts.email": "x@example.org", "alerts.smtp.host": "smtp"})
+    assert got.alerts.email == ["x@example.org"]
     assert got.alerts.smtp.host == "smtp"
     assert not any(row["key"].startswith("alerts.") for row in device_settings.rows(base, got, {}))
 
 
-def test_ntnu_studio_mails_magnus_but_starts_off() -> None:
-    site = load_site(Path(__file__).parents[3] / "site" / "ntnu-studio")
-    assert site.devices.alerts.email == ["magnus.lian@ntnu.no"]
+def test_the_studio_file_names_nobody_and_starts_off() -> None:
+    """Recipients are entered in the app, never kept in the repository."""
+    site = load_site(Path(__file__).parents[3] / "site" / "multimediesenteret")
+    assert site.devices.alerts.email == []
     assert site.devices.alerts.enabled is False
     assert AlertsConfig().enabled is False
 
@@ -188,7 +191,7 @@ def test_off_sends_nothing_and_nothing_piles_up() -> None:
     assert r.out.mails == []
     r.n.on_alert("H-PRL-1", "Pearl startet ikke")
     r.at(122)
-    assert r.out.subjects == ["[CutCut ntnu-studio] Rødt: Pearl startet ikke"]
+    assert r.out.subjects == ["[CutCut multimediesenteret] Rødt: Pearl startet ikke"]
 
 
 # -- in the studio --------------------------------------------------------------------------
@@ -238,7 +241,7 @@ def test_in_the_studio_set_up_test_and_alert(srig: StudioRig) -> None:
         "/api/settings/devices",
         json={
             "alerts.enabled": "true",
-            "alerts.email": "magnus.lian@ntnu.no",
+            "alerts.email": "tekniker@example.org",
             "alerts.smtp.host": "smtp.example",
         },
     )
@@ -248,7 +251,7 @@ def test_in_the_studio_set_up_test_and_alert(srig: StudioRig) -> None:
     cfg, to, subject, _ = srig.mails[-1]
     assert (cfg.host, to, subject) == (
         "smtp.example",
-        ["magnus.lian@ntnu.no"],
+        ["tekniker@example.org"],
         "[CutCut example] Testvarsel",
     )
     srig.run(5)
@@ -265,7 +268,7 @@ def test_a_failing_test_mail_says_why(srig: StudioRig) -> None:
     c = srig.client
     c.put(
         "/api/settings/devices",
-        json={"alerts.enabled": "true", "alerts.email": "magnus.lian@ntnu.no"},
+        json={"alerts.enabled": "true", "alerts.email": "tekniker@example.org"},
     )
     r = c.post("/api/settings/alerts/test")
     assert r.status_code == 409
@@ -280,7 +283,7 @@ def test_off_by_default_in_the_studio(srig: StudioRig) -> None:
     c = srig.client
     info = c.get("/api/settings/alerts").json()
     assert (info["on"], info["enabled"]) == (False, False)
-    c.put("/api/settings/devices", json={"alerts.email": "magnus.lian@ntnu.no"})
+    c.put("/api/settings/devices", json={"alerts.email": "tekniker@example.org"})
     c.post("/api/sim/fault", json={"kind": "pearl_offline", "on": True})
     srig.run(75)
     assert srig.mails == []  # red for over a minute, but email is off

@@ -27,7 +27,7 @@ from cutcut.common.platform.system import FakeSystem
 from cutcut.common.store import Store
 from cutcut.core.inputs import ContentState
 from cutcut.setup.multiview import readback_from_map
-from cutcut.sim.fakes import FakeAtem, FakeCardReader, FakeNtnuApi, FakePearl
+from cutcut.sim.fakes import FakeAtem, FakeCardApi, FakeCardReader, FakePearl
 from cutcut.sim.vision import SimVision
 from cutcut.sim.voices import Conversation, Voices
 
@@ -40,7 +40,7 @@ class LiveSim:
     atem: FakeAtem
     pearl: FakePearl
     card_reader: FakeCardReader = field(default_factory=FakeCardReader)
-    ntnu: FakeNtnuApi = field(default_factory=FakeNtnuApi)
+    card_api: FakeCardApi = field(default_factory=FakeCardApi)
     seed: int = 1
     conversation_on: bool = False
     content: ContentState | None = None
@@ -96,7 +96,7 @@ class LiveSim:
 
     def _card(self, card: str) -> None:
         try:
-            found = self.ntnu.lookup(card)
+            found = self.card_api.lookup(card)
         except TimeoutError:
             self.studio.apply(self.studio.sessions.lookup_failed())
             return
@@ -134,7 +134,8 @@ def build_live_sim(
     )
     studio = Studio(deps)
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})
-    auth = Auth(site.staff, secrets, dev_admin=True)
+    auth = Auth(studio.staff, secrets, dev_admin=True)
+    studio.on_staff = lambda staff: setattr(auth, "staff", staff)
     sim = LiveSim(studio, atem, pearl, seed=seed)
     if vision and site.multiview is not None:
         sim.vision = SimVision(site.multiview, studio.runtime)
@@ -172,7 +173,7 @@ class FaultIn(_In):
         "companion_down",
         "camera_moving",
         "pearl_fail",
-        "ntnu_down",
+        "card_api_down",
         "card_reader_down",
         "multiview_wrong",
         "pearl_offline",
@@ -253,8 +254,8 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                 case "pearl_fail":
                     if body.on:
                         sim.pearl.fail()
-                case "ntnu_down":
-                    sim.ntnu.online = not body.on
+                case "card_api_down":
+                    sim.card_api.online = not body.on
                 case "card_reader_down":
                     sim.card_reader.connected = not body.on
                 case "multiview_wrong":

@@ -236,7 +236,7 @@ ol.how{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
       <section class="view" id="v-innstillinger"><div class="grid2">
         <div class="panel"><div class="ph"><span class="lbl">Tema</span></div><div class="seg" id="themeSeg"><button data-t="system">System</button><button data-t="light">Lyst</button><button data-t="dark">Mørkt</button></div><p class="muted" style="margin:0">Touch-skjermen i studio har eget valg og starter i mørkt tema, så den ikke lyser opp rommet.</p></div>
         <div class="panel"><div class="ph"><span class="lbl">Deltakerfarger</span><span class="muted" style="font-size:12px">Samme på RØDECaster og mikrofonflagg</span></div><div class="colors" id="colors"></div></div>
-        <div class="panel"><div class="ph"><span class="lbl">Om</span></div><div class="kv"><span>Versjon</span><span>Konsept 0.0 · simulerte data</span><span>Studio</span><span>site/ntnu-studio</span><span>Språk</span><span>Norsk (bokmål)</span></div></div>
+        <div class="panel"><div class="ph"><span class="lbl">Om</span></div><div class="kv"><span>Versjon</span><span>Konsept 0.0 · simulerte data</span><span>Studio</span><span>site/multimediesenteret</span><span>Språk</span><span>Norsk (bokmål)</span></div></div>
       </div></section>
     </main>
   </div>
@@ -302,7 +302,7 @@ let stepSel=5;
 function renderSteps(){
   $('steps').innerHTML=WIZARD.map(w=>`<li class="${w.state}"><button data-n="${w.n}" class="${w.n===stepSel?'sel':''}"><span class="n">${w.state==='ok'?'✓':w.n}</span><span><b>${w.name}</b><small>${w.what}</small></span><span class="hst ${w.state==='ok'?'':w.state}" title="${w.state}"><i></i></span></button></li>`).join('');
   document.querySelectorAll('#steps button').forEach(b=>b.onclick=()=>{stepSel=+b.dataset.n;renderSteps()});
-  const w=WIZARD[stepSel-1],h=HOW[stepSel]||{why:w.what+'.',how:['Følg stegene i steg-filen site/ntnu-studio/setup/'+String(w.n).padStart(2,'0')+'.yaml.','Trykk Sjekk for å lese verdiene tilbake fra utstyret.'],cmp:[['Status','Lik fasit',w.state==='todo'?'Ikke sjekket':'Lik fasit']]};
+  const w=WIZARD[stepSel-1],h=HOW[stepSel]||{why:w.what+'.',how:['Følg stegene i steg-filen site/multimediesenteret/setup/'+String(w.n).padStart(2,'0')+'.yaml.','Trykk Sjekk for å lese verdiene tilbake fra utstyret.'],cmp:[['Status','Lik fasit',w.state==='todo'?'Ikke sjekket':'Lik fasit']]};
   const rec=S&&S.session.phase==='rec';
   $('stepDetail').innerHTML=`<div class="ph"><span style="font-family:var(--f-display);font-size:22px;font-weight:700">Steg ${w.n} · ${w.name}</span><span class="hst ${w.state==='ok'?'':w.state}"><i></i>${w.state==='ok'?'Godkjent':w.state==='warn'?'Avvik fra fasit':'Ikke gjort'}</span></div>
   <div><span class="lbl">Hva og hvorfor</span><p style="margin:6px 0 0">${h.why}</p></div>

@@ -16,6 +16,6 @@ pnpm --filter @cutcut/atem-bridge start -- --ip 10.10.10.10   # startes av super
 pnpm --filter @cutcut/atem-bridge test                         # kontrakttest
 ```
 
-**Kontrakttest:** `src/translate.test.ts` lager `atem.state` for NTNU-studioet slik det så ut på bildet av multiviewen og sammenligner med `tests/fixtures/atem/state-ntnu.json`. Python-testene (`tests/integration/test_atem_bridge.py`) leser samme fil, så begge sider må være enige. Endres formatet: `UPDATE_FIXTURES=1 pnpm --filter @cutcut/atem-bridge test`.
+**Kontrakttest:** `src/translate.test.ts` lager `atem.state` for studioet slik det så ut på bildet av multiviewen og sammenligner med `tests/fixtures/atem/state-studio.json`. Python-testene (`tests/integration/test_atem_bridge.py`) leser samme fil, så begge sider må være enige. Endres formatet: `UPDATE_FIXTURES=1 pnpm --filter @cutcut/atem-bridge test`.
 
 **Bekreftes i maskintesten (DA-5):** at preview er venstre rute når «swap» er av, og hvilket kildenummer opptaksstatus-ruta har (rapporteres nå som `other`).

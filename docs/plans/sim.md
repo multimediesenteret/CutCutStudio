@@ -10,13 +10,13 @@ Gjør at hele CutCut kan kjøres og testes uten utstyr, i CI og på en utviklers
 | --- | --- |
 | `sim/voices.py` | Syntetiske talere: tur-taking, pauser, frasegrenser, krysstale, latter, småord, lekkasje mellom mic-er. Lager `MicFrame` direkte (samme melding som `audio-capture`, PL-02) |
 | `sim/vision.py` | Syntetiske ruter: ansikt funnet, munn, bevegelse, content-tilstander |
-| `sim/devices/` | Falske enheter: ATEM-tilstand, Companion HTTP, Pearl REST, kameraer (VISCA/OSC/XC), kortleser, NTNU-API. Samme kode brukes som testservere i `tests/integration/` |
+| `sim/devices/` | Falske enheter: ATEM-tilstand, Companion HTTP, Pearl REST, kameraer (VISCA/OSC/XC), kortleser, kort-API. Samme kode brukes som testservere i `tests/integration/` |
 | `sim/scenarios/*.yaml` | Ferdige scenarioer (liste under). Deterministiske med frø |
 | `sim/replay.py` | Avspilling av ekte forløp (nivå og VAD per mic) fra opptak (Q1) |
 | `sim/trace.py` | Skriver hele forløpet (tilstand, beslutninger, målere) som komprimert JSON for web-simulatoren |
 | `cutcut sim` | Starter motor, simulator og begge skjermer lokalt (mål: under 10 min fra ren klone, 12.1) |
 
-**Scenarioer (fra `docs/simulator.md`):** monolog (1), samtale (2), panel (3 og 4), krysstale, lang stillhet, latter, laptop med ny slide, video på laptop, laptop koblet fra, vert med korte innskudd, programleder demper en gjest (`S6`). Feil: lyd borte (`S4`), Companion nede (`S5`), ATEM borte, kamera svarer ikke, Pearl stopper uten trykk, Pearl lite lagring, kortleser frakoblet, NTNU-API nede, videolaget dør.
+**Scenarioer (fra `docs/simulator.md`):** monolog (1), samtale (2), panel (3 og 4), krysstale, lang stillhet, latter, laptop med ny slide, video på laptop, laptop koblet fra, vert med korte innskudd, programleder demper en gjest (`S6`). Feil: lyd borte (`S4`), Companion nede (`S5`), ATEM borte, kamera svarer ikke, Pearl stopper uten trykk, Pearl lite lagring, kortleser frakoblet, kort-API nede, videolaget dør.
 
 ## 2. Grensesnitt
 
@@ -60,7 +60,7 @@ Simulatoren skal kunne lage alle feil i 9.1, slik at skjermene og motoren kan pr
 | SIM-1 | Syntetiske talere → `MicFrame` | Monolog og samtale kjører |
 | SIM-2 | Scenario-format med `expect` og frø | 5 scenarioer grønne i CI |
 | SIM-3 | Falske enheter: ATEM, Companion, Pearl | Integrasjonstester mot dem |
-| SIM-4 | Falske enheter: kameraer, kortleser, NTNU-API | Tester mot dem |
+| SIM-4 | Falske enheter: kameraer, kortleser, kort-API | Tester mot dem |
 | SIM-5 | Alle scenarioer og feil fra listen | Alle grønne |
 | SIM-6 | `cutcut sim` med begge skjermer | README-kommandoen kjøres i CI |
 | SIM-7 | `trace.py`: forløp til JSON for Vercel | Web-simulatoren spiller det av |

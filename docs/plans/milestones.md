@@ -55,7 +55,7 @@ Hver milepæl avsluttes med en demonstrasjon for produkteier: i M1 på Vercel, f
 | ID | Tittel |
 | --- | --- |
 | DA-8, DA-9 | feat(devices): ISO-opptak, Companion-sider |
-| SE-4 … SE-7 | feat(session): kortleser, NTNU-API, show-typer, Panopto-felt |
+| SE-4 … SE-7 | feat(session): kortleser, kort-API, show-typer, Panopto-felt |
 | VI-1 … VI-5 | feat(vision): lett videolag og content-deteksjon |
 | CA-1 … CA-6 | feat(devices/cameras): drivere, grenser, helse |
 | HS-3 … HS-7 | feat(health/setup): varsling, morgensjekk, setup-hjelper, full katalog |
@@ -87,7 +87,7 @@ Repoet er privat på gratis GitHub, og Vercel er på Hobby. Begge har grenser, o
    - Linux på hver PR. Windows bare ved merge til `main`, ukentlig og før release (eller på egen Windows-maskin, se Q28).
    - Mellomlager for `uv` og `pnpm`. Forventet bruk: 5–8 min per PR-push på Linux, godt under 2000 min per måned med 1–3 pusher per dag.
 4. **Vercel bygger bare når skjermene endres:** `ignoreCommand` i `vercel.json` hopper over utrulling når ingenting i `ui/` eller `concept/` er endret (krever eiers godkjenning, Q27). Før M1 er konseptet statisk og koster nesten ingenting.
-5. **Backup:** GitHub er backup av kode og dokumentasjon. Studioets data (database, logger) tas nattlig kopi av lokalt på regi-PC-en (`supervisor-ops.md`); kopi til NTNU-lagring kan legges til (Q29/Q30).
+5. **Backup:** GitHub er backup av kode og dokumentasjon. Studioets data (database, logger) tas nattlig kopi av lokalt på regi-PC-en (`supervisor-ops.md`); kopi til Multimediesenteret-lagring kan legges til (Q29/Q30).
 
 **Siden `main` ikke kan beskyttes (Q27), foreslås tre alternativer:**
 
@@ -106,5 +106,5 @@ Agentens anbefaling: **A nå** (forprosjekt og M1 er bare kode og dokumentasjon)
 | Før M1 | Godkjenne planene (PR `agent/m0-plans`), svare på Q11, Q12, Q27, Q36. Si ja eller nei til å opprette issues og milepæler i GitHub |
 | Under M1 | Se på Vercel-forhåndsvisninger av PR-er og gi tilbakemelding på skjermene sammen med lærerne |
 | Før M2 | Tilgang til regi-PC i studio (Q8), studioinventar (Q18, Q26), tekniker som kjører maskintester (Q12), UPS og strøm (Q31) |
-| Før M3 | NTNU-API-nøkkel (Q4), personvern (Q10), varsling (Q29), servicevindu (Q30) |
+| Før M3 | Kort-API-nøkkel (Q4), personvern (Q10), varsling (Q29), servicevindu (Q30) |
 | Før M4 | Canon XC (Q6), GPU (Q20), Panopto (Q5) |

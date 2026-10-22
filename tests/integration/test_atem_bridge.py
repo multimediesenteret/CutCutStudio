@@ -15,8 +15,8 @@ from cutcut.devices.companion.executor import CompanionExecutor
 from cutcut.setup.multiview import check_readback
 
 ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = json.loads((ROOT / "tests" / "fixtures" / "atem" / "state-ntnu.json").read_text())
-SITE = load_site(ROOT / "site" / "ntnu-studio")
+FIXTURE = json.loads((ROOT / "tests" / "fixtures" / "atem" / "state-studio.json").read_text())
+SITE = load_site(ROOT / "site" / "multimediesenteret")
 SHOW = SITE.shows["panel-4"]
 
 

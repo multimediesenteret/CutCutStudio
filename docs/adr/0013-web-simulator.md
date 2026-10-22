@@ -6,7 +6,7 @@
 
 ## Kontekst
 
-Appen er en Windows-app som bare kan kjøres i studio. NTNU vil raskt kunne se og diskutere skjermer og klipping uten utstyr, og vise dem til andre.
+Appen er en Windows-app som bare kan kjøres i studio. Multimediesenteret vil raskt kunne se og diskutere skjermer og klipping uten utstyr, og vise dem til andre.
 
 ## Beslutning
 

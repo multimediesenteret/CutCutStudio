@@ -2,7 +2,7 @@
 
 *You speak. We cut cut.*
 
-CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM-mikseren (i NTNU-studioet en Television Studio HD8 ISO); PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren logger inn med NTNU-kortet på en touch-skjerm.
+CutCut Studio er Multimediesenterets egen live auto-regi for videopodcast. Den lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene gjennom ATEM-multiviewen, og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM-mikseren (i studioet en Television Studio HD8 ISO); PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP; opptak går til Epiphan Pearl Nexus. Brukeren logger inn med adgangskortet på en touch-skjerm.
 
 ## Status
 
@@ -10,7 +10,7 @@ CutCut Studio er NTNU Multimediesenterets egen live auto-regi for videopodcast. 
 
 ## Lisens
 
-Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
+Apache-2.0, opphavsrett Multimediesenteret. Se `LICENSE` og `NOTICE`.
 
 ## Hvor ting ligger
 
@@ -33,8 +33,8 @@ Apache-2.0, opphavsrett NTNU Multimediesenteret. Se `LICENSE` og `NOTICE`.
 | Åpne spørsmål og hvem som svarer | [`docs/open-questions.md`](docs/open-questions.md) |
 | Arkitekturbeslutninger | [`docs/adr/`](docs/adr/) |
 | Klikkbar prototype (oppførsel, regel-ID-er) | [`docs/prototype/cutcut-prototype.html`](docs/prototype/cutcut-prototype.html) – åpne i nettleser |
-| Det NTNU må samle inn fra studio | [`docs/intake/`](docs/intake/) |
-| Leverandørfiler for studioet | [`site/ntnu-studio/equipment/`](site/ntnu-studio/equipment/) |
+| Det Multimediesenteret må samle inn fra studio | [`docs/intake/`](docs/intake/) |
+| Leverandørfiler for studioet | [`site/multimediesenteret/equipment/`](site/multimediesenteret/equipment/) |
 
 ## Kjøre lokalt
 
@@ -62,7 +62,7 @@ pnpm lint && pnpm typecheck && pnpm test
 Prosessene startes av supervisor (kommer i SO-1/SO-2); for hånd ser det slik ut:
 
 ```bash
-uv run cutcut core --site site/ntnu-studio            # motor, API og skjermer på :8080
+uv run cutcut core --site site/multimediesenteret            # motor, API og skjermer på :8080
 pnpm --filter @cutcut/atem-bridge start -- --ip <ATEM-IP>
 uv run cutcut audio --wav test.wav                     # ekte lydkort (ASIO) kommer i AU-5
 ```

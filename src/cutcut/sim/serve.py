@@ -1,6 +1,6 @@
 """``cutcut sim``: the engine, the simulator and both screens on this PC (SIM-6, spec 12.1).
 
-Nothing here touches real equipment: ATEM, Pearl, card reader and the NTNU API are fakes, and
+Nothing here touches real equipment: ATEM, Pearl, card reader and the card API are fakes, and
 the synthetic talkers are driven from the control API (``/api/sim/...``) or the simulator panel.
 """
 

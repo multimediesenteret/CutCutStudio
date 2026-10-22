@@ -39,7 +39,7 @@ C:\CutCut\
 - `install.ps1` (kjøres av tekniker i servicevindu): sjekker sjekksum → pakker ut ved siden av → prøver den nye versjonen mot studio-oppsettet → bytter `current` → restarter tjenesten → venter til den nye versjonen svarer på `/api/health`. Feiler den: `current` tilbake og tjenesten restartes. Tre siste versjoner beholdes. Konfigmigrering kommer med første `schema_version` 2; i dag leser den nye versjonen oppsettet slik det er (gjort, SO-4).
 - Ingen automatisk oppdatering av CutCut, Windows, drivere eller fastvare utenfor servicevinduet.
 
-**Windows-oppsett (9.2) som skript:** `tools/windows/setup-pc.ps1` gjør alt som kan gjøres lokalt (strømplan, USB-strømsparing av, aktive timer, kiosk-bruker, brannmurregel for 8080, tjenester) og skriver rapport. Skriptet kan kjøres på nytt og endrer bare det som avviker. Om det er lov avhenger av Q8 (NTNU-administrert PC).
+**Windows-oppsett (9.2) som skript:** `tools/windows/setup-pc.ps1` gjør alt som kan gjøres lokalt (strømplan, USB-strømsparing av, aktive timer, kiosk-bruker, brannmurregel for 8080, tjenester) og skriver rapport. Skriptet kan kjøres på nytt og endrer bare det som avviker. Om det er lov avhenger av Q8 (sentralt administrert PC).
 
 **Rydding:** logger 30 dager, økthistorikk etter Q10, eksporter 30 dager, nattlig kopi av `cutcut.db` til `data\backup\` (7 kopier). Diskplass under 10 % gir gult; under 5 % slettes eldste eksporter først, aldri opptak.
 
@@ -85,7 +85,7 @@ WinSW (MIT) 2.x/3.x, PowerShell 5.1+, `uv` og python-build-standalone, Node 24 L
 
 ## 7. Åpne spørsmål
 
-- Q8: er regi-PC-en NTNU-administrert, og kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt?
+- Q8: er regi-PC-en sentralt administrert, og kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt?
 - Q28: finnes en Windows-maskin vi kan teste på før studio (gjerne lik regi-PC-en)?
 - Q30: servicevindu og åpningstider.
 - Q31: UPS, «power on after AC loss», og er automatisk innlogging for kiosk-brukeren tillatt?

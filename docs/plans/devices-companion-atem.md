@@ -12,7 +12,7 @@ Status: godkjent (D-046) · Milepæl: M2 (lesing og klipping via preview, D-049)
 
 | Hvorfor Node-broen | Hvordan risikoen holdes nede |
 | --- | --- |
-| `atem-connection` er det best vedlikeholdte ATEM-biblioteket og brukes av Companion selv og Sofie | Broen er liten (mål: under 500 linjer), uten logikk; den oversetter bare tilstand og kommandoer |
+| `atem-connection` er det best vedlikeholdte ATEM-biblioteket og brukes av Companion selv | Broen er liten (mål: under 500 linjer), uten logikk; den oversetter bare tilstand og kommandoer |
 | Samme bibliotek som Companion: oppfører seg likt mot samme ATEM og fastvare | Versjonen av `atem-connection` låses, og oppdateres sammen med ATEM-fastvaren etter maskintest |
 | Python-alternativet (PyATEMMax) er mindre brukt | Kontrakten mot `core` er JSON-meldinger; broen kan byttes uten endringer i `core` |
 
@@ -58,7 +58,7 @@ Knappekartet (side 10, rad 0–3) ligger i `site/<studio>/equipment/companion_ma
 
 ## 4. Avhengigheter
 
-Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64) eller, hvis det gir trøbbel, JSON-linjer over lokal TCP bak samme kontrakt. Python: `httpx`. Utstyr: ATEM Television Studio HD8 ISO i NTNU-studioet (D-053; Q7 delvis), Companion 5.x låst (teknisk referanse), Stream Deck XL.
+Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64) eller, hvis det gir trøbbel, JSON-linjer over lokal TCP bak samme kontrakt. Python: `httpx`. Utstyr: ATEM Television Studio HD8 ISO i studioet (D-053; Q7 delvis), Companion 5.x låst (teknisk referanse), Stream Deck XL.
 
 ## 5. Testplan
 

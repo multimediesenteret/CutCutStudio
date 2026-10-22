@@ -35,17 +35,17 @@ Oppdatert: 2026-10-21 · av: Multimediesenteret (agent: Claude)
   - Windows-tjeneste, kiosk og `setup-pc.ps1` (SO-2, SO-5, SO-6).
 
   Resten av M2 venter på test-PC og studio. Rekkefølgen står i `docs/studio/testdag.md`.
-- M3 (påbegynt): videolaget `cutcut vision` med ruter, content-deteksjon og bevegelse/programbekreftelse (VI-1–VI-3), kamerabilder i teknikervinduet (D-056) kameravakten `GuardedCamera` (CA-1) OBSBOT over VISCA og OSC (CA-2, CA-3) Canon over VISCA (CA-4, XC venter på Q6) kamerahelse i `core` (CA-6) maskintestene `cutcut hwtest camera` og `cutcut hwtest vision` (CA-5, VI-4) nattlig vedlikehold med kopi av databasen (SO-7) runbooks for tekniker (SO-9) varsel på e-post (HS-3, av til det er testet; SMTP-relé venter på Q40), og Windows-pakke med `install.ps1` og tilbakerulling (SO-3, SO-4). Prøves uten utstyr med `cutcut sim --vision`.
-- Innlogging (D-057): studioet bruker Start-knappen («Gjest») til appen har vært testet en stund. Kortleser og NTNU-API (SE-4, SE-5) er flyttet til M4.
-- NTNU ordner test-PC (Dell SFF, Q28, D-051).
+- M3 (påbegynt): videolaget `cutcut vision` med ruter, content-deteksjon og bevegelse/programbekreftelse (VI-1–VI-3), kamerabilder i teknikervinduet (D-056) kameravakten `GuardedCamera` (CA-1) OBSBOT over VISCA og OSC (CA-2, CA-3) Canon over VISCA (CA-4, XC venter på Q6) kamerahelse i `core` (CA-6) maskintestene `cutcut hwtest camera` og `cutcut hwtest vision` (CA-5, VI-4) nattlig vedlikehold med kopi av databasen (SO-7) runbooks for tekniker (SO-9) varsel på e-post (HS-3, av til det er testet; SMTP-relé venter på Q40), Windows-pakke med `install.ps1` og tilbakerulling (SO-3, SO-4), og oppsett som lagres og hentes i appen (D-060). Prøves uten utstyr med `cutcut sim --vision`.
+- Innlogging (D-057): studioet bruker Start-knappen («Gjest») til appen har vært testet en stund. Kortleser og kort-API (SE-4, SE-5) er flyttet til M4.
+- Multimediesenteret ordner test-PC (Dell SFF, Q28, D-051).
 
 ## Kjente feil og funn
 
-- Studioets mikser er ATEM Television Studio HD8 ISO (SDI), ikke Mini Extreme ISO (D-053). Påvirker studio-oppsett, Companion og rutekart, ikke motoren. Inngangskartet er bekreftet og lagt inn i `site/ntnu-studio/` (D-054). IP-adresser settes i teknikervinduet, og multiviewen sjekkes automatisk (D-055).
+- Studioets mikser er ATEM Television Studio HD8 ISO (SDI), ikke Mini Extreme ISO (D-053). Påvirker studio-oppsett, Companion og rutekart, ikke motoren. Inngangskartet er bekreftet og lagt inn i `site/multimediesenteret/` (D-054). IP-adresser settes i teknikervinduet, og multiviewen sjekkes automatisk (D-055).
 
 - `main` kan ikke beskyttes på gratis privat GitHub. Valgt løsning: agenten pusher aldri direkte til `main`, men merger egne pull requests når CI er grønn (D-050, D-052).
 
 ## Neste steg
 
 1. **Agent:** M1 i rekkefølgen C → K → SIM → A → U (se `docs/plans/milestones.md`).
-2. **NTNU:** test-PC klar med Windows 11 Pro (Q28); når den er klar: modell, CPU, GPU og om den er NTNU-administrert (Q8, Q20).
+2. **Multimediesenteret:** test-PC klar med Windows 11 Pro (Q28); når den er klar: modell, CPU, GPU og om den er sentralt administrert (Q8, Q20).

@@ -11,7 +11,7 @@ test("both screens play the same recorded session", async ({ page }) => {
   const touch = page.frameLocator('iframe[title="Touch-skjerm"]');
   const tech = page.frameLocator('iframe[title="Teknikervindu"]');
   await expect(
-    touch.getByRole("heading", { name: "Hold NTNU-kortet ditt mot leseren" }),
+    touch.getByRole("heading", { name: "Hold adgangskortet ditt mot leseren" }),
   ).toBeVisible();
   await expect(tech.getByRole("heading", { name: "Oversikt" })).toBeVisible();
 

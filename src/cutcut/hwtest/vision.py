@@ -1,6 +1,6 @@
 """Machine test for the capture card (VI-4, docs/plans/vision.md 5).
 
-``cutcut hwtest vision --site site/ntnu-studio [--device 0] [--user tekniker1]`` reads the ATEM
+``cutcut hwtest vision --site C:\\CutCut\\site [--device 0] [--user tekniker1]`` reads the ATEM
 multiview through the INOGENI 4KXUSB3 with the same code as ``cutcut vision``, and writes the
 same report as the other machine tests.
 

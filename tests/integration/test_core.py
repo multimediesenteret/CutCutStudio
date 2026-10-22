@@ -26,7 +26,7 @@ from cutcut.sim.fake_companion import FakeCompanionState, fake_companion
 from cutcut.sim.fake_pearl import FakePearlState, fake_pearl
 
 ROOT = Path(__file__).resolve().parents[2]
-ATEM = json.loads((ROOT / "tests" / "fixtures" / "atem" / "state-ntnu.json").read_text())
+ATEM = json.loads((ROOT / "tests" / "fixtures" / "atem" / "state-studio.json").read_text())
 PIN = "4711"
 
 
@@ -38,7 +38,7 @@ def free_port() -> int:
 
 def site_copy(tmp: Path, companion_url: str, pearl_url: str) -> Path:
     site = tmp / "site"
-    shutil.copytree(ROOT / "site" / "ntnu-studio", site)
+    shutil.copytree(ROOT / "site" / "multimediesenteret", site)
     host, port = pearl_url.removeprefix("http://").split(":")
     devices = (site / "devices.yaml").read_text()
     devices = devices.replace(

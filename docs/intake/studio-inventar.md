@@ -1,6 +1,6 @@
 # Studioinventar
 
-Fylles ut av tekniker i studio. Agenten trenger dette for å skrive `site/ntnu-studio/devices.yaml` og maskintestene. Ikke skriv passord her.
+Fylles ut av tekniker i studio. Agenten trenger dette for å skrive `site/multimediesenteret/devices.yaml` og maskintestene. Ikke skriv passord her.
 
 ## Utstyr
 
@@ -34,7 +34,7 @@ Faderkartet er bestemt (`docs/studio/rodecaster-standardoppsett.md`, D-032). Fyl
 | 4 / 9–10 | Gjest 3 · oransje | | CAM 4 (antatt OBSBOT Tail 2) |
 | 5 / 11–12 | Laptop (USB 2) | – | IN 6 |
 
-## Filer som legges i `site/ntnu-studio/equipment/`
+## Filer som legges i `site/multimediesenteret/equipment/`
 
 - [ ] ATEM-oppsett eksportert fra ATEM Software Control (`atem/`)
 - [ ] Companion-eksport av eksisterende sider (`companion/`)

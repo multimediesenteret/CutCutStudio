@@ -6,7 +6,7 @@
 
 ## Kontekst
 
-atem-connection er det mest brukte og best vedlikeholdte ATEM-biblioteket (brukes av Companion og NRK Sofie); Python-alternativet er mindre brukt.
+atem-connection er det mest brukte og best vedlikeholdte ATEM-biblioteket (brukes av Companion); Python-alternativet er mindre brukt.
 
 ## Beslutning
 

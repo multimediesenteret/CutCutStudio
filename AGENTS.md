@@ -10,7 +10,7 @@ Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent ell
 
 ## 1. Hva prosjektet er (30 sekunder)
 
-CutCut Studio er NTNU Multimediesenterets live auto-regi for videopodcast. En Windows-PC i studio lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene via ATEM-multiviewen (INOGENI capture), og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM Mini Extreme ISO. PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP. Opptak går til Epiphan Pearl Nexus. Brukeren logger inn med NTNU-kortet på en touch-skjerm; teknikeren har et eget vindu med oppsett, overstyring og helsestatus.
+CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows-PC i studio lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene via ATEM-multiviewen (INOGENI capture), og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM Mini Extreme ISO. PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP. Opptak går til Epiphan Pearl Nexus. Brukeren logger inn med adgangskortet på en touch-skjerm; teknikeren har et eget vindu med oppsett, overstyring og helsestatus.
 
 ## 2. Les i denne rekkefølgen
 
@@ -83,11 +83,11 @@ En endring som bryter én av disse, avvises uansett hvor god den ellers er.
 
 ## 6. Du har ikke tilgang til utstyret
 
-Agenter jobber i et Linux-skymiljø uten ATEM, kameraer, RØDECaster, Pearl, kortleser eller NTNU-API. Derfor:
+Agenter jobber i et Linux-skymiljø uten ATEM, kameraer, RØDECaster, Pearl, kortleser eller kort-API. Derfor:
 
 - All logikk bygges og testes mot simulatoren (`sim/`) og falske enheter (`tests/integration/`), og skal kjøre på Linux. Windows-spesifikke deler (ASIO, WinSW, kiosk, Credential Manager) ligger bak adaptere med en falsk variant (se `docs/stack.md`).
 - Hver integrasjon får et maskintestskript i `tools/hw-test/<enhet>.py` som en tekniker kjører i studio. Skriptet skriver en rapport (JSON + Markdown); resultatet kommer tilbake som issue med malen «Maskintest-rapport».
-- Ekte kommandoer mot utstyr eller NTNU-tjenester kjøres bare når et menneske starter dem. Aldri fra automatiske tester.
+- Ekte kommandoer mot utstyr eller Multimediesenteret-tjenester kjøres bare når et menneske starter dem. Aldri fra automatiske tester.
 - Opptak fra studio (`docs/intake/opptak-og-klippeliste.md`) er «maskinvare på bånd»: motoren kjøres mot dem i tester.
 
 ## 7. Arbeidsflyt
@@ -139,7 +139,7 @@ Kommandoene for å bygge, teste og kjøre simulatoren står i `README.md` og `do
 - Endringer i `AGENTS.md`, nye ADR-er, ufravikelige regler og sikkerhetstiltak (spesifikasjonen 12.4).
 - Merge av pull requests som endrer `AGENTS.md`, ufravikelige regler eller sikkerhetstiltak, eller som har rød CI. Tagging av release og utrulling i studio. (Andre pull requests merger agenten selv når CI er grønn, D-052.)
 - Nye avhengigheter med annen lisens enn MIT/BSD/Apache-2.0, eller som krever nett i drift.
-- Alt som sender kommandoer til ekte utstyr eller NTNU-tjenester.
+- Alt som sender kommandoer til ekte utstyr eller Multimediesenteret-tjenester.
 - Lagring av nye personopplysninger.
 - Endringer i Vercel-prosjektet eller GitHub-innstillinger.
 
@@ -147,6 +147,6 @@ Kommandoene for å bygge, teste og kjøre simulatoren står i `README.md` og `do
 
 | Rolle | Hvem |
 | --- | --- |
-| Produkteier og kodeeier | Magnus Lian, NTNU Multimediesenteret · GitHub `@Multimediesenteret` · magnus.lian@ntnu.no |
+| Produkteier og kodeeier | Magnus Lian, Multimediesenteret · GitHub `@Multimediesenteret` · magnus.lian@ntnu.no |
 | Tekniker for studiotest | Se Q12 i `docs/open-questions.md` |
-| NTNU IT | Se Q12 |
+| Multimediesenteret IT | Se Q12 |

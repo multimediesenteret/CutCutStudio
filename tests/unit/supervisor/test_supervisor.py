@@ -205,7 +205,7 @@ def test_stop_all_stops_every_child(make: Callable[..., Supervisor]) -> None:
 
 
 def test_atem_address_saved_on_screen_wins_over_devices_yaml(tmp_path: Path) -> None:
-    site = ROOT / "site" / "ntnu-studio"
+    site = ROOT / "site" / "multimediesenteret"
     data = tmp_path / "data"
     from_file = effective_atem_ip(site, data)  # no database yet: devices.yaml
 

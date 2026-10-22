@@ -8,7 +8,7 @@ CutCut Studio er en Windows-applikasjon som klipper en live videopodcast automat
 
 Dokumentet er skrevet for to lesere. Mennesker leser første setning i hver seksjon og tegningene. En AI-utvikler bygger fra tabellene, ID-ene, konfigurasjonsformatet og akseptansekriteriene, som er ment å kunne brukes direkte. Fanen «Evaluering og bakgrunn» forklarer valgene. Ved uenighet mellom dokumentene gjelder rekkefølgen i `docs/forprosjekt/overlevering.md` (beslutningsloggen først).
 
-**Omfang v1:** 1–4 deltakere med hver sin mic, ett fugleperspektiv-kamera over bordet, én laptop på HDMI, live-produksjon uten etterarbeid, OBSBOT Tail 2 og Canon CR-N300. PiP og quad er støttet, men avslått som standard. Brukeren logger inn med NTNU-kortet, velger hvem som er med og video og lyd eller bare lyd på én touch-skjerm, og trykker Start (D-036). Opptak kan startes både fra touch-skjermen og teknikervinduet.
+**Omfang v1:** 1–4 deltakere med hver sin mic, ett fugleperspektiv-kamera over bordet, én laptop på HDMI, live-produksjon uten etterarbeid, OBSBOT Tail 2 og Canon CR-N300. PiP og quad er støttet, men avslått som standard. Brukeren logger inn med adgangskortet, velger hvem som er med og video og lyd eller bare lyd på én touch-skjerm, og trykker Start (D-036). Opptak kan startes både fra touch-skjermen og teknikervinduet.
 
 **Ikke i v1:** NDI, etterarbeid, Panasonic- og Sony-drivere (fase 2), grafikk og navneskilt, styring av lydmiksen, publisering til Panopto (forberedt i GUI og datamodell, bygges senere).
 
@@ -47,7 +47,7 @@ Protokoller, kommandoer, API-er og lenker til all leverandørdokumentasjon står
 3. **I3:** Regelmotoren er deterministisk: samme inndata gir samme beslutning, og den lærer ikke i sanntid. Modeller brukes til å måle (tale, ansikter, content), ikke til å bestemme.
 4. **I4:** Hver beslutning har regel-ID og målte verdier i loggen.
 5. **I5:** Mennesket vinner alltid. Manuelle valg på ATEM, Stream Deck eller skjermene overstyres aldri; motoren tilpasser seg det den leser tilbake.
-6. **I6:** Ingen skytjeneste i sanntidssløyfen. NTNU-API og Panopto brukes bare ved innlogging og etter opptak.
+6. **I6:** Ingen skytjeneste i sanntidssløyfen. Kort-API og Panopto brukes bare ved innlogging og etter opptak.
 7. **I7:** Opptak stoppes aldri automatisk, bare av en person.
 8. **I8:** Kortnummeret (UID) lagres og logges aldri; bare brukernavnet.
 
@@ -107,7 +107,7 @@ Multiview-oppsettet er en fast avtale mellom ATEM og videolaget: rutene må ligg
 
 ### 2.2 ATEM Mini Extreme ISO
 
-> **Merknad D-053 (2026-10-21):** NTNU-studioet har en **ATEM Television Studio HD8 ISO**, ikke Mini Extreme ISO. Innstillingene under gjelder fortsatt (1080p50, program til Pearl, multiview 2 + 8 til INOGENI over HDMI, makroer, eksport), men inngangene er SDI, «HDMI ut» leses som SDI-/HDMI-utgang, og modelltabellen lenger ned er ikke aktuell. Observert oppsett og avvik: `docs/studio/multiview.md`. Inngangskartet i NTNU-studioet (D-054): inngang 1–4 = `C1`–`C4`, 6 = fugleperspektiv (`C5`), 7 = `LAPTOP`; ligger i `site/ntnu-studio/`.
+> **Merknad D-053 (2026-10-21):** studioet har en **ATEM Television Studio HD8 ISO**, ikke Mini Extreme ISO. Innstillingene under gjelder fortsatt (1080p50, program til Pearl, multiview 2 + 8 til INOGENI over HDMI, makroer, eksport), men inngangene er SDI, «HDMI ut» leses som SDI-/HDMI-utgang, og modelltabellen lenger ned er ikke aktuell. Observert oppsett og avvik: `docs/studio/multiview.md`. Inngangskartet i studioet (D-054): inngang 1–4 = `C1`–`C4`, 6 = fugleperspektiv (`C5`), 7 = `LAPTOP`; ligger i `site/multimediesenteret/`.
 
 | Innstilling | Verdi | Hvorfor |
 | --- | --- | --- |
@@ -222,7 +222,7 @@ Videolaget sender resultater til regi-core over lokal ZeroMQ (pub/sub). Skjermen
 | Live tekst (bryter) | NB-Whisper via whisper.cpp eller ONNX, strømming med lokal enighet (Whisper-Streaming-metoden) | Egen prosess, lavest prioritet |
 | Turbytte (bryter) | Voice Activity Projection | Eksperimentell, bare to personer |
 | Kortleser | `pyserial` mot ELATEC TWN3 i virtuell COM-port-modus | UID leses lokalt og forlater aldri motoren |
-| Pålogging | `httpx` mot NTNU-API med tjenestenøkkel | 3 s tidsavbrudd, ingen hurtigbuffer av kortnummer |
+| Pålogging | `httpx` mot kort-API med tjenestenøkkel | 3 s tidsavbrudd, ingen hurtigbuffer av kortnummer |
 | Intern meldingsbuss | ZeroMQ pub/sub | vision og stt → core |
 | Server | FastAPI + uvicorn, Pydantic v2 for alle modeller | Samme modeller brukes i API og konfig |
 | Enhetsklienter | `httpx` (Companion, Pearl, Canon XC), egen UDP-klient (VISCA), `python-osc`; ATEM leses og styres av `atem-bridge` med `atem-connection` (ADR-0012; PyATEMMax var tidligere forslag) | Kø, tidsavbrudd, gjenoppkobling og kretsbryter per enhet |
@@ -717,14 +717,14 @@ Motoren leser Pearl direkte via [REST-API v2.0](https://github.com/epiphan-video
 
 ### 7.5 Kortinnlogging og økter
 
-> **Innlogging uten kort (D-057):** kortleser og NTNU-API tas i bruk sist. Til da står innstillingen «Innlogging» på «Start-knapp»: hvileskjermen viser en Start-knapp, og økta får brukeren «Gjest» uten Panopto-eier. Valget «NTNU-kort» gir flyten under.
+> **Innlogging uten kort (D-057):** kortleser og kort-API tas i bruk sist. Til da står innstillingen «Innlogging» på «Start-knapp»: hvileskjermen viser en Start-knapp, og økta får brukeren «Gjest» uten Panopto-eier. Valget «Adgangskort» gir flyten under.
 
 Brukeren holder ansattkortet mot leseren ved touch-skjermen, og systemet viser «Velkommen» med navnet. Kortnummeret brukes bare til oppslaget og lagres aldri (`I8`).
 
 1. **Lesing:** kortleseren er en [ELATEC TWN3 MIFARE](https://www.ELATEC-rfid.com/fileadmin/Documents/Data-Sheet/elatec-twn3-mifare-data-sheet-en.pdf) med USB. Den settes i modusen *Intelligent Virtual COM Port* med ELATEC sitt verktøy TWNConfig, og et skript som sender kortnummeret som hex-tekst. Motoren leser COM-porten med `pyserial`. Da trengs ikke tastaturfokus, og et kort som skannes kan ikke havne i feil felt på skjermen. Bruk samme leseroppsett som i studioene med Crestron, så kortnummeret får samme format.
-2. **Oppslag:** motoren kaller NTNU sitt API på `https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid` med kortnummeret i hex og en tjenestenøkkel, med 3 s tidsavbrudd. Nøkkel og svarformat kommer senere; svaret skal gi brukernavn og visningsnavn.
+2. **Oppslag:** motoren kaller Multimediesenteret sitt API på adressen fra IT-avdelingen (settes i appen) med kortnummeret i hex og en tjenestenøkkel, med 3 s tidsavbrudd. Nøkkel og svarformat kommer senere; svaret skal gi brukernavn og visningsnavn.
 3. **Økt:** ny økt opprettes, og touch-skjermen går videre til velkomst og showvalg.
-4. **Feil:** «Kortet ble ikke gjenkjent» med knapp for å prøve igjen. Er NTNU-API-et nede, kan teknikeren tillate «Start uten innlogging», og opptaket merkes `ukjent bruker`.
+4. **Feil:** «Kortet ble ikke gjenkjent» med knapp for å prøve igjen. Er kort-API-et nede, kan teknikeren tillate «Start uten innlogging», og opptaket merkes `ukjent bruker`.
 
 **Regler for økter:**
 
@@ -868,7 +868,7 @@ Stegene og innholdet ligger i `site/<studio>/setup/*.yaml`, ikke i koden. Den sa
 | 6 Multiview | INOGENI 4KXUSB3 valgt som kilde i 1080p50 YUY2; rutekart over multiviewen; forsinkelse fra ATEM til PC måles med et blinkende testbilde | Rutekartet foreslås automatisk fra bildet; hjørner kan dras | Hver rute viser riktig kilde (ATEM bytter preview gjennom kildene og videolaget sjekker) |
 | 7 Companion | Import av `cutcut-pages.companionconfig` (side 10 og 11), ATEM- og Pearl-tilkobling i Companion | – (Companion har ikke API for import) | Leser `cutcut_pages_version`; trykker hver preview-knapp og leser ATEM-preview tilbake |
 | 8 Makroer og grafikk | Makroer fra 7.2, «Kun lyd»-grafikk og bakgrunn i mediaspillerne | Grafikk kan lastes opp via ATEM-protokollen | Makroene finnes med riktig nummer og navn; hver kjøres og SuperSource leses tilbake |
-| 9 Pearl og kort | Pearl-bruker, opptaker, inngang fra ATEM, NTP; TWN3 i COM-port-modus; NTNU-API-nøkkel | – | 5 s testopptak startes, stoppes og finnes; et testkort gir brukernavn |
+| 9 Pearl og kort | Pearl-bruker, opptaker, inngang fra ATEM, NTP; TWN3 i COM-port-modus; kort-API-nøkkel | – | 5 s testopptak startes, stoppes og finnes; et testkort gir brukernavn |
 | 10 Generalprøve | Alle deltakere sitter og snakker | – | Motoren kjører 5 min i skyggemodus; viser kutt, kuttpunkt og eventuelle avvik |
 
 Kamerasteget har en egen side per kamera med live bilde, grenser, presets og test:
@@ -909,7 +909,7 @@ En egen helsetjeneste i regi-core sjekker hele tiden at alt er tilkoblet, svarer
 | `H-PRL-1` | Pearl status, inngang, lagring, temperatur | 2–30 s | Signal, over 60 min lagring, temperatur under grensen | Rødt eller gult |
 | `H-PRL-2` | Opptak kjører når det skal | 2 s | `started` under økt med opptak | Rødt med lyd |
 | `H-CARD-1` | TWN3 COM-port | 10 s | Porten er åpen | Gult |
-| `H-NTNU-1` | NTNU-API | 5 min, og ved hvert oppslag | Testoppslag under 3 s | Gult |
+| `H-CARD-2` | Kort-API | 5 min, og ved hvert oppslag | Testoppslag under 3 s | Gult |
 | `H-PROC-*` | Hjerteslag fra core, audio-capture, vision, stt, atem-bridge, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
 | `H-PC-*` | Disk, minne, CPU, GPU-temperatur, klokke (NTP) | 30 s | Under grenser; klokkeavvik under 1 s | Gult |
 
@@ -929,7 +929,7 @@ I tillegg: `H-ATEM-4` sjekker ISO-disk og opptak hvert 10. sekund (gult under 60
 
 - Et varsel går ikke av og på: det må være grønt i 30 s før det regnes som løst, og hvert varsel logges én gang med start og slutt.
 - Sjekker som kan påvirke sendingen (for eksempel å trykke Companion-knapper) kjøres bare i setup-hjelperen, aldri i den løpende overvåkningen.
-- `GET /api/health` gir det samme som statussiden som JSON, slik at NTNU sin egen overvåkning kan lese den.
+- `GET /api/health` gir det samme som statussiden som JSON, slik at Multimediesenteret sin egen overvåkning kan lese den.
 
 ## 9. Drift over tid
 
@@ -949,7 +949,7 @@ Systemet skal tåle måneder uten tilsyn: hver del kan feile og startes på nytt
 | PC-en går ned | ATEM står på siste bilde, Pearl tar opp videre; operatør bruker Stream Deck | Skjermene borte |
 | Touch-nettleseren henger | Supervisor sjekker at siden svarer og starter Edge kiosk på nytt; økten ligger i motoren og er uendret | Touch blinker kort |
 | Kortleser frakoblet | Touch viser «Kortleser mangler – trykk Hjelp»; tekniker kan starte økt manuelt | Gult: «Kortleser» |
-| NTNU-API svarer ikke | «Kortet kunne ikke sjekkes nå»; tekniker kan godkjenne «Start uten innlogging» | Gult: «NTNU-API» |
+| Kort-API svarer ikke | «Kortet kunne ikke sjekkes nå»; tekniker kan godkjenne «Start uten innlogging» | Gult: «Kort-API» |
 
 ### 9.2 Oppsett av Windows-maskinen
 
@@ -980,7 +980,7 @@ Skjermene, Companion og eventuell ekstern overvåkning bruker samme API. Alle en
 
 | Metode og sti | Gjør |
 | --- | --- |
-| `GET /health` | Status per del: lyd, video, Companion, ATEM, hvert kamera, Pearl, kortleser, NTNU-API |
+| `GET /health` | Status per del: lyd, video, Companion, ATEM, hvert kamera, Pearl, kortleser, kort-API |
 | `GET /state` | Hele nåtilstanden: økt, modus, bilde på lufta, preview og tilstand, mic-er, content, opptak |
 | `GET /session` | Aktiv økt (seksjon 7.5), eller ingen |
 | `POST /session` `{"username": "kanordm"}` | Tekniker starter økt for en bruker uten kort |
@@ -1055,7 +1055,7 @@ Serveren sender meldinger med `type`: `state` (hele tilstanden, ved tilkobling),
 * [ ] Ingen kutt tilbake til forrige bilde innen 4 s (`H2`) i 10 timers test.
 * [ ] Med alle brytere av gir grunnmodus samme resultat som med bryterne på og videolaget stoppet.
 
-- [ ] Fra kortet skannes til «Velkommen, \<navn>» vises: under 2 s når NTNU-API svarer normalt.
+- [ ] Fra kortet skannes til «Velkommen, \<navn>» vises: under 2 s når kort-API svarer normalt.
 - [ ] Opptak startet fra touch vises i teknikervinduet innen 1 s, og omvendt; stopp fra én side kan aldri «vinnes» av den andre.
 - [ ] Kun lyd: opptaket i Pearl har lyd og «Kun lyd»-grafikk, og ingen kamera beveger seg.
 - [ ] Kortnummer finnes ikke i logger, database eller API (automatisk test søker etter testkortets UID).
@@ -1071,7 +1071,7 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 3. **Skjermer mot simulator:** touch-flyten (fem skjermer, D-036, etter `concept/`), teknikervinduet med menyer og oppsettsiden, alle mot simulert motor. Ferdig når touch-flyten kan gjennomføres med Playwright-test.
 4. **Lyd inn:** ASIO fra RØDECaster, Silero VAD, dominans, lekkasjematrise, frasegrenser. Ferdig når lydsjekken under nedtellingen på touch og mic-sjekken i setup-hjelperen (steg 5) virker.
 5. **Companion og ATEM:** knappekart side 10–11, preview og take, custom variables, ATEM-leser, makrosjekk. Ferdig når motoren klipper via preview.
-6. **Pearl og økter:** opptaksstatus, start og stopp fra begge sider, kortleser og NTNU-oppslag, show-typer, kun lyd. Ferdig når hele flyten fra kort til ferdig opptak virker.
+6. **Pearl og økter:** opptaksstatus, start og stopp fra begge sider, kortleser og kortoppslag, show-typer, kun lyd. Ferdig når hele flyten fra kort til ferdig opptak virker.
 7. **Fugleperspektiv og content:** `B`- og `CT`-regler med content-deteksjon. Ferdig når alle moduser `N1`–`N4C` er testet.
 8. **Kameradrivere og oppsett:** `obsbot` og `canon_xc` med presets, grenser, kalibrering og hvitbalanse. Ferdig når grensene håndheves i driveren. Setup-hjelperen (8.4) og statussiden (8.5) bygges i samme steg, ett utstyr av gangen.
 9. **Drift:** supervisor, tjenester, kiosk, morgensjekk, helse-API, 72 timers test. Her er grunnmodus klar for produksjon.
@@ -1082,7 +1082,7 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 
 - Hvilket kamera brukes som fugleperspektiv, og har det IP-styring?
 - Står laptopen alltid på inngang 6, eller kan det komme flere content-kilder?
-- NTNU-API: tjenestenøkkel, svarformat, og om kortnummeret skal sendes som hex i normal eller omvendt byte-rekkefølge (sjekk mot Crestron-oppsettet).
+- kort-API: tjenestenøkkel, svarformat, og om kortnummeret skal sendes som hex i normal eller omvendt byte-rekkefølge (sjekk mot Crestron-oppsettet).
 - Panopto: hvordan opprettes opptaket på brukerens egen konto når brukeren bare har vist kortet?
 - Montering og kabler for touch-skjermen: avstanden til PC-en avgjør om det trengs forlenger for skjermsignal og USB.
 - ATEM-modell: støtter `atem-connection` og Companion ATEM Mini Extreme ISO G2 fullt ut (tilstand, makroer, SuperSource, opptak)? Hvis ja: G2; hvis ikke: Extreme ISO.
@@ -1129,7 +1129,7 @@ CutCutStudio/
     audio/       # VAD, dominans, frasegrenser (i core); capture/ = egen prosess audio-capture (ADR-0014)
     vision/      # capture, ruter, ansikt og munn, content, farge (egen prosess)
     stt/         # live tekst (egen prosess, bryter)
-    session/     # TWN3-kortleser, NTNU-oppslag, økter, show-typer
+    session/     # TWN3-kortleser, kortoppslag, økter, show-typer
     devices/     # companion, atem (klient mot atem-bridge), pearl, cameras/{base,obsbot,canon_xc}
     health/      # sjekkatalog, fasit-sammenligning, varsler
     setup/       # setup-hjelperens motor (leser steg-filer)
@@ -1182,15 +1182,15 @@ C:\CutCut\
 
 | Område | Tiltak |
 | --- | --- |
-| Nett | Studioutstyret på eget VLAN. Regi-PC-en når bare NTNU-API, Panopto og oppdateringer ut av nettet (brannmur med tillatelsesliste). Windows-brannmuren slipper bare inn port 8080 fra studionettet |
+| Nett | Studioutstyret på eget VLAN. Regi-PC-en når bare kort-API, Panopto og oppdateringer ut av nettet (brannmur med tillatelsesliste). Windows-brannmuren slipper bare inn port 8080 fra studionettet |
 | Tilgang til appen | Roller: `touch` (bare fra PC-en selv), `operator` og `admin`. Teknikere logger inn med eget ansattkort på touch (hold logoen) eller med brukernavn i teknikervinduet, og må stå på en liste over godkjente teknikere i studio-oppsettet. PIN som reserve |
 | Økter | Informasjonskapsel som er `HttpOnly` og `SameSite=Strict`; utløper etter 8 timer; logg ut ved inaktivitet i teknikervinduet |
-| Kryptering | Touch går mot `localhost`. Teknikervinduet fra andre maskiner går over HTTPS med NTNU-sertifikat |
-| Hemmeligheter | NTNU-API-nøkkel, Pearl- og kamerapassord i Windows Credential Manager (via `keyring`), aldri i git eller logg |
+| Kryptering | Touch går mot `localhost`. Teknikervinduet fra andre maskiner går over HTTPS med sertifikat fra IT-avdelingen |
+| Hemmeligheter | Kort-API-nøkkel, Pearl- og kamerapassord i Windows Credential Manager (via `keyring`), aldri i git eller logg |
 | Windows | Egen lokal bruker for kiosk med tilordnet tilgang (bare Edge med touch-siden); tjenestene kjører som en egen tjenestekonto uten administratorrett; BitLocker på; USB-lagring av for kiosk-brukeren |
 | Utstyr | Egne brukere med minst mulig rettigheter på Pearl og Canon; standardpassord byttes i setup-hjelperen |
 | Kortnummer | Leses, slås opp og glemmes (`I8`). En test i CI søker etter testkortets nummer i logg, database og API-svar |
-| Personopplysninger | Brukernavn og økthistorikk beholdes 90 dager; live tekst lagres ikke som standard. Begge avklares med NTNU sitt personvernombud |
+| Personopplysninger | Brukernavn og økthistorikk beholdes 90 dager; live tekst lagres ikke som standard. Begge avklares med Multimediesenteret sitt personvernombud |
 | Avhengigheter | Låste versjoner, månedlig sårbarhetssjekk, oppdatering i servicevindu |
 | Revisjonslogg | Alle endringer av oppsett, brytere, overstyringer og innlogginger logges med hvem og når |
 
@@ -1207,7 +1207,7 @@ C:\CutCut\
 
 ## 13. Overlevering til AI-agent
 
-Spesifikasjonen er nok til at en agent kan starte med kjernen, simulatoren og skjermene. Det som mangler, er ekte data fra studioet og noen beslutninger som bare NTNU kan ta. Uten ekte lydspor og en menneskelig klippeliste kan reglene bare tunes mot simulatoren, så det er det viktigste å skaffe.
+Spesifikasjonen er nok til at en agent kan starte med kjernen, simulatoren og skjermene. Det som mangler, er ekte data fra studioet og noen beslutninger som bare Multimediesenteret kan ta. Uten ekte lydspor og en menneskelig klippeliste kan reglene bare tunes mot simulatoren, så det er det viktigste å skaffe.
 
 ### 13.1 Startinnhold i repoet
 
@@ -1222,25 +1222,25 @@ Repoet er `github.com/multimediesenteret/CutCutStudio`. Ved overlevering skal de
 | `docs/open-questions.md` | Tabellen i 13.2, holdes oppdatert |
 | `docs/adr/` | Arkitekturbeslutningene fra 0.3 som egne filer |
 | `docs/prototype/` | Den klikkbare prototypen som referanse for oppførsel og regel-ID-er |
-| `site/ntnu-studio/equipment/obsbot/` | OBSBOT OSC-definisjonen og VISCA-tabellen |
+| `site/multimediesenteret/equipment/obsbot/` | OBSBOT OSC-definisjonen og VISCA-tabellen |
 | `.github/` | Mal for pull request og issue, CODEOWNERS |
 
 ### 13.2 Det som mangler, og hvem som skaffer det
 
 | # | Mangler | Trengs til | Ansvar | Blokkerer |
 | --- | --- | --- | --- | --- |
-| 1 | **Opptak fra ekte sendinger:** 3–5 episoder med hvert mic-spor som WAV (fra RØDECaster multitrack), multiview som video (INOGENI), og ATEM ISO-filer | Tuning av lydreglene, tester med avspilling, videolaget | NTNU | Steg 4 og 7 |
-| 2 | **Menneskelig klippeliste** for de samme opptakene: tidspunkt og kilde for hvert kutt, laget av en erfaren klipper | Fasit for «feilkutt per 10 minutter» (10.4) | NTNU | Akseptanse |
-| 3 | **Studiotegning og bilder:** bordplan, kameraplassering, lys, bilder av hvert kamerautsnitt | Rutekart, presets, utsnittsregler | NTNU | Steg 6–8 |
-| 4 | **NTNU-API:** nøkkel, svarformat, eksempel på svar, kortformat (hex og byte-rekkefølge fra Crestron) | Kortinnlogging | NTNU IT | Steg 6 |
-| 5 | **Panopto:** hvordan opptak legges på brukerens konto uten passord (som i Crestron-studioene) | Publisering | NTNU og Panopto-admin | Senere |
-| 6 | **Canon XC-kommandoliste** fra Canon | Canon-driver | NTNU via Canon | Steg 8 |
-| 7 | **ATEM-modell** og bekreftet støtte i `atem-connection` og Companion | Integrasjon | NTNU | Steg 5 |
-| 8 | **Regi-PC og Windows:** er PC-en NTNU-administrert (Intune/gruppepolicy)? Kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt? | Drift (9) | NTNU IT | Steg 9 |
-| 9 | **Nett:** VLAN, IP-plan bekreftet, brannmur ut mot NTNU-API og Panopto | Alt | NTNU IT | Steg 5 |
-| 10 | **Personvern:** behandlingsgrunnlag og lagringstid for brukernavn, økthistorikk og eventuell live tekst | Lagring og logg | NTNU personvernombud | Før produksjon |
-| 11 | **Lisens for repoet** og hvem som eier koden | Avhengigheter og deling | NTNU | Steg 1 |
-| 12 | **Kontaktpersoner:** produkteier, tekniker for test i studio, IT-kontakt | Godkjenning av planer og tester | NTNU | Steg 1 |
+| 1 | **Opptak fra ekte sendinger:** 3–5 episoder med hvert mic-spor som WAV (fra RØDECaster multitrack), multiview som video (INOGENI), og ATEM ISO-filer | Tuning av lydreglene, tester med avspilling, videolaget | Multimediesenteret | Steg 4 og 7 |
+| 2 | **Menneskelig klippeliste** for de samme opptakene: tidspunkt og kilde for hvert kutt, laget av en erfaren klipper | Fasit for «feilkutt per 10 minutter» (10.4) | Multimediesenteret | Akseptanse |
+| 3 | **Studiotegning og bilder:** bordplan, kameraplassering, lys, bilder av hvert kamerautsnitt | Rutekart, presets, utsnittsregler | Multimediesenteret | Steg 6–8 |
+| 4 | **Kort-API:** nøkkel, svarformat, eksempel på svar, kortformat (hex og byte-rekkefølge fra Crestron) | Kortinnlogging | Multimediesenteret IT | Steg 6 |
+| 5 | **Panopto:** hvordan opptak legges på brukerens konto uten passord (som i Crestron-studioene) | Publisering | Multimediesenteret og Panopto-admin | Senere |
+| 6 | **Canon XC-kommandoliste** fra Canon | Canon-driver | Multimediesenteret via Canon | Steg 8 |
+| 7 | **ATEM-modell** og bekreftet støtte i `atem-connection` og Companion | Integrasjon | Multimediesenteret | Steg 5 |
+| 8 | **Regi-PC og Windows:** er PC-en sentralt administrert (Intune/gruppepolicy)? Kan kiosk, tjenester, strømplan og oppdateringstider settes lokalt? | Drift (9) | Multimediesenteret IT | Steg 9 |
+| 9 | **Nett:** VLAN, IP-plan bekreftet, brannmur ut mot kort-API og Panopto | Alt | Multimediesenteret IT | Steg 5 |
+| 10 | **Personvern:** behandlingsgrunnlag og lagringstid for brukernavn, økthistorikk og eventuell live tekst | Lagring og logg | Multimediesenteret personvernombud | Før produksjon |
+| 11 | **Lisens for repoet** og hvem som eier koden | Avhengigheter og deling | Multimediesenteret | Steg 1 |
+| 12 | **Kontaktpersoner:** produkteier, tekniker for test i studio, IT-kontakt | Godkjenning av planer og tester | Multimediesenteret | Steg 1 |
 
 ### 13.3 Agenten har ikke tilgang til studioutstyret
 
@@ -1253,7 +1253,7 @@ Agenten jobber i et skymiljø uten tilgang til ATEM, kameraer eller RØDECaster.
 
 ### 13.4 Beslutning som må tas før koding: ATEM-biblioteket
 
-`atem-connection` (Node.js) er det mest brukte og best vedlikeholdte biblioteket for ATEM, og brukes av både Companion og NRK sitt Sofie. Python-alternativet er mindre brukt. Anbefaling (`ADR-12`): en liten egen prosess, `atem-bridge`, skrevet i Node.js med `atem-connection`, som snakker med regi-core over den samme interne meldingsbussen. Resten av systemet forblir Python. Agenten skal bekrefte dette i implementasjonsplanen for ATEM.
+`atem-connection` (Node.js) er det mest brukte og best vedlikeholdte biblioteket for ATEM, og brukes av Companion. Python-alternativet er mindre brukt. Anbefaling (`ADR-12`): en liten egen prosess, `atem-bridge`, skrevet i Node.js med `atem-connection`, som snakker med regi-core over den samme interne meldingsbussen. Resten av systemet forblir Python. Agenten skal bekrefte dette i implementasjonsplanen for ATEM.
 
 ### 13.5 Milepæler for første versjon
 
@@ -1274,5 +1274,5 @@ Agenten jobber i et skymiljø uten tilgang til ATEM, kameraer eller RØDECaster.
 - [Epiphan Pearl REST-API v2.0 (OpenAPI)](https://github.com/epiphan-video/pearl_api_swagger_ui) · [Epiphan: REST-API i firmware 4.24.1](https://www.epiphan.com/product-news/new-firmware-update-control-system-updates-rest-api-usb-button-led-light-support-and-easy-file-sharing/) · [Companion-modul for Epiphan Pearl](https://github.com/bitfocus/companion-module-epiphan-pearl)
 - [Companion HTTP Remote Control](https://companion.free/user-guide/v4.2/remote-control/http-remote-control) · [Companion ATEM-modul](https://github.com/bitfocus/companion-module-bmd-atem)
 - [ATEM Mini-serien sammenlignet](https://www.syntex.cz/media/ant/Syntex_Blackmagic_Design_ATEM_Mini_vs_Pro_vs_Extreme_EN_2_2021.pdf)
-- [OBSBOT VISCA-guide](https://www.obsbot.com/explore/obsbot-tail-air/visca-over-ip) · [OBSBOT OSC](https://www.obsbot.com/webcam/osc) · [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) · [Cyanview: Canon XC](https://support.cyanview.com/docs/Integrations/Canon/CanonPTZ)
+- [OBSBOT VISCA-guide](https://www.obsbot.com/explore/obsbot-tail-air/visca-over-ip) · [OBSBOT OSC](https://www.obsbot.com/webcam/osc) · [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf)
 - [RØDECaster Virtual Devices og ASIO](https://help.rode.com/hc/en-us/articles/11891033629839-What-is-the-Virtual-Devices-Driver-for-the-R%C3%98DECaster-Pro-II-Duo) · [Silero VAD](https://pypi.org/project/silero-vad) · [Light-ASD](https://ar5iv.labs.arxiv.org/html/2303.04439)

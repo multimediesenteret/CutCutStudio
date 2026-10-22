@@ -14,7 +14,7 @@ Last ned `cutcut-<versjon>-win64.zip` og `.sha256` fra GitHub-releasen (Releases
 
 ```powershell
 # 1. Studio-oppsettet
-git clone <studio-repo> C:\CutCut\site            # eller kopier site\ntnu-studio dit
+git clone <studio-repo> C:\CutCut\site            # eller kopier site\multimediesenteret dit
 
 # 2. Pakken: pakkes ut, prøves mot oppsettet, og tjenesten installeres og startes
 Expand-Archive .\cutcut-1.0.0-win64.zip -DestinationPath $env:TEMP\cutcut-pkg   # bare for å få tak i install.ps1
@@ -33,6 +33,18 @@ C:\CutCut\
 Sjekk:
 - `Get-Service CutCut` skal vise **Running**.
 - `http://127.0.0.1:8080/tech/` åpner teknikervinduet. Under **Helse → Prosesser** skal alle prosessene kjøre.
+
+## Første oppsett i appen
+
+Det som er spesielt for studioet (IP-adresser, teknikere, varsling), legges inn i appen og lagres på PC-en, ikke i noe repo (D-060).
+
+1. Åpne teknikervinduet og logg inn med et brukernavn og **admin-PIN**. Så lenge teknikerlisten er tom, slipper admin-PIN inn.
+2. **Innstillinger → Teknikere:** legg inn teknikerne og deg selv som admin. Fra nå slipper bare de inn.
+3. **Oppsett → Utstyr og nettverk:** IP-adressene.
+4. **Innstillinger → Varsling:** mottakere og SMTP, hvis varsling skal på.
+5. **Innstillinger → Oppsett → Lagre oppsett:** ta en kopi av filen og legg den et trygt sted.
+
+Ny PC eller tilbake til et tidligere oppsett: **Innstillinger → Oppsett → Hent oppsett** viser hva filen endrer, og «Bruk oppsettet» tar den i bruk. CutCut tar også en kopi selv ved hver endring, i `C:\CutCut\data\oppsett\` (de 20 nyeste og `oppsett-siste.yaml`).
 
 ## Ny versjon (servicevindu, aldri under opptak)
 

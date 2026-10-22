@@ -1,4 +1,4 @@
-"""D-057: «Start uten kort» until the card reader and the NTNU API are switched on."""
+"""D-057: «Start uten kort» until the card reader and the card API are switched on."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def test_card_mode_refuses_the_button_but_takes_cards(rig: Rig) -> None:
     c = rig.client
     r = c.post("/api/touch/start")
     assert r.status_code == 409
-    assert "NTNU-kortet" in r.json()["detail"]
+    assert "adgangskortet" in r.json()["detail"]
     c.post("/api/sim/card", json={"card": TEST_CARD})
     rig.run(100)
     assert rig.state()["session"]["user"]["display_name"] == "Testkort A"

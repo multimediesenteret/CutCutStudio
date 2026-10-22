@@ -19,7 +19,7 @@ from cutcut.setup.multiview import (
     recommended,
 )
 
-NTNU = Path(__file__).resolve().parents[3] / "site" / "ntnu-studio"
+Multimediesenteret = Path(__file__).resolve().parents[3] / "site" / "multimediesenteret"
 
 
 def _site(path: Path):  # type: ignore[no-untyped-def]
@@ -27,8 +27,8 @@ def _site(path: Path):  # type: ignore[no-untyped-def]
     return site, StudioInputs.from_site(site)
 
 
-def test_ntnu_map_matches_its_shows() -> None:
-    site, inputs = _site(NTNU)
+def test_studio_map_matches_its_shows() -> None:
+    site, inputs = _site(Multimediesenteret)
     assert site.multiview is not None
     assert check_map(site.multiview, inputs) == []
 
@@ -40,8 +40,8 @@ def test_example_map_is_the_recommended_one() -> None:
     assert compare_recommended(site.multiview, recommended(inputs)) == []
 
 
-def test_recommended_layout_for_ntnu_studio() -> None:
-    _, inputs = _site(NTNU)
+def test_recommended_layout_for_studio() -> None:
+    _, inputs = _site(Multimediesenteret)
     rec = recommended(inputs)
     small = [(t.id, t.source, t.camera) for t in rec.small_windows()]
     assert small == [
@@ -57,8 +57,8 @@ def test_recommended_layout_for_ntnu_studio() -> None:
     assert rec.preview_left
 
 
-def test_today_ntnu_differs_only_where_cutcut_does_not_read() -> None:
-    site, inputs = _site(NTNU)
+def test_today_studio_differs_only_where_cutcut_does_not_read() -> None:
+    site, inputs = _site(Multimediesenteret)
     assert site.multiview is not None
     suggestions = compare_recommended(site.multiview, recommended(inputs))
     assert {f.where for f in suggestions} == {"rute W7", "rute W8"}
@@ -66,7 +66,7 @@ def test_today_ntnu_differs_only_where_cutcut_does_not_read() -> None:
 
 
 def test_map_pointing_at_the_wrong_input_is_an_error() -> None:
-    site, inputs = _site(NTNU)
+    site, inputs = _site(Multimediesenteret)
     assert site.multiview is not None
     tiles = [
         t.model_copy(update={"source": "input5"}) if t.id == "W5" else t
@@ -80,7 +80,7 @@ def test_map_pointing_at_the_wrong_input_is_an_error() -> None:
 
 
 def test_map_without_a_camera_is_an_error() -> None:
-    site, inputs = _site(NTNU)
+    site, inputs = _site(Multimediesenteret)
     assert site.multiview is not None
     tiles = [
         t.model_copy(update={"camera": None}) if t.id == "W6" else t for t in site.multiview.tiles
@@ -92,13 +92,13 @@ def test_map_without_a_camera_is_an_error() -> None:
 
 
 def test_atem_that_matches_gives_no_findings() -> None:
-    site, _ = _site(NTNU)
+    site, _ = _site(Multimediesenteret)
     assert site.multiview is not None
     assert check_readback(site.multiview, readback_from_map(site.multiview)) == []
 
 
 def test_atem_with_swapped_cameras_safe_area_and_swapped_preview() -> None:
-    site, _ = _site(NTNU)
+    site, _ = _site(Multimediesenteret)
     mv = site.multiview
     assert mv is not None
     rb = readback_from_map(mv)
@@ -116,14 +116,14 @@ def test_atem_with_swapped_cameras_safe_area_and_swapped_preview() -> None:
 
 
 def test_wrong_layout_stops_further_checks() -> None:
-    site, _ = _site(NTNU)
+    site, _ = _site(Multimediesenteret)
     assert site.multiview is not None
     rb = MultiviewReadback(layout="other", windows=["black"] * 8)
     assert [f.check for f in check_readback(site.multiview, rb)] == ["H-MV-3"]
 
 
 def test_no_readback_yet_is_only_info() -> None:
-    site, _ = _site(NTNU)
+    site, _ = _site(Multimediesenteret)
     assert site.multiview is not None
     assert [f.level for f in check_readback(site.multiview, None)] == ["info"]
 

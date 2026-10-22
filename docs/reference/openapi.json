@@ -1178,6 +1178,37 @@
         "title": "SessionIn",
         "type": "object"
       },
+      "SetupChanges": {
+        "properties": {
+          "changes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Changes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "changes"
+        ],
+        "title": "SetupChanges",
+        "type": "object"
+      },
+      "SetupIn": {
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "maxLength": 1000000,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "SetupIn",
+        "type": "object"
+      },
       "ShotIn": {
         "additionalProperties": false,
         "properties": {
@@ -1257,6 +1288,27 @@
           "guests"
         ],
         "title": "ShowIn",
+        "type": "object"
+      },
+      "StaffIn": {
+        "additionalProperties": false,
+        "properties": {
+          "admins": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Admins",
+            "type": "array"
+          },
+          "operators": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Operators",
+            "type": "array"
+          }
+        },
+        "title": "StaffIn",
         "type": "object"
       },
       "StepIn": {
@@ -1763,7 +1815,7 @@
     },
     "/api/health": {
       "get": {
-        "description": "Same as the status page, for NTNU monitoring (spec 8.5). No sign-in needed.",
+        "description": "Same as the status page, for external monitoring (spec 8.5). No sign-in needed.",
         "operationId": "health_api_health_get",
         "responses": {
           "200": {
@@ -2633,7 +2685,7 @@
         ]
       },
       "put": {
-        "description": "Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057).",
+        "description": "Innlogging: «open» (Start-knapp) or «card» (adgangskort). Admin only (D-057).",
         "operationId": "put_login_api_settings_login_put",
         "requestBody": {
           "content": {
@@ -2668,6 +2720,171 @@
           }
         },
         "summary": "Put Login",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/setup.yaml": {
+      "get": {
+        "description": "«Lagre oppsett»: everything entered in the app as one file (no PINs or passwords).",
+        "operationId": "setup_download_api_settings_setup_yaml_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Setup Download",
+        "tags": [
+          "export"
+        ]
+      }
+    },
+    "/api/settings/setup/check": {
+      "post": {
+        "description": "«Hent oppsett», step 1: what the file would change. Nothing is changed.",
+        "operationId": "setup_check_api_settings_setup_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupChanges"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Setup Check",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/setup/import": {
+      "post": {
+        "description": "«Hent oppsett», step 2: use the file. Everything is checked before anything changes.",
+        "operationId": "setup_import_api_settings_setup_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupChanges"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Setup Import",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/staff": {
+      "get": {
+        "description": "Technicians who can sign in (Innstillinger → Teknikere). Kept in the app, not in\nthe repository. ``first_setup``: the list is empty and the admin PIN lets one in.",
+        "operationId": "get_staff_api_settings_staff_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Staff Api Settings Staff Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Staff",
+        "tags": [
+          "config"
+        ]
+      },
+      "put": {
+        "description": "Replace the list. At least one admin, and you stay admin yourself.",
+        "operationId": "put_staff_api_settings_staff_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Put Staff Api Settings Staff Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Staff",
         "tags": [
           "config"
         ]

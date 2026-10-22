@@ -11,6 +11,7 @@ import { ShotPicture, clock, participantColor, type Theme } from "@cutcut/design
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useDecisions, useRules } from "../hooks";
 import { Alerts } from "./Alerts";
+import { SetupFile, Technicians } from "./SetupFile";
 import { LivePicture } from "../live";
 import { hms, isCut, isError, ruleLabel, shotColor, shotName, tileOf, type Ctx } from "../lib";
 
@@ -990,12 +991,12 @@ const COLORS = [
   ["P4", "Gjest 3", "oransje"],
 ] as const;
 
-/** How users sign in (D-057). The card reader and NTNU API come last; until then: Start. */
+/** How users sign in (D-057). The card reader and card API come last; until then: Start. */
 function Login({ ctx }: { ctx: Ctx }) {
   const mode = ctx.state.touch.login ?? "open";
   const options = [
     ["open", "Start-knapp (uten kort)"],
-    ["card", "NTNU-kort"],
+    ["card", "Adgangskort"],
   ] as const;
   return (
     <div className="panel">
@@ -1023,7 +1024,7 @@ function Login({ ctx }: { ctx: Ctx }) {
         </p>
       ) : (
         <p className="muted">
-          Brukeren holder NTNU-kortet mot leseren. Krever kortleseren (TWN3) og NTNU-API-et med
+          Brukeren holder adgangskortet mot leseren. Krever kortleseren (TWN3) og kort-API-et med
           nøkkel i Credential Manager. Er de ikke satt opp, kommer ingen inn: bytt tilbake til
           Start-knapp.
         </p>
@@ -1091,7 +1092,9 @@ export function Settings({
         </div>
       </div>
       <Login ctx={ctx} />
+      <Technicians ctx={ctx} />
       <Alerts ctx={ctx} />
+      <SetupFile ctx={ctx} />
       <div className="panel">
         <div className="ph">
           <span className="lbl">Utstyr og multiview</span>

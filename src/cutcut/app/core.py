@@ -41,7 +41,7 @@ from cutcut.common.bus.zmq_bus import (
 )
 from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_rule_presets, load_show_types, load_site
-from cutcut.common.models.site import Devices, SmtpConfig
+from cutcut.common.models.site import Devices, SmtpConfig, Staff
 from cutcut.common.platform.mail import SmtpMailer
 from cutcut.common.platform.secrets import SecretMissingError, SecretStore
 from cutcut.common.platform.system import PsutilSystem
@@ -207,7 +207,12 @@ def build_core(opts: CoreOptions) -> Core:
             else:
                 studio.runtime.feed_bus(msg.topic, msg.payload)
 
-    auth = Auth(site.staff, opts.secrets)
+    auth = Auth(studio.staff, opts.secrets)  # the list from the app, else staff.yaml
+
+    def on_staff(staff: Staff) -> None:
+        auth.staff = staff
+
+    studio.on_staff = on_staff
     app = create_app(
         studio,
         auth,

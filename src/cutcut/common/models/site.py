@@ -82,8 +82,11 @@ class AudioDevice(_Strict):
     buffer: int = Field(default=256, ge=64, le=2048)  # samples; raise on dropouts
 
 
-class NtnuApi(_Strict):
-    url: HttpUrl = HttpUrl("https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid")
+class CardApi(_Strict):
+    """The lookup from card number to user (SE-5, M4). Address and key come from the IT
+    department and are set on the PC; none until the card login is switched on (D-057)."""
+
+    url: HttpUrl | None = None
     timeout_s: float = Field(default=3.0, gt=0, le=10)
 
 
@@ -93,7 +96,7 @@ class SmtpConfig(_Strict):
     host: str = ""
     port: int = Field(default=587, ge=1, le=65535)
     starttls: bool = True
-    sender: str = "cutcut-studio@ntnu.no"
+    sender: str = "cutcut-studio@example.org"
     username: str = ""  # password in Windows Credential Manager (smtp_password)
 
 
@@ -113,7 +116,7 @@ class AlertsConfig(_Strict):
     @field_validator("email", mode="before")
     @classmethod
     def _split(cls, v: object) -> object:
-        if isinstance(v, str):  # «a@ntnu.no, b@ntnu.no» from the setup screen
+        if isinstance(v, str):  # «a@example.org, b@example.org» from the setup screen
             return [x.strip() for x in re.split(r"[,;\s]+", v) if x.strip()]
         return v
 
@@ -135,7 +138,7 @@ class Devices(_Strict):
     cameras: dict[CameraId, CameraDevice]
     audio: AudioDevice = AudioDevice()
     card_reader: CardReaderDevice = CardReaderDevice()
-    ntnu_api: NtnuApi = NtnuApi()
+    card_api: CardApi = CardApi()
     alerts: AlertsConfig = AlertsConfig()
     api_port: int = Field(default=8080, ge=1024, le=65535)
 
@@ -149,12 +152,30 @@ class Devices(_Strict):
         return self
 
 
+USERNAME = re.compile(r"^[A-Za-z0-9._-]{2,64}$")
+
+
 class Staff(_Strict):
     """Approved technicians (spec 12.4, D-045). Usernames only, never card numbers."""
 
     schema_version: int = 1
     operators: list[str] = Field(default_factory=list)
     admins: list[str] = Field(default_factory=list)
+
+    @field_validator("operators", "admins")
+    @classmethod
+    def _names(cls, v: list[str]) -> list[str]:
+        out: list[str] = []
+        for name in (n.strip() for n in v):
+            if not USERNAME.match(name):
+                raise ValueError(f"ugyldig brukernavn: «{name}» (bokstaver, tall, . _ -)")
+            if name not in out:
+                out.append(name)
+        return out
+
+    @property
+    def empty(self) -> bool:
+        return not self.operators and not self.admins
 
     def role_of(self, username: str) -> str | None:
         if username in self.admins:

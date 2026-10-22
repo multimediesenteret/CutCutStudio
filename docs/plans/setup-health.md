@@ -27,7 +27,7 @@ class CheckResult(BaseModel):
 - **Hysterese:** grønt i 30 s før et varsel regnes som løst; hvert varsel logges én gang med start og slutt (8.5).
 - **Aldri skadelige sjekker i drift:** sjekker som trykker knapper eller flytter noe finnes bare i setup-hjelperen.
 - `GET /api/health` og `GET /api/health/checks` (10.1).
-- **Varsling:** teknikervindu (lyd ved rødt), touch (bare rødt som brukeren må vite om), Companion `regi_health`, og e-post ved rødt over 1 min til magnus.lian@ntnu.no (Q29, D-058), sendt fra en egen oppgave som aldri påvirker motoren.
+- **Varsling:** teknikervindu (lyd ved rødt), touch (bare rødt som brukeren må vite om), Companion `regi_health`, og e-post ved rødt over 1 min til mottakerne som er lagt inn i appen (Q29, D-058, D-060), sendt fra en egen oppgave som aldri påvirker motoren.
 - **Morgensjekk:** ved oppstart og kl. 07:00 kjøres hele katalogen; resultatet vises som prikk på hvileskjermen.
 
 **Setup-steg som data:** `site/<studio>/setup/NN-<navn>.yaml` med tekst (hva og hvorfor, slik gjør du), forventede verdier, hvilken sjekk som brukes og om «Fiks for meg» finnes. Samme filer genererer oppsettsguiden i `docs/setup/` (12.1).
@@ -62,10 +62,10 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 | HS-5 | Setup-motor og steg-format, guide-generering | Guide i `docs/setup/` sjekkes i CI |
 | HS-6 | Setup-steg 1–10, ett utstyr av gangen | Hvert steg testet i studio med tekniker |
 | HS-1b | Utstyrsadresser i teknikervinduet og multiview-sjekk (`H-MV-0`–`H-MV-11`) mot rutekart, show og ATEM ved oppstart og på forespørsel (D-055, D-056) | Gjort i M1 mot simulator; mot ekte ATEM med `atem-bridge` (M2) |
-| HS-7 | Resten av katalogen (`H-CAM-*`, `H-VID-*`, `H-CARD-1`, `H-NTNU-1`, `H-ATEM-2/3/4`) | Komplett katalog (M3) |
+| HS-7 | Resten av katalogen (`H-CAM-*`, `H-VID-*`, `H-CARD-1`, `H-CARD-2`, `H-ATEM-2/3/4`) | Komplett katalog (M3) |
 
 ## 7. Åpne spørsmål
 
-- Q29: besvart (D-058): e-post til magnus.lian@ntnu.no. Q40: SMTP-relé fra NTNU-IT.
+- Q29: besvart (D-058): e-post, mottakere i appen. Q40: SMTP-relé fra IT-avdelingen.
 - Q30: når kan morgensjekken og eventuelle omstarter kjøres (åpningstider)?
 - Q12: tekniker som tester setup-stegene i studio.

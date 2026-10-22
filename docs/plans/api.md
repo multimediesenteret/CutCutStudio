@@ -42,7 +42,7 @@ Informasjonskapsel `HttpOnly`, `SameSite=Strict`, 8 timer, utlogging ved inaktiv
 - WebSocket: full tilstand ved tilkobling, diff-sekvens, gjenoppkobling, treg klient.
 - Samtidig start/stopp fra to klienter gir én tilstand (10.4).
 - I8-søk i alle API-svar etter en simulert økt.
-- `GET /api/health` har stabilt format for NTNU-overvåkning.
+- `GET /api/health` har stabilt format for Multimediesenteret-overvåkning.
 
 ## 6. Leveranser
 
@@ -60,4 +60,4 @@ Setup- og helse-stiene kommer i M3 (`setup-health.md`).
 ## 7. Åpne spørsmål
 
 - Q33: hvem står på teknikerlisten og admin-listen, og skal PIN brukes som reserve?
-- 12.4 sier HTTPS med NTNU-sertifikat for teknikervindu fra andre maskiner. Trengs det i første versjon, eller er teknikervinduet bare på regi-PC-en til M3? (Q9)
+- 12.4 sier HTTPS med sertifikat fra IT-avdelingen for teknikervindu fra andre maskiner. Trengs det i første versjon, eller er teknikervinduet bare på regi-PC-en til M3? (Q9)

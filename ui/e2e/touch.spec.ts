@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 async function logIn(page: Page) {
   await page.goto("/touch/");
   await expect(
-    page.getByRole("heading", { name: "Hold NTNU-kortet ditt mot leseren" }),
+    page.getByRole("heading", { name: "Hold adgangskortet ditt mot leseren" }),
   ).toBeVisible();
   await expect(page.getByText("Studio klart")).toBeVisible();
   await page.getByRole("button", { name: "Demo: simuler kortskanning" }).click();
@@ -73,7 +73,7 @@ test("card → choose → countdown → recording → hold to stop → done → 
   await expect(page.getByRole("heading", { name: "Hei, Testkort!" })).toBeVisible();
   await page.getByRole("button", { name: "Ikke deg? Logg ut" }).click();
   await expect(
-    page.getByRole("heading", { name: "Hold NTNU-kortet ditt mot leseren" }),
+    page.getByRole("heading", { name: "Hold adgangskortet ditt mot leseren" }),
   ).toBeVisible();
 });
 

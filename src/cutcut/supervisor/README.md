@@ -10,7 +10,7 @@ Egen liten prosess (SO-1, spesifikasjonen 9.1, `docs/plans/supervisor-ops.md`). 
 | `main.py` | `cutcut supervisor`: prosesslisten, helsesjekk av `core` (`/api/health`) og ATEM-adressen. Adressen leses på nytt før hver start av `atem-bridge`, med adresser lagret i teknikervinduet. I Windows-pakken brukes pakkens egen Node (`node\node.exe`) |
 
 ```bash
-uv run cutcut supervisor --site site/ntnu-studio --data data
+uv run cutcut supervisor --site site/multimediesenteret --data data
 uv run cutcut supervisor --site site/example --data data --audio-wav opptak.wav   # lyd fra fil til AU-5
 ```
 

@@ -6,7 +6,7 @@
   Kjøres som administrator i servicevinduet. Kan kjøres på nytt, og endrer bare det som avviker.
   1. Lokal bruker «cutcut-kiosk» uten administratorrett (passord du velger, ikke i git).
   2. Automatisk innlogging for den brukeren etter omstart (-AutoLogon). Passordet lagres
-     da i Windows-registeret; bruk heller Sysinternals Autologon hvis NTNU krever det (Q8).
+     da i Windows-registeret; bruk heller Sysinternals Autologon hvis Multimediesenteret krever det (Q8).
   3. Oppgaven «CutCut kiosk-vakt» i Oppgaveplanlegger: starter kiosk-vakt.ps1 når brukeren
      logger inn, og på nytt hvis den stopper. Vakten starter Edge i kiosk-modus og laster
      touch-siden på nytt hvis den henger.

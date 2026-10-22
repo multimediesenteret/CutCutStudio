@@ -15,4 +15,4 @@ Plan: [`docs/plans/session.md`](../../../docs/plans/session.md). Spesifikasjonen
 - Start og stopp kan komme fra touch, tekniker og Stream Deck i hvilken som helst rekkefølge; to trykk er det samme som ett.
 - Kun lyd gir modus `A`. Kortnummer kommer aldri inn i modulen, bare brukeren som er slått opp (I8).
 
-Kortleser, NTNU-API og Pearl-klient kommer i SE-2–SE-5 (M2–M3).
+Kortleser, kort-API og Pearl-klient kommer i SE-2–SE-5 (M2–M3).

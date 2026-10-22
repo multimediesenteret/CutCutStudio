@@ -4,7 +4,7 @@ CutCut Studio er i **forprosjekt**. Det skrives ingen kode. Målet er at alt en 
 
 ## Hvordan forprosjektet jobber
 
-- Produkteier (Magnus Lian, NTNU Multimediesenteret) og Claude går gjennom krav, utstyr og teknologi i samtaler.
+- Produkteier (Magnus Lian, Multimediesenteret) og Claude går gjennom krav, utstyr og teknologi i samtaler.
 - Alt som avtales, skrives inn i repoet i samme økt: beslutninger i `beslutningslogg.md`, research i `docs/research/`, åpne spørsmål i `docs/open-questions.md`, arkitektur i `docs/adr/`.
 - Spesifikasjonen (`docs/spec/`) ble skrevet i et Claude Docs-dokument og eksportert hit. Nyere beslutninger står i beslutningsloggen og går foran til spesifikasjonen er eksportert på nytt.
 

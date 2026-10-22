@@ -22,7 +22,7 @@ Tjenesten CutCut (`docs/studio/tjenester.md`) kjører uavhengig av kiosken, ogs�
 - `-DryRun` viser hva som ville blitt gjort.
 - `-Remove` fjerner oppgaven og den automatiske innloggingen.
 - Passordet velges på stedet og legges aldri i git.
-- Med `-AutoLogon` ligger passordet i Windows-registeret. Krever NTNU noe annet (Q8), brukes Sysinternals Autologon i stedet.
+- Med `-AutoLogon` ligger passordet i Windows-registeret. Krever Multimediesenteret noe annet (Q8), brukes Sysinternals Autologon i stedet.
 
 Vaktens logg: `C:\Users\cutcut-kiosk\AppData\Local\CutCut\kiosk-vakt.log`. Prøv vakten for hånd med `.\installer\kiosk\kiosk-vakt.ps1 -Once -DryRun`.
 

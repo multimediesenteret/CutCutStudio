@@ -35,7 +35,7 @@
           "default": {
             "host": "",
             "port": 587,
-            "sender": "cutcut-studio@ntnu.no",
+            "sender": "cutcut-studio@example.org",
             "starttls": true,
             "username": ""
           }
@@ -234,6 +234,36 @@
       "title": "CameraLimits",
       "type": "object"
     },
+    "CardApi": {
+      "additionalProperties": false,
+      "description": "The lookup from card number to user (SE-5, M4). Address and key come from the IT\ndepartment and are set on the PC; none until the card login is switched on (D-057).",
+      "properties": {
+        "timeout_s": {
+          "default": 3.0,
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Timeout S",
+          "type": "number"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "title": "CardApi",
+      "type": "object"
+    },
     "CardReaderDevice": {
       "additionalProperties": false,
       "properties": {
@@ -280,28 +310,6 @@
         }
       },
       "title": "CompanionDevice",
-      "type": "object"
-    },
-    "NtnuApi": {
-      "additionalProperties": false,
-      "properties": {
-        "timeout_s": {
-          "default": 3.0,
-          "exclusiveMinimum": 0,
-          "maximum": 10,
-          "title": "Timeout S",
-          "type": "number"
-        },
-        "url": {
-          "default": "https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid",
-          "format": "uri",
-          "maxLength": 2083,
-          "minLength": 1,
-          "title": "Url",
-          "type": "string"
-        }
-      },
-      "title": "NtnuApi",
       "type": "object"
     },
     "PearlDevice": {
@@ -374,7 +382,7 @@
           "type": "integer"
         },
         "sender": {
-          "default": "cutcut-studio@ntnu.no",
+          "default": "cutcut-studio@example.org",
           "title": "Sender",
           "type": "string"
         },
@@ -405,7 +413,7 @@
         "smtp": {
           "host": "",
           "port": 587,
-          "sender": "cutcut-studio@ntnu.no",
+          "sender": "cutcut-studio@example.org",
           "starttls": true,
           "username": ""
         }
@@ -440,6 +448,13 @@
       "title": "Cameras",
       "type": "object"
     },
+    "card_api": {
+      "$ref": "#/$defs/CardApi",
+      "default": {
+        "timeout_s": 3.0,
+        "url": null
+      }
+    },
     "card_reader": {
       "$ref": "#/$defs/CardReaderDevice",
       "default": {
@@ -453,13 +468,6 @@
         "operator_page": 11,
         "pages_version": 1,
         "url": "http://127.0.0.1:8000/"
-      }
-    },
-    "ntnu_api": {
-      "$ref": "#/$defs/NtnuApi",
-      "default": {
-        "timeout_s": 3.0,
-        "url": "https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid"
       }
     },
     "pearl": {

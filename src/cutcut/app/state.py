@@ -43,7 +43,7 @@ class TouchInfo(_S):
     help: bool
     default_show: ShowChoice
     done_logout_ms: int
-    # How users sign in (D-057): «open» = a Start button, no card; «card» = NTNU card + API.
+    # How users sign in (D-057): «open» = a Start button, no card; «card» = access card + API.
     login: Literal["open", "card"] = "open"
     audio_check: list[SeatAudio] = []
 

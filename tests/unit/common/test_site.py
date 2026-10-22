@@ -51,12 +51,12 @@ def test_no_secrets_or_card_numbers_in_example_site() -> None:
         assert "uid" not in text
 
 
-NTNU_SITE = Path(__file__).resolve().parents[3] / "site" / "ntnu-studio"
+STUDIO_SITE = Path(__file__).resolve().parents[3] / "site" / "multimediesenteret"
 
 
-def test_ntnu_studio_input_map_D054() -> None:
+def test_studio_input_map_D054() -> None:
     """Camera 1–4 = programleder and gjest 1–3, Camera 6 = oversikt, Camera 7 = laptop."""
-    site = load_site(NTNU_SITE)
+    site = load_site(STUDIO_SITE)
     assert site.devices.atem.model == "ATEM Television Studio HD8 ISO"
     assert sorted(len(s.participants) for s in site.shows.values()) == [1, 2, 3, 4]
     for show in site.shows.values():
@@ -67,13 +67,13 @@ def test_ntnu_studio_input_map_D054() -> None:
         assert show.content.atem_input == 7
 
 
-def test_sim_runs_on_the_ntnu_studio(tmp_path: Path) -> None:
+def test_sim_runs_on_the_studio(tmp_path: Path) -> None:
     from cutcut.common.clock import FakeClock
     from cutcut.sim.live import build_live_sim
 
-    sim, _ = build_live_sim(FakeClock(), site_dir=NTNU_SITE)
+    sim, _ = build_live_sim(FakeClock(), site_dir=STUDIO_SITE)
     state = sim.studio.state()
-    assert state.studio.name == "ntnu-studio"
+    assert state.studio.name == "multimediesenteret"
     assert state.studio.inputs["BIRD"] == 6
     assert state.studio.inputs["CONTENT"] == 7
     assert state.studio.inputs["P4"] == 4  # filled in from the 4-person show

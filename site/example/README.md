@@ -1,6 +1,6 @@
 # site/example
 
-Fiktivt studio for simulatoren og testene (C-8). Ingen ekte navn, IP-er eller kortnummer. Følger samme oppsett som NTNU-studioet slik konseptet antar (Q26): CAM 1 = programleder, CAM 2–4 = gjester, CAM 5 = fugleperspektiv, IN 6 = laptop.
+Fiktivt studio for simulatoren og testene (C-8). Ingen ekte navn, IP-er eller kortnummer. Følger samme oppsett som studioet slik konseptet antar (Q26): CAM 1 = programleder, CAM 2–4 = gjester, CAM 5 = fugleperspektiv, IN 6 = laptop.
 
 | Fil | Innhold |
 | --- | --- |

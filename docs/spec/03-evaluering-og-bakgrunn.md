@@ -8,7 +8,7 @@ Dette er evalueringen og bakgrunnen for valgene. Den samlede app-spesifikasjonen
 
 Anbefaling: bygg en egen «regimotor» som lytter på RØDECaster-kanalene, tar beslutninger med en eksplisitt regelmotor og sender kutt via Companion til ATEM Mini Extreme ISO. Det er fullt gjennomførbart med hyllevare: alle ledd har dokumenterte grensesnitt, og ingen del krever ny forskning.
 
-Det som skiller proff klipping fra «video følger lyd» er ikke reaksjonstid, men regi-grammatikk: bekreftet taletur før kutt, minimum bildelengde, ignorering av «mm/ja», egen håndtering av krysstale og latter, reaksjonsbilder og totaler med variasjon. VVD markedsfører [20 ms respons og switching-personligheter](https://www.vvd.nz/), men rask respons er nettopp det som gir nervøs klipping hvis reglene rundt ikke er strenge nok.
+Det som skiller proff klipping fra «video følger lyd» er ikke reaksjonstid, men regi-grammatikk: bekreftet taletur før kutt, minimum bildelengde, ignorering av «mm/ja», egen håndtering av krysstale og latter, reaksjonsbilder og totaler med variasjon. Rask respons alene gir nervøs klipping hvis reglene rundt ikke er strenge nok.
 
 Sannsynlige årsaker til at dagens oppsett klipper dårlig (må verifiseres i studio):
 
@@ -19,21 +19,17 @@ Sannsynlige årsaker til at dagens oppsett klipper dårlig (må verifiseres i st
 
 Alt kjøres live, uten etterarbeid, på én Windows-PC med NVIDIA-skjermkort. Tre grep gir mest effekt: (1) per-kanal tale-deteksjon med nevralt nettverk pluss relativ nivåsammenligning, (2) en regelmotor der hvert kutt logges med årsak, og (3) «øyne»: ATEM-multiviewen tas inn via et capture-kort, slik at systemet ser munnbevegelse, ansikter og utsnitt. Bildet brukes til å bekrefte hvem som snakker, avvise lekkasje, velge reaksjonsbilder og rette opp utsnitt på kameraer som ikke er på lufta.
 
-## Markedsoversikt
+## Hva slike systemer gjør
 
-De proffe visual radio-systemene løser samme problem som VVD, men legger mer vekt på regi-logikk, PTZ-innramming og integrasjon. Visual Radio Assist er nærmest det dere vil bygge, og bør prøves som referanse før egenutvikling.
+Automatisk klipping av samtaler med flere kameraer er en kjent oppgave, og mønstrene er etablerte praksis, ikke nyvinning:
 
-| Produkt | Deteksjon og regi | Kobling mot utstyr | Pris (oppgitt) | Relevans for dere |
-| --- | --- | --- | --- | --- |
-| [VVD 6](https://www.vvd.nz/) | Nevral VAD + relativ nivåanalyse, «personligheter», fuzzy logic for reaksjonsbilder | ATEM, vMix, OBS, VISCA, Companion-modul; lyd via WASAPI/ASIO/NDI/Dante | Lite US$69, Standard US$169, Pro US$220 | Dagens løsning. Billig og bred, men regi-logikken er lite transparent |
-| [Visual Radio Assist](https://visualradioassist.live/) | Audio Triggers per mic, automasjoner, Camera Assist som rammer inn PTZ mens kamera er off air | ATEM, vMix, OBS, NDI/SDI-grafikk, egen [Companion-modul og HTTP-API](https://docs.visualradioassist.live/develop-with-vra/core-control-api/bitfocus-companion-control-over-visual-radio) | Månedlig, Lite til Enterprise | Beste mønster å kopiere: lyd bestemmer *når*, kamerasystemet bestemmer *hvordan* |
-| [Broadcast Bionics CameraOne / BionicDirector](https://radiotoday.co.uk/?p=406178) | Egen auto-switch-algoritme | Laget for ATEM Mini-serien; demonstrert med RØDECaster + ATEM Mini | CameraOne ca. US$995 for 4 kamera ([2021](https://www.radioworld.com/?p=106258)) | Direkte konkurrent for akkurat deres utstyr |
-| [multiCAM Radio](https://www.tvbeurope.com/?p=15675) | AI vekter hvem som snakker mest, dynamikk justerbar live | Eget system, integrert med radioautomasjon | Ikke oppgitt | Broadcast-klasse (RTL Belgia), tungt for podcast |
-| [VidiGo Visual Radio](https://www.radioworld.com/?p=45669) | Nivåbasert switching + grafikk og klippstart | Egen videomotor, Panasonic PTZ | Ikke oppgitt | Broadcast-klasse (ABC Radio National) |
-| [WinMedia WinCam 2.5](https://www.redtech.pro/?p=37926) | Nivåbasert + automatisk tracking, AI-styrt split-screen | Eget system | Ikke oppgitt | Interessant idé: split-screen ved krysstale |
-| [ChyronHego Visual Radio](https://radioinfo.asia/?p=47192) | Lyd + XML fra radioautomasjon, DVE og grafikk | Eget system | Ikke oppgitt | Radio-fokus, lite relevant for podcast |
+- **Lyd bestemmer *når*, oppsettet bestemmer *hvordan*.** Hvem som snakker, avgjøres per mikrofon. Bildet hentes fra forhåndsdefinerte vinkler.
+- **Et kamera på lufta flyttes aldri.** Innramming rettes bare på kameraer som ikke er på program eller preview.
+- **Regler mot kutt på hoste, latter og enkeltord**, med minimum bildelengde og bekreftelsestid.
+- **Operatøren kan alltid overstyre med ett trykk**, og systemet slåss ikke mot det.
+- **Det som skiller resultatene**, er hvor gjennomsiktig regi-logikken er: kan operatøren se *hvorfor* et kutt skjedde, kan reglene justeres.
 
-Fellestrekk hos de proffe: de skiller *når* det skal klippes (lyd) fra *hvordan* bildet ser ut (forhåndsdefinerte vinkler), de flytter aldri et kamera som er på lufta, og de lar operatøren overstyre med ett trykk. Eldre systemer som Broadcast Pix VOX hadde allerede [regler mot kutt på hoste og enkeltord](https://www.tvtechnology.com/news/broadcast-pix-announces-vox), så det er etablert praksis, ikke nyvinning.
+CutCut Studio bygger på de samme prinsippene, med regler som logges med årsak for hvert kutt, og som kan finjusteres live.
 
 ## SOTA-teknologi
 
@@ -51,7 +47,7 @@ Tre funn påvirker designet direkte:
 
 - **RØDECaster gir rene kanaler over USB.** USB 1 kan settes i multitrack, og hver kanal kan hentes ut pre-fader, så fader og mute ikke påvirker deteksjonen. Ingen splitterkabler trengs. På Windows leses sporene via RØDECaster sin ASIO-driver.
 - **Lyd bestemmer, bilde bekrefter.** Med én mic per person er lyden raskest og sikrest. Bildet kommer 100–150 ms senere, og brukes derfor innenfor bekreftelsesvinduet som ja/nei og til å velge *hvilket* bilde, ikke til å starte kutt alene.
-- **Kamerastyring og klipp skal være adskilt.** Visual Radio Assist sitt [Camera Assist](https://visualradioassist.live/blog/automatic-ptz-framing-in-visual-radio) korrigerer innramming bare når kameraet er off air, og bestemmer ikke når det klippes. Samme prinsipp gjelder for utsnittskorrigering fra videolaget.
+- **Kamerastyring og klipp skal være adskilt.** Innramming korrigeres bare når kameraet er off air, og kamerastyringen bestemmer ikke når det klippes. Samme prinsipp gjelder for utsnittskorrigering fra videolaget.
 
 ## Arkitektur
 
@@ -102,7 +98,7 @@ Alle merkene kan styres over IP, men med ulike protokoller. Motoren får derfor 
 | Merke | Protokoll over IP | Farge og eksponering | Status |
 | --- | --- | --- | --- |
 | [OBSBOT Tail 2](https://www.obsbot.com/explore/obsbot-tail-air/visca-over-ip) | VISCA over IP (bekreftet av OBSBOT) + [OSC](https://www.obsbot.com/webcam/osc) for AI-tracking | Hvitbalanse via VISCA; om R/B-gain finnes må sjekkes i OBSBOTs VISCA-tabell | Fase 1 |
-| [Canon CR-N300](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) | Canon XC-protokoll (HTTP), VISCA over IP som reserve | Via XC: [R/B, kelvin, iris, gain, lukker, metning](https://support.cyanview.com/docs/Integrations/Canon/CanonPTZ). Kameraet må stå i manuell for å kunne styres | Fase 1 |
+| [Canon CR-N300](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) | Canon XC-protokoll (HTTP), VISCA over IP som reserve | Via XC: R/B, kelvin, iris, gain, lukker, metning. Kameraet må stå i manuell for å kunne styres | Fase 1 |
 | Panasonic AW-UE | [HTTP-kommandoer](https://eww.pass.panasonic.co.jp/pro-av/support/content/guide/DEF/UE150/AW-UE150HE145_InterfaceSpecification_E.pdf) `/cgi-bin/aw_ptz` og `/cgi-bin/aw_cam` | R-gain `OSG:39`, B-gain `OSG:3A` i AWB- eller VAR-modus. Minst 40 ms mellom bevegelseskommandoer | Fase 2 |
 | Sony BRC/SRG | [VISCA over IP, UDP 52381](https://applicationmarket.crestron.com/content/Help/Sony/Sony_BRC-X400_SRG-X_series_Help_v1.0.pdf) | R/B-gain i manuell hvitbalanse | Fase 2 |
 
@@ -212,10 +208,6 @@ Testplan: kjør motoren i skyggemodus på tre live-sendinger mens en person klip
 
 ## Kilder
 
-- [VVD – Virtual Video Director](https://www.vvd.nz/)
-- [Visual Radio Assist](https://visualradioassist.live/) · [Camera Assist](https://visualradioassist.live/blog/automatic-ptz-framing-in-visual-radio) · [Companion-styring](https://docs.visualradioassist.live/develop-with-vra/core-control-api/bitfocus-companion-control-over-visual-radio)
-- [Broadcast Bionics CameraOne med RØDECaster](https://radiotoday.co.uk/?p=406178) · [CameraOne pris](https://www.radioworld.com/?p=106258)
-- [multiCAM Radio](https://www.tvbeurope.com/?p=15675) · [VidiGo](https://www.radioworld.com/?p=45669) · [WinCam](https://www.redtech.pro/?p=37926) · [ChyronHego](https://radioinfo.asia/?p=47192) · [Broadcast Pix VOX](https://www.tvtechnology.com/news/broadcast-pix-announces-vox)
 - [RØDECaster Virtual Devices multitrack](https://help.rode.com/hc/en-us/articles/15514570006927-The-R%C3%98DECaster-Pro-II-Duo-Virtual-Devices-Multitrack-Output) · [RØDECaster USB-oppsett](https://rode.com/en-si/user-guides/rodecaster-pro-ii/a-guide-to-setting-up-usb-connections-on-the-rodecaster-pro-ii)
 - [Companion HTTP Remote Control](https://companion.free/user-guide/v4.2/remote-control/http-remote-control)
 - [OBSBOT VISCA-guide](https://www.obsbot.com/explore/obsbot-tail-air/visca-over-ip) · [OBSBOT Tail 2 ressurser](https://www.obsbot.com/explore/obsbot-tail-2)
@@ -224,4 +216,4 @@ Testplan: kjør motoren i skyggemodus på tre live-sendinger mens en person klip
 * [RØDECaster Virtual Devices-driver og ASIO](https://help.rode.com/hc/en-us/articles/11891033629839-What-is-the-Virtual-Devices-Driver-for-the-R%C3%98DECaster-Pro-II-Duo) · [ATEM Mini Extreme: utganger og multiview](https://www.syntex.cz/media/ant/Syntex_Blackmagic_Design_ATEM_Mini_vs_Pro_vs_Extreme_EN_2_2021.pdf)
 * [OBSBOT NDI-guide](https://www.obsbot.com/ndi-guide) · [OBSBOT OSC](https://www.obsbot.com/webcam/osc) · [Light-ASD](https://ar5iv.labs.arxiv.org/html/2303.04439)
 
-- [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) · [Cyanview: Canon XC-styring](https://support.cyanview.com/docs/Integrations/Canon/CanonPTZ) · [Panasonic AW-UE150 grensesnitt](https://eww.pass.panasonic.co.jp/pro-av/support/content/guide/DEF/UE150/AW-UE150HE145_InterfaceSpecification_E.pdf) · [Sony BRC/SRG VISCA over IP](https://applicationmarket.crestron.com/content/Help/Sony/Sony_BRC-X400_SRG-X_series_Help_v1.0.pdf)
+- [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) · [Panasonic AW-UE150 grensesnitt](https://eww.pass.panasonic.co.jp/pro-av/support/content/guide/DEF/UE150/AW-UE150HE145_InterfaceSpecification_E.pdf) · [Sony BRC/SRG VISCA over IP](https://applicationmarket.crestron.com/content/Help/Sony/Sony_BRC-X400_SRG-X_series_Help_v1.0.pdf)

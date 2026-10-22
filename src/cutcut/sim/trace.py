@@ -139,8 +139,8 @@ STORIES: Final[dict[str, Story]] = {
 
 
 def trace_site_dir() -> Path | None:
-    """The web simulator shows the real NTNU studio layout (D-054), when the repo has it."""
-    path = Path(__file__).resolve().parents[3] / "site" / "ntnu-studio"
+    """The web simulator shows the real studio layout (D-054), when the repo has it."""
+    path = Path(__file__).resolve().parents[3] / "site" / "multimediesenteret"
     return path if (path / "devices.yaml").exists() else None
 
 

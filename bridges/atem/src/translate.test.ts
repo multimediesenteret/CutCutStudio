@@ -7,10 +7,10 @@ import { describe, expect, it } from "vitest";
 import { parseCommand } from "./bus.ts";
 import { MP1, sourceName, statePayload } from "./translate.ts";
 
-const FIXTURE = resolve(import.meta.dirname, "../../../tests/fixtures/atem/state-ntnu.json");
+const FIXTURE = resolve(import.meta.dirname, "../../../tests/fixtures/atem/state-studio.json");
 
-/** The NTNU studio as in the multiview photo (D-053): MP1 on program, Camera 1 on preview. */
-function ntnuState(): AtemState {
+/** The studio as in the multiview photo (D-053): MP1 on program, Camera 1 on preview. */
+function cardApiState(): AtemState {
   const win = (source: number, extra: object = {}) => ({
     source,
     windowIndex: 0,
@@ -58,7 +58,7 @@ function ntnuState(): AtemState {
 
 describe("atem.state payload", () => {
   it("matches the shared contract fixture", () => {
-    const payload = statePayload(ntnuState());
+    const payload = statePayload(cardApiState());
     const text = JSON.stringify(payload, null, 2) + "\n";
     if (process.env.UPDATE_FIXTURES) writeFileSync(FIXTURE, text);
     expect(text).toBe(readFileSync(FIXTURE, "utf8"));
@@ -76,7 +76,7 @@ describe("atem.state payload", () => {
   });
 
   it("numbers macros like ATEM Software Control (1-based) and skips empty slots", () => {
-    expect(statePayload(ntnuState()).macros).toEqual([
+    expect(statePayload(cardApiState()).macros).toEqual([
       { number: 10, name: "PIP_P1_CONTENT" },
       { number: 20, name: "PIP_P1_P2" },
       { number: 30, name: "QUAD4" },
@@ -90,7 +90,7 @@ describe("atem.state payload", () => {
   });
 
   it("reports a swapped preview/program and a non 2+8 layout", () => {
-    const s = ntnuState();
+    const s = cardApiState();
     const mv = s.settings.multiViewers[0] as unknown as {
       properties: { layout: number; programPreviewSwapped: boolean };
     };

@@ -1,10 +1,12 @@
-# site/ntnu-studio
+# site/multimediesenteret
 
-Alt som er spesielt for NTNU-studioet. Kan senere flyttes til et eget repo (`cutcut-site-ntnu-studio`, spesifikasjonen 12.2).
+Alt som er spesielt for studioet. Kan senere flyttes til et eget repo (`cutcut-site-multimediesenteret`, spesifikasjonen 12.2).
 
-`devices.yaml` (utstyr, IP-er etter IP-planen, ikke bekreftet), `shows/` (1–4 personer, inngangskart D-054), `staff.yaml` (tom til Q33) og `equipment/`. Kommer: `setup/`, `baseline.yaml`. Ingen passord eller nøkler her.
+`devices.yaml` (utstyr, med IP-adresser som bare er eksempler), `shows/` (1–4 personer, inngangskart D-054), `staff.yaml` (tom) og `equipment/`.
 
-Prøv oppsettet i simulatoren: `uv run cutcut sim --site site/ntnu-studio`.
+**Det som er hemmelig eller personlig, ligger ikke her.** Virkelige IP-adresser, teknikerlisten og mottakere av varsler legges inn i appen på studio-PC-en og lagres i databasen der. «Lagre oppsett» (Innstillinger → Oppsett) gir en fil med alt sammen, som kan hentes inn igjen på samme eller en ny PC. Kommer: `setup/`, `baseline.yaml`. Ingen passord eller nøkler her.
+
+Prøv oppsettet i simulatoren: `uv run cutcut sim --site site/multimediesenteret`.
 
 | Mappe | Innhold |
 | --- | --- |

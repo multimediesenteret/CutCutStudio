@@ -1,6 +1,6 @@
 # Opptak og klippeliste (Q1–Q2)
 
-Dette er det viktigste NTNU kan levere. Uten ekte lydspor og en fasit fra en menneskelig klipper kan reglene bare tunes mot simulatoren.
+Dette er det viktigste Multimediesenteret kan levere. Uten ekte lydspor og en fasit fra en menneskelig klipper kan reglene bare tunes mot simulatoren.
 
 ## Hva som tas opp per episode
 
@@ -49,4 +49,4 @@ time_s,source,comment
 
 ## Personvern
 
-Opptakene inneholder stemme og ansikt. Innhent samtykke, legg dem **ikke** i dette repoet, men på et lagringssted NTNU godkjenner, og skriv stien inn i Q1 i `docs/open-questions.md`. Tester i CI kan bruke korte, anonymiserte utdrag eller syntetiske spor.
+Opptakene inneholder stemme og ansikt. Innhent samtykke, legg dem **ikke** i dette repoet, men på et lagringssted Multimediesenteret godkjenner, og skriv stien inn i Q1 i `docs/open-questions.md`. Tester i CI kan bruke korte, anonymiserte utdrag eller syntetiske spor.

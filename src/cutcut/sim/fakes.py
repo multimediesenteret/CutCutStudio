@@ -147,11 +147,11 @@ TEST_CARDS: dict[str, tuple[str, str]] = {
 
 
 @dataclass
-class FakeNtnuApi:
+class FakeCardApi:
     online: bool = True
     latency_ms: int = 300
 
     def lookup(self, card_hex: str) -> tuple[str, str] | None:
         if not self.online:
-            raise TimeoutError("NTNU-API svarer ikke")
+            raise TimeoutError("kort-API svarer ikke")
         return TEST_CARDS.get(card_hex.upper())

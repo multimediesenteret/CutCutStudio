@@ -1,6 +1,6 @@
 """Machine test for the ATEM and Companion (DA-5, docs/plans/devices-companion-atem.md).
 
-``cutcut hwtest atem --site site/ntnu-studio`` with CutCut running (the service): CutCut reads
+``cutcut hwtest atem --site C:\\CutCut\\site`` with CutCut running (the service): CutCut reads
 the ATEM through atem-bridge, the test presses Companion's buttons directly and reads the
 result back through CutCut. It answers Q7 (model and firmware) and closes ADR-0012.
 

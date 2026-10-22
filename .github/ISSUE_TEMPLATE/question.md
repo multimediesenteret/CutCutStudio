@@ -1,5 +1,5 @@
 ---
-name: Spørsmål til NTNU
+name: Spørsmål til Multimediesenteret
 about: Noe agenten eller utvikleren trenger svar på
 labels: question
 ---

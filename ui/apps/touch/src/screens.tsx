@@ -86,7 +86,7 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
   return (
     <section className="scr" id="idle">
       <div className="txt">
-        <h1>Hold NTNU-kortet ditt mot leseren</h1>
+        <h1>Hold adgangskortet ditt mot leseren</h1>
         <p className="intro">Så er studioet klart. Opptaket havner i din egen Panopto-konto.</p>
         <StatusRow>
           {problem ? (
@@ -102,7 +102,7 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
       <div className="art">
         <div className="reader">
           <div className="ncard">
-            <b>NTNU</b>
+            <b>Multimediesenteret</b>
             <span>Studentkort / ansattkort</span>
           </div>
           <div className="pad" />
@@ -118,7 +118,7 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
   );
 }
 
-/** Until the card reader and NTNU API are switched on (D-057): one button starts the studio. */
+/** Until the card reader and card API are switched on (D-057): one button starts the studio. */
 function IdleOpen({ state, act }: { state: StudioState; act: Act }) {
   const problem = blocking(state);
   return (
