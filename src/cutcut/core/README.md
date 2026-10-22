@@ -9,6 +9,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 - **Ut**: beslutninger (`Decision`, spes. 5.8) og ønsker til utstyret (`intents.py`: `SetPreview`, `PrepareLayout`, `Take`, `DirectCut`, `ShowAudioOnly`, `SetCompanionVariable`). Skallet (K-9) utfører ønskene via Companion og `atem-bridge`.
 - **Etter omstart (K-9):** AUTO, LÅS, content og skyggemodus hentes fra SQLite; bildet hentes fra ATEM; motoren venter `manual_quiet_s` (5 s) før første kutt.
 - **Skyggemodus (PL-05):** motoren beslutter og logger (`shadow: true`), men sender ingenting.
+- **Skygge per bryter (F-1):** hver bryter utover grunnmodus (`video_confirm`, `reactions`, `framing_variety`, `slow_zoom`, `layouts`, `ai_tracking`) er av, i skygge eller på (`Features.mode`). I skygge kjører reglene og logges med `switch` satt og `shadow: true` (samme notat høyst hvert 2. sekund), men kuttene er grunnmodusens. Feiler en bryters regler, regnes den som av (`failed_switches`), og `Studio` flytter den til skygge og varsler gult. Teknikervinduet viser hvorfor en bryter ikke kan slås på (`rules.switches`).
 
 | Fil | Innhold |
 | --- | --- |

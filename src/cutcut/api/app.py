@@ -597,7 +597,7 @@ def create_app(
         return Ok()
 
     @app.post("/api/features", tags=["tuning"])
-    async def features(body: dict[str, bool], me: Who) -> Ok:
+    async def features(body: dict[str, bool | Literal["off", "shadow", "on"]], me: Who) -> Ok:
         require(me, "admin")
         studio.set_features(body, me.role, me.actor)
         return Ok()

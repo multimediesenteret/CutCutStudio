@@ -1231,6 +1231,11 @@ export interface components {
             /** Shot */
             shot: string;
             /**
+             * Switch
+             * @default null
+             */
+            switch: string | null;
+            /**
              * Ts
              * Format: date-time
              */
@@ -1653,6 +1658,11 @@ export interface components {
              * @enum {string}
              */
             preset: "rolig" | "standard" | "energisk";
+            /**
+             * Switches
+             * @default []
+             */
+            switches: components["schemas"]["SwitchInfo"][];
         };
         /** RuntimeInfo */
         RuntimeInfo: {
@@ -1916,6 +1926,28 @@ export interface components {
             studio: components["schemas"]["StudioInfo"];
             touch: components["schemas"]["TouchInfo"];
         };
+        /**
+         * SwitchInfo
+         * @description One switch beyond base mode (F-1): its mode, and whether it can be used now.
+         */
+        SwitchInfo: {
+            /** Can On */
+            can_on: boolean;
+            /** Can Shadow */
+            can_shadow: boolean;
+            /** Key */
+            key: string;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "off" | "shadow" | "on";
+            /**
+             * Why
+             * @default null
+             */
+            why: string | null;
+        };
         /** Tile */
         Tile: {
             camera?: components["schemas"]["SourceId"] | null;
@@ -2157,7 +2189,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    [key: string]: boolean;
+                    [key: string]: boolean | ("off" | "shadow" | "on");
                 };
             };
         };

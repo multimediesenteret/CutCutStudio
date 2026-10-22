@@ -12,6 +12,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P2 (F-1): skygge per bryter.
+  - Hver bryter utover grunnmodus kan være av, i skygge eller på (Regi → Brytere). I skygge kjører reglene og logges som «skygge · bryter» i beslutningsloggen, men klippingen er grunnmodusens.
+  - Teknikervinduet viser hvorfor en bryter ikke kan slås på, for eksempel at den tunge delen av videolaget mangler eller at layout-makroene ikke finnes. Bryterne som ennå ikke er bygget, sier det.
+  - Feiler en bryter, går den selv til skygge og teknikeren får et gult varsel. Grunnmodus klipper som før.
+  - `POST /api/features` tar `"off"`, `"shadow"` eller `"on"` i tillegg til `true`/`false`. AI-tracking har fått sin bryter.
 - P1 (D-062–D-065): studio-PC-en.
   - Videolaget leser multiviewen fra DeckLink-kortet. Kortet finnes på navnet (`video` i `devices.yaml`, standard «DeckLink»), så nummeret kan endre seg. `cutcut hwtest vision` bruker det samme.
   - Supervisoren starter nå videolaget når studioet har capture-kort og rutekart; før måtte det startes for hånd.

@@ -47,6 +47,18 @@ class ContentConfig(_Strict):
 
 RETIRED_FEATURES = frozenset({"live_transcript", "turn_prediction"})  # D-063
 
+# The switches beyond base mode (spec 5.13, docs/plans/for-studio.md). Each can be off, on, or
+# in shadow: its rules run and are logged, but do not change the cuts (F-1).
+SWITCHES: tuple[str, ...] = (
+    "video_confirm",
+    "reactions",
+    "framing_variety",
+    "slow_zoom",
+    "layouts",
+    "ai_tracking",
+)
+FeatureMode = Literal["off", "shadow", "on"]
+
 
 class Features(_Strict):
     """Switches from spec 5.13. Base mode is always on; bird and content default on."""
@@ -58,6 +70,27 @@ class Features(_Strict):
     framing_variety: bool = False
     slow_zoom: bool = False
     layouts: bool = False
+    ai_tracking: bool = False  # AT1–AT6, OBSBOT only (spec 5.12, P5)
+    shadow: list[str] = Field(default_factory=list)  # switches that run without acting (F-1)
+
+    @model_validator(mode="after")
+    def _shadow_ok(self) -> Self:
+        for name in self.shadow:
+            if name not in SWITCHES:
+                raise ValueError(f"«{name}» kan ikke gå i skygge")
+            if getattr(self, name):
+                raise ValueError(f"«{name}» kan ikke være både på og i skygge")
+        return self
+
+    def mode(self, name: str) -> FeatureMode:
+        if getattr(self, name, False):
+            return "on"
+        return "shadow" if name in self.shadow else "off"
+
+    def with_mode(self, name: str, mode: FeatureMode) -> Features:
+        shadow = [n for n in self.shadow if n != name] + ([name] if mode == "shadow" else [])
+        data = {**self.model_dump(), name: mode == "on", "shadow": shadow}
+        return Features.model_validate(data)
 
     @model_validator(mode="before")
     @classmethod

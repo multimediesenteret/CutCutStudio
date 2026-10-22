@@ -138,7 +138,14 @@ const FEATURES: { key: string; name: string; ids: string; d: string; base?: bool
   { key: "framing_variety", name: "Vekslende utsnitt", ids: "F1–F3", d: "Nær og halvnær off air" },
   { key: "slow_zoom", name: "Langsom zoom", ids: "Z1–Z3", d: "Maks 10 % over 15 s" },
   { key: "layouts", name: "Layouter (PiP/quad)", ids: "L1–L4", d: "ATEM-makroer via Companion" },
+  { key: "ai_tracking", name: "AI-tracking", ids: "AT1–AT6", d: "OBSBOT følger personen" },
 ];
+
+const MODES = [
+  ["off", "Av"],
+  ["shadow", "Skygge"],
+  ["on", "På"],
+] as const;
 
 function fmt(v: number, unit: string): string {
   const s =
@@ -256,18 +263,53 @@ export function Regi({ ctx }: { ctx: Ctx }) {
         <div>
           {FEATURES.map((f) => {
             const on = !!state.rules.features[f.key];
+            const sw = state.rules.switches?.find((s) => s.key === f.key);
             return (
               <div className="feat" key={f.key}>
                 <span>
                   <b>{f.name}</b> <span className="tag">{f.ids}</span>
                   {f.base && <span className="tag">grunnmodus</span>}
+                  {sw?.mode === "shadow" && <span className="tag">skygge</span>}
                 </span>
-                <span className="fd">{f.d}</span>
-                <Switch
-                  on={on}
-                  label={f.name}
-                  onToggle={() => run(cmd.features({ [f.key]: !on }))}
-                />
+                <span className="fd">
+                  {f.d}
+                  {sw?.why && sw.mode === "off" && (
+                    <>
+                      <br />
+                      <span className="small muted">{sw.why}</span>
+                    </>
+                  )}
+                </span>
+                {sw ? (
+                  <div className="seg" role="group" aria-label={f.name}>
+                    {MODES.map(([mode, label]) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={sw.mode === mode ? "sel" : ""}
+                        aria-pressed={sw.mode === mode}
+                        disabled={
+                          sw.mode !== mode &&
+                          ((mode === "on" && !sw.can_on) || (mode === "shadow" && !sw.can_shadow))
+                        }
+                        title={
+                          mode === "shadow"
+                            ? "Reglene kjører og logges, men klipper ikke"
+                            : undefined
+                        }
+                        onClick={() => run(cmd.features({ [f.key]: mode }))}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <Switch
+                    on={on}
+                    label={f.name}
+                    onToggle={() => run(cmd.features({ [f.key]: !on }))}
+                  />
+                )}
               </div>
             );
           })}
@@ -963,7 +1005,10 @@ export function LogView({ ctx }: { ctx: Ctx }) {
                     {shotName(ctx.state, d.shot)}
                   </span>
                 </td>
-                <td>{d.rule && <span className="tag">{ruleLabel(d.rule)}</span>}</td>
+                <td>
+                  {d.rule && <span className="tag">{ruleLabel(d.rule)}</span>}
+                  {d.switch && <span className="tag">skygge · {d.switch}</span>}
+                </td>
                 <td>{d.reason}</td>
               </tr>
             ))}

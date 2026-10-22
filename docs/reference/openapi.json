@@ -277,6 +277,18 @@
             "title": "Shot",
             "type": "string"
           },
+          "switch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Switch"
+          },
           "ts": {
             "format": "date-time",
             "title": "Ts",
@@ -1233,6 +1245,14 @@
             ],
             "title": "Preset",
             "type": "string"
+          },
+          "switches": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SwitchInfo"
+            },
+            "title": "Switches",
+            "type": "array"
           }
         },
         "required": [
@@ -1834,6 +1854,53 @@
         "title": "StudioState",
         "type": "object"
       },
+      "SwitchInfo": {
+        "additionalProperties": false,
+        "description": "One switch beyond base mode (F-1): its mode, and whether it can be used now.",
+        "properties": {
+          "can_on": {
+            "title": "Can On",
+            "type": "boolean"
+          },
+          "can_shadow": {
+            "title": "Can Shadow",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "off",
+              "shadow",
+              "on"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "why": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Why"
+          }
+        },
+        "required": [
+          "key",
+          "mode",
+          "can_shadow",
+          "can_on"
+        ],
+        "title": "SwitchInfo",
+        "type": "object"
+      },
       "Tile": {
         "additionalProperties": false,
         "properties": {
@@ -2230,7 +2297,19 @@
             "application/json": {
               "schema": {
                 "additionalProperties": {
-                  "type": "boolean"
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "enum": [
+                        "off",
+                        "shadow",
+                        "on"
+                      ],
+                      "type": "string"
+                    }
+                  ]
                 },
                 "title": "Body",
                 "type": "object"

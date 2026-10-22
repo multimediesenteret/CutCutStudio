@@ -48,7 +48,7 @@ def make_show(
     participants: int,
     *,
     wide: bool = False,
-    features: dict[str, bool] | None = None,
+    features: dict[str, Any] | None = None,
     overrides: dict[str, float] | None = None,
     preset: str = "standard",
 ) -> ShowConfig:
@@ -72,7 +72,7 @@ def make_show(
 class Harness:
     participants: int = 2
     wide: bool = False
-    features: dict[str, bool] = field(default_factory=dict)
+    features: dict[str, Any] = field(default_factory=dict)
     overrides: dict[str, float] = field(default_factory=dict)
     preset: str = "standard"
     shadow: bool = False
@@ -199,7 +199,11 @@ class Harness:
         return self.engine.program
 
     def cuts(self, since: int = 0) -> list[Decision]:
-        return [d for d in self.decisions if d.action == "cut" and d.mono_ms >= since]
+        return [
+            d
+            for d in self.decisions
+            if d.action == "cut" and d.mono_ms >= since and d.switch is None
+        ]
 
     def cut_rules(self, since: int = 0) -> list[RuleId]:
         return [d.rule for d in self.cuts(since)]

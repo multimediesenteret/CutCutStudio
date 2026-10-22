@@ -50,7 +50,7 @@ NB-Whisper (Apache 2.0) via whisper.cpp eller ONNX; VAP-modell (lisens sjekkes f
 
 | # | Leveranse | Ferdig når |
 | --- | --- | --- |
-| F-1 | `shadow`-tilstand per bryter og forutsetningssjekk | Teknikervinduet viser hvorfor en bryter er sperret |
+| F-1 | `shadow`-tilstand per bryter og forutsetningssjekk | Teknikervinduet viser hvorfor en bryter er sperret. Gjort (P2) |
 | F-2 | `video_confirm` | Testrapport godkjent |
 | F-3 | `framing_variety` | Testrapport godkjent |
 | F-4 | `reactions` | Testrapport godkjent |

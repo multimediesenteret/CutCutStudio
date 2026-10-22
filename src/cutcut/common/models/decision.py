@@ -38,3 +38,4 @@ class Decision(BaseModel):
     companion: CompanionButton | None = None
     correlation_id: str = ""
     shadow: bool = False
+    switch: str | None = None  # the switch that made it, when it runs in shadow (F-1)
