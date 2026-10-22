@@ -84,6 +84,13 @@ class RuleParams(BaseModel):
     R1_speaker_min_s: float = Field(ge=0, le=120)
     R1_shot_s: float = Field(ge=0.5, le=10)
     R2_min_gap_s: float = Field(ge=0, le=600)
+    R1_react_min: float = Field(ge=0, le=1)  # smile, nod or laugh this strong is a reaction
+    # Picture rules (6.5, with video_confirm / reactions)
+    V1_factor: float = Field(ge=0.2, le=1)  # T2 × this when the mouth moves in the right camera
+    V1_leak_ms: int = Field(ge=100, le=3000)  # mic active, mouth still this long → leakage
+    V3_window_s: float = Field(ge=0.5, le=10)
+    V4_error: float = Field(ge=0.02, le=0.3)  # framing error that is corrected off air
+    V5_still_s: float = Field(ge=0, le=5)
     # Framing variety (5.13, switch F): the camera must be still this long after a reframe
     F2_settle_s: float = Field(ge=0, le=5)
     F_reframe_grace_s: float = Field(ge=0, le=10)  # counts as moving until it reports

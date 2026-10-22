@@ -47,6 +47,8 @@ class ContentPayload(_Payload):
 class FacePayload(_Payload):
     found: bool = False
     size_ok: bool = False
+    x: float | None = None  # centre, share of the window (V4)
+    y: float | None = None
 
 
 class TilePayload(_Payload):
@@ -85,6 +87,8 @@ def tile(payload: dict[str, Any]) -> tuple[SourceId, TileFrame]:
         smile=p.smile,
         moving=p.moving,
         nod=p.nod,
+        face_x=p.face.x,
+        face_y=p.face.y,
     )
 
 

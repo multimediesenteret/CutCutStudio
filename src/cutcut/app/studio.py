@@ -86,7 +86,14 @@ from cutcut.core.inputs import (
     SetLock,
     SetShadow,
 )
-from cutcut.core.intents import FrameCamera, Intent, SetCompanionVariable, SlowZoom, StopZoom
+from cutcut.core.intents import (
+    FrameCamera,
+    Intent,
+    NudgeCamera,
+    SetCompanionVariable,
+    SlowZoom,
+    StopZoom,
+)
 from cutcut.core.runtime import CoreRuntime, Executor
 from cutcut.devices.atem import iso
 from cutcut.devices.atem.bridge import AtemStateRaw
@@ -121,7 +128,7 @@ TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
 # Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
 IMPLEMENTED_SWITCHES: Final = frozenset(
-    {"video_confirm", "layouts", "framing_variety", "slow_zoom", "ai_tracking"}
+    {"video_confirm", "reactions", "layouts", "framing_variety", "slow_zoom", "ai_tracking"}
 )
 VERDICT_TEXT: Final[dict[str, str]] = {
     "on_program": "Kameraet er på program (I2). Prøv når det er av lufta.",
@@ -2138,6 +2145,8 @@ class Studio:
                 cams.slow_zoom(cam, amount, ms / 1000)
             case StopZoom(camera=cam):
                 cams.stop_zoom(cam)
+            case NudgeCamera(camera=cam, pan=pan, tilt=tilt):
+                cams.submit(cam, Nudge(pan=pan, tilt=tilt))
 
     # -- switches: off, shadow, on (spec 5.13, F-1) -------------------------------------------
 

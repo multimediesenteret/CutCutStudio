@@ -205,6 +205,12 @@
           "title": "Pv1 Min Preview S",
           "type": "number"
         },
+        "R1_react_min": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "R1 React Min",
+          "type": "number"
+        },
         "R1_shot_s": {
           "maximum": 10,
           "minimum": 0.5,
@@ -343,6 +349,36 @@
           "title": "T9 Max Wait Pause Ms",
           "type": "integer"
         },
+        "V1_factor": {
+          "maximum": 1,
+          "minimum": 0.2,
+          "title": "V1 Factor",
+          "type": "number"
+        },
+        "V1_leak_ms": {
+          "maximum": 3000,
+          "minimum": 100,
+          "title": "V1 Leak Ms",
+          "type": "integer"
+        },
+        "V3_window_s": {
+          "maximum": 10,
+          "minimum": 0.5,
+          "title": "V3 Window S",
+          "type": "number"
+        },
+        "V4_error": {
+          "maximum": 0.3,
+          "minimum": 0.02,
+          "title": "V4 Error",
+          "type": "number"
+        },
+        "V5_still_s": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "V5 Still S",
+          "type": "number"
+        },
         "Z1_after_s": {
           "maximum": 60,
           "minimum": 0,
@@ -425,6 +461,12 @@
         "R1_speaker_min_s",
         "R1_shot_s",
         "R2_min_gap_s",
+        "R1_react_min",
+        "V1_factor",
+        "V1_leak_ms",
+        "V3_window_s",
+        "V4_error",
+        "V5_still_s",
         "F2_settle_s",
         "F_reframe_grace_s",
         "Z1_after_s",

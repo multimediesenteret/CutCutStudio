@@ -53,6 +53,8 @@ class TileFrame:
     smile: float = 0.0
     moving: bool = False
     nod: float = 0.0  # R1, V3 (P6)
+    face_x: float | None = None  # V4: face centre as a share of the window (P7)
+    face_y: float | None = None
 
 
 class ContentState(StrEnum):
