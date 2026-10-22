@@ -51,9 +51,9 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 **Utrulling** (spesifikasjonen 12.3)
 
 - [ ] Tag `vX.Y.Z` satt av et menneske
-- [ ] Windows-pakke, SBOM og sjekksum bygget av CI og lagt på GitHub-releasen
-- [ ] Installert i servicevindu ved siden av forrige versjon; `current` byttet
-- [ ] Morgensjekk bestått (ellers automatisk tilbakerulling)
+- [ ] Windows-pakke, SBOM og sjekksum bygget av CI og lagt på GitHub-releasen (workflow `release`, starter av taggen)
+- [ ] Installert i servicevindu med `installer/install.ps1` ved siden av forrige versjon; `current` byttet
+- [ ] Ny versjon svarer på `/api/health` (ellers ruller `install.ps1` tilbake selv), og morgensjekken er kjørt
 - [ ] Simulatoren på Vercel er bygget fra samme versjon
 
 ## Branch-regler på GitHub (settes av eier)

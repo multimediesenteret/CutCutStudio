@@ -20,3 +20,4 @@ build/
 playwright-report/
 test-results/
 .vercel-out/
+dist-bundle/

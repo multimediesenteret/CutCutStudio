@@ -10,25 +10,53 @@ CutCut kjører som Windows-tjenesten **CutCut Studio** (`CutCut`). Tjenesten sta
 
 ## Første installasjon (som administrator)
 
-```powershell
-# 1. Kode og avhengigheter (til pakken i SO-3 finnes)
-git clone https://github.com/multimediesenteret/CutCutStudio C:\CutCut\current
-cd C:\CutCut\current
-uv sync --locked --extra silero
-uv run python tools/fetch_models.py
-pnpm install --filter @cutcut/atem-bridge        # atem-bridge
-pnpm --filter "./ui/**" build                     # skjermene
+Last ned `cutcut-<versjon>-win64.zip` og `.sha256` fra GitHub-releasen (Releases), og legg dem i samme mappe.
 
-# 2. Studio-oppsettet
+```powershell
+# 1. Studio-oppsettet
 git clone <studio-repo> C:\CutCut\site            # eller kopier site\ntnu-studio dit
 
-# 3. Tjenesten
-.\installer\install-services.ps1 -Root C:\CutCut -UiDir C:\CutCut\current\ui\dist
+# 2. Pakken: pakkes ut, prøves mot oppsettet, og tjenesten installeres og startes
+Expand-Archive .\cutcut-1.0.0-win64.zip -DestinationPath $env:TEMP\cutcut-pkg   # bare for å få tak i install.ps1
+& "$env:TEMP\cutcut-pkg\cutcut-1.0.0\installer\install.ps1" -Zip .\cutcut-1.0.0-win64.zip
+```
+
+Pakken har sin egen Python, Node og skjermene; ingenting annet trenger å være installert. Resultatet blir:
+
+```text
+C:\CutCut\
+  versions\1.0.0\    pakken (de tre nyeste beholdes)
+  current          → versions\1.0.0  (lenke; tjenesten starter alltid denne)
+  site\  data\  services\
 ```
 
 Sjekk:
 - `Get-Service CutCut` skal vise **Running**.
 - `http://127.0.0.1:8080/tech/` åpner teknikervinduet. Under **Helse → Prosesser** skal alle prosessene kjøre.
+
+## Ny versjon (servicevindu, aldri under opptak)
+
+```powershell
+& C:\CutCut\current\installer\install.ps1 -Zip D:\cutcut-1.1.0-win64.zip
+```
+
+Skriptet sjekker sjekksummen, pakker ut ved siden av, prøver den nye versjonen mot studio-oppsettet, bytter `current` og starter tjenesten. Svarer ikke den nye versjonen innen 120 s, går den selv tilbake til forrige versjon og sier fra. Opptak på Pearl påvirkes ikke, men motoren klipper ikke de ca. 10 sekundene tjenesten står. Loggen er `C:\CutCut\data\logs\install.log`.
+
+**Tilbake til forrige versjon for hånd:** kjør `install.ps1` med den forrige pakken og `-Force`.
+
+**Fra git-utsjekk:** var `C:\CutCut\current` en vanlig mappe (installert med git før pakkene fantes), flyttes den til `versions\git-<dato>` og brukes som versjonen å gå tilbake til.
+
+## Utvikling fra git (uten pakke)
+
+```powershell
+git clone https://github.com/multimediesenteret/CutCutStudio C:\CutCut\current
+cd C:\CutCut\current
+uv sync --locked --extra silero --extra vision
+uv run python tools/fetch_models.py
+pnpm install --filter @cutcut/atem-bridge
+pnpm --filter "./ui/**" build
+.\installer\install-services.ps1 -Root C:\CutCut -UiDir C:\CutCut\current\ui\dist
+```
 
 ## Hverdagsbruk
 

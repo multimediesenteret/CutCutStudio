@@ -74,13 +74,22 @@ def core_health(port: int) -> bool:
         return False
 
 
+def bundled_node() -> str | None:
+    """The Node in the Windows package (``node/node.exe``, SO-3), if this is one."""
+    for name in ("node.exe", "node"):
+        path = REPO / "node" / name
+        if path.is_file():
+            return str(path)
+    return None
+
+
 def specs(opts: SupervisorOptions) -> list[ProcessSpec]:
     py = [sys.executable, "-m", "cutcut"]
     core_args = [*py, "core", "--site", str(opts.site_dir), "--data", str(opts.data_dir)]
     core_args += ["--port", str(opts.port)]
     if opts.ui_dir is not None:
         core_args += ["--ui-dir", str(opts.ui_dir)]
-    node = shutil.which("node") or "node"
+    node = bundled_node() or shutil.which("node") or "node"
     out = [
         ProcessSpec("core", core_args, health=lambda: core_health(opts.port)),
         ProcessSpec(

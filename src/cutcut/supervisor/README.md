@@ -7,7 +7,7 @@ Egen liten prosess (SO-1, spesifikasjonen 9.1, `docs/plans/supervisor-ops.md`). 
 | `supervisor.py` | `ProcessSpec` og `Supervisor.step()`: omstart med pause 1, 2, 5, 10 og 30 s (tilbake til 1 s etter 60 s god drift), helsesjekk (3 feil på rad = henger → stopp og start), telling av omstarter siste 10 min |
 | `orphans.py` | Barna dør med supervisor, uansett hvordan den slutter: Job Object på Windows, `PR_SET_PDEATHSIG` på Linux. Ellers ville en foreldreløs `core` holde port 8080, og hver nye `core` ville feile |
 | `report.py` | `supervisor.status` på bussen hvert 2. sekund. `core` viser det under Helse og gir `H-PROC-<prosess>` |
-| `main.py` | `cutcut supervisor`: prosesslisten, helsesjekk av `core` (`/api/health`) og ATEM-adressen. Adressen leses på nytt før hver start av `atem-bridge`, med adresser lagret i teknikervinduet |
+| `main.py` | `cutcut supervisor`: prosesslisten, helsesjekk av `core` (`/api/health`) og ATEM-adressen. Adressen leses på nytt før hver start av `atem-bridge`, med adresser lagret i teknikervinduet. I Windows-pakken brukes pakkens egen Node (`node\node.exe`) |
 
 ```bash
 uv run cutcut supervisor --site site/ntnu-studio --data data
