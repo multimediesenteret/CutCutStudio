@@ -28,7 +28,6 @@ OUT_RULES = ROOT / "docs" / "reference" / "rules.md"
 PLANNED: dict[str, str] = {
     "PV3": "M4 – video_confirm",
     "S5": "M2 – Companion/ATEM-utfører",
-    **{f"L{i}": "M4 – layouts" for i in range(1, 5)},
     **{f"R{i}": "M4 – reactions" for i in range(1, 4)},
     **{f"F{i}": "M4 – framing_variety" for i in range(1, 4)},
     **{f"Z{i}": "M4 – slow_zoom" for i in range(1, 4)},

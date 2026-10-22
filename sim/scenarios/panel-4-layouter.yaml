@@ -1,0 +1,18 @@
+id: panel-4-layouter
+description: "Fire personer med layouter på (L3, P3): når tre eller flere har snakket de siste ti sekundene, blir det firedelt bilde; det står minst 6 s og brukes ikke igjen innen 30 s."
+show: panel-4
+duration_s: 60
+features: { layouts: true }
+script:
+  - { at: 3, talk: P1, for: 3 }
+  - { at: 6.5, talk: P2, for: 3 }
+  - { at: 10, talk: P3, for: 3 }
+  - { at: 13.5, talk: P4, for: 3 }
+  - { at: 17, talk: P1, for: 3 }
+  - { at: 20.5, talk: P2, for: 3 }
+  - { at: 24, talk: P3, for: 12 }
+  - { at: 40, talk: P1, for: 15 }
+expect:
+  - { rule: L3, between_s: [8, 20] }
+  - { shot_seen: QUAD4 }
+  - { never: cut_to_moving_camera }

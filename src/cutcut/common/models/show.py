@@ -103,10 +103,13 @@ class Features(_Strict):
 
 
 class LayoutSwitches(_Strict):
-    pip_speaker_content: bool = False
-    pip_two_people: bool = False
-    quad_four: bool = False
-    quad_three_content: bool = False
+    """Which layouts the show may use when the ``layouts`` switch is on (5.6). All by default;
+    a show can leave one out."""
+
+    pip_speaker_content: bool = True  # L1
+    pip_two_people: bool = True  # L2
+    quad_four: bool = True  # L3
+    quad_three_content: bool = True  # L4
 
 
 class ColorValue(_Strict):

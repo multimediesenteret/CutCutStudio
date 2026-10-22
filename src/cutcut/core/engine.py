@@ -26,6 +26,8 @@ from cutcut.common.ids import (
     AUDIO_ONLY,
     BIRD,
     CONTENT,
+    QUAD3C,
+    QUAD4,
     WIDE,
     MicId,
     Mode,
@@ -34,6 +36,9 @@ from cutcut.common.ids import (
     SourceId,
     close_up,
     is_layout,
+    pip_content,
+    pip_two,
+    shot_participants,
 )
 from cutcut.common.models.decision import Decision, DecisionAction
 from cutcut.common.models.show import FeatureMode, ShowConfig
@@ -82,6 +87,9 @@ IDLE_FALLBACK_MS = 1500
 MIN_PREVIEW_LEAD_MS = 300
 # F-1: a switch in shadow logs the same «would have» again only after this long.
 SHADOW_REPEAT_MS = 2000
+# 5.6: the base-mode shots a layout may replace (speaker, crosstalk, ping-pong, and the
+# group shot when three or more talk). Content, inserts, silence and laughter stay.
+LAYOUT_REPLACES = frozenset({RuleId.T2, RuleId.H1, RuleId.T4, RuleId.T5, RuleId.T6, RuleId.B2})
 
 Timing = Literal["speaker", "insert", "soft", "now", "return"]
 
@@ -174,6 +182,7 @@ class Engine:
         self.bird_ms_total = 0
         self.content = ContentTracker()
         self.failed_switches: set[str] = set()  # F-1: the studio moves these to shadow
+        self.layout_ended: dict[str, int] = {}
         self._shadow_seen: dict[tuple[str, str, str, RuleId], int] = {}
         self.last_bird_ms = -(10**9)
         self._now = now_ms
@@ -351,6 +360,8 @@ class Engine:
         speaker = shots.speaker_of(self.program)
         if speaker is not None and not self.speakers.get(speaker).host:
             ms += int(self.rules.T3_guest_extra_s * 1000)
+        if is_layout(self.program):
+            ms = max(ms, int(self.rules.L_min_s * 1000))  # 5.6: a layout stands at least 6 s
         return ms
 
     def _eligible(self, shot: str, inp: Inputs) -> RuleId | None:
@@ -402,6 +413,7 @@ class Engine:
             self._take(proposal)
 
     def _propose(self, inp: Inputs) -> Proposal | None:
+        base: Proposal | None = None
         for rule in (
             self._propose_manual_preview,
             self._propose_content,
@@ -411,9 +423,108 @@ class Engine:
             self._propose_variation,
             self._propose_silence,
         ):
-            proposal = rule(inp)
-            if proposal is not None:
-                return proposal
+            base = rule(inp)
+            if base is not None:
+                break
+        return self._layouts(base)
+
+    # -- layouts (5.6, L1–L4) -------------------------------------------------------------
+
+    def _layouts(self, base: Proposal | None) -> Proposal | None:
+        """A layout instead of the base-mode shot when L1–L4 say so. Only speaker, crosstalk
+        and ping-pong shots (or holding the current shot) are replaced: content, inserts,
+        silence, laughter and manual choices stay as base mode decides."""
+        mode = self._mode("layouts")
+        if mode == "off" or self.audio_only:
+            return base
+        if base is not None and base.rule not in LAYOUT_REPLACES:
+            return base
+        try:
+            alt = self._layout_for(base)
+        except Exception as exc:  # a switch never stops base mode (F-1)
+            self._switch_failed("layouts", exc)
+            return base
+        if alt is None or (base is not None and alt.shot == base.shot):
+            return base
+        if alt.shot == self.program:
+            return None if base is None else alt  # keep the layout that stands
+        if not self._layout_free(alt.shot):
+            return base
+        if mode == "shadow":
+            self._shadow_note("layouts", "preview", alt.shot, alt.rule, alt.reason, alt.measures)
+            return base
+        return alt
+
+    def _layout_free(self, shot: str) -> bool:
+        """5.6: the same layout is not used again within ``L_no_repeat_s`` of its end."""
+        ended = self.layout_ended.get(shot)
+        return ended is None or self._now - ended >= self.rules.L_no_repeat_s * 1000
+
+    def _content_recent(self) -> bool:
+        r = self.rules
+        return self._shows_content(self.program) or (
+            self._now - self.content.last_on_air_end <= r.L1_content_recent_s * 1000
+        )
+
+    def _layout_for(self, base: Proposal | None) -> Proposal | None:
+        r, now, sw, sp, m = self.rules, self._now, self.show.layouts, self.speakers, self.mode
+        n = m.participants or 0
+        window = int(r.L3_window_s * 1000)
+        recent = sp.recent(now, window)
+        speaking = sp.speaking()
+        crowd = len(speaking) >= 3 and sp.crosstalk_ms(now) >= r.T5_crosstalk_s * 1000
+        # L3 / L4: three or more voices in the last L3_window_s, or crosstalk with three
+        if len(recent) >= 3 or crowd:
+            measures: dict[str, float] = {"speakers": len(recent), "speaking": len(speaking)}
+            why = f"{len(recent)} har snakket siste {r.L3_window_s:g} s"
+            if m.content and n == 3 and sw.quad_three_content and self.content.active:
+                return Proposal(QUAD3C, RuleId.L4, "soft", why + " og content er aktivt", measures)
+            if not m.content and n == 4 and sw.quad_four:
+                return Proposal(QUAD4, RuleId.L3, "soft", why, measures)
+        # L2: ping-pong (or crosstalk) between two particular people
+        if (
+            n >= 2
+            and sw.pip_two_people
+            and base is not None
+            and base.rule
+            in (
+                RuleId.T6,
+                RuleId.T5,
+            )
+        ):
+            pair = sorted(recent) if len(recent) == 2 else None
+            if pair is None and len(speaking) == 2:
+                pair = sorted(t.pid for t in speaking)
+            if pair is not None:
+                names = " og ".join(self.show.participant(p).name for p in pair)
+                return Proposal(
+                    pip_two(pair[0], pair[1]),
+                    RuleId.L2,
+                    "soft",
+                    f"Ping-pong mellom {names}",
+                    {"turns": len(sp.turns)},
+                )
+        # L1: the speaker has talked a while and content is active and was just shown
+        if m.content and sw.pip_speaker_content and self.content.active and self._content_recent():
+            pid = base.speaker if base is not None else None
+            if pid is None and base is None:
+                on_air = shot_participants(self.program)
+                pid = on_air[0] if len(on_air) == 1 else None
+            if pid is not None:
+                talker = sp.get(pid)
+                held = self.program == pip_content(pid) and (
+                    talker.speaking or talker.frame.pause_ms <= VARIATION_PAUSE_MAX_MS
+                )
+                if held or (talker.speaking and talker.run_ms(now) >= r.L1_speaker_s * 1000):
+                    name = self.show.participant(pid).name
+                    return Proposal(
+                        pip_content(pid),
+                        RuleId.L1,
+                        "soft",
+                        f"{name} snakker og content er aktivt",
+                        {"run_ms": talker.run_ms(now)},
+                        speaker=pid,
+                    )
         return None
 
     def _propose_manual_preview(self, inp: Inputs) -> Proposal | None:
@@ -915,6 +1026,8 @@ class Engine:
 
     def _set_program(self, shot: str) -> None:
         if shot != self.program:
+            if is_layout(self.program):
+                self.layout_ended[self.program] = self._now  # 5.6: no repeat within L_no_repeat_s
             if self._shows_content(self.program):
                 self.content.last_on_air_end = self._now
             if self.program == BIRD:

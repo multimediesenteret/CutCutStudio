@@ -213,24 +213,25 @@
     },
     "LayoutSwitches": {
       "additionalProperties": false,
+      "description": "Which layouts the show may use when the ``layouts`` switch is on (5.6). All by default;\na show can leave one out.",
       "properties": {
         "pip_speaker_content": {
-          "default": false,
+          "default": true,
           "title": "Pip Speaker Content",
           "type": "boolean"
         },
         "pip_two_people": {
-          "default": false,
+          "default": true,
           "title": "Pip Two People",
           "type": "boolean"
         },
         "quad_four": {
-          "default": false,
+          "default": true,
           "title": "Quad Four",
           "type": "boolean"
         },
         "quad_three_content": {
-          "default": false,
+          "default": true,
           "title": "Quad Three Content",
           "type": "boolean"
         }
@@ -362,10 +363,10 @@
     "layouts": {
       "$ref": "#/$defs/LayoutSwitches",
       "default": {
-        "pip_speaker_content": false,
-        "pip_two_people": false,
-        "quad_four": false,
-        "quad_three_content": false
+        "pip_speaker_content": true,
+        "pip_two_people": true,
+        "quad_four": true,
+        "quad_three_content": true
       }
     },
     "name": {
