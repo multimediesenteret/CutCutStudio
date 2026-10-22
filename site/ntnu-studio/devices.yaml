@@ -17,6 +17,8 @@ api_port: 8080
 # Varsel på e-post når noe er rødt i over ett minutt (HS-3, Q29: Magnus Lian, 2026-10-22).
 # SMTP-reléet settes når NTNU-IT har gitt adresse (Q40); passord, om det trengs, er
 # smtp_password i Credential Manager.
+# Av til det er testet i studio: slås på under Innstillinger → Varsling.
 alerts:
+  enabled: false
   email: [magnus.lian@ntnu.no]
   smtp: { host: "", port: 587, starttls: true, sender: "cutcut-studio@ntnu.no" }

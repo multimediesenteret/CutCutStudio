@@ -27,7 +27,11 @@ class DeviceSettingsError(ValueError):
 def editable_keys(devices: Devices) -> list[str]:
     keys = ["atem.ip", "pearl.ip", "companion.url"]
     keys += [f"cameras.{cid.value}.ip" for cid in devices.cameras]
-    keys += ["alerts.email", "alerts.smtp.host"]  # Innstillinger → Varsling (HS-3)
+    keys += [
+        "alerts.enabled",
+        "alerts.email",
+        "alerts.smtp.host",
+    ]  # Innstillinger → Varsling (HS-3)
     return keys
 
 

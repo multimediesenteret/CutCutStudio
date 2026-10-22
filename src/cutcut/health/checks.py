@@ -541,6 +541,8 @@ def alert_mail(info: Callable[[], dict[str, object]], now: Callable[[], datetime
     def run() -> CheckResult:
         a = info()
         cid, expected = "H-VARSEL-1", "e-post kan sendes"
+        if not a.get("on"):
+            return _result(cid, "green", "av", "Varsel på e-post er slått av.", now)
         if not a.get("email"):
             msg = "Ingen får varsel på e-post. Legg inn en adresse under Innstillinger → Varsling."
             return _result(

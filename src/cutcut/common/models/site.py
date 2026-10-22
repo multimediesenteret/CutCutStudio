@@ -104,6 +104,7 @@ class AlertsConfig(_Strict):
     """Alerts outside the studio (HS-3, Q29): email when something is red for over a minute,
     and at once when a recording fails."""
 
+    enabled: bool = False  # off until tested in the studio; Innstillinger → Varsling
     email: list[str] = Field(default_factory=list)
     red_after_s: float = Field(default=60.0, ge=0, le=3600)
     max_per_hour: int = Field(default=10, ge=1, le=100)

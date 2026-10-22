@@ -168,9 +168,27 @@ def test_addresses_are_checked() -> None:
     assert not any(row["key"].startswith("alerts.") for row in device_settings.rows(base, got, {}))
 
 
-def test_ntnu_studio_mails_magnus() -> None:
+def test_ntnu_studio_mails_magnus_but_starts_off() -> None:
     site = load_site(Path(__file__).parents[3] / "site" / "ntnu-studio")
     assert site.devices.alerts.email == ["magnus.lian@ntnu.no"]
+    assert site.devices.alerts.enabled is False
+    assert AlertsConfig().enabled is False
+
+
+def test_off_sends_nothing_and_nothing_piles_up() -> None:
+    r = Rig()
+    on = [False]
+    r.n.on = lambda: on[0]
+    r.ev("opened", "H-AUD-1", "red")
+    r.n.on_alert("H-PRL-2", "Opptaket stoppet")
+    r.at(120)
+    assert r.out.mails == []
+    on[0] = True  # turned on later: yesterday's news is not sent
+    r.at(121)
+    assert r.out.mails == []
+    r.n.on_alert("H-PRL-1", "Pearl startet ikke")
+    r.at(122)
+    assert r.out.subjects == ["[CutCut ntnu-studio] Rødt: Pearl startet ikke"]
 
 
 # -- in the studio --------------------------------------------------------------------------
@@ -218,7 +236,11 @@ def test_in_the_studio_set_up_test_and_alert(srig: StudioRig) -> None:
     assert c.post("/api/settings/alerts/test").status_code == 409  # nobody to send to
     r = c.put(
         "/api/settings/devices",
-        json={"alerts.email": "magnus.lian@ntnu.no", "alerts.smtp.host": "smtp.example"},
+        json={
+            "alerts.enabled": "true",
+            "alerts.email": "magnus.lian@ntnu.no",
+            "alerts.smtp.host": "smtp.example",
+        },
     )
     assert r.status_code == 200
     assert c.get("/api/settings/alerts").json()["enabled"] is True
@@ -241,7 +263,10 @@ def test_in_the_studio_set_up_test_and_alert(srig: StudioRig) -> None:
 
 def test_a_failing_test_mail_says_why(srig: StudioRig) -> None:
     c = srig.client
-    c.put("/api/settings/devices", json={"alerts.email": "magnus.lian@ntnu.no"})
+    c.put(
+        "/api/settings/devices",
+        json={"alerts.enabled": "true", "alerts.email": "magnus.lian@ntnu.no"},
+    )
     r = c.post("/api/settings/alerts/test")
     assert r.status_code == 409
     assert "SMTP" in r.json()["detail"]
@@ -249,3 +274,15 @@ def test_a_failing_test_mail_says_why(srig: StudioRig) -> None:
     srig.run(1)
     checks = {x["id"]: x for x in srig.client.get("/api/health/checks").json()}
     assert checks["H-VARSEL-1"]["status"] == "yellow"
+
+
+def test_off_by_default_in_the_studio(srig: StudioRig) -> None:
+    c = srig.client
+    info = c.get("/api/settings/alerts").json()
+    assert (info["on"], info["enabled"]) == (False, False)
+    c.put("/api/settings/devices", json={"alerts.email": "magnus.lian@ntnu.no"})
+    c.post("/api/sim/fault", json={"kind": "pearl_offline", "on": True})
+    srig.run(75)
+    assert srig.mails == []  # red for over a minute, but email is off
+    checks = {x["id"]: x for x in c.get("/api/health/checks").json()}
+    assert (checks["H-VARSEL-1"]["status"], checks["H-VARSEL-1"]["value"]) == ("green", "av")
