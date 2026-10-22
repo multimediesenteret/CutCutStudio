@@ -35,8 +35,6 @@ jobs:
   package:
     runs-on: windows-latest
     timeout-minutes: 45
-    env:
-      ROOT: ${{ runner.temp }}\CutCut
     steps:
       - uses: actions/checkout@v5
         with:
@@ -96,14 +94,14 @@ jobs:
       - name: Install it as the service
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path "$env:ROOT" | Out-Null
-          Copy-Item -Recurse site\example "$env:ROOT\site"
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\CutCut" | Out-Null
+          Copy-Item -Recurse site\example "$env:RUNNER_TEMP\CutCut\site"
           $zip = "$env:RUNNER_TEMP\out\cutcut-${{ steps.v.outputs.version }}-win64.zip"
-          .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092
+          .\installer\install.ps1 -Zip $zip -Root "$env:RUNNER_TEMP\CutCut" -Port 8092
           if ($LASTEXITCODE) { throw "install.ps1 feilet" }
           $h = Invoke-RestMethod -Uri "http://127.0.0.1:8092/api/health"
           if ($h.version -ne "${{ steps.v.outputs.version }}") { throw "Feil versjon svarer: $($h.version)" }
-          (Get-Item "$env:ROOT\current").Target
+          (Get-Item "$env:RUNNER_TEMP\CutCut\current").Target
           Invoke-WebRequest -Uri "http://127.0.0.1:8092/tech/" -UseBasicParsing | Select-Object StatusCode
 
       - name: A broken next version is rolled back
@@ -123,27 +121,27 @@ jobs:
           $zip = "$work\cutcut-$bad-win64.zip"
           [System.IO.Compression.ZipFile]::CreateFromDirectory("$work\cutcut-$bad", $zip, "Optimal", $true)
           "$((Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant())  cutcut-$bad-win64.zip" | Set-Content "$zip.sha256"
-          .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092 -HealthSeconds 45
+          .\installer\install.ps1 -Zip $zip -Root "$env:RUNNER_TEMP\CutCut" -Port 8092 -HealthSeconds 45
           if ($LASTEXITCODE -ne 1) { throw "install.ps1 skulle feilet og rullet tilbake (exit $LASTEXITCODE)" }
           $h = Invoke-RestMethod -Uri "http://127.0.0.1:8092/api/health"
           if ($h.version -ne $v) { throw "Etter tilbakerulling svarer $($h.version), ikke $v" }
-          if ((Get-Item "$env:ROOT\current").Target -notlike "*\versions\$v") { throw "current peker feil" }
+          if ((Get-Item "$env:RUNNER_TEMP\CutCut\current").Target -notlike "*\versions\$v") { throw "current peker feil" }
           Write-Host "Rullet tilbake til $v"
-          Get-Content "$env:ROOT\data\logs\install.log"
+          Get-Content "$env:RUNNER_TEMP\CutCut\data\logs\install.log"
 
       - name: A wrong checksum changes nothing
         shell: pwsh
         run: |
           $zip = "$env:RUNNER_TEMP\out\cutcut-${{ steps.v.outputs.version }}-win64.zip"
           $failed = $false
-          try { .\installer\install.ps1 -Zip $zip -Root "$env:ROOT" -Port 8092 -Sha256 ("0" * 64) } catch { $failed = $true; Write-Host $_ }
+          try { .\installer\install.ps1 -Zip $zip -Root "$env:RUNNER_TEMP\CutCut" -Port 8092 -Sha256 ("0" * 64) } catch { $failed = $true; Write-Host $_ }
           if (-not $failed) { throw "Feil sjekksum ble ikke stoppet" }
 
       - name: Service log on failure
         if: failure()
         shell: pwsh
         run: |
-          Get-ChildItem "$env:ROOT\data\logs" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+          Get-ChildItem "$env:RUNNER_TEMP\CutCut\data\logs" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
             Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 40
             Get-Content $_.FullName -Tail 15 | ForEach-Object { Write-Output "::error title=$($_.Name)::$_" }
           }
@@ -153,7 +151,7 @@ jobs:
         shell: pwsh
         run: |
           if (Get-Service CutCut -ErrorAction SilentlyContinue) {
-            & "$env:ROOT\current\installer\install-services.ps1" -Root "$env:ROOT" -Uninstall
+            & "$env:RUNNER_TEMP\CutCut\current\installer\install-services.ps1" -Root "$env:RUNNER_TEMP\CutCut" -Uninstall
           }
 
       - uses: actions/upload-artifact@v4
