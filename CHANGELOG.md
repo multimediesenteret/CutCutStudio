@@ -14,6 +14,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- Manual for oppsett og drift i `docs/manual/`: Markdown som kilde, med tegning av det fysiske oppsettet, og PDF med forside, logo og innholdsfortegnelse, bygget med `pnpm manual`. En test sier fra når manualen er endret uten at PDF-en er bygget på nytt.
 - P9: sjekkliste for studioperioden (`docs/studio/testdag.md`): rom, strøm og nett, maskintester, setup-hjelperens ti steg, grunnmodus med opptak til Q1, bryterne én og én i skygge og live, 72-timerstesten og hvor hvert akseptansekriterium i 10.4 sjekkes.
   - `cutcut hwtest soak` måler minne og håndtak per prosess, omstarter, tilkoblinger og helse hvert 10. minutt i 72 timer, og skriver rapport (SO-8). `/api/health` viser nå pid per prosess.
   - Loggen i teknikervinduet har filteret «Skygge», og CSV-eksporten har bryteren i egen kolonne.
