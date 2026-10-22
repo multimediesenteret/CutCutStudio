@@ -22,6 +22,7 @@ from cutcut.app.hub import TOPICS
 from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
 from cutcut.common.ids import Shot
+from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.session import ShowChoice, TouchStep, User
 from cutcut.common.models.show import RulesPreset
 from cutcut.health.model import CheckResult
@@ -273,6 +274,26 @@ def create_app(
         """Check the multiview now and warn if it is wrong (also done once at start-up)."""
         require(me, "operator")
         return studio.check_multiview_now(me.role, me.actor)
+
+    @app.get("/api/setup/multiview/suggest", tags=["setup"])
+    async def multiview_suggest(me: Who) -> dict[str, Any]:
+        """«Foreslå fra bildet»: windows found in the multiview picture, sources from the ATEM
+        (setup step 6, VI-5). Nothing is saved."""
+        require(me, "admin")
+        return studio.multiview_suggest()
+
+    @app.put("/api/setup/multiview", tags=["setup"])
+    async def multiview_save(body: MultiviewMap, me: Who) -> dict[str, Any]:
+        """«Lagre rutekart»: kept in the app and used by the video layer at once. 409 during a
+        recording or when a camera would be read from the wrong window."""
+        require(me, "admin")
+        return studio.save_multiview_map(body.model_dump(mode="json"), me.role, me.actor)
+
+    @app.delete("/api/setup/multiview", tags=["setup"])
+    async def multiview_reset(me: Who) -> dict[str, Any]:
+        """Back to the rutekart in ``equipment/multiview_map.yaml``."""
+        require(me, "admin")
+        return studio.reset_multiview_map(me.role, me.actor)
 
     @app.get("/api/setup/atem", tags=["setup"])
     async def atem(me: Who) -> dict[str, Any]:

@@ -4,6 +4,7 @@ import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";
 import { AtemSetup } from "./AtemSetup";
+import { type EditMap, MapEditor } from "./MapEditor";
 import { Wizard } from "./Wizard";
 
 interface DeviceRow {
@@ -36,8 +37,8 @@ interface TileJson {
   camera: string | null;
 }
 
-interface MapJson {
-  tiles: TileJson[];
+interface MapJson extends EditMap {
+  tiles: (TileJson & { rect: [number, number, number, number] })[];
   layout: string;
 }
 
@@ -48,6 +49,7 @@ interface MultiviewStatus {
   findings: Finding[];
   suggestions: Finding[];
   ok: boolean;
+  in_app: boolean;
 }
 
 const CAMERA_ROLE: Record<string, string> = {
@@ -274,7 +276,7 @@ function Grid({
   );
 }
 
-function Multiview() {
+function Multiview({ ctx }: { ctx: Ctx }) {
   const { transport } = useStudio();
   const [st, setSt] = useState<MultiviewStatus | null>(null);
   const load = useCallback(() => {
@@ -371,6 +373,14 @@ function Multiview() {
             </li>
           ))}
         </ul>
+      )}
+      {ctx.role === "admin" && (
+        <>
+          <span className="lbl">
+            Rutene i bildet{st.in_app ? " · lagret i appen" : " · fra equipment/multiview_map.yaml"}
+          </span>
+          <MapEditor current={st.map} inApp={st.in_app} onSaved={load} />
+        </>
       )}
       <details>
         <summary>Anbefalte multiview-innstillinger i ATEM Software Control</summary>
@@ -529,7 +539,7 @@ export function Setup({ ctx }: { ctx: Ctx }) {
       ctx={ctx}
       panels={{
         devices: <Devices ctx={ctx} />,
-        multiview: <Multiview />,
+        multiview: <Multiview ctx={ctx} />,
         atem: <AtemSetup ctx={ctx} />,
         mics: <Mics ctx={ctx} />,
       }}

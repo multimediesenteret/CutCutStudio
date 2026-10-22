@@ -52,7 +52,7 @@ from cutcut.common.config import (
 from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
 from cutcut.common.models.baseline import AtemBaseline, Baseline
 from cutcut.common.models.decision import Decision
-from cutcut.common.models.multiview import MultiviewReadback
+from cutcut.common.models.multiview import MultiviewMap, MultiviewReadback
 from cutcut.common.models.session import (
     GUEST_USER,
     RecordingStatus,
@@ -107,6 +107,7 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
+MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
 STAFF_KEY: Final = "site.staff"  # technicians, entered in the app (not in the repository)
@@ -247,6 +248,10 @@ class Studio:
         self._steps: list[SetupStep] | None = None  # setup helper, read on first use
         self._approved: dict[str, Approval] | None = None
         self._load_show_type()
+        self._file_multiview = self.deps.site.multiview  # equipment/multiview_map.yaml
+        self.multiview_in_app = False
+        self.on_vision_map: Callable[[MultiviewMap], None] | None = None  # core: «vision.map»
+        self._load_multiview()
         self.staff: Staff = self.deps.site.staff
         self.on_staff: Callable[[Staff], None] | None = None  # the API's sign-in list
         self._load_staff()
@@ -823,6 +828,7 @@ class Studio:
                 overrides=self.overrides,
             ),
             baseline=self.deps.site.baseline,
+            multiview=self.deps.site.multiview if self.multiview_in_app else None,
         )
 
     def setup_import(self, text: str, role: Role, actor: str, *, apply: bool) -> list[str]:
@@ -873,8 +879,18 @@ class Studio:
             changes.append(
                 f"Mikrofon-fasit fra {f.baseline.approved_at:%Y-%m-%d} ({f.baseline.approved_by})"
             )
+        mv_map: MultiviewMap | None = None
+        if f.multiview is not None:
+            mv_map = self.check_multiview_map(f.multiview.model_dump(mode="json"))
+            changes.append(f"Rutekart for multiview ({mv_map.layout})")
+            if apply and self.sessions.recording:
+                raise CommandError("Rutekartet kan ikke endres mens opptak pågår.")
         if not apply:
             return changes
+        if mv_map is not None and self.deps.store is not None:
+            self.deps.store.put_kv(MV_KEY, mv_map.model_dump(mode="json"), self.deps.clock.now())
+        if mv_map is not None:
+            self._use_multiview(mv_map)
         if dev is not None:
             self._apply_devices(*dev)
         if staff is not None:
@@ -1353,7 +1369,122 @@ class Studio:
             "findings": [asdict(f) for f in findings],
             "suggestions": [asdict(f) for f in suggestions],
             "ok": not any(f.level == "error" for f in findings),
+            "in_app": self.multiview_in_app,
         }
+
+    # -- rutekart from the picture (setup step 6, VI-5) -----------------------------------
+
+    def _load_multiview(self) -> None:
+        saved = self.deps.store.get_kv(MV_KEY) if self.deps.store is not None else None
+        if not isinstance(saved, dict):
+            return
+        try:
+            self._use_multiview(MultiviewMap.model_validate(saved))
+        except ValidationError as exc:
+            log.warning("rutekartet i databasen kan ikke brukes, bruker filen: %s", exc)
+
+    def _use_multiview(self, m: MultiviewMap | None) -> None:
+        self.multiview_in_app = m is not None
+        self.deps.site = self.deps.site.model_copy(
+            update={"multiview": m if m is not None else self._file_multiview}
+        )
+        if self.on_vision_map is not None and self.deps.site.multiview is not None:
+            self.on_vision_map(self.deps.site.multiview)
+
+    def _mv_picture(self) -> Any | None:
+        """The newest whole multiview from the video layer (BGR array), or ``None``."""
+        self.vision_thumb("MV")  # also asks the video layer to keep sending
+        data = self.runtime.vision_thumbs.get("MV")
+        ms = self.runtime.vision_thumbs_ms
+        if data is None or ms is None or self.now - ms > 3_000:
+            return None
+        try:
+            import cv2
+            import numpy as np
+        except ImportError:
+            return None
+        buf = np.frombuffer(base64.b64decode(data), dtype=np.uint8)
+        return cv2.imdecode(buf, cv2.IMREAD_COLOR)
+
+    def multiview_suggest(self) -> dict[str, Any]:
+        """«Foreslå fra bildet»: windows found in the picture, sources from the ATEM. Nothing
+        is saved; the technician adjusts the corners and saves."""
+        from cutcut.vision.grid import find_grid, program_side
+
+        site = self.deps.site
+        frame = self._mv_picture()
+        grid = find_grid(frame) if frame is not None else None
+        notes: list[str] = []
+        if frame is not None and grid is not None and grid.found:
+            big, small = grid.big, grid.small
+            notes.append("Rutene er funnet i bildet fra multiviewen.")
+            side = program_side(frame, grid)
+        else:
+            base = site.multiview or mv.recommended(mv.StudioInputs.from_site(site))
+            pvw = next(t for t in base.tiles if t.source == "preview").rect
+            pgm = next(t for t in base.tiles if t.source == "program").rect
+            big = (pvw, pgm) if base.preview_left else (pgm, pvw)
+            small = tuple(t.rect for t in base.small_windows())
+            side = None
+            notes.append(
+                "Fant ikke rutene i bildet"
+                + (" (ikke noe bilde fra videolaget nå)" if frame is None else "")
+                + ": rutene er plassert som i dag. Dra hjørnene på plass."
+            )
+        suggestion, more = mv.suggest_map(
+            big,
+            small,
+            mv.StudioInputs.from_site(site),
+            readback=self._mv_readback(),
+            current=site.multiview,
+            program_side=side,
+            switcher=self.devices.atem.model,
+        )
+        return {
+            "map": suggestion.model_dump(mode="json"),
+            "found": bool(grid is not None and grid.found),
+            "notes": notes + more,
+        }
+
+    def check_multiview_map(self, data: dict[str, Any]) -> MultiviewMap:
+        try:
+            m = MultiviewMap.model_validate(data)
+        except ValidationError as exc:
+            first = exc.errors()[0]
+            msg = str(first["msg"]).removeprefix("Value error, ")
+            raise CommandError(f"Rutekartet kan ikke brukes: {msg}") from exc
+        errors = [f for f in mv.check_map(m, mv.StudioInputs.from_site(self.deps.site))]
+        bad = [f for f in errors if f.level == "error"]
+        if bad:
+            raise CommandError(f"Rutekartet kan ikke brukes: {bad[0].message}")
+        return m
+
+    def save_multiview_map(self, data: dict[str, Any], role: Role, actor: str) -> dict[str, Any]:
+        """«Lagre rutekart»: kept in the app and sent to the video layer at once. Not during a
+        recording: the video layer would read other windows in the middle of it."""
+        if self.sessions.recording:
+            raise CommandError("Rutekartet kan ikke endres mens opptak pågår.")
+        m = self.check_multiview_map(data)
+        m = m.model_copy(update={"status": "approved", "source": f"Setup-hjelperen, {actor}"})
+        if self.deps.store is not None:
+            self.deps.store.put_kv(MV_KEY, m.model_dump(mode="json"), self.deps.clock.now())
+        self._use_multiview(m)
+        self._audit(role, actor, "multiview_map", layout=m.layout)
+        self._check_multiview()
+        self._autosave()
+        return self.multiview_status()
+
+    def reset_multiview_map(self, role: Role, actor: str) -> dict[str, Any]:
+        """Back to ``equipment/multiview_map.yaml``."""
+        if self.sessions.recording:
+            raise CommandError("Rutekartet kan ikke endres mens opptak pågår.")
+        if self.deps.store is not None:
+            self.deps.store.put_kv(MV_KEY, None, self.deps.clock.now())
+        self._use_multiview(None)
+        self._audit(role, actor, "multiview_map_reset")
+        self._check_multiview()
+        self._autosave()
+        return self.multiview_status()
 
     def check_multiview_now(self, role: Role, actor: str) -> dict[str, Any]:
         """«Sjekk nå» on the setup screen, e.g. after someone changed the ATEM."""

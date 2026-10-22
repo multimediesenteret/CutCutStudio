@@ -19,6 +19,7 @@ from cutcut.common.bus.zmq_bus import (
 )
 from cutcut.common.clock import SystemClock
 from cutcut.common.config import load_site
+from cutcut.common.models.multiview import MultiviewMap
 from cutcut.vision.capture import OpenCvSource, Source, SyntheticSource
 from cutcut.vision.process import run
 
@@ -41,18 +42,33 @@ def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool)
         source = OpenCvSource(device if device is not None else 0)
 
     wanted_until = [0.0]
+    current = [site.multiview]
 
     async def listen(sub: Subscriber) -> None:
-        """``vision.want`` from core: someone has the technician window open (D-056)."""
+        """``vision.want`` from core: someone has the technician window open (D-056).
+        ``vision.map``: the rutekart saved in the setup helper (VI-5), resent every 10 s."""
         while True:
             msg = await sub.recv()
-            if msg is not None and msg.topic == "vision.want":
+            if msg is None:
+                continue
+            if msg.topic == "vision.want":
                 wanted_until[0] = time.monotonic() + WANT_S
+            elif msg.topic == "vision.map":
+                try:
+                    new = MultiviewMap.model_validate(msg.payload)
+                except ValueError as exc:
+                    log.warning("vision.map kan ikke brukes: %s", exc)
+                    continue
+                if new != current[0]:
+                    log.info("nytt rutekart fra setup-hjelperen (%s)", new.layout)
+                    current[0] = new
 
     async def go() -> None:
         ctx = zmq.asyncio.Context.instance()
         pub = Publisher(ctx, "vision", SystemClock(), connect=endpoint(EVENTS_IN_PORT))
-        sub = Subscriber(ctx, connect=endpoint(EVENTS_OUT_PORT), topics=["vision.want"])
+        sub = Subscriber(
+            ctx, connect=endpoint(EVENTS_OUT_PORT), topics=["vision.want", "vision.map"]
+        )
         task = asyncio.create_task(listen(sub))
         try:
             await run(
@@ -60,6 +76,7 @@ def main(site_dir: Path, device: int | None, file: Path | None, synthetic: bool)
                 site.multiview,  # type: ignore[arg-type]
                 pub.publish,
                 want_thumbs=lambda: time.monotonic() < wanted_until[0],
+                current_map=lambda: current[0],
             )
         finally:
             task.cancel()

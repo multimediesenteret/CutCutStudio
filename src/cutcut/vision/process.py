@@ -106,12 +106,17 @@ class Vision:
         return {"source": source, "score": score}
 
     def thumbnails(self, frame: Frame) -> dict[str, str]:
-        """JPEG (base64) per window that shows a CutCut source, plus PVW and PGM (D-056)."""
+        """JPEG (base64) per window that shows a CutCut source, plus PVW and PGM (D-056), and
+        the whole multiview as ``MV`` (setup step 6 finds the windows in it, VI-5)."""
         try:
             import cv2
         except ImportError:  # the «vision» extra is not installed: drawings instead
             return {}
         out: dict[str, str] = {}
+        whole = cv2.resize(frame, THUMB_BIG, interpolation=cv2.INTER_AREA)
+        ok, jpg = cv2.imencode(".jpg", whole, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        if ok:
+            out["MV"] = base64.b64encode(jpg.tobytes()).decode("ascii")
         for m in self.meters:
             t = m.cut.tile
             key = t.camera.value if t.camera is not None else t.id
@@ -156,8 +161,11 @@ async def run(
     on_frame: Callable[[Frame, list[dict[str, Any]]], None] | None = None,
     clock: Callable[[], float] = time.monotonic,
     want_thumbs: Callable[[], bool] = lambda: False,
+    current_map: Callable[[], MultiviewMap] | None = None,
 ) -> int:
-    """Run until ``max_frames`` (or forever). Returns the number of frames measured."""
+    """Run until ``max_frames`` (or forever). Returns the number of frames measured.
+    ``current_map`` gives a new rutekart from the setup helper (``vision.map``, VI-5); the
+    windows are cut out again from the next frame."""
     vision = Vision(mv)
     frames = 0
     last_content: dict[str, Any] | None = None
@@ -188,6 +196,8 @@ async def run(
                     "last_error": getattr(source, "last_error", None),
                 },
             )
+        if current_map is not None and current_map() is not vision.mv:
+            vision = Vision(current_map())
         if frame is not None:
             rows = vision.measure(frame)
             await publish("vision.frame", {"tiles": rows})

@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from ruamel.yaml import YAML
 
 from cutcut.common.models.baseline import Baseline
+from cutcut.common.models.multiview import MultiviewMap
 from cutcut.common.models.site import Staff
 
 KIND: Final = "cutcut-oppsett"
@@ -52,6 +53,7 @@ class SetupFile(BaseModel):
     show_type: str | None = None
     tuning: Tuning | None = None
     baseline: Baseline | None = None
+    multiview: MultiviewMap | None = None  # only when saved in the app (VI-5)
 
 
 class SetupFileError(ValueError):

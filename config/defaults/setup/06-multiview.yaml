@@ -5,7 +5,8 @@ title: "Multiview"
 why: "CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde."
 how:
   - "INOGENI 4KXUSB3: velg **1080p50 YUY2** som kilde i CutCut."
-  - "Bruk rutekartet under **Multiview** på oppsettsiden; det anbefalte oppsettet vises ved siden av."
+  - "Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden."
+  - "Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**."
   - "Forsinkelsen fra ATEM til PC måles med et blinkende testbilde."
 checks: ["H-VID-1", "H-VID-2", "H-VID-3"]
 panel: multiview

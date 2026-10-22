@@ -648,6 +648,54 @@
         "title": "MorningCheck",
         "type": "object"
       },
+      "MultiviewMap": {
+        "additionalProperties": false,
+        "properties": {
+          "layout": {
+            "default": "2+8, preview venstre",
+            "title": "Layout",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "source": {
+            "default": "",
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "default": "draft",
+            "title": "Status",
+            "type": "string"
+          },
+          "switcher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Switcher"
+          },
+          "tiles": {
+            "items": {
+              "$ref": "#/components/schemas/Tile"
+            },
+            "title": "Tiles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "tiles"
+        ],
+        "title": "MultiviewMap",
+        "type": "object"
+      },
       "Ok": {
         "properties": {
           "ok": {
@@ -1441,6 +1489,21 @@
         "title": "ShowTypeIn",
         "type": "object"
       },
+      "SourceId": {
+        "description": "Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.",
+        "enum": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "LAPTOP",
+          "C7",
+          "SUPERSOURCE"
+        ],
+        "title": "SourceId",
+        "type": "string"
+      },
       "StaffIn": {
         "additionalProperties": false,
         "properties": {
@@ -1650,6 +1713,63 @@
           "runtime"
         ],
         "title": "StudioState",
+        "type": "object"
+      },
+      "Tile": {
+        "additionalProperties": false,
+        "properties": {
+          "camera": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "pattern": "^(PVW|PGM|W[1-8])$",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "default": "",
+            "title": "Label",
+            "type": "string"
+          },
+          "rect": {
+            "maxItems": 4,
+            "minItems": 4,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Rect",
+            "type": "array"
+          },
+          "source": {
+            "pattern": "^(preview|program|input[1-8]|mediaplayer[12]|supersource|recording_status|streaming_status|audio_meters|black|colorbars|other)$",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "rect",
+          "source"
+        ],
+        "title": "Tile",
         "type": "object"
       },
       "TouchInfo": {
@@ -3284,6 +3404,28 @@
       }
     },
     "/api/setup/multiview": {
+      "delete": {
+        "description": "Back to the rutekart in ``equipment/multiview_map.yaml``.",
+        "operationId": "multiview_reset_api_setup_multiview_delete",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Multiview Reset Api Setup Multiview Delete",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Multiview Reset",
+        "tags": [
+          "setup"
+        ]
+      },
       "get": {
         "description": "Rutekart against shows and ATEM, plus the recommended layout (D-055).",
         "operationId": "multiview_api_setup_multiview_get",
@@ -3302,6 +3444,48 @@
           }
         },
         "summary": "Multiview",
+        "tags": [
+          "setup"
+        ]
+      },
+      "put": {
+        "description": "«Lagre rutekart»: kept in the app and used by the video layer at once. 409 during a\nrecording or when a camera would be read from the wrong window.",
+        "operationId": "multiview_save_api_setup_multiview_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultiviewMap"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Multiview Save Api Setup Multiview Put",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Multiview Save",
         "tags": [
           "setup"
         ]
@@ -3326,6 +3510,30 @@
           }
         },
         "summary": "Multiview Check",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/multiview/suggest": {
+      "get": {
+        "description": "«Foreslå fra bildet»: windows found in the multiview picture, sources from the ATEM\n(setup step 6, VI-5). Nothing is saved.",
+        "operationId": "multiview_suggest_api_setup_multiview_suggest_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Multiview Suggest Api Setup Multiview Suggest Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Multiview Suggest",
         "tags": [
           "setup"
         ]
