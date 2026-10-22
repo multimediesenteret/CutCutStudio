@@ -80,7 +80,7 @@ Node 24 LTS, `atem-connection` (MIT), `zeromq` for Node (prebygd for Windows x64
 | DA-5 | Maskintestskript ATEM og Companion | Kjørt på test-PC eller i studio, rapport i issue (M2) |
 | DA-6 | Klipping via preview + TAKE i `LIVE` | Motoren klipper via preview i studio (spes. 11 steg 5, M2) |
 | DA-7 | `S5` reservekutt og makrosjekk ved oppstart | Tester grønne |
-| DA-8 | ISO-opptak fra teknikervinduet (7.7) | Start/stopp/status mot falsk og ekte ATEM |
+| DA-8 | ISO-opptak fra teknikervinduet (7.7) | Start/stopp/status mot falsk og ekte ATEM. Gjort mot falsk ATEM og fiksturen; mot ekte ATEM i maskintesten. Knappen på Companion side 11 venter på at handlingen i ATEM-modulen er prøvd i studio |
 | DA-9 | Companion-eksport `cutcut-pages.companionconfig` side 10 og 11 | Importert i studio, versjon leses |
 
 ## 7. Åpne spørsmål

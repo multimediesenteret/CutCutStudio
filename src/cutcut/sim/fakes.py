@@ -22,6 +22,7 @@ from cutcut.core.intents import (
     ShowAudioOnly,
     Take,
 )
+from cutcut.devices.atem.iso import IsoState, IsoStatus
 from cutcut.devices.atem.macros import LAYOUT_MACROS
 
 
@@ -65,6 +66,30 @@ class FakeAtem:
                 self.program, self.program_layout = SourceId.SUPERSOURCE, "AUDIO_ONLY"
             case SetCompanionVariable(name=name, value=value):
                 self.companion_vars[name] = value
+
+    # ISO recording on the ATEM's disk (spec 7.7)
+    iso_disk: str | None = "ISO-SSD"
+    iso_state: str = "idle"
+    iso_file: str | None = None
+    iso_time_s: float = 5400.0
+
+    def iso_start(self, filename: str) -> bool:
+        if not self.online or self.iso_disk is None:
+            return False
+        self.iso_state, self.iso_file = "recording", filename
+        return True
+
+    def iso_stop(self) -> bool:
+        if not self.online:
+            return False
+        self.iso_state = "idle"
+        return True
+
+    def iso_status(self) -> IsoStatus | None:
+        if not self.online:
+            return None
+        state: IsoState = "recording" if self.iso_state == "recording" else "idle"
+        return IsoStatus(state, self.iso_disk, self.iso_time_s, None, all_inputs=True)
 
     def operator_cut(self, source: SourceId) -> None:
         """A person presses a button on the ATEM or Stream Deck (I5)."""

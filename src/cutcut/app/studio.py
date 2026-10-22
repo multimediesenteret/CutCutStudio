@@ -26,6 +26,7 @@ from cutcut.app.state import (
     AlertInfo,
     EngineInfo,
     HealthInfo,
+    IsoInfo,
     Meter,
     MorningCheck,
     ParticipantInfo,
@@ -79,7 +80,9 @@ from cutcut.core.inputs import (
 )
 from cutcut.core.intents import SetCompanionVariable
 from cutcut.core.runtime import CoreRuntime, Executor
+from cutcut.devices.atem import iso
 from cutcut.devices.atem.bridge import AtemStateRaw
+from cutcut.devices.atem.iso import IsoRecorder, IsoStatus
 from cutcut.devices.atem.macros import check as macro_check
 from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
@@ -247,6 +250,9 @@ class Studio:
         self.show_type: str = self.deps.show_types.default
         self._steps: list[SetupStep] | None = None  # setup helper, read on first use
         self._approved: dict[str, Approval] | None = None
+        self._iso_since: int | None = None  # when CutCut started ISO (engine ms)
+        self._iso_file: str | None = None
+        self._iso_by: str | None = None
         self._load_show_type()
         self._file_multiview = self.deps.site.multiview  # equipment/multiview_map.yaml
         self.multiview_in_app = False
@@ -663,12 +669,92 @@ class Studio:
             "rows": devices.rows(self.deps.site.devices, self.devices, self.device_overrides),
         }
 
+    # -- ISO recording on the ATEM's disk (spec 7.7, DA-8) -------------------------------
+
+    def _iso(self) -> IsoRecorder | None:
+        for src in (self.deps.atem, self.deps.executor):
+            if src is not None and callable(getattr(src, "iso_start", None)):
+                return src  # type: ignore[return-value]
+        return None
+
+    def _iso_status(self) -> IsoStatus | None:
+        rec = self._iso()
+        return rec.iso_status() if rec is not None else None
+
+    def _iso_running(self) -> bool:
+        st = self._iso_status()
+        return st is not None and st.recording
+
+    def iso_info(self) -> IsoInfo:
+        st = self._iso_status()
+        if st is not None and not st.recording and self._iso_since is not None:
+            self._iso_since = None  # stopped on the ATEM itself, or by us
+        running = self._iso_since is not None
+        return IsoInfo(
+            available=st is not None,
+            state=st.state if st is not None else "unknown",
+            disk=st.disk if st is not None else None,
+            time_available_s=round(st.time_available_s)
+            if st is not None and st.time_available_s is not None
+            else None,
+            error=st.error if st is not None else None,
+            filename=self._iso_file,
+            duration_s=(self.now - self._iso_since) // 1000 if running and self._iso_since else 0,
+            started_by=self._iso_by,
+            wanted=self.iso_wanted(),
+        )
+
+    def iso_start(self, role: Role, actor: str) -> None:
+        """Start ISO recording of every input, under the session's name (7.7)."""
+        rec = self._iso()
+        st = rec.iso_status() if rec is not None else None
+        if rec is None or st is None:
+            raise CommandError("ATEM kan ikke leses nå. Sjekk at atem-bridge kjører.")
+        if st.recording:
+            raise CommandError("ISO-opptaket går allerede.")
+        if not st.disk:
+            raise CommandError("Det er ingen disk i ATEM for ISO-opptak.")
+        session = self.sessions.session
+        name = iso.filename(
+            self.deps.clock.now(),
+            session.show.type if session else self.show_type,
+            session.user.username if session else None,
+        )
+        if not rec.iso_start(name):
+            raise CommandError("ATEM tok ikke imot kommandoen. Prøv igjen.")
+        self._iso_since, self._iso_file, self._iso_by = self.now, name, actor
+        self._audit(role, actor, "iso_start", filename=name)
+
+    def iso_stop(self, role: Role, actor: str) -> None:
+        """Stop ISO. Only ever because a person asked (I7)."""
+        rec = self._iso()
+        st = rec.iso_status() if rec is not None else None
+        if rec is None or st is None:
+            raise CommandError("ATEM kan ikke leses nå. Sjekk at atem-bridge kjører.")
+        if not st.recording:
+            raise CommandError("ISO-opptaket går ikke.")
+        if not rec.iso_stop():
+            raise CommandError("ATEM tok ikke imot kommandoen. Prøv igjen.")
+        self._iso_since = None
+        self._audit(role, actor, "iso_stop", filename=self._iso_file)
+
+    def _iso_with_pearl(self) -> None:
+        """The show type (or show) records ISO: start it with Pearl. A failure never stops the
+        Pearl recording; the technician is told."""
+        if self._iso_running():
+            return
+        try:
+            self.iso_start("operator", "automatisk (show-type)")
+        except CommandError as exc:
+            self._alert("warn", "H-ATEM-4", f"ISO-opptaket startet ikke: {exc}")
+
     def _recording_info(self) -> RecordingInfo:
         session = self.sessions.session
         info = RecordingInfo(
             pearl=self.deps.recorder.state.value,
             duration_s=session.recording.duration_s if session else 0,
             started_by=session.recording.started_by if session else None,
+            iso=self.iso_info(),
         )
         status = getattr(self.deps.recorder, "status", None)
         if not callable(status):
@@ -1579,8 +1665,17 @@ class Studio:
                 case PearlStart():
                     if not self.deps.recorder.start(now):
                         self._alert("error", "H-PRL-1", "Pearl svarer ikke", for_user=True)
+                    elif self.iso_wanted():
+                        self._iso_with_pearl()
                 case PearlStop():
                     self.deps.recorder.stop(now)
+                    if self._iso_running():  # I7: only a person stops it; ask
+                        self._alert(
+                            "warn",
+                            "ISO",
+                            "Pearl-opptaket er stoppet, men ISO-opptaket i ATEM går fortsatt. "
+                            "Stopp det under Opptak når det er ferdig.",
+                        )
                 case EngineCommand(command=cmd):
                     self.runtime.command(cmd)
                 case Alert(level=level, code=code, message_nb=msg, for_user=for_user):

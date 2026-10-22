@@ -36,8 +36,8 @@ export class Envelope {
 
 export interface AtemCommand {
   id: string;
-  op: "cut" | "preview" | "run_macro" | "input_name";
-  args: { input?: number; macro?: number; long?: string; short?: string };
+  op: "cut" | "preview" | "run_macro" | "input_name" | "iso_start" | "iso_stop";
+  args: { input?: number; macro?: number; long?: string; short?: string; filename?: string };
 }
 
 /** Parse an `atem.cmd` payload. Anything unexpected is refused, never guessed. */
@@ -67,6 +67,13 @@ export function parseCommand(payload: unknown): AtemCommand | null {
       args: { input: args.input as number, long: args.long as string, short: args.short as string },
     };
   }
+  if (p.op === "iso_start") {
+    // spec 7.7: the ATEM file name is the session name, so the ISO files can be found again
+    const f = args.filename;
+    if (typeof f !== "string" || !/^[\w.-]{1,63}$/.test(f)) return null;
+    return { id: p.id, op: "iso_start", args: { filename: f } };
+  }
+  if (p.op === "iso_stop") return { id: p.id, op: "iso_stop", args: {} };
   if (p.op === "run_macro") {
     if (typeof args.macro !== "number" || !Number.isInteger(args.macro)) return null;
     return { id: p.id, op: "run_macro", args: { macro: args.macro } };

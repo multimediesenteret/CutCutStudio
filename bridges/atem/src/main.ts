@@ -81,6 +81,12 @@ async function commands(): Promise<void> {
       if (!connected) throw new Error("ATEM er ikke tilkoblet");
       if (cmd.op === "cut") await atem.changeProgramInput(cmd.args.input ?? 0);
       else if (cmd.op === "preview") await atem.changePreviewInput(cmd.args.input ?? 0);
+      // ISO recording on the ATEM's disk (spec 7.7): every input, under the session's name.
+      else if (cmd.op === "iso_start") {
+        await atem.setEnableISORecording(true);
+        await atem.setRecordingSettings({ filename: cmd.args.filename ?? "cutcut" });
+        await atem.startRecording();
+      } else if (cmd.op === "iso_stop") await atem.stopRecording();
       // Setup step 3, «Fiks for meg»: only the label changes, never what is on air.
       else if (cmd.op === "input_name")
         await atem.setInputSettings(

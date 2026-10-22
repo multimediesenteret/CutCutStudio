@@ -145,5 +145,12 @@ describe("atem.cmd", () => {
       parseCommand({ id: "f", op: "input_name", args: { ...name, short: "LAPTOP" } }),
     ).toBeNull();
     expect(parseCommand({ id: "g", op: "input_name", args: { input: 6 } })).toBeNull();
+    // ISO (7.7): a file name the ATEM accepts, nothing that could be a path
+    const file = "2026-10-22_podcast_ola";
+    expect(parseCommand({ id: "h", op: "iso_start", args: { filename: file } })?.args).toEqual({
+      filename: file,
+    });
+    expect(parseCommand({ id: "i", op: "iso_start", args: { filename: "../x" } })).toBeNull();
+    expect(parseCommand({ id: "j", op: "iso_stop" })?.op).toBe("iso_stop");
   });
 });
