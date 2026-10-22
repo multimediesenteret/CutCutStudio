@@ -92,6 +92,17 @@ class StudioInputs:
         return self.names.get(sid, sid.value)
 
 
+def atem_input_names(site: Site) -> dict[int, str]:
+    """ATEM input number → the name it should have: ``C1``–``C4``, ``BIRD``, ``LAPTOP``,
+    ``C7`` (spec 8.4 step 3). The bird's-eye camera is called ``BIRD`` whatever its ID."""
+    names: dict[int, str] = {}
+    for show in site.shows.values():
+        for cid, cam in show.cameras.items():
+            names.setdefault(cam.atem_input, "BIRD" if cam.role == "bird" else cid.value)
+        names.setdefault(show.content.atem_input, SourceId.LAPTOP.value)
+    return dict(sorted(names.items()))
+
+
 def recommended(studio: StudioInputs, switcher: str | None = None) -> MultiviewMap:
     """The optimal multiview for CutCut and for people (D-055):
 

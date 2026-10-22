@@ -205,6 +205,20 @@ class AtemBridgeClient:
             case _:
                 log.info("atem-bridge tar ikke %s", type(intent).__name__)
 
+    def set_input_name(self, number: int, long: str) -> bool:
+        """«Fiks for meg» in setup step 3. The short name is the first four letters. Changes
+        only the label; the picture on program and preview is not touched."""
+        if self._fresh() is None:
+            self.failed += 1
+            self.last_error = f"navn på inngang {number}: ATEM er ikke tilkoblet"
+            return False
+        cid = f"a{next(self._ids)}"
+        self._waiting[cid] = f"navn på inngang {number}"
+        self.sent += 1
+        args = {"input": number, "long": long[:20], "short": long[:4]}
+        self.send("atem.cmd", {"id": cid, "op": "input_name", "args": args})
+        return True
+
     def _number(self, source: SourceId) -> int | None:
         return next((n for n, s in self.inputs.items() if s is source), None)
 

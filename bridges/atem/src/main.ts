@@ -46,7 +46,11 @@ function publishSoon(): void {
 }
 
 async function status(error: string | null = null): Promise<void> {
-  await send("atem.status", { connected, last_error: error, model: atem.state?.info.model ?? null });
+  await send("atem.status", {
+    connected,
+    last_error: error,
+    model: atem.state?.info.model ?? null,
+  });
 }
 
 atem.on("connected", () => {
@@ -77,6 +81,12 @@ async function commands(): Promise<void> {
       if (!connected) throw new Error("ATEM er ikke tilkoblet");
       if (cmd.op === "cut") await atem.changeProgramInput(cmd.args.input ?? 0);
       else if (cmd.op === "preview") await atem.changePreviewInput(cmd.args.input ?? 0);
+      // Setup step 3, «Fiks for meg»: only the label changes, never what is on air.
+      else if (cmd.op === "input_name")
+        await atem.setInputSettings(
+          { longName: cmd.args.long, shortName: cmd.args.short },
+          cmd.args.input ?? 0,
+        );
       // The bus numbers macros like ATEM Software Control (1 = first); the protocol from 0.
       else await atem.macroRun((cmd.args.macro ?? 1) - 1);
       await send("atem.ack", { id, ok: true });

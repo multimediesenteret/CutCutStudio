@@ -99,6 +99,8 @@ test("oppsett: equipment addresses are saved and the multiview is checked (D-055
   await page.getByRole("button", { name: "Nullstill" }).click();
   await expect(page.getByText("I filen: 10.10.10.22")).toHaveCount(0);
 
+  // the multiview panel belongs to step 6 of the setup helper (HS-5)
+  await page.getByRole("button", { name: /^6 Multiview/ }).click();
   await expect(page.getByText("Stemmer", { exact: true })).toBeVisible();
   await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: true } });
   try {

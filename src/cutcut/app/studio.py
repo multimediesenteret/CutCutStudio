@@ -46,6 +46,7 @@ from cutcut.common.config import (
     ShowType,
     ShowTypes,
     Site,
+    default_config_dir,
     effective_rules,
 )
 from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
@@ -97,6 +98,7 @@ from cutcut.session.manager import (
 )
 from cutcut.setup import multiview as mv
 from cutcut.setup.mic_check import MicCheck, write_baseline
+from cutcut.setup.steps import Approval, SetupStep, StepView, load_steps, results_for, step_state
 
 log = logging.getLogger(__name__)
 
@@ -105,6 +107,7 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
+SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
 STAFF_KEY: Final = "site.staff"  # technicians, entered in the app (not in the repository)
 LoginMode = Literal["open", "card"]
@@ -241,6 +244,8 @@ class Studio:
         self.login_mode: LoginMode = "card" if self.deps.simulator else "open"
         self._autosaved_at = -1e9
         self.show_type: str = self.deps.show_types.default
+        self._steps: list[SetupStep] | None = None  # setup helper, read on first use
+        self._approved: dict[str, Approval] | None = None
         self._load_show_type()
         self.staff: Staff = self.deps.site.staff
         self.on_staff: Callable[[Staff], None] | None = None  # the API's sign-in list
@@ -371,6 +376,106 @@ class Studio:
     def iso_wanted(self) -> bool:
         """The ATEM is to record ISO: set on the show or on the studio's type (spec 7.7)."""
         return self.show.iso_record or self._type().iso_record
+
+    # -- setup helper (spec 8.4, HS-5/HS-6) -----------------------------------------------
+
+    def setup_steps(self) -> list[SetupStep]:
+        """The ten steps; a studio may replace one with ``site/<studio>/setup/NN-<id>.yaml``."""
+        if self._steps is None:
+            folders = [default_config_dir() / "defaults" / "setup", self.deps.site.root / "setup"]
+            self._steps = load_steps(*folders)
+        return self._steps
+
+    def _setup_step(self, step_id: str) -> SetupStep:
+        step = next((s for s in self.setup_steps() if s.id == step_id), None)
+        if step is None:
+            raise CommandError(f"Ukjent setup-steg «{step_id}».")
+        return step
+
+    def _approvals(self) -> dict[str, Approval]:
+        """Kept in memory, read from the database once (the store writes in the background)."""
+        if self._approved is None:
+            saved = self.deps.store.get_kv(SETUP_KEY) if self.deps.store is not None else None
+            self._approved = {}
+            for k, v in (saved or {}).items() if isinstance(saved, dict) else ():
+                try:
+                    self._approved[str(k)] = Approval.model_validate(v)
+                except ValidationError:
+                    log.warning("godkjenning for setup-steg %s kan ikke leses", k)
+        return self._approved
+
+    def _fix_blocked(self, step: SetupStep) -> str | None:
+        if step.fix is None:
+            return None
+        if self.sessions.recording:
+            return "«Fiks for meg» er sperret mens opptak pågår."
+        if step.fix.action == "atem_input_names":
+            setter = getattr(self.deps.atem, "set_input_name", None)
+            if not callable(setter) or self._atem_raw() is None:
+                return "ATEM kan ikke leses nå. Sjekk at atem-bridge kjører."
+        return None
+
+    def _step_view(self, step: SetupStep, approvals: dict[str, Approval]) -> StepView:
+        results = results_for(step, self.health.results())
+        approved = approvals.get(step.id)
+        blocked = self._fix_blocked(step)
+        return StepView(
+            step=step,
+            state=step_state(step, results, approved),
+            results=results,
+            approved=approved,
+            fix_available=step.fix is not None and blocked is None,
+            fix_blocked=blocked,
+        )
+
+    def setup_view(self) -> list[StepView]:
+        approvals = self._approvals()
+        return [self._step_view(s, approvals) for s in self.setup_steps()]
+
+    def setup_step_view(self, step_id: str) -> StepView:
+        return self._step_view(self._setup_step(step_id), self._approvals())
+
+    async def setup_check(self, step_id: str, role: Role, actor: str) -> StepView:
+        """«Sjekk steget»: the step's health checks run at once. They only read (8.5)."""
+        step = self._setup_step(step_id)
+        await self.health.run_matching(step.matches)
+        self._audit(role, actor, "setup_check", step=step.id)
+        return self.setup_step_view(step.id)
+
+    def setup_approve(self, step_id: str, role: Role, actor: str) -> StepView:
+        """«Godkjent» with the technician's name and time. Refused while a check is red, or
+        before the checks have answered."""
+        view = self.setup_step_view(step_id)
+        if view.state == "red":
+            raise CommandError("Steget har feil som må rettes før det kan godkjennes.")
+        if view.step.checks and view.state == "not_checked":
+            raise CommandError("Trykk «Sjekk steget» først, så sjekkene har svart.")
+        approvals = self._approvals()
+        approvals[step_id] = Approval(by=actor, at=self.deps.clock.now())
+        if self.deps.store is not None:
+            data = {k: v.model_dump(mode="json") for k, v in approvals.items()}
+            self.deps.store.put_kv(SETUP_KEY, data, self.deps.clock.now())
+        self._audit(role, actor, "setup_approve", step=step_id, state=view.state)
+        return self.setup_step_view(step_id)
+
+    def setup_fix(self, step_id: str, role: Role, actor: str) -> StepView:
+        """«Fiks for meg», after the technician confirmed. Never during a recording (8.4)."""
+        step = self._setup_step(step_id)
+        if step.fix is None:
+            raise CommandError("Dette steget har ikke «Fiks for meg».")
+        blocked = self._fix_blocked(step)
+        if blocked is not None:
+            raise CommandError(blocked)
+        if step.fix.action == "atem_input_names":
+            raw = self._atem_raw()
+            current = {i.number: i.long for i in raw.inputs} if raw is not None else {}
+            wanted = mv.atem_input_names(self.deps.site)
+            changed = {n: name for n, name in wanted.items() if current.get(n) != name}
+            setter = self.deps.atem.set_input_name  # type: ignore[union-attr]
+            for number, name in changed.items():
+                setter(number, name)
+            self._audit(role, actor, "setup_fix", step=step.id, changed=changed)
+        return self.setup_step_view(step.id)
 
     # -- technicians (Innstillinger → Teknikere) ---------------------------------------------
 

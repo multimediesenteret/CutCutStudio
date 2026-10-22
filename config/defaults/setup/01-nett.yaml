@@ -1,0 +1,13 @@
+# Setup-steg 1 (spes. 8.4). Samme fil gir veiviseren og den trykte guiden i docs/setup/.
+schema_version: 1
+number: 1
+id: nett
+title: "Nett og IP"
+why: "Alt utstyr må ha fast IP, ellers finner ikke CutCut det igjen etter en omstart."
+how:
+  - "Gi hver enhet fast IP etter IP-planen for studioet (ikke DHCP)."
+  - "Legg alt på studio-nettet eller eget VLAN."
+  - "Skriv adressene inn under **Enheter** på oppsettsiden."
+  - "ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **XC** (Canon)."
+checks: ["H-ATEM-1", "H-COMP-1", "H-PRL-1", "H-CAM-C*"]
+panel: devices

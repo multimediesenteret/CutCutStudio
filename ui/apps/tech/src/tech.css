@@ -1078,3 +1078,31 @@ a.btn {
 .hst.info i {
   background: var(--eye);
 }
+
+/* Setup-hjelperen (HS-5): stegliste og tekstfarger */
+.wizard .steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.wizard .steps .pill {
+  width: 100%;
+  justify-content: flex-start;
+}
+.wizard .steps .pill .small {
+  margin-left: auto;
+  font-weight: 400;
+}
+.wizard .steps .pill.on {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+.warn-text {
+  color: var(--wait);
+}
+.ok-text {
+  color: var(--pvw);
+  font-weight: 600;
+}
