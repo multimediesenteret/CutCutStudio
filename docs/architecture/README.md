@@ -38,7 +38,7 @@ flowchart LR
   CORE -- "HTTP + WebSocket" --> TOUCH["Touch-skjerm<br/>(Edge kiosk)"]
   CORE -- "HTTP + WebSocket" --> TECH["Teknikervindu"]
   CARD["Kortleser"] --> CORE
-  CORE -- "oppslag (bare brukernavn)" --> NTNU["NTNU-API"]
+  CORE -- "oppslag (bare brukernavn)" --> Multimediesenteret["kort-API"]
 ```
 
 | Prosess | Ansvar | Kan feile uten at grunnmodus stopper? |
@@ -58,7 +58,7 @@ I M1 kjører alt i én prosess, med falske enheter. Det er nøyaktig den samme `
 flowchart LR
   subgraph SIM["cutcut sim (én prosess)"]
     VOICES["Voices / Conversation<br/>syntetisk tale"] --> RT
-    FAKES["FakeAtem · FakePearl<br/>FakeCardReader · FakeNtnuApi"] --> RT
+    FAKES["FakeAtem · FakePearl<br/>FakeCardReader · FakeCardApi"] --> RT
     RT["CoreRuntime<br/>tikk hvert 30. ms"] --> ENG["Engine.step()<br/>ren funksjon (I3)"]
     ENG --> RT
     RT -- intents --> FAKES
@@ -103,7 +103,7 @@ Motoren eier stegene; touch-skjermen viser dem bare. Teknikeren kan flytte touch
 ```mermaid
 stateDiagram-v2
   [*] --> idle
-  idle --> ready: kort skannet (NTNU-oppslag)
+  idle --> ready: kort skannet (kortoppslag)
   ready --> countdown: Start opptak
   ready --> idle: Logg ut / 3 min uten berøring
   countdown --> ready: Stopp før Pearl

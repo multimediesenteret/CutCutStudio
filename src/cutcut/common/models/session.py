@@ -20,7 +20,7 @@ class User(_Model):
 
 
 UNKNOWN_USER = User(username="ukjent", display_name="Ukjent bruker")
-# «Start uten kort» (D-057): until the card reader and the NTNU API are switched on.
+# «Start uten kort» (D-057): until the card reader and the card API are switched on.
 GUEST_USER = User(username="gjest", display_name="Gjest")
 
 

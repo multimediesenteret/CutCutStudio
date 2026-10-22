@@ -116,7 +116,7 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
           className="addr"
           aria-label="E-postadresser for varsler"
           value={email}
-          placeholder="navn@ntnu.no"
+          placeholder="navn@example.org"
           inputMode="email"
           disabled={!admin}
           onChange={(e) => setEmail(e.target.value)}
@@ -128,7 +128,7 @@ export function Alerts({ ctx }: { ctx: Ctx }) {
           className="addr"
           aria-label="SMTP-server"
           value={host}
-          placeholder="fra NTNU-IT"
+          placeholder="fra IT-avdelingen"
           disabled={!admin}
           onChange={(e) => setHost(e.target.value)}
         />

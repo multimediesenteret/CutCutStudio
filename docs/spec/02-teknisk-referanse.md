@@ -16,7 +16,7 @@ I drift brukes én protokoll per enhet: den som snakker direkte med enheten, er 
 | RØDECaster Pro II | ASIO, USB 1 multitrack | – | Rene spor med lav forsinkelse |
 | INOGENI 4KXUSB3 | UVC, YUY2 1080p50 | – | Standard webkamera i Windows, ingen driver |
 | ELATEC TWN3 | Virtuell COM-port | – | Uavhengig av tastaturfokus |
-| NTNU-API | HTTPS med tjenestenøkkel | Tekniker kan starte økt uten kort | Bare ved innlogging, aldri i sanntid |
+| Kort-API | HTTPS med tjenestenøkkel | Tekniker kan starte økt uten kort | Bare ved innlogging, aldri i sanntid |
 
 **Regel:** når en ny enhet legges til, velges protokoll etter samme tre krav: direkte til enheten, dokumentert av produsenten, og mulig å lese tilbake tilstand.
 
@@ -138,7 +138,7 @@ Fra OBSBOT sin OSC-definisjon for Tail 2. Kameraet er server: det tar imot på p
 
 ## Blackmagic ATEM
 
-- **Protokoll:** Blackmagic sin egen ATEM-protokoll over UDP port 9910. Biblioteket `atem-connection` (NRK/Sofie, Node.js) støtter alle ATEM-modeller over nett, ikke over USB. I Python finnes PyATEMMax for lesing; velges ved første implementasjonsplan etter test mot riktig modell.
+- **Protokoll:** Blackmagic sin egen ATEM-protokoll over UDP port 9910. Biblioteket `atem-connection` (Node.js) støtter alle ATEM-modeller over nett, ikke over USB. I Python finnes PyATEMMax for lesing; velges ved første implementasjonsplan etter test mot riktig modell.
 - **Brukes til:** lese program, preview, tally, SuperSource, makroer, mediaspillere, multiview og opptaksstatus; starte og stoppe opptak; direkte kutt som reserve.
 - **Modeller:** ATEM Mini Extreme ISO (2 HDMI ut) og Extreme ISO G2 (3 HDMI ut, ISO til CFexpress eller USB-C, 10G). Støtte for G2 i `atem-connection` og Companion må bekreftes før innkjøp.
 - **SuperSource-koordinater:** x −48 til +48, y −27 til +27, størrelse 1,0 = hele bildet. Startverdier for layoutene står i spesifikasjonen 7.2.
@@ -188,7 +188,7 @@ Fra OBSBOT sin OSC-definisjon for Tail 2. Kameraet er server: det tar imot på p
 | RØDECaster Pro II | USB 1, multitrack på, pre-fader; RØDECaster ASIO-driver | Virtual Devices-driveren er ikke kompatibel med ASIO og installeres ikke. USB 2 gir bare stereomiks |
 | INOGENI 4KXUSB3 | HDMI 1.4a inn og gjennomgang; USB 3.0 UVC; YUY2/NV12 ukomprimert, MJPEG bare på USB 2; 1080p50 støttet; strøm fra USB (5 V, 900 mA) | Ingen driver. Forsinkelse er ikke oppgitt og måles. Har egen VISCA-port (RS-232) som ikke brukes |
 | ELATEC TWN3 MIFARE (USB) | Moduser: tastatur-emulering, virtuell COM-port, transparent. Settes opp med TWNConfig (skriptet bestemmer format: hex, omvendt hex, desimal) | Bruk samme skript og format som i Crestron-studioene. USB-ID i COM-modus: `09D8:0320` |
-| NTNU-API | `https://gw-ntnu.intark.uh-it.no/tia/v4/autorisasjon/mifareid` | Nøkkel og svarformat kommer; skal gi brukernavn og visningsnavn |
+| Kort-API | adressen fra IT-avdelingen (settes i appen) | Nøkkel og svarformat kommer; skal gi brukernavn og visningsnavn |
 | iiyama ProLite T2254MSC-B2AG | 21,5″, 1920 × 1080, PCAP 10 punkt over USB, HDMI og DisplayPort, USB-hub, VESA 100 | Fungerer med Windows uten driver; kortleseren kan sitte i hubben |
 | ProDVX TMP-22X (senere) | 21,5″, PCAP 10 punkt, HDMI inn, USB, VESA 100, 12 V | Brukes som skjerm for samme nettside; ingen innebygd kortleser |
 
@@ -205,7 +205,7 @@ Her ligger kildene. Filer som er lastet ned eller fått fra leverandør, legges 
 **OBSBOT**
 
 - [VISCA-tabell for Tail 2 (Google Sheets)](https://docs.google.com/spreadsheets/d/1HOVbZWITASwmUu9BV0-ym4kYDdp6IUGc/edit?gid=1649156710#gid=1649156710) · [VISCA-guide](https://www.obsbot.com/explore/obsbot-tail-air/visca-over-ip) · [OSC-side](https://www.obsbot.com/webcam/osc) · [Tail 2-ressurser](https://www.obsbot.com/explore/obsbot-tail-2)
-- OSC-definisjon: `obsbot_center_osc_definition20260115.xlsx` (mottatt fra NTNU; legges i studio-repoet). OSC-mappe på Google Drive: `https://drive.google.com/drive/folders/1mPAMxL3WokRQ6JBJcrK54hh9KMR3q4pA`
+- OSC-definisjon: `obsbot_center_osc_definition20260115.xlsx` (mottatt fra Multimediesenteret; legges i studio-repoet). OSC-mappe på Google Drive: `https://drive.google.com/drive/folders/1mPAMxL3WokRQ6JBJcrK54hh9KMR3q4pA`
 
 **Blackmagic**
 
@@ -217,7 +217,7 @@ Her ligger kildene. Filer som er lastet ned eller fått fra leverandør, legges 
 
 **Kamera fra andre produsenter**
 
-- [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf) · [Cyanview: Canon XC-styring](https://support.cyanview.com/docs/Integrations/Canon/CanonPTZ)
+- [Canon CR-N300 datablad](https://www.fullcompass.com/common/files/60067-CRN300DataSheet.pdf)
 - [Panasonic AW-UE150 grensesnitt](https://eww.pass.panasonic.co.jp/pro-av/support/content/guide/DEF/UE150/AW-UE150HE145_InterfaceSpecification_E.pdf) · [Sony BRC/SRG VISCA over IP](https://applicationmarket.crestron.com/content/Help/Sony/Sony_BRC-X400_SRG-X_series_Help_v1.0.pdf)
 
 **Lyd, capture, kort og skjerm**

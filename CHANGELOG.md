@@ -4,7 +4,16 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 
 ## [Unreleased]
 
+### Changed
+- Ingen konkurrenter er nevnt, og prosjektet omtales som Multimediesenteret (D-061). Studio-mappen heter `site/multimediesenteret`, oppslaget fra kort til bruker heter kort-API, og sjekken for det heter `H-CARD-2`. PDF-eksportene av spesifikasjonen er fjernet; Markdown-filene er fasit.
+- `site/multimediesenteret` har bare eksempeladresser og ingen varslingsmottakere.
+- CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
+
 ### Added
+- Oppsettet ligger i appen, ikke i repoet (D-060).
+  - Innstillinger → Teknikere: hvem som kan logge inn, lagret på PC-en. Med tom liste slipper admin-PIN inn for førstegangsoppsett, og ingen kan låse seg selv ute.
+  - Innstillinger → Oppsett: «Lagre oppsett» laster ned alt som er lagt inn i appen som én fil uten PIN eller passord. «Hent oppsett» viser hva en fil endrer, og tar den i bruk etter bekreftelse.
+  - CutCut tar en kopi av oppsettet selv i `data\oppsett\` ved hver endring.
 - SO-3: Windows-pakken bygges i CI (`tools/build_bundle.py`, workflow `release`).
   - Én zip med egen Python og de låste avhengighetene, Node, atem-bridge, skjermene og modellene.
   - Sjekksum (SHA-256) og SBOM (CycloneDX) for Python og Node følger med.
@@ -15,7 +24,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
   - Svarer den ikke innen 120 s, går `current` tilbake til forrige versjon. De tre nyeste beholdes.
   - CI installerer en ødelagt neste versjon og sjekker at den forrige kommer tilbake.
 - HS-3: varsling utenfor studio (Q29, D-058).
-  - E-post til magnus.lian@ntnu.no når noe har vært rødt i over ett minutt, og «OK igjen» når det er løst.
+  - E-post til teknikerne når noe har vært rødt i over ett minutt, og «OK igjen» når det er løst.
   - E-post med en gang når et opptak ikke starter eller stopper av seg selv. Høyst ti i timen.
   - Innstillinger → Varsling: mottakere, SMTP-relé og knappen «Send testvarsel». `H-VARSEL-1` er gul når varsler ikke kan sendes.
   - Companion-variabelen `regi_health` følger helsestatusen.
@@ -113,12 +122,12 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
   - `audio.status` hvert sekund (også når kortet er borte), og `H-AUD-1` sier hvorfor.
   - Nytt `audio` i `devices.yaml`. Supervisor starter nå alltid `audio-capture`.
 - D-057: «Start uten kort».
-  - Innstillingen «Innlogging» i teknikervinduet: Start-knapp (standard i studio) eller NTNU-kort.
-  - Med Start-knappen tar brukeren opp som «Gjest» uten kortleser og NTNU-API. Kortleser og NTNU-API kommer sist (M4).
+  - Innstillingen «Innlogging» i teknikervinduet: Start-knapp (standard i studio) eller adgangskort.
+  - Med Start-knappen tar brukeren opp som «Gjest» uten kortleser og kort-API. Kortleser og kort-API kommer sist (M4).
   - `POST /api/touch/start` og `GET/PUT /api/settings/login`.
 - DA-9: `cutcut companion-pages` lager Companion-side 10 «REGI», side 11 «OPERATØR» og variablene (`regi_*`, `cutcut_pages_version`) som importfiler.
   - Filene lages fra studio-oppsettet.
-  - Filene er sjekket inn for `ntnu-studio` og `example`, og en test sier fra når de er utdaterte.
+  - Filene er sjekket inn for `multimediesenteret` og `example`, og en test sier fra når de er utdaterte.
   - Importveiledning i `docs/studio/companion.md`.
 - HS-4: oppstarts- og morgensjekk.
   - Hele katalogen og multiview-sjekken kjøres 20 s etter oppstart og kl. 07:00, og kan startes med «Kjør alle nå».
@@ -202,8 +211,8 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - A-6: økthistorikk (`GET /api/sessions`, lagres ved hvert steg og overlever omstart) som tabell under Opptak, CSV av logg og økter, og feilsøkingspakke (`GET /api/debug-package`, admin) med logg, konfig, versjon og helse. Pakken har ingen hemmeligheter, ingen personliste og ingen kortnummer (I8).
 - D-1: `docs/architecture/` med prosesser, M1-oppsettet, lyd-til-kutt, touch-flyten, datalagring og skjermene som Mermaid; runbook-mal i `docs/runbooks/_mal.md`; README «Kjøre lokalt» oppdatert.
 - U-10: forsiden på Vercel er nå web-simulatoren; `/touch` og `/tech` går til simulatorens skjermer, og konseptet ligger som arkiv på `/concept/`.
-- Multiview-oppsettet i studio er dokumentert fra foto (`docs/studio/multiview.md`), med utkast til rutekart i `site/ntnu-studio/equipment/multiview_map.yaml`. Mikseren er ATEM Television Studio HD8 ISO (D-053); nye spørsmål Q37–Q39.
-- Studio-oppsett for NTNU-studioet i `site/ntnu-studio/` med inngangskartet (Camera 1–4 = deltakerne, Camera 6 = oversikt, Camera 7 = laptop, D-054). `uv run cutcut sim --site site/ntnu-studio` kjører simulatoren med det, og web-simulatoren bruker det. Teknikervinduet viser kameraene med samme navn som ATEM-multiviewen («Camera 6 · Fugleperspektiv»).
+- Multiview-oppsettet i studio er dokumentert fra foto (`docs/studio/multiview.md`), med utkast til rutekart i `site/multimediesenteret/equipment/multiview_map.yaml`. Mikseren er ATEM Television Studio HD8 ISO (D-053); nye spørsmål Q37–Q39.
+- Studio-oppsett for studioet i `site/multimediesenteret/` med inngangskartet (Camera 1–4 = deltakerne, Camera 6 = oversikt, Camera 7 = laptop, D-054). `uv run cutcut sim --site site/multimediesenteret` kjører simulatoren med det, og web-simulatoren bruker det. Teknikervinduet viser kameraene med samme navn som ATEM-multiviewen («Camera 6 · Fugleperspektiv»).
 - Oppsett i teknikervinduet (admin): IP-adresser for ATEM, Pearl, Companion og kameraene kan endres, valideres (gyldig adresse, ingen dobbel), overlever omstart og kan lastes ned som `devices.yaml` (`/api/settings/devices`).
 - Multiview-sjekk (`H-MV-*`, `/api/setup/multiview`): rutekartet sjekkes mot show-oppsettet og mot det ATEM viser ved oppstart og med «Sjekk nå» (D-056), med varsel under Helse og et anbefalt 2 + 8-oppsett tegnet side om side med det som står i dag. Rutekartet har eget skjema (`config/schema/multiview_map.schema.json`).
 - Tilstanden skjermene får (`/api/state` og `/ws`) er nå typede modeller i API-beskrivelsen, så skjermenes TypeScript-typer kan genereres (12.5).

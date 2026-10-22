@@ -48,7 +48,7 @@ const HEALTH=[
   {id:'H-PRL-1',name:'Pearl status og lagring',grp:'Opptak',val:'812 GB · 41 °C'},
   {id:'H-PRL-2',name:'Opptak kjører når det skal',grp:'Opptak',val:'OK'},
   {id:'H-CARD-1',name:'Kortleser TWN3 (COM4)',grp:'Innlogging',val:'Port åpen'},
-  {id:'H-NTNU-1',name:'NTNU-API',grp:'Innlogging',val:'Testoppslag 420 ms'},
+  {id:'H-CARD-2',name:'kort-API',grp:'Innlogging',val:'Testoppslag 420 ms'},
   {id:'H-PROC',name:'Prosesser: core, audio, vision, stt',grp:'PC',val:'Hjerteslag OK'},
   {id:'H-PC',name:'Disk, GPU, klokke',grp:'PC',val:'GPU 54 °C · NTP 3 ms'}];
 const WIZARD=[
@@ -60,7 +60,7 @@ const WIZARD=[
   {n:6,name:'Multiview',what:'INOGENI som kilde, rutekart, forsinkelse',fix:true,state:'ok'},
   {n:7,name:'Companion',what:'Side 10 og 11 importert, ATEM og Pearl tilkoblet',fix:false,state:'ok'},
   {n:8,name:'Makroer og grafikk',what:'PiP/quad-makroer, Kun lyd-grafikk',fix:true,state:'todo'},
-  {n:9,name:'Pearl og kort',what:'Opptaker, NTP, TWN3 i COM-modus, NTNU-API',fix:false,state:'ok'},
+  {n:9,name:'Pearl og kort',what:'Opptaker, NTP, TWN3 i COM-modus, kort-API',fix:false,state:'ok'},
   {n:10,name:'Generalprøve',what:'5 min i skyggemodus med alle deltakere',fix:false,state:'todo'}];
 const FAULTS={
   'no-audio':{label:'Lyd fra RØDECaster borte',health:'H-AUD-1',sev:'err',touch:'Noe er galt med lyden. Teknikeren er varslet.'},

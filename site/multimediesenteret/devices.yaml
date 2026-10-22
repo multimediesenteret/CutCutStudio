@@ -1,8 +1,9 @@
-# NTNU-studioet (Multimediesenteret). Inngangskart bekreftet av Magnus Lian 2026-10-21 (D-054).
-# IP-adressene følger IP-planen i spesifikasjonen 2.6 og er IKKE bekreftet ennå (Q20/Q37).
-# Passord og nøkler ligger i Windows Credential Manager, aldri her.
+# Studioet på Multimediesenteret: utgangspunkt og eksempel. Inngangskartet er bekreftet (D-054).
+# IP-adressene er EKSEMPLER fra IP-planen i spesifikasjonen 2.6. De virkelige adressene,
+# teknikerne og varslingen legges inn i appen på studio-PC-en og lagres der (og med
+# «Lagre oppsett»), aldri i repoet. Passord og nøkler ligger i Windows Credential Manager.
 schema_version: 1
-studio: ntnu-studio
+studio: multimediesenteret
 atem: { ip: 10.10.10.10, model: "ATEM Television Studio HD8 ISO" }
 companion: { url: "http://127.0.0.1:8000", engine_page: 10, operator_page: 11, pages_version: 1 }
 pearl: { ip: 10.10.10.30, recorder_id: "1", username: cutcut }
@@ -14,11 +15,6 @@ cameras:
   C5: { model: "Oversikt (Camera 6 på ATEM)" }      # fugleperspektiv / overview
 card_reader: { usb_id: "09D8:0320" }
 api_port: 8080
-# Varsel på e-post når noe er rødt i over ett minutt (HS-3, Q29: Magnus Lian, 2026-10-22).
-# SMTP-reléet settes når NTNU-IT har gitt adresse (Q40); passord, om det trengs, er
-# smtp_password i Credential Manager.
-# Av til det er testet i studio: slås på under Innstillinger → Varsling.
+# Varsel på e-post (HS-3): av, og mottakere legges inn i appen (Innstillinger → Varsling).
 alerts:
   enabled: false
-  email: [magnus.lian@ntnu.no]
-  smtp: { host: "", port: 587, starttls: true, sender: "cutcut-studio@ntnu.no" }

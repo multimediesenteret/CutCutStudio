@@ -17,7 +17,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from cutcut import __version__
 from cutcut.api.auth import COOKIE, SESSION_S, Auth, Identity, require
-from cutcut.app import devices, export
+from cutcut.app import devices, export, setup_file
 from cutcut.app.hub import TOPICS
 from cutcut.app.state import LiveSchemas, StudioState
 from cutcut.app.studio import CommandError, Studio
@@ -31,6 +31,21 @@ log = logging.getLogger(__name__)
 
 class _In(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+class StaffIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    operators: list[str] = Field(default_factory=list)
+    admins: list[str] = Field(default_factory=list)
+
+
+class SetupIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str = Field(max_length=1_000_000)
+
+
+class SetupChanges(BaseModel):
+    changes: list[str]
 
 
 class LoginModeIn(BaseModel):
@@ -137,7 +152,7 @@ def create_app(
 
     @app.get("/api/health", tags=["status"])
     async def health() -> dict[str, Any]:
-        """Same as the status page, for NTNU monitoring (spec 8.5). No sign-in needed."""
+        """Same as the status page, for external monitoring (spec 8.5). No sign-in needed."""
         state = studio.state()
         levels = {a.level for a in state.alerts}
         health = state.health.status
@@ -367,6 +382,45 @@ def create_app(
         studio.start_without_card(me.role, me.actor)
         return Ok()
 
+    @app.get("/api/settings/staff", tags=["config"])
+    async def get_staff(me: Who) -> dict[str, Any]:
+        """Technicians who can sign in (Innstillinger → Teknikere). Kept in the app, not in
+        the repository. ``first_setup``: the list is empty and the admin PIN lets one in."""
+        require(me, "admin")
+        return studio.staff_info()
+
+    @app.put("/api/settings/staff", tags=["config"])
+    async def put_staff(body: StaffIn, me: Who) -> dict[str, Any]:
+        """Replace the list. At least one admin, and you stay admin yourself."""
+        require(me, "admin")
+        studio.set_staff(body.operators, body.admins, me.role, me.actor)
+        return studio.staff_info()
+
+    @app.get("/api/settings/setup.yaml", tags=["export"], response_class=Response)
+    async def setup_download(me: Who) -> Response:
+        """«Lagre oppsett»: everything entered in the app as one file (no PINs or passwords)."""
+        require(me, "admin")
+        setup = studio.setup_export()
+        name = setup_file.filename(setup.studio, studio.deps.clock.now())
+        studio._audit(me.role, me.actor, "setup_export")
+        return Response(
+            setup_file.dump(setup).encode("utf-8"),
+            media_type="application/yaml",
+            headers={"Content-Disposition": f'attachment; filename="{name}"'},
+        )
+
+    @app.post("/api/settings/setup/check", tags=["config"])
+    async def setup_check(body: SetupIn, me: Who) -> SetupChanges:
+        """«Hent oppsett», step 1: what the file would change. Nothing is changed."""
+        require(me, "admin")
+        return SetupChanges(changes=studio.setup_import(body.text, me.role, me.actor, apply=False))
+
+    @app.post("/api/settings/setup/import", tags=["config"])
+    async def setup_import(body: SetupIn, me: Who) -> SetupChanges:
+        """«Hent oppsett», step 2: use the file. Everything is checked before anything changes."""
+        require(me, "admin")
+        return SetupChanges(changes=studio.setup_import(body.text, me.role, me.actor, apply=True))
+
     @app.get("/api/settings/alerts", tags=["config"])
     async def get_alerts(me: Who) -> dict[str, Any]:
         """Email alerts (HS-3): who gets them, the relay, and how the last one went."""
@@ -388,7 +442,7 @@ def create_app(
 
     @app.put("/api/settings/login", tags=["config"])
     async def put_login(body: LoginModeIn, me: Who) -> Ok:
-        """Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057)."""
+        """Innlogging: «open» (Start-knapp) or «card» (adgangskort). Admin only (D-057)."""
         require(me, "admin")
         studio.set_login_mode(body.mode, me.role, me.actor)
         return Ok()

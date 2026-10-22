@@ -1,4 +1,4 @@
-"""Secrets (NTNU API key, Pearl and camera passwords) – never in git or logs (spec 12.4).
+"""Secrets (card API key, Pearl and camera passwords) – never in git or logs (spec 12.4).
 
 On the studio PC they live in Windows Credential Manager via ``keyring``.
 """
@@ -10,7 +10,7 @@ from typing import Final, Protocol
 SERVICE: Final = "CutCut Studio"
 
 KNOWN_SECRETS: Final = (
-    "ntnu_api_key",
+    "card_api_key",
     "pearl_password",
     "canon_password",
     "operator_pin",

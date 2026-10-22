@@ -14,4 +14,4 @@ Grensesnitt i React + TypeScript, servert lokalt; touch-skjermen i Edge kiosk-mo
 
 ## Konsekvenser
 
-Avhenger av Q8 (om PC-en er NTNU-administrert).
+Avhenger av Q8 (om PC-en er sentralt administrert).

@@ -12,6 +12,8 @@ export interface Transport {
   send(method: "POST" | "PUT" | "DELETE", path: string, body?: unknown): Promise<void>;
   /** Read something that is not in the live state (rules, shows, log history). */
   get<T>(path: string): Promise<T>;
+  /** A command whose answer the screen needs (e.g. what a setup file would change). */
+  post<T>(path: string, body?: unknown): Promise<T>;
 }
 
 export class CommandError extends Error {
@@ -118,6 +120,11 @@ export class WsTransport implements Transport {
 
   async get<T>(path: string): Promise<T> {
     const res = await rest(this.base, "GET", path);
+    return (await res.json()) as T;
+  }
+
+  async post<T>(path: string, body?: unknown): Promise<T> {
+    const res = await rest(this.base, "POST", path, body);
     return (await res.json()) as T;
   }
 }

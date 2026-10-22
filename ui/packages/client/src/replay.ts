@@ -70,6 +70,10 @@ export class ReplayTransport implements Transport {
     return Promise.reject(new CommandError("Ikke tilgjengelig i et opptak.", 409));
   }
 
+  post<T>(): Promise<T> {
+    return Promise.reject(new CommandError("Dette er et opptak – knappene virker i studio.", 409));
+  }
+
   onStatus(fn: (s: ReplayStatus) => void): () => void {
     this.listeners.add(fn);
     return () => this.listeners.delete(fn);

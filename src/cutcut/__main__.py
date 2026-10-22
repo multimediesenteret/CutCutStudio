@@ -31,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--site",
         type=Path,
         default=None,
-        help="studio-oppsett, f.eks. site/ntnu-studio (standard: det fiktive site/example)",
+        help="studio-oppsett, f.eks. site/multimediesenteret (standard: det fiktive site/example)",
     )
     sim.add_argument(
         "--smoke", action="store_true", help="start, sjekk helse og skjermer, avslutt (CI)"
@@ -46,7 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Startes av supervisor i studio. Skjermene på /touch/ og /tech/.",
     )
     core.add_argument(
-        "--site", type=Path, required=True, help="studio-oppsett, f.eks. site/ntnu-studio"
+        "--site", type=Path, required=True, help="studio-oppsett, f.eks. site/multimediesenteret"
     )
     core.add_argument("--data", type=Path, default=None, help="database og logger")
     core.add_argument("--host", default="127.0.0.1")

@@ -21,9 +21,9 @@ def test_fake_platform_on_linux_and_when_requested(monkeypatch: pytest.MonkeyPat
 
 def test_fake_secrets_never_echo_values_in_errors() -> None:
     store = FakeSecretStore()
-    assert not store.has("ntnu_api_key")
-    with pytest.raises(SecretMissingError, match="ntnu_api_key"):
-        store.get("ntnu_api_key")
+    assert not store.has("card_api_key")
+    with pytest.raises(SecretMissingError, match="card_api_key"):
+        store.get("card_api_key")
     store.set("pearl_password", "hemmelig-verdi")
     assert store.get("pearl_password") == "hemmelig-verdi"
     with pytest.raises(SecretMissingError) as exc:

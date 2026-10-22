@@ -1,6 +1,6 @@
 """Machine test for the RØDECaster (AU-6, docs/research/lyd-fra-rodecaster.md, steps 1–7).
 
-``cutcut hwtest audio --site site/ntnu-studio`` – the technician follows the prompts (talk in
+``cutcut hwtest audio --site site/multimediesenteret`` – the technician follows the prompts (talk in
 mic N, pull the USB cable …); the report answers Q21 (ASIO stable with 20 channels), Q24 (is a
 muted mic on its pre-fader track?) and ADR-0014. No raw audio is kept unless ``--save-wav``.
 

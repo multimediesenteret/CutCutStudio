@@ -20,7 +20,7 @@ from typing import Any, Final, Literal, Protocol
 from pydantic import ValidationError
 
 from cutcut import __version__
-from cutcut.app import devices
+from cutcut.app import devices, setup_file
 from cutcut.app.hub import Hub
 from cutcut.app.state import (
     AlertInfo,
@@ -48,6 +48,7 @@ from cutcut.common.config import (
     effective_rules,
 )
 from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
+from cutcut.common.models.baseline import Baseline
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import (
@@ -60,7 +61,7 @@ from cutcut.common.models.session import (
     User,
 )
 from cutcut.common.models.show import Features, RulesPreset, ShowConfig
-from cutcut.common.models.site import Devices, SmtpConfig
+from cutcut.common.models.site import Devices, SmtpConfig, Staff
 from cutcut.common.platform.system import System
 from cutcut.common.store import Store
 from cutcut.core.engine import Engine, StepResult
@@ -102,6 +103,7 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
+STAFF_KEY: Final = "site.staff"  # technicians, entered in the app (not in the repository)
 LoginMode = Literal["open", "card"]
 HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
@@ -210,6 +212,15 @@ class StudioDeps:
     send_mail: Callable[[SmtpConfig, list[str], str, str], None] | None = None
 
 
+def _first_error(exc: Exception) -> str:
+    """A validation error as one plain line for the screen."""
+    errors = getattr(exc, "errors", None)
+    if callable(errors):
+        first = errors()[0]
+        return str(first.get("msg", exc)).removeprefix("Value error, ")
+    return str(exc)
+
+
 @dataclass
 class Studio:
     deps: StudioDeps
@@ -225,6 +236,10 @@ class Studio:
         self.devices: Devices = self.deps.site.devices
         self.on_devices: Callable[[Devices], None] | None = None
         self.login_mode: LoginMode = "card" if self.deps.simulator else "open"
+        self._autosaved_at = -1e9
+        self.staff: Staff = self.deps.site.staff
+        self.on_staff: Callable[[Staff], None] | None = None  # the API's sign-in list
+        self._load_staff()
         self._load_devices()
         self._load_tuning()
         self._load_login_mode()
@@ -301,6 +316,50 @@ class Studio:
         """The show with the technician's preset, switches and fine tuning applied."""
         return self._merged_with(show, self.preset, self.features, self.overrides)
 
+    # -- technicians (Innstillinger → Teknikere) ---------------------------------------------
+
+    def _load_staff(self) -> None:
+        if self.deps.store is None:
+            return
+        saved = self.deps.store.get_kv(STAFF_KEY)
+        if not isinstance(saved, dict):
+            return
+        try:
+            self.staff = Staff.model_validate(saved)
+        except ValueError as exc:
+            log.warning("Lagret teknikerliste ble ikke brukt: %s", exc)
+
+    def check_staff(self, operators: list[str], admins: list[str], actor: str) -> Staff:
+        """The new list, or a plain message why not. Nobody can lock themselves out."""
+        try:
+            staff = Staff(operators=operators, admins=admins)
+        except ValueError as exc:
+            raise CommandError(_first_error(exc)) from exc
+        if not staff.empty and not staff.admins:
+            raise CommandError("Minst én må være admin, ellers kan ingen endre oppsettet.")
+        if not staff.empty and actor not in staff.admins and actor != "simulator":
+            raise CommandError(f"Du ({actor}) må stå som admin selv, ellers låser du deg ute.")
+        return staff
+
+    def set_staff(self, operators: list[str], admins: list[str], role: Role, actor: str) -> None:
+        self._apply_staff(self.check_staff(operators, admins, actor))
+        self._audit(role, actor, "staff", operators=operators, admins=admins)
+        self._autosave()
+
+    def _apply_staff(self, staff: Staff) -> None:
+        self.staff = staff
+        if self.on_staff is not None:
+            self.on_staff(staff)
+        if self.deps.store is not None:
+            self.deps.store.put_kv(STAFF_KEY, staff.model_dump(mode="json"), self.deps.clock.now())
+
+    def staff_info(self) -> dict[str, Any]:
+        return {
+            "operators": self.staff.operators,
+            "admins": self.staff.admins,
+            "first_setup": self.staff.empty,
+        }
+
     def _load_login_mode(self) -> None:
         if self.deps.store is None:
             return
@@ -310,18 +369,22 @@ class Studio:
 
     def set_login_mode(self, mode: LoginMode, role: Role, actor: str) -> None:
         """«Innlogging» in the technician's settings (D-057). Card login needs the card reader
-        and the NTNU API; until they are set up, users start with the button on the screen."""
+        and the card API; until they are set up, users start with the button on the screen."""
         if mode not in ("open", "card"):
             raise CommandError("Ukjent innlogging.")
+        self._apply_login_mode(mode)
+        self._audit(role, actor, "login_mode", mode=mode)
+        self._autosave()
+
+    def _apply_login_mode(self, mode: LoginMode) -> None:
         self.login_mode = mode
         if self.deps.store is not None:
             self.deps.store.put_kv(LOGIN_KEY, mode, self.deps.clock.now())
-        self._audit(role, actor, "login_mode", mode=mode)
 
     def start_without_card(self, role: Role, actor: str) -> None:
         """«Start uten kort» on the touch screen: a session for «Gjest» (no Panopto owner)."""
         if self.login_mode != "open":
-            raise CommandError("Bruk NTNU-kortet ditt, eller trykk Hjelp.")
+            raise CommandError("Bruk adgangskortet ditt, eller trykk Hjelp.")
         self.login(GUEST_USER, role, actor, source="guest")
 
     def _load_tuning(self) -> None:
@@ -332,16 +395,21 @@ class Studio:
         if not isinstance(saved, dict):
             return
         try:
-            preset = saved.get("preset", self.preset)
-            features = self.features.model_copy(update=saved.get("features", {}))
-            overrides = {str(k): v for k, v in saved.get("overrides", {}).items()}
-            effective_rules(
-                self._merged_with(self.show, preset, features, overrides), self.deps.presets
-            )
+            self.preset, self.features, self.overrides = self._check_tuning(saved)
         except (ValueError, ConfigError) as exc:
             log.warning("Lagret tuning ble ikke brukt: %s", exc)
-            return
-        self.preset, self.features, self.overrides = preset, features, overrides
+
+    def _check_tuning(
+        self, saved: dict[str, Any]
+    ) -> tuple[RulesPreset, Features, dict[str, float]]:
+        preset = saved.get("preset", self.preset)
+        features = self.features.model_copy(update=saved.get("features", {}))
+        features = type(features).model_validate(features.model_dump())
+        overrides = {str(k): float(v) for k, v in saved.get("overrides", {}).items()}
+        effective_rules(
+            self._merged_with(self.show, preset, features, overrides), self.deps.presets
+        )
+        return preset, features, overrides
 
     def _merged_with(
         self,
@@ -403,17 +471,24 @@ class Studio:
                 updated.pop(key, None)
             else:
                 updated[key] = value.strip()
+        effective = self._check_devices(updated)
+        self._apply_devices(updated, effective)
+        self._audit(role, actor, "devices", **{k: v for k, v in changes.items()})
+        self._autosave()
+
+    def _check_devices(self, overrides: dict[str, str]) -> Devices:
         try:
-            effective = devices.apply(self.deps.site.devices, updated)
+            return devices.apply(self.deps.site.devices, overrides)
         except devices.DeviceSettingsError as exc:
             raise CommandError(str(exc)) from exc
+
+    def _apply_devices(self, updated: dict[str, str], effective: Devices) -> None:
         self.device_overrides, self.devices = updated, effective
         if self.on_devices is not None:
             self.on_devices(effective)  # e.g. point the Companion and Pearl clients elsewhere
         if self.deps.store is not None:
             self.deps.store.put_kv(devices.DEVICES_KEY, updated, self.deps.clock.now())
         self._reconfigure()
-        self._audit(role, actor, "devices", **{k: v for k, v in changes.items()})
 
     def devices_info(self) -> dict[str, Any]:
         return {
@@ -451,6 +526,7 @@ class Studio:
                 "overrides": self.overrides,
             }
             self.deps.store.put_kv(TUNING_KEY, value, self.deps.clock.now())
+        self._autosave(throttle_s=60)
 
     def _make_engine(self, show: ShowConfig) -> Engine:
         merged = self._merged(show)
@@ -551,6 +627,14 @@ class Studio:
             raise CommandError(f"Feil kanal på {', '.join(wrong)}. Rett det og mål på nytt.")
         site = self.deps.site
         new = check.baseline(site.baseline, actor, self.deps.clock.now())
+        self._apply_baseline(new)
+        self._audit(role, actor, "mic_check_save", mics=sorted(r.value for r in check.results))
+        self._autosave()
+        self._alert("info", "SETUP-5", f"Mikrofonene er målt og lagret som fasit av {actor}.")
+        return self.mic_check_status()
+
+    def _apply_baseline(self, new: Baseline) -> None:
+        site = self.deps.site
         if not self.deps.simulator:  # the simulator runs on files in the repo: never write
             write_baseline(site.root / "baseline.yaml", new)
         self.deps.site = site.model_copy(update={"baseline": new})
@@ -560,9 +644,103 @@ class Studio:
                 for s, row in new.audio.leak_db.items()
             }
             self.on_audio_config({"leak_db": leak})
-        self._audit(role, actor, "mic_check_save", mics=sorted(r.value for r in check.results))
-        self._alert("info", "SETUP-5", f"Mikrofonene er målt og lagret som fasit av {actor}.")
-        return self.mic_check_status()
+
+    # -- «Lagre oppsett» / «Hent oppsett» (everything entered in the app) ---------------------
+
+    def setup_export(self) -> setup_file.SetupFile:
+        return setup_file.SetupFile(
+            studio=self.devices.studio,
+            exported=self.deps.clock.now(),
+            cutcut=__version__,
+            devices=devices.values(self.devices),
+            staff=self.staff,
+            login_mode=self.login_mode,
+            tuning=setup_file.Tuning(
+                preset=self.preset,
+                features=self.features.model_dump(),
+                overrides=self.overrides,
+            ),
+            baseline=self.deps.site.baseline,
+        )
+
+    def setup_import(self, text: str, role: Role, actor: str, *, apply: bool) -> list[str]:
+        """Check a setup file, and with ``apply`` use it. Everything is checked before anything
+        changes. Returns what is (or would be) changed, in plain words."""
+        try:
+            f = setup_file.parse(text)
+        except setup_file.SetupFileError as exc:
+            raise CommandError(str(exc)) from exc
+        changes: list[str] = []
+        if f.studio != self.devices.studio:
+            changes.append(f"Fra et annet studio: {f.studio} (dette er {self.devices.studio})")
+        dev: tuple[dict[str, str], Devices] | None = None
+        if f.devices is not None:
+            base = devices.values(self.deps.site.devices)
+            overrides = {k: v for k, v in f.devices.items() if v != base.get(k)}
+            dev = (overrides, self._check_devices(overrides))
+            now = devices.values(self.devices)
+            diff = [k for k, v in devices.values(dev[1]).items() if now.get(k) != v]
+            changes.append(
+                f"Utstyr og varsling: {len(diff)} endret"
+                + (f" ({', '.join(diff)})" if diff else "")
+            )
+        staff: Staff | None = None
+        if f.staff is not None:
+            if self.staff.empty:  # first setup: the file decides who the technicians are
+                staff = f.staff
+            else:
+                staff = self.check_staff(f.staff.operators, f.staff.admins, actor)
+            changes.append(
+                f"Teknikere: {len(staff.operators)} operatører, {len(staff.admins)} admin"
+            )
+        tuning: tuple[RulesPreset, Features, dict[str, float]] | None = None
+        if f.tuning is not None:
+            try:
+                tuning = self._check_tuning(f.tuning.model_dump())
+            except (ValueError, ConfigError) as exc:
+                raise CommandError(f"Regelinnstillingene i filen kan ikke brukes: {exc}") from exc
+            changes.append(f"Regler: {tuning[0]}, {len(tuning[2])} finjusteringer")
+        if f.login_mode is not None:
+            changes.append(
+                f"Innlogging: {'Start-knapp' if f.login_mode == 'open' else 'adgangskort'}"
+            )
+        if f.baseline is not None and f.baseline.approved_at is not None:
+            changes.append(
+                f"Mikrofon-fasit fra {f.baseline.approved_at:%Y-%m-%d} ({f.baseline.approved_by})"
+            )
+        if not apply:
+            return changes
+        if dev is not None:
+            self._apply_devices(*dev)
+        if staff is not None:
+            self._apply_staff(staff)
+        if tuning is not None:
+            self.preset, self.features, self.overrides = tuning
+            self._save_tuning()
+            self._reconfigure()
+        if f.login_mode is not None:
+            self._apply_login_mode(f.login_mode)
+        if f.baseline is not None and f.baseline.approved_at is not None:
+            self._apply_baseline(f.baseline)
+        self._audit(role, actor, "setup_import", studio=f.studio, changes=changes)
+        self._alert("info", "OPPSETT", f"Oppsett hentet inn av {actor}: " + "; ".join(changes))
+        self._autosave()
+        return changes
+
+    def _autosave(self, throttle_s: float = 0.0) -> None:
+        """A copy of the setup in data\\oppsett\\ on the PC after every change."""
+        if self.deps.store is None or self.deps.simulator:
+            return
+        now = self.deps.clock.mono_ms() / 1000
+        if throttle_s and now - self._autosaved_at < throttle_s:
+            return
+        self._autosaved_at = now
+        try:
+            setup_file.autosave(
+                self.deps.data_dir / "oppsett", self.setup_export(), self.deps.clock.now()
+            )
+        except OSError as exc:  # a full disk must not stop a change from taking effect
+            log.warning("Kopi av oppsettet ble ikke skrevet: %s", exc)
 
     # -- audio check during the countdown (AU-7) ------------------------------------------------
 

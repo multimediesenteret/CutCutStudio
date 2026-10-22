@@ -13,7 +13,7 @@ from cutcut.common.ids import SourceId
 from cutcut.devices.companion import pages
 
 ROOT = Path(__file__).resolve().parents[3]
-STUDIOS = ["ntnu-studio", "example"]
+STUDIOS = ["multimediesenteret", "example"]
 
 
 def buttons(page: dict[str, Any]) -> dict[tuple[int, int], tuple[str, str, dict[str, Any]]]:
@@ -33,7 +33,7 @@ def test_committed_files_are_up_to_date(studio: str) -> None:
 
 
 def test_page_10_has_exactly_the_buttons_the_engine_presses() -> None:
-    site = load_site(ROOT / "site" / "ntnu-studio")
+    site = load_site(ROOT / "site" / "multimediesenteret")
     got = buttons(pages.engine_page(site))
     cmap = site.companion_map
     # Row 0: preview, with the studio's ATEM inputs (D-054: bird on 6, laptop on 7).
@@ -59,7 +59,7 @@ def test_page_10_has_exactly_the_buttons_the_engine_presses() -> None:
 
 
 def test_page_11_cuts_straight_to_program_and_has_kun_lyd() -> None:
-    site = load_site(ROOT / "site" / "ntnu-studio")
+    site = load_site(ROOT / "site" / "multimediesenteret")
     got = buttons(pages.operator_page(site))
     assert got[(2, 0)][1:] == ("program", {"mixeffect": 0, "input": 1})
     assert got[(3, 0)][1:] == ("program", {"mixeffect": 0, "input": 3010})  # media player 1
@@ -67,7 +67,7 @@ def test_page_11_cuts_straight_to_program_and_has_kun_lyd() -> None:
 
 
 def test_files_are_companion_page_exports() -> None:
-    site = load_site(ROOT / "site" / "ntnu-studio")
+    site = load_site(ROOT / "site" / "multimediesenteret")
     for page_no, make in ((10, pages.engine_page), (11, pages.operator_page)):
         f = make(site)
         assert (f["version"], f["type"], f["oldPageNumber"]) == (12, "page", page_no)
@@ -83,7 +83,7 @@ def test_files_are_companion_page_exports() -> None:
 
 
 def test_variables_carry_the_page_version_H_COMP_1() -> None:
-    site = load_site(ROOT / "site" / "ntnu-studio")
+    site = load_site(ROOT / "site" / "multimediesenteret")
     f = pages.variables_file(site)
     assert f["type"] == "full"
     assert set(f) == {

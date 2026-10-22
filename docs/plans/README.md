@@ -23,7 +23,7 @@ Status: **godkjent av produkteier 2026-10-21 (D-046)**, med endring D-049 (ingen
 | 5 | [`ui.md`](ui.md) | Design, klient, touch, tekniker, web-simulator på Vercel | 3 | M1 |
 | 6 | [`audio.md`](audio.md) | `audio-capture` (ADR-0014), VAD, dominans, lekkasje, frasegrenser, `S6` | 4 | M2 |
 | 7 | [`devices-companion-atem.md`](devices-companion-atem.md) | Companion-klient, `atem-bridge` (ADR-0012), makrosjekk | 5 | M2–M3 |
-| 8 | [`session.md`](session.md) | Kortleser, NTNU-API, økter, show-typer, Pearl | 6 | M2–M3 |
+| 8 | [`session.md`](session.md) | Kortleser, kort-API, økter, show-typer, Pearl | 6 | M2–M3 |
 | 9 | [`vision.md`](vision.md) | Capture, rutekart, content-deteksjon, ansikt og munn | 7 | M3–M4 |
 | 10 | [`devices-cameras.md`](devices-cameras.md) | `obsbot`, `canon_xc`, grenser, presets, AI-tracking | 8 | M3 |
 | 11 | [`setup-health.md`](setup-health.md) | Setup-hjelperen og helsekatalogen | 8 | M3 |
@@ -48,7 +48,7 @@ Disse må godkjennes av produkteier sammen med planene. Når de er godkjent, fø
 
 ## Oppetid først
 
-NTNU har sagt at oppetid og at det fungerer er det viktigste, og at studioet står uten tekniker nesten hele tiden. Alle planene følger disse prinsippene, i tillegg til I1–I8:
+Multimediesenteret har sagt at oppetid og at det fungerer er det viktigste, og at studioet står uten tekniker nesten hele tiden. Alle planene følger disse prinsippene, i tillegg til I1–I8:
 
 1. **Sendingen er aldri avhengig av CutCut (I1).** ATEM og Pearl går videre alene. CutCut kan krasje uten at noe faller ut på lufta.
 2. **Alt restarter av seg selv.** Hver prosess har hjerteslag; supervisor restarter den med økende pause. Supervisor restartes av Windows (WinSW). PC-en starter selv etter strømbrudd (BIOS + automatisk innlogging). Edge kiosk restartes av Windows tilordnet tilgang.

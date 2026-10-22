@@ -140,7 +140,7 @@ class SessionManager:
     def lookup_failed(self) -> list[Action]:
         return [
             Notice("Kortet kunne ikke sjekkes nå. Trykk Hjelp."),
-            Alert("warn", "H-NTNU-1", "NTNU-API svarte ikke ved innlogging"),
+            Alert("warn", "H-CARD-2", "kort-API svarte ikke ved innlogging"),
         ]
 
     def logout(self, now: int) -> list[Action]:

@@ -17,7 +17,7 @@ Flyt (erstatter de seks skjermene i spesifikasjonen 8.1–8.2):
 
 | Skjerm | Innhold | Valg |
 | --- | --- | --- |
-| Hvile | «Hold NTNU-kortet ditt mot leseren», status «Studio klart» | Ingen |
+| Hvile | «Hold adgangskortet ditt mot leseren», status «Studio klart» | Ingen |
 | Klar | «Hei, Kari!» · Hvem er med (4 plasser i deltakerfarger, programleder alltid med) · Video og lyd / Kun lyd · bordplan · **Start opptak** | Antall personer og video/lyd. Standard: 2 personer, video |
 | Lydsjekk | Nedtelling 3–2–1 mens bordplanen lyser når folk snakker | Ingen |
 | Opptak | Opptakstid, hva som er i bildet nå, mikrofoner som lyser, «Trenger du hjelp?», **Avslutt opptak** (hold inne 2 s) | Hjelp, Avslutt |

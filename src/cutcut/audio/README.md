@@ -17,8 +17,8 @@ Egen prosess (ADR-0014, PL-02) som leser multitrack fra RØDECaster og sender ba
 
 ```bash
 uv sync --extra silero && uv run python tools/fetch_models.py   # Silero-modellen, sjekket med SHA-256
-uv run cutcut audio --site site/ntnu-studio                      # RØDECaster (ASIO, ellers WASAPI)
-uv run cutcut audio --wav opptak.wav --site site/ntnu-studio     # spill av til en kjørende core
+uv run cutcut audio --site site/multimediesenteret                      # RØDECaster (ASIO, ellers WASAPI)
+uv run cutcut audio --wav opptak.wav --site site/multimediesenteret     # spill av til en kjørende core
 ```
 
 Tester (`tests/unit/audio/`) bruker syntetiske signaler, aldri ekte opptak av personer. Frasegrensene sjekkes mot den gylne fila `tests/fixtures/audio/phrases.json`: påstand, spørsmål, nøling, stemme som dør ut, og dyp stemme. Fila oppdateres med vilje med `CUTCUT_UPDATE_GOLDEN=1`. En test viser at målingene får den ekte motoren til å klippe til den som snakker.

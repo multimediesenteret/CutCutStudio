@@ -118,7 +118,7 @@ export interface paths {
         };
         /**
          * Health
-         * @description Same as the status page, for NTNU monitoring (spec 8.5). No sign-in needed.
+         * @description Same as the status page, for external monitoring (spec 8.5). No sign-in needed.
          */
         get: operations["health_api_health_get"];
         put?: never;
@@ -551,9 +551,94 @@ export interface paths {
         get: operations["get_login_api_settings_login_get"];
         /**
          * Put Login
-         * @description Innlogging: «open» (Start-knapp) or «card» (NTNU-kort). Admin only (D-057).
+         * @description Innlogging: «open» (Start-knapp) or «card» (adgangskort). Admin only (D-057).
          */
         put: operations["put_login_api_settings_login_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/setup.yaml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Setup Download
+         * @description «Lagre oppsett»: everything entered in the app as one file (no PINs or passwords).
+         */
+        get: operations["setup_download_api_settings_setup_yaml_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/setup/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Setup Check
+         * @description «Hent oppsett», step 1: what the file would change. Nothing is changed.
+         */
+        post: operations["setup_check_api_settings_setup_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/setup/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Setup Import
+         * @description «Hent oppsett», step 2: use the file. Everything is checked before anything changes.
+         */
+        post: operations["setup_import_api_settings_setup_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/staff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Staff
+         * @description Technicians who can sign in (Innstillinger → Teknikere). Kept in the app, not in
+         *     the repository. ``first_setup``: the list is empty and the admin PIN lets one in.
+         */
+        get: operations["get_staff_api_settings_staff_get"];
+        /**
+         * Put Staff
+         * @description Replace the list. At least one admin, and you stay admin yourself.
+         */
+        put: operations["put_staff_api_settings_staff_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1382,6 +1467,16 @@ export interface components {
             /** Username */
             username: string;
         };
+        /** SetupChanges */
+        SetupChanges: {
+            /** Changes */
+            changes: string[];
+        };
+        /** SetupIn */
+        SetupIn: {
+            /** Text */
+            text: string;
+        };
         /** ShotIn */
         ShotIn: {
             /** Shot */
@@ -1429,6 +1524,13 @@ export interface components {
              * @default true
              */
             video: boolean;
+        };
+        /** StaffIn */
+        StaffIn: {
+            /** Admins */
+            admins?: string[];
+            /** Operators */
+            operators?: string[];
         };
         /** StepIn */
         StepIn: {
@@ -2453,6 +2555,147 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setup_download_api_settings_setup_yaml_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    setup_check_api_settings_setup_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupChanges"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setup_import_api_settings_setup_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupChanges"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_staff_api_settings_staff_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    put_staff_api_settings_staff_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

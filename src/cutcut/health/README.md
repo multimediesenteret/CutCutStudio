@@ -38,7 +38,7 @@ I studioet blir et åpent avvik et varsel i teknikervinduet: rødt gir feil, gul
 
 Touch-skjermen leser sjekkene direkte, ikke varslene. Den sperrer start bare mens en sjekk merket for brukeren (`for_user`: Pearl og ATEM) er rød. Teknikerens avvik kan stå åpent i 30 s etter at feilen er rettet, men brukeren blir ikke holdt tilbake så lenge. Lyd som forsvinner, får brukeren beskjed om fra motoren (`S4`).
 
-`GET /api/health` (samlet status for NTNUs overvåkning) og `GET /api/health/checks` krever ikke innlogging.
+`GET /api/health` (samlet status for Multimediesenterets overvåkning) og `GET /api/health/checks` krever ikke innlogging.
 
 **Morgensjekk (HS-4):** hele katalogen og multiview-sjekken (D-056) kjøres 20 s etter oppstart og hver morgen kl. 07:00 etter PC-ens klokke. Starter studioet etter 07:00, teller oppstartssjekken som dagens morgensjekk. Teknikeren kan også trykke «Kjør alle nå» (`POST /api/health/morning-check`).
 - Hvileskjermen viser resultatet som en liten prikk: grønn, eller gul når teknikeren har noe å se på. Brukeren får aldri detaljene.

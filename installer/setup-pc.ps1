@@ -7,7 +7,7 @@
   Med -Fix rettes det som trygt kan rettes lokalt: strøm, USB-strømsparing, rask oppstart,
   skjermsparer, Windows Update-tider, tidstjeneste og brannmur. Nettverk (fast IP), drivere,
   BIOS og UPS sjekkes bare: de settes opp for hånd. Kan kjøres så ofte man vil.
-  Om NTNU tillater lokale endringer på en administrert PC, avgjøres av Q8.
+  Om Multimediesenteret tillater lokale endringer på en administrert PC, avgjøres av Q8.
 
   Rapporten skrives som Markdown og JSON (samme format som maskintestene) og kan limes inn i
   GitHub-issuet SO-5.
@@ -15,7 +15,7 @@
 .EXAMPLE
   .\installer\setup-pc.ps1                       # bare sjekk
 .EXAMPLE
-  .\installer\setup-pc.ps1 -Fix -NtpServer ntp.ntnu.no -AllowFrom 10.10.10.0/24
+  .\installer\setup-pc.ps1 -Fix -NtpServer ntp.example.org -AllowFrom 10.10.10.0/24
 #>
 [CmdletBinding()]
 param(

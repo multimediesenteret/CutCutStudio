@@ -1,4 +1,4 @@
-# Companion side 10 «REGI» for NTNU-studioet (spec 7.1). Samme knappekart som eksempelet; knappene peker på kamera-ID-er, ikke ATEM-innganger.
+# Companion side 10 «REGI» for studioet (spec 7.1). Samme knappekart som eksempelet; knappene peker på kamera-ID-er, ikke ATEM-innganger.
 schema_version: 1
 preview:
   C1: { row: 0, col: 0 }

@@ -1,6 +1,6 @@
 """Machine test for the PTZ cameras (CA-5, docs/plans/devices-cameras.md 5).
 
-``cutcut hwtest camera --site site/ntnu-studio C2`` talks straight to the camera with the same
+``cutcut hwtest camera --site C:\\CutCut\\site C2`` talks straight to the camera with the same
 driver CutCut uses, and writes the same report as the other machine tests. It answers Q16
 (``SetAiEnable``) and gives the numbers for ``Calibration``.
 

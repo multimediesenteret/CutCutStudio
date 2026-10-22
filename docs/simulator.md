@@ -12,7 +12,7 @@ CutCut Studio er en Windows-app og kan ikke kjøre på Vercel. For å kunne se o
 
 1. **Samme GUI som appen.** Simulatoren bruker `ui/apps/touch` og `ui/apps/tech` uendret. Den lager ikke egne kopier av skjermene. Bare transporten byttes: i stedet for WebSocket mot motoren på regi-PC-en snakker skjermene med en simulert motor i nettleseren.
 2. **Samme regler som appen.** Klippebeslutningene skal komme fra den samme regelkoden som kjører i studio, ikke fra en egen JavaScript-versjon som kan bli ulik.
-3. **Simulerte data.** Mic-aktivitet, multiview (tegnede kamerabilder), ATEM, Companion, Pearl, kameraer og kortleser er simulert. Ingen kall til ekte utstyr, NTNU-API eller Panopto.
+3. **Simulerte data.** Mic-aktivitet, multiview (tegnede kamerabilder), ATEM, Companion, Pearl, kameraer og kortleser er simulert. Ingen kall til ekte utstyr, kort-API eller Panopto.
 4. **Ingen persondata.** Innlogging skjer med fiktive testbrukere («Testkort A/B»). Ingen ekte navn eller kortnummer.
 5. **Tydelig merket.** Fast banner «SIMULATOR – ingen ekte utstyr».
 6. **Statisk side.** Ingen server eller database på Vercel. Hobby-planen holder.
@@ -41,7 +41,7 @@ Ferdige scenarioer ligger som filer i `sim/scenarios/` og brukes både av simula
 | 1. Avspilling | Python-simulatoren kjører scenarioene i CI og lagrer hele forløpet (tilstand og beslutninger) som JSON. Web-simulatoren spiller det av i skjermene | M1 |
 | 2. Interaktiv | Regelmotoren (ren Python uten I/O) kjøres i nettleseren med **Pyodide** (Python i WebAssembly). Kontrollpanelet sender simulert lyd inn, og beslutningene kommer fra samme kode som i studio | Etter M1 |
 
-**Forløp (trinn 1, SIM-7):** `uv run cutcut trace` kjører hver historie i `src/cutcut/sim/trace.py` (nå «samtale» og «panel-laptop») på falsk klokke med ekte motor, studio-tjeneste og hub, og lagrer alle meldinger skjermene ville fått over `/ws`, med NTNU-studioets oppsett (`site/ntnu-studio/`, D-054) i `ui/apps/simulator/public/traces/`. Full tilstand lagres hvert 10. sekund så avspillingen kan hoppe. Forløpene er deterministiske og ligger i git; testen `test_committed_traces_are_up_to_date` feiler når motoren er endret uten at forløpene er laget på nytt, så Vercel alltid viser dagens motor.
+**Forløp (trinn 1, SIM-7):** `uv run cutcut trace` kjører hver historie i `src/cutcut/sim/trace.py` (nå «samtale» og «panel-laptop») på falsk klokke med ekte motor, studio-tjeneste og hub, og lagrer alle meldinger skjermene ville fått over `/ws`, med studioets oppsett (`site/multimediesenteret/`, D-054) i `ui/apps/simulator/public/traces/`. Full tilstand lagres hvert 10. sekund så avspillingen kan hoppe. Forløpene er deterministiske og ligger i git; testen `test_committed_traces_are_up_to_date` feiler når motoren er endret uten at forløpene er laget på nytt, så Vercel alltid viser dagens motor.
 
 Krav til koden for at trinn 2 skal virke: regelmotoren i `src/cutcut/core/` har ingen I/O, ingen tråder og ingen Windows-avhengigheter; klokke og hendelser kommer inn utenfra. Dette er uansett et krav for deterministiske regeltester (I3).
 

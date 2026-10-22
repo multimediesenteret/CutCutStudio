@@ -5,7 +5,7 @@ CutCut Studio har to slags leveranser som publiseres på hver sin måte.
 | Leveranse | Hvor | Hvem bruker den |
 | --- | --- | --- |
 | Selve appen (motor, skjermer, tjenester) | Windows-pakke på GitHub Releases, installert på regi-PC-en | Studioet |
-| Web-simulator: samme skjermer på simulerte data (`docs/simulator.md`) | Vercel (Hobby), bygget fra `main` og pull requests | NTNU, utviklere, agenter |
+| Web-simulator: samme skjermer på simulerte data (`docs/simulator.md`) | Vercel (Hobby), bygget fra `main` og pull requests | Multimediesenteret, utviklere, agenter |
 
 Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjermene serveres av motoren på regi-PC-en.
 
@@ -24,12 +24,12 @@ Appen kjører **aldri** fra Vercel. Den kjører lokalt i studio (I6), og skjerme
   - CI-jobben `ui` bygger det samme og tester `/sim/` med Playwright før merge.
 - **U-10 (godkjent av eier 2026-10-21, D-053):** forsiden `/`, `/touch`, `/tech` og alle ukjente stier går til simulatoren. `concept/` beholdes som arkiv.
 - **Bygg bare når skjermene endres (D-050):** `ignoreCommand` i `vercel.json` kjører `git diff --quiet HEAD^ HEAD -- concept/ ui/ vercel.json package.json pnpm-lock.yaml`. Har siste commit ikke endret noen av dem, hoppes utrullingen over (avslutningskode 0). Ellers, eller hvis forrige commit mangler, bygges det som vanlig. Det sparer utrullinger på Hobby (100 per døgn) når bare dokumentasjon eller Python-kode endres.
-- Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med NTNU-data.
+- Ingen hemmeligheter eller miljøvariabler med nøkler. Siden er offentlig eller beskyttet med Vercels passord, aldri med Multimediesenteret-data.
 
 **Hobby-planen har to begrensninger som styrer hvordan vi jobber:**
 
 1. *Forfatter må være kontoeier.* Hobby blokkerer utrulling fra private repoer når commit-forfatteren ikke har tilgang til Vercel-prosjektet («does not support collaboration for private repositories»). Derfor har alle commits forfatter `Multimediesenteret <magnus.lian@ntnu.no>`, uten `Co-authored-by`-linjer, og CI-jobben `commit-identity` sjekker det. Se `AGENTS.md` 3.
-2. *Ikke-kommersiell bruk.* Hobby er for ikke-kommersielle prosjekter. NTNU bruker det til intern prototyping ved et universitet, uten kommersiell bruk; det holder (Q22, besvart 2026-10-21).
+2. *Ikke-kommersiell bruk.* Hobby er for ikke-kommersielle prosjekter. Multimediesenteret bruker det til intern prototyping ved et universitet, uten kommersiell bruk; det holder (Q22, besvart 2026-10-21).
 
 ## Windows-pakke
 

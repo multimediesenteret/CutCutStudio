@@ -8,7 +8,7 @@ Knappene lages fra studio-oppsettet, så de alltid stemmer med det motoren trykk
 
 ## Filene
 
-`uv run cutcut companion-pages --site site/ntnu-studio` skriver tre filer til `site/ntnu-studio/equipment/companion/`:
+`uv run cutcut companion-pages --site site/multimediesenteret` skriver tre filer til `site/multimediesenteret/equipment/companion/`:
 
 | Fil | Innhold |
 | --- | --- |

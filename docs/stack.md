@@ -13,7 +13,7 @@ Teknologi, versjoner og verktøy for CutCut Studio. Spesifikasjonen 3.1 er fasit
 
 | Del | Valg | Versjon | Merknad |
 | --- | --- | --- | --- |
-| OS | Windows 11 Pro | 23H2 eller nyere | Se Q8 om NTNU-administrasjon |
+| OS | Windows 11 Pro | 23H2 eller nyere | Se Q8 om Multimediesenteret-administrasjon |
 | Python | CPython, pakket med appen | 3.12.x | Egen Python i `C:\CutCut\versions\<v>\` |
 | Pakker Python | `uv` | siste stabile ved M1 | `uv.lock` i git |
 | Node.js | LTS | 24.x | Bare for `atem-bridge` (ADR-0012) og bygging av UI |

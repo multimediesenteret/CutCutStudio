@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 def _map() -> MultiviewMap:
-    mv = load_site(ROOT / "site" / "ntnu-studio").multiview
+    mv = load_site(ROOT / "site" / "multimediesenteret").multiview
     assert mv is not None
     return mv
 

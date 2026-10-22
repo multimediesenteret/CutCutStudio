@@ -1,7 +1,9 @@
 """Roles and sign-in (spec 12.4, D-045).
 
 * ``touch``: requests from the PC itself (127.0.0.1) without a sign-in.
-* ``operator`` / ``admin``: technicians on the staff list in ``site/<studio>/staff.yaml``,
+* ``operator`` / ``admin``: technicians on the staff list, kept in the application
+  (Innstillinger → Teknikere; ``site/<studio>/staff.yaml`` is only the starting point). While
+  the list is empty, the admin PIN signs anyone in as admin, so a new PC can be set up.
   signed in with username + PIN (PIN in Windows Credential Manager). A session cookie that is
   ``HttpOnly`` and ``SameSite=Strict`` lasts 8 hours.
 * Requests from other machines without a sign-in get nothing.
@@ -46,6 +48,10 @@ class Auth:
 
     def sign_in(self, username: str, pin: str) -> tuple[str, Identity]:
         role = self.staff.role_of(username)
+        if role is None and self.staff.empty:
+            # First setup on a new PC: nobody is on the list yet, so the admin PIN lets one in
+            # to add the technicians (Innstillinger → Teknikere).
+            role = "admin"
         if role is None:
             raise HTTPException(401, "Brukeren står ikke på teknikerlisten.")
         try:

@@ -16,15 +16,15 @@ describe("menu per role (D-045)", () => {
 });
 
 describe("shot names", () => {
-  const ntnu = {
+  const studio = {
     participants: [{ id: "P2", name: "Gjest 1" }],
     studio: { inputs: { P1: 1, P2: 2, P3: 3, P4: 4, BIRD: 6, CONTENT: 7 } },
   } as unknown as StudioState;
   it("uses the ATEM names from the studio's input map (D-054)", () => {
-    expect(shotName(ntnu, "CU:P2")).toBe("Camera 2 · Gjest 1");
-    expect(shotName(ntnu, "BIRD")).toBe("Camera 6 · Fugleperspektiv");
-    expect(shotName(ntnu, "CONTENT")).toBe("Camera 7 · Laptop");
-    expect(shotName(ntnu, null)).toBe("–");
+    expect(shotName(studio, "CU:P2")).toBe("Camera 2 · Gjest 1");
+    expect(shotName(studio, "BIRD")).toBe("Camera 6 · Fugleperspektiv");
+    expect(shotName(studio, "CONTENT")).toBe("Camera 7 · Laptop");
+    expect(shotName(studio, null)).toBe("–");
   });
   it("falls back to the default inputs without a map", () => {
     const old = { participants: [], studio: {} } as unknown as StudioState;
