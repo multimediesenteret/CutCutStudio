@@ -51,7 +51,7 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 
 **Utrulling** (spesifikasjonen 12.3)
 
-- [ ] Tag `vX.Y.Z` satt av et menneske
+- [ ] Tag `vX.Y.Z` satt av et menneske: GitHub → **Releases** → **Draft a new release** → skriv `vX.Y.Z` under «Choose a tag» (ny tag på `main`) → **Publish release**. Eller `git tag vX.Y.Z && git push origin vX.Y.Z`. Agenten kan ikke sette tagger fra sitt miljø
 - [ ] Windows-pakke, SBOM og sjekksum bygget av CI og lagt på GitHub-releasen (workflow `release`, starter av taggen)
 - [ ] Installert i servicevindu med `installer/install.ps1` ved siden av forrige versjon; `current` byttet
 - [ ] Ny versjon svarer på `/api/health` (ellers ruller `install.ps1` tilbake selv), og morgensjekken er kjørt
