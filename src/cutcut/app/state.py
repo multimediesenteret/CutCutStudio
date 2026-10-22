@@ -132,6 +132,7 @@ class ProcessInfo(_S):
 
     name: str
     running: bool
+    pid: int | None = None  # for the 72-hour test (hwtest soak), which measures it with psutil
     uptime_s: int = 0
     restarts_10min: int = 0
     last_reason: str | None = None

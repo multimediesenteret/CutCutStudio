@@ -116,9 +116,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     hw.add_argument(
         "what",
-        choices=["audio", "atem", "camera", "vision", "faces"],
+        choices=["audio", "atem", "camera", "vision", "faces", "soak"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
-        "vision: capture-kortet, INOGENI (VI-4); faces: ansikt og munn på et opptak (P6)",
+        "vision: capture-kortet, INOGENI (VI-4); faces: ansikt og munn på et opptak (P6); "
+        "soak: 72-timerstesten (SO-8)",
     )
     hw.add_argument("--site", type=Path, default=None, help="studio-oppsett")
     hw.add_argument(
@@ -136,6 +137,10 @@ def build_parser() -> argparse.ArgumentParser:
     hw.add_argument("--file", type=Path, default=None, help="opptak av multiviewen (faces)")
     hw.add_argument(
         "--rounds", type=int, default=1500, help="analyserunder (faces; standard 1500 = 5 min)"
+    )
+    hw.add_argument("--hours", type=float, default=72.0, help="varighet (soak; standard 72)")
+    hw.add_argument(
+        "--every", type=float, default=10.0, help="minutter mellom målingene (soak; standard 10)"
     )
     hw.add_argument(
         "--device",
@@ -232,6 +237,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.site is None or args.file is None:
                 parser.error("hwtest faces trenger --site og --file (opptak av multiviewen)")
             return faces_test(args.site, args.file, args.rounds, out)
+        if args.what == "soak":
+            from cutcut.hwtest.soak import main as soak_test
+
+            return soak_test(args.site, args.api, args.hours, args.every, out)
         if args.what == "camera":
             from cutcut.hwtest.camera import main as camera_test
 

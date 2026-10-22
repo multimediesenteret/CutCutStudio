@@ -36,6 +36,7 @@ DECISION_COLUMNS: Final = (
     "mode",
     "blocked_by",
     "shadow",
+    "switch",
     "correlation_id",
 )
 SESSION_COLUMNS: Final = (
