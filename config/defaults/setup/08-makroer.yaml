@@ -1,0 +1,9 @@
+schema_version: 1
+number: 8
+id: makroer
+title: "Makroer og grafikk"
+why: "Layoutene (to- og tredelt bilde) er makroer i ATEM; uten dem kan CutCut bare kutte mellom enkeltbilder."
+how:
+  - "Lag makroene fra spesifikasjonen 7.2 med **riktig nummer og navn**."
+  - "Legg «Kun lyd»-grafikken og bakgrunnen i mediaspillerne."
+checks: ["H-ATEM-3"]

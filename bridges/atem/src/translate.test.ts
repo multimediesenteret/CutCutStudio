@@ -138,5 +138,12 @@ describe("atem.cmd", () => {
     expect(parseCommand({ id: "c", op: "format_disk" })).toBeNull();
     expect(parseCommand(null)).toBeNull();
     expect(parseCommand({ id: "d", op: "run_macro", args: { macro: 40 } })?.args.macro).toBe(40);
+    // setup step 3, «Fiks for meg»: ATEM limits long names to 20 and short names to 4
+    const name = { input: 6, long: "LAPTOP", short: "LAPT" };
+    expect(parseCommand({ id: "e", op: "input_name", args: name })?.args).toEqual(name);
+    expect(
+      parseCommand({ id: "f", op: "input_name", args: { ...name, short: "LAPTOP" } }),
+    ).toBeNull();
+    expect(parseCommand({ id: "g", op: "input_name", args: { input: 6 } })).toBeNull();
   });
 });

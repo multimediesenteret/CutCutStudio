@@ -109,6 +109,13 @@ class HealthEngine:
         await asyncio.gather(*(self._run(s) for s in self._states.values() if not s.running))
         return self.results()
 
+    async def run_matching(self, wanted: Callable[[str], bool]) -> list[CheckResult]:
+        """The checks of one setup step now («Sjekk steget», HS-5); a running check is not
+        started twice, its newest answer is returned."""
+        states = [s for s in self._states.values() if wanted(s.check.id)]
+        await asyncio.gather(*(self._run(s) for s in states if not s.running))
+        return [s.last for s in states if s.last is not None]
+
     async def loop(self, every_s: float = 0.25) -> None:
         while True:
             try:

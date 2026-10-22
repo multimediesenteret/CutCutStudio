@@ -1,0 +1,12 @@
+schema_version: 1
+number: 5
+id: rodecaster
+title: "RØDECaster"
+why: "CutCut kutter etter hvem som snakker, så hver mikrofon må komme inn på sitt eget spor."
+how:
+  - "Fader 1–4 = **M1**–**M4**, fader 5 = **laptop**."
+  - "USB 1: **multitrack, pre-fader**."
+  - "Hovedmiksen går til ATEM."
+  - "Under **Mikrofoner** på oppsettsiden: la hver person si noen ord, og mål stillhet. Lekkasjen lagres som fasit."
+checks: ["H-AUD-1"]
+panel: mics

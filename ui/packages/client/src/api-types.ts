@@ -788,6 +788,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/setup/steps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Wizard Steps
+         * @description The setup helper's ten steps with their checks and approvals (spec 8.4, HS-5).
+         */
+        get: operations["wizard_steps_api_setup_steps_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/setup/steps/{step}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Wizard Approve
+         * @description «Godkjent» with the technician's name and time; refused while a check is red.
+         */
+        post: operations["wizard_approve_api_setup_steps__step__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/setup/steps/{step}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Wizard Check
+         * @description «Sjekk steget»: run the step's health checks now (they only read).
+         */
+        post: operations["wizard_check_api_setup_steps__step__check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/setup/steps/{step}/fix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Wizard Fix
+         * @description «Fiks for meg», after confirmation. 409 during a recording or when unsafe.
+         */
+        post: operations["wizard_fix_api_setup_steps__step__fix_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/shadow": {
         parameters: {
             query?: never;
@@ -998,6 +1078,18 @@ export interface components {
             /** Ts */
             ts: string;
         };
+        /** Approval */
+        Approval: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** By */
+            by: string;
+            /** Note */
+            note?: string | null;
+        };
         /** CheckResult */
         CheckResult: {
             /**
@@ -1123,6 +1215,18 @@ export interface components {
             pv_state: "IDLE" | "ARMED" | "READY";
             /** Shadow */
             shadow: boolean;
+        };
+        /** Fix */
+        Fix: {
+            /**
+             * Action
+             * @constant
+             */
+            action: "atem_input_names";
+            /** Confirm */
+            confirm: string;
+            /** Label */
+            label: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1518,6 +1622,30 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** SetupStep */
+        SetupStep: {
+            /** Checks */
+            checks?: string[];
+            fix?: components["schemas"]["Fix"] | null;
+            /** How */
+            how: string[];
+            /** Id */
+            id: string;
+            /** Number */
+            number: number;
+            /** Panel */
+            panel?: ("devices" | "atem" | "mics" | "multiview") | null;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Title */
+            title: string;
+            /** Why */
+            why: string;
+        };
         /** ShotIn */
         ShotIn: {
             /** Shot */
@@ -1581,6 +1709,28 @@ export interface components {
         /** StepIn */
         StepIn: {
             step: components["schemas"]["TouchStep"];
+        };
+        /**
+         * StepView
+         * @description One step as the wizard shows it: the text, and the checks side by side.
+         */
+        StepView: {
+            approved?: components["schemas"]["Approval"] | null;
+            /**
+             * Fix Available
+             * @default false
+             */
+            fix_available: boolean;
+            /** Fix Blocked */
+            fix_blocked?: string | null;
+            /** Results */
+            results: components["schemas"]["CheckResult"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "not_checked" | "red" | "yellow" | "green" | "approved";
+            step: components["schemas"]["SetupStep"];
         };
         /** StudioInfo */
         StudioInfo: {
@@ -2952,6 +3102,119 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    wizard_steps_api_setup_steps_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StepView"][];
+                };
+            };
+        };
+    };
+    wizard_approve_api_setup_steps__step__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                step: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StepView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    wizard_check_api_setup_steps__step__check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                step: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StepView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    wizard_fix_api_setup_steps__step__fix_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                step: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StepView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

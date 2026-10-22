@@ -4,6 +4,7 @@ import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";
 import { AtemSetup } from "./AtemSetup";
+import { Wizard } from "./Wizard";
 
 interface DeviceRow {
   key: string;
@@ -524,26 +525,14 @@ function Mics({ ctx }: { ctx: Ctx }) {
 
 export function Setup({ ctx }: { ctx: Ctx }) {
   return (
-    <div className="grid2">
-      <div className="span">
-        <Devices ctx={ctx} />
-      </div>
-      <div className="span">
-        <Multiview />
-      </div>
-      <div className="span">
-        <AtemSetup ctx={ctx} />
-      </div>
-      <div className="span">
-        <Mics ctx={ctx} />
-      </div>
-      <div className="panel span">
-        <span className="lbl">Resten av veiviseren</span>
-        <p className="muted">
-          Sjekk og retting per enhet (kameraer, RØDECaster, Companion, Pearl) kommer i M3 (
-          <span className="mono">docs/plans/setup-health.md</span>).
-        </p>
-      </div>
-    </div>
+    <Wizard
+      ctx={ctx}
+      panels={{
+        devices: <Devices ctx={ctx} />,
+        multiview: <Multiview />,
+        atem: <AtemSetup ctx={ctx} />,
+        mics: <Mics ctx={ctx} />,
+      }}
+    />
   );
 }

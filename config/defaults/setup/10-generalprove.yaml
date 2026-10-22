@@ -1,0 +1,9 @@
+schema_version: 1
+number: 10
+id: generalprove
+title: "Generalprøve"
+why: "Siste sjekk med ekte mennesker: kutter CutCut slik det skal i dette rommet?"
+how:
+  - "Alle deltakerne sitter på sine plasser og snakker i **5 minutter**."
+  - "Følg kuttene i teknikervinduet. Avvik noteres før du godkjenner."
+checks: []

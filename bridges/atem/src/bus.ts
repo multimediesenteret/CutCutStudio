@@ -36,8 +36,8 @@ export class Envelope {
 
 export interface AtemCommand {
   id: string;
-  op: "cut" | "preview" | "run_macro";
-  args: { input?: number; macro?: number };
+  op: "cut" | "preview" | "run_macro" | "input_name";
+  args: { input?: number; macro?: number; long?: string; short?: string };
 }
 
 /** Parse an `atem.cmd` payload. Anything unexpected is refused, never guessed. */
@@ -49,6 +49,23 @@ export function parseCommand(payload: unknown): AtemCommand | null {
   if (p.op === "cut" || p.op === "preview") {
     if (typeof args.input !== "number" || !Number.isInteger(args.input)) return null;
     return { id: p.id, op: p.op, args: { input: args.input } };
+  }
+  if (p.op === "input_name") {
+    const ok =
+      typeof args.input === "number" &&
+      Number.isInteger(args.input) &&
+      typeof args.long === "string" &&
+      typeof args.short === "string" &&
+      args.long.length > 0 &&
+      args.long.length <= 20 &&
+      args.short.length > 0 &&
+      args.short.length <= 4;
+    if (!ok) return null;
+    return {
+      id: p.id,
+      op: "input_name",
+      args: { input: args.input as number, long: args.long as string, short: args.short as string },
+    };
   }
   if (p.op === "run_macro") {
     if (typeof args.macro !== "number" || !Number.isInteger(args.macro)) return null;

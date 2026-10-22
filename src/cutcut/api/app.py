@@ -25,6 +25,7 @@ from cutcut.common.ids import Shot
 from cutcut.common.models.session import ShowChoice, TouchStep, User
 from cutcut.common.models.show import RulesPreset
 from cutcut.health.model import CheckResult
+from cutcut.setup.steps import StepView
 
 log = logging.getLogger(__name__)
 
@@ -293,6 +294,30 @@ def create_app(
         """«Lagre ATEM som fasit»: format, input names and AUX outputs as now (H-ATEM-2)."""
         require(me, "admin")
         return studio.save_atem_baseline(me.role, me.actor)
+
+    @app.get("/api/setup/steps", tags=["setup"])
+    async def wizard_steps(me: Who) -> list[StepView]:
+        """The setup helper's ten steps with their checks and approvals (spec 8.4, HS-5)."""
+        require(me, "operator")
+        return studio.setup_view()
+
+    @app.post("/api/setup/steps/{step}/check", tags=["setup"])
+    async def wizard_check(step: str, me: Who) -> StepView:
+        """«Sjekk steget»: run the step's health checks now (they only read)."""
+        require(me, "operator")
+        return await studio.setup_check(step, me.role, me.actor)
+
+    @app.post("/api/setup/steps/{step}/fix", tags=["setup"])
+    async def wizard_fix(step: str, me: Who) -> StepView:
+        """«Fiks for meg», after confirmation. 409 during a recording or when unsafe."""
+        require(me, "admin")
+        return studio.setup_fix(step, me.role, me.actor)
+
+    @app.post("/api/setup/steps/{step}/approve", tags=["setup"])
+    async def wizard_approve(step: str, me: Who) -> StepView:
+        """«Godkjent» with the technician's name and time; refused while a check is red."""
+        require(me, "admin")
+        return studio.setup_approve(step, me.role, me.actor)
 
     @app.get("/api/setup/mics", tags=["setup"])
     async def mics(me: Who) -> dict[str, Any]:

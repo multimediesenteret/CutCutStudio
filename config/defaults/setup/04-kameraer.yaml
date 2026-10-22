@@ -1,0 +1,11 @@
+schema_version: 1
+number: 4
+id: kameraer
+title: "Kameraer"
+why: "CutCut flytter bare kameraer som svarer på protokollen og står i manuell modus; ellers kan bildet endre seg uten at noen ba om det."
+how:
+  - "**OBSBOT Tail 2:** fast IP, **VISCA over IP** og **OSC** på, NDI av, HDMI **1080p50**, manuell hvitbalanse og eksponering."
+  - "**Canon CR-N300:** fast IP, **XC-protokoll** på, egen API-bruker, HDMI/SDI **1080/50P**, manuell hvitbalanse og eksponering."
+  - "**Fugleperspektiv:** HDMI **1080p50**, manuell hvitbalanse."
+  - "Kjør maskintesten per kamera: `cutcut hwtest camera --camera C2`."
+checks: ["H-CAM-C*", "H-CAM-MOVE"]

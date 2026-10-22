@@ -10,6 +10,13 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- HS-5, HS-6: setup-hjelperen på teknikersiden (Oppsett). Ti steg fra tomt studio til «Klar for produksjon» (spes. 8.4).
+  - Hvert steg viser hva og hvorfor, slik gjør du, sjekkene med forventet og faktisk verdi, og «Godkjenn steget» med navn og tid. Et steg med rød sjekk kan ikke godkjennes.
+  - «Sjekk steget» kjører stegets helsesjekker med en gang; de bare leser.
+  - «Fiks for meg» i steg 3 gir ATEM-inngangene riktige navn (`C1`–`C4`, `BIRD`, `LAPTOP`, `C7`) etter bekreftelse. Bare navnene endres, aldri program eller preview, og knappen er sperret under opptak. `atem-bridge` har fått kommandoen `input_name`.
+  - Stegene er data i `config/defaults/setup/NN-<id>.yaml`; et studio kan bytte ut et steg med en fil med samme navn i `site/<studio>/setup/`.
+  - Den trykte guiden `docs/setup/README.md` lages av de samme filene (`tools/gen_setup_guide.py`), og en test feiler hvis den er utdatert.
+  - Enheter, ATEM, mikrofoner og multiview vises nå i sitt steg i stedet for under hverandre.
 - SE-6: show-typer. Studioets type velges under Innstillinger → Show-type (admin), ikke av brukeren (D-036).
   - Typen gir regel-forhåndsvalget når en økt starter. Finjusteringer beholdes.
   - «Kun lyd» tar bare opp lyd, med «Kun lyd»-grafikken på program og uten kutt til kameraer.

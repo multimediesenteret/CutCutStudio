@@ -30,7 +30,7 @@ class CheckResult(BaseModel):
 - **Varsling:** teknikervindu (lyd ved rødt), touch (bare rødt som brukeren må vite om), Companion `regi_health`, og e-post ved rødt over 1 min til mottakerne som er lagt inn i appen (Q29, D-058, D-060), sendt fra en egen oppgave som aldri påvirker motoren.
 - **Morgensjekk:** ved oppstart og kl. 07:00 kjøres hele katalogen; resultatet vises som prikk på hvileskjermen.
 
-**Setup-steg som data:** `site/<studio>/setup/NN-<navn>.yaml` med tekst (hva og hvorfor, slik gjør du), forventede verdier, hvilken sjekk som brukes og om «Fiks for meg» finnes. Samme filer genererer oppsettsguiden i `docs/setup/` (12.1).
+**Setup-steg som data:** `config/defaults/setup/NN-<navn>.yaml`, og et studio kan bytte ut et steg med en fil med samme navn i `site/<studio>/setup/`. Hver fil har tekst (hva og hvorfor, slik gjør du), forventede verdier, hvilken sjekk som brukes og om «Fiks for meg» finnes. Samme filer genererer oppsettsguiden i `docs/setup/` (12.1).
 
 ## 3. Tilstander og feil
 
@@ -59,8 +59,8 @@ Bare egne moduler og enhetsklientene. Windows-sjekker (`powercfg`, driverversjon
 | HS-2 | Sjekker for prosesser, PC, lyd, Pearl, ATEM, Companion (`H-PROC`, `H-PC`, `H-AUD`, `H-PRL`, `H-ATEM-1`, `H-COMP-1`) | Grønne på test-PC og i studio (M2) |
 | HS-3 | Varsling: teknikervindu, touch, Companion, e-post/Teams (Q29) | Rødt over 1 min gir melding |
 | HS-4 | Morgensjekk kl. 07:00 og ved oppstart | Prikk på hvileskjermen |
-| HS-5 | Setup-motor og steg-format, guide-generering | Guide i `docs/setup/` sjekkes i CI |
-| HS-6 | Setup-steg 1–10, ett utstyr av gangen | Hvert steg testet i studio med tekniker |
+| HS-5 | Setup-motor og steg-format, guide-generering | Guide i `docs/setup/` sjekkes i CI. Gjort |
+| HS-6 | Setup-steg 1–10, ett utstyr av gangen | Hvert steg testet i studio med tekniker. Stegene, sjekkene, godkjenningen og «Fiks for meg» for ATEM-navnene er laget og testet mot simulator; prøven i studio gjenstår |
 | HS-1b | Utstyrsadresser i teknikervinduet og multiview-sjekk (`H-MV-0`–`H-MV-11`) mot rutekart, show og ATEM ved oppstart og på forespørsel (D-055, D-056) | Gjort i M1 mot simulator; mot ekte ATEM med `atem-bridge` (M2) |
 | HS-7 | Resten av katalogen (`H-CAM-*`, `H-VID-*`, `H-CARD-1`, `H-CARD-2`, `H-ATEM-2/3/4`) | Komplett katalog (M3). Gjort, unntatt `H-CARD-1` og `H-CARD-2`, som kommer med kortinnloggingen (M4, D-057) |
 

@@ -1,0 +1,12 @@
+schema_version: 1
+number: 2
+id: pc
+title: "PC og Windows"
+why: "Strømsparing og oppdateringer midt i et opptak er den vanligste grunnen til at en studio-PC stopper."
+how:
+  - "Strømplan: **Høy ytelse**, skjerm og disk slås aldri av."
+  - "Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**."
+  - "Windows Update → Aktive timer: **07:00–23:00**."
+  - "Tid: synkroniser mot **NTP** (samme tid som Pearl)."
+  - "Noter driverversjonene for NVIDIA, RØDECaster ASIO, capture-kortet og TWN3. **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt."
+checks: ["H-PC-*", "H-PROC-*"]

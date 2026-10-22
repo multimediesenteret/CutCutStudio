@@ -50,6 +50,37 @@
         "title": "AlertInfo",
         "type": "object"
       },
+      "Approval": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "by": {
+            "title": "By",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "required": [
+          "by",
+          "at"
+        ],
+        "title": "Approval",
+        "type": "object"
+      },
       "CheckResult": {
         "additionalProperties": false,
         "properties": {
@@ -342,6 +373,31 @@
           "program_ms"
         ],
         "title": "EngineInfo",
+        "type": "object"
+      },
+      "Fix": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "atem_input_names",
+            "title": "Action",
+            "type": "string"
+          },
+          "confirm": {
+            "title": "Confirm",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "label",
+          "confirm"
+        ],
+        "title": "Fix",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1209,6 +1265,87 @@
         "title": "SetupIn",
         "type": "object"
       },
+      "SetupStep": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "fix": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Fix"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "how": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "How",
+            "type": "array"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "maximum": 99.0,
+            "minimum": 1.0,
+            "title": "Number",
+            "type": "integer"
+          },
+          "panel": {
+            "anyOf": [
+              {
+                "enum": [
+                  "devices",
+                  "atem",
+                  "mics",
+                  "multiview"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Panel"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "id",
+          "title",
+          "why",
+          "how"
+        ],
+        "title": "SetupStep",
+        "type": "object"
+      },
       "ShotIn": {
         "additionalProperties": false,
         "properties": {
@@ -1336,6 +1473,65 @@
           "step"
         ],
         "title": "StepIn",
+        "type": "object"
+      },
+      "StepView": {
+        "description": "One step as the wizard shows it: the text, and the checks side by side.",
+        "properties": {
+          "approved": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Approval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fix_available": {
+            "default": false,
+            "title": "Fix Available",
+            "type": "boolean"
+          },
+          "fix_blocked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fix Blocked"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "not_checked",
+              "red",
+              "yellow",
+              "green",
+              "approved"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "step": {
+            "$ref": "#/components/schemas/SetupStep"
+          }
+        },
+        "required": [
+          "step",
+          "state",
+          "results"
+        ],
+        "title": "StepView",
         "type": "object"
       },
       "StudioInfo": {
@@ -3130,6 +3326,161 @@
           }
         },
         "summary": "Multiview Check",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/steps": {
+      "get": {
+        "description": "The setup helper's ten steps with their checks and approvals (spec 8.4, HS-5).",
+        "operationId": "wizard_steps_api_setup_steps_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StepView"
+                  },
+                  "title": "Response Wizard Steps Api Setup Steps Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Wizard Steps",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/steps/{step}/approve": {
+      "post": {
+        "description": "«Godkjent» with the technician's name and time; refused while a check is red.",
+        "operationId": "wizard_approve_api_setup_steps__step__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "step",
+            "required": true,
+            "schema": {
+              "title": "Step",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StepView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wizard Approve",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/steps/{step}/check": {
+      "post": {
+        "description": "«Sjekk steget»: run the step's health checks now (they only read).",
+        "operationId": "wizard_check_api_setup_steps__step__check_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "step",
+            "required": true,
+            "schema": {
+              "title": "Step",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StepView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wizard Check",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/steps/{step}/fix": {
+      "post": {
+        "description": "«Fiks for meg», after confirmation. 409 during a recording or when unsafe.",
+        "operationId": "wizard_fix_api_setup_steps__step__fix_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "step",
+            "required": true,
+            "schema": {
+              "title": "Step",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StepView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wizard Fix",
         "tags": [
           "setup"
         ]
