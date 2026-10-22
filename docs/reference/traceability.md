@@ -37,7 +37,7 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `S6` | Implementert | `src/cutcut/core/engine.py`, `src/cutcut/core/speakers.py` | 7 |
 | `PV1` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `PV2` | Implementert | `src/cutcut/devices/cameras/guarded.py` | 3 |
-| `PV3` | Planlagt: M4 – video_confirm | – | 0 |
+| `PV3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `PV4` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `K1` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `K2` | Implementert | `src/cutcut/core/engine.py` | 2 |
@@ -47,9 +47,9 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `H2` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `H3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `H4` | Implementert | `src/cutcut/core/engine.py` | 2 |
-| `R1` | Planlagt: M4 – reactions | – | 0 |
-| `R2` | Planlagt: M4 – reactions | – | 0 |
-| `R3` | Planlagt: M4 – reactions | – | 0 |
+| `R1` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `R2` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `R3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `F1` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `F2` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `F3` | Implementert | `src/cutcut/core/engine.py` | 2 |
@@ -62,9 +62,9 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `AT4` | Implementert | `src/cutcut/devices/cameras/service.py` | 1 |
 | `AT5` | Implementert | `src/cutcut/app/studio.py` | 1 |
 | `AT6` | Implementert | `src/cutcut/app/studio.py` | 1 |
-| `V1` | Planlagt: M4 – video_confirm / reactions | – | 0 |
-| `V2` | Planlagt: M4 – video_confirm / reactions | – | 0 |
-| `V3` | Planlagt: M4 – video_confirm / reactions | – | 0 |
-| `V4` | Planlagt: M4 – video_confirm / reactions | – | 0 |
-| `V5` | Planlagt: M4 – video_confirm / reactions | – | 0 |
-| `V6` | Planlagt: M4 – video_confirm / reactions | – | 0 |
+| `V1` | Implementert | `src/cutcut/core/engine.py` | 3 |
+| `V2` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `V3` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `V4` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `V5` | Implementert | `src/cutcut/core/engine.py` | 2 |
+| `V6` | Planlagt: senere – blikkretning, eksperimentell (6.5) | – | 0 |

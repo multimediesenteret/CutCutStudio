@@ -16,6 +16,7 @@ Hold and release (5.11) filter everything except override and lost content.
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import StrEnum
@@ -61,6 +62,7 @@ from cutcut.core.intents import (
     DirectCut,
     FrameCamera,
     Intent,
+    NudgeCamera,
     PrepareLayout,
     SetCompanionVariable,
     SetPreview,
@@ -89,6 +91,14 @@ PREVIEW_LEAD_MS = 350
 IDLE_FALLBACK_MS = 1500
 # 10.4: a speaker cut shows the new shot on preview at least this long first (unless K3).
 MIN_PREVIEW_LEAD_MS = 300
+# V1: a mouth this active counts as moving, and stays «moving» this long after.
+MOUTH_ON = 0.3
+MOUTH_RECENT_MS = 300
+# V4: where a face should sit in a close-up, the step size, and how often.
+V4_TARGET_X = 0.5
+V4_TARGET_Y = 0.42
+V4_STEP = 0.1
+V4_EVERY_MS = 2000
 # F-1: a switch in shadow logs the same «would have» again only after this long.
 SHADOW_REPEAT_MS = 2000
 # 5.6: the base-mode shots a layout may replace (speaker, crosstalk, ping-pong, and the
@@ -195,6 +205,14 @@ class Engine:
         self._on_air_before: set[CameraId] = set()
         self._zoomed: set[CameraId] = set()
         self._f3_waiting: set[CameraId] = set()
+        # V1, V3, V4, V5, PV3, R1: what the video layer has seen
+        self._mouth_at: dict[ParticipantId, int] = {}
+        self._reacts: dict[ParticipantId, deque[tuple[int, float]]] = {}
+        self._still_since: dict[SourceId, int] = {}
+        self._v4_at: dict[CameraId, int] = {}
+        self._leak_noted: set[ParticipantId] = set()
+        self._r2_noted: ParticipantId | None = None
+        self.last_reaction_ms = -(10**9)
         self._zoom: tuple[str, CameraId, int] | None = None
         self._shadow_seen: dict[tuple[str, str, str, RuleId], int] = {}
         self.last_bird_ms = -(10**9)
@@ -266,6 +284,7 @@ class Engine:
             self.rules,
         )
         self._reconcile(inp)
+        self._observe(inp)
         self.mode = Mode.for_show(len(self.show.participants), self.content.active, self.audio_only)
 
         if self.audio_only:
@@ -394,7 +413,7 @@ class Engine:
             tile = inp.vision.get(SourceId(camera.value))
             why = None
             if tile is not None and tile.moving:
-                why = RuleId.S1
+                why = RuleId.V5  # the picture moves: not a valid angle until it stands still
             elif tile is not None and not tile.face_ok:
                 why = RuleId.S2
             if why is not None:
@@ -425,6 +444,10 @@ class Engine:
         if self.pv_state is PreviewState.ARMED:
             self.pv_state = PreviewState.READY
             self.ready_since = self._now
+        pv3 = self._pv3(proposal, inp)
+        if pv3 is not None:
+            self._wait(proposal, pv3)
+            return
         if self._cut_point(proposal):
             self._take(proposal)
 
@@ -436,6 +459,7 @@ class Engine:
             self._propose_crosstalk,
             self._propose_speaker,
             self._propose_insert_return,
+            self._propose_reaction,
             self._propose_variation,
             self._propose_silence,
         ):
@@ -709,11 +733,33 @@ class Engine:
                 required = r.T4_host_backchannel_s * 1000
                 rule = RuleId.T4
                 measures["host_backchannel"] = 1
+        if self._mouth_moves(pid) and rule in (RuleId.T2, RuleId.H1):
+            mode = self._mode("video_confirm")
+            if mode == "on":  # V1: the mouth moves in the right camera, so trust the mic sooner
+                required *= r.V1_factor
+                rule = RuleId.V1
+                measures["v1_factor"] = r.V1_factor
+            elif mode == "shadow":
+                shot = close_up(pid)
+                self._shadow_note("video_confirm", "preview", shot, RuleId.V1, "Munnen beveger seg")
         return int(required), rule, measures
 
     def _propose_speaker(self, inp: Inputs) -> Proposal | None:
         """T2: a new confirmed speaker goes to preview first, then to program (5.9)."""
         speaking = self.speakers.speaking()
+        leaks = [t for t in speaking if self._mouth_still(t.pid, t.speaking_since)]
+        if leaks:
+            mode = self._mode("video_confirm")
+            for t in leaks:  # V1: an active mic with a still mouth is leakage, not speech
+                why = f"Mic aktiv, men munnen står stille ({self.show.participant(t.pid).name})"
+                if mode == "shadow":
+                    self._shadow_note("video_confirm", "wait", close_up(t.pid), RuleId.V1, why)
+                elif t.pid not in self._leak_noted:  # once per speaking run
+                    self._leak_noted.add(t.pid)
+                    self._decide("wait", close_up(t.pid), RuleId.V1, why, blocked_by=RuleId.V1)
+            if mode == "on":
+                speaking = [t for t in speaking if t not in leaks]
+        self._leak_noted &= {t.pid for t in leaks}
         if not speaking:
             return None
         best = max(speaking, key=lambda t: (t.score(self.rules), t.host, -int(t.pid.value[1])))
@@ -733,6 +779,8 @@ class Engine:
         if shot == self.program:
             if self.insert is not None and run >= required:
                 # R3: the listener on screen starts talking; they are now the speaker
+                if self.insert.rule is RuleId.R1:
+                    self._decide("hold", shot, RuleId.R3, "Lytteren snakker; taler-reglene gjelder")
                 self.insert = None
                 self.speaker_on_air = best.pid
                 self.speaker_on_air_since = self._now
@@ -801,10 +849,15 @@ class Engine:
                 insert_ms=int(r.B5_min_s * 1000),
             )
         listener = self._listener_for(speaker)
+        reacting = self._most_reacting(speaker)
+        if reacting is not None and self._mode("reactions") == "on":
+            listener = reacting  # V3: the listener who reacts most in the last V3_window_s
         if listener is not None:
             return Proposal(
                 close_up(listener),
-                RuleId.T7,
+                RuleId.V3
+                if listener == reacting and self._mode("reactions") == "on"
+                else RuleId.T7,
                 "insert",
                 f"Reaksjonsbilde av {self.show.participant(listener).name}",
                 {"on_air_ms": on_air_ms},
@@ -1002,6 +1055,8 @@ class Engine:
         measures["preview_ms"] = self._now - self.preview_since
         transition: Literal["cut", "mix"] = "mix" if is_layout(p.shot) else "cut"
         self._intent(Take(transition))
+        if p.rule is RuleId.R1:
+            self.last_reaction_ms = self._now  # R2: at most one per R2_min_gap_s
         if p.insert_ms is not None and p.speaker is not None:
             self.insert = Insert(
                 p.rule, p.return_to or self.program, p.speaker, self._now + p.insert_ms
@@ -1082,6 +1137,158 @@ class Engine:
                 self.vars[name] = value
                 self._intent(SetCompanionVariable(name, value))
 
+    # -- the picture rules (6.5: V1–V5, PV3) and reactions (R1–R3) -------------------------
+
+    def _observe(self, inp: Inputs) -> None:
+        """Keep what the video layer saw: mouths, reactions and still pictures."""
+        v, now = inp.vision, self._now
+        if v is None:
+            self._still_since.clear()
+            return
+        window = int(self.rules.V3_window_s * 1000)
+        for p in self.show.participants:
+            tile = v.get(SourceId(p.camera.value))
+            if tile is None:
+                continue
+            if tile.mouth >= MOUTH_ON:
+                self._mouth_at[p.id] = now
+            hist = self._reacts.setdefault(p.id, deque())
+            hist.append((now, max(tile.smile, tile.nod)))
+            while hist and now - hist[0][0] > window:
+                hist.popleft()
+        for src, tile in v.items():
+            if tile.moving or not tile.face_ok:
+                self._still_since.pop(src, None)
+            else:
+                self._still_since.setdefault(src, now)
+
+    def _vision_on(self) -> bool:
+        return self._mode("video_confirm") != "off"
+
+    def _mouth_moves(self, pid: ParticipantId) -> bool:
+        at = self._mouth_at.get(pid)
+        return self._vision_on() and at is not None and self._now - at <= MOUTH_RECENT_MS
+
+    def _mouth_still(self, pid: ParticipantId, since: int | None) -> bool:
+        """V1 leakage: the mic has been active for V1_leak_ms and the mouth has not moved."""
+        if not self._vision_on() or since is None or not self._still_since:
+            return False
+        if self._now - since < self.rules.V1_leak_ms:
+            return False
+        at = self._mouth_at.get(pid)
+        return at is None or at < since
+
+    def _pv3(self, p: Proposal, inp: Inputs) -> RuleId | None:
+        """PV3: with video, the preview window must show a valid, still face before TAKE."""
+        if self._mode("video_confirm") != "on" or inp.vision is None:
+            return None
+        cam = shots.camera_of(p.shot, self.show)
+        if cam is None or shots.speaker_of(p.shot) is None:
+            return None
+        src = SourceId(cam.value)
+        tile = inp.vision.get(src)
+        if tile is None:
+            return None
+        if not tile.face_ok:
+            return RuleId.V2  # no valid face in the window
+        since = self._still_since.get(src)
+        if since is None or self._now - since < self.rules.V5_still_s * 1000:
+            return RuleId.PV3
+        return None
+
+    def _reaction(self, pid: ParticipantId) -> float:
+        hist = self._reacts.get(pid)
+        score = max((s for _, s in hist), default=0.0) if hist else 0.0
+        if self.speakers.get(pid).laughing:
+            score = 1.0  # the listener's own mic hears the laugh (R1)
+        return score
+
+    def _most_reacting(self, speaker: ParticipantId) -> ParticipantId | None:
+        """V3: the listener with the strongest smile, nod or laugh in the last V3_window_s."""
+        others = [p.id for p in self.show.participants if p.id != speaker]
+        if not others or not self._reacts:
+            return None
+        best = max(others, key=self._reaction)
+        return best if self._reaction(best) >= self.rules.R1_react_min else None
+
+    def _propose_reaction(self, inp: Inputs) -> Proposal | None:
+        """R1: a listener nods, smiles or laughs while the speaker has talked a while →
+        a reaction shot in the speaker's next pause (K4). R2: at most one per R2_min_gap_s,
+        never on answers shorter than R1_speaker_min_s."""
+        mode = self._mode("reactions")
+        if mode == "off" or inp.vision is None:
+            return None
+        r, now = self.rules, self._now
+        speaker = self.speaker_on_air
+        if speaker is None or self.insert is not None:
+            return None
+        if shots.speaker_of(self.program) != speaker:
+            return None
+        listener = self._most_reacting(speaker)
+        if listener is None:
+            self._r2_noted = None
+            return None
+        short = now - self.speaker_on_air_since < r.R1_speaker_min_s * 1000
+        if short or now - self.last_reaction_ms < r.R2_min_gap_s * 1000:
+            if self._r2_noted != listener:  # R2: never on short answers, at most one per gap
+                self._r2_noted = listener
+                why = "Kort svar" if short else "For kort tid siden forrige reaksjon"
+                self._decide("wait", close_up(listener), RuleId.R1, why, blocked_by=RuleId.R2)
+            return None
+        name = self.show.participant(listener).name
+        p = Proposal(
+            close_up(listener),
+            RuleId.R1,
+            "insert",
+            f"Reaksjon fra {name}",
+            {"reaction": round(self._reaction(listener), 2)},
+            speaker=speaker,
+            insert_ms=int(r.R1_shot_s * 1000),
+        )
+        if mode == "shadow":
+            self._shadow_note("reactions", "preview", p.shot, p.rule, p.reason, p.measures)
+            return None
+        return p
+
+    def _correct_framing(self, inp: Inputs, on_air: set[CameraId]) -> None:
+        """V4: a face that sits wrong in an off-air close-up is corrected with small steps,
+        at most every 2 s; never on the candidate, a tracking camera or one being reframed."""
+        if self._mode("video_confirm") != "on" or inp.vision is None:
+            return
+        cand = self.candidate
+        cand_cam = shots.camera_of(cand.shot, self.show) if cand is not None else None
+        for p in self.show.participants:
+            cam = p.camera
+            cfg = self.show.cameras.get(cam)
+            tile = inp.vision.get(SourceId(cam.value))
+            if (
+                cfg is None
+                or cfg.driver == "none"
+                or cam in on_air
+                or cam == cand_cam
+                or cam in inp.cameras_tracking
+                or cam in inp.cameras_moving
+                or self._now < self.reframe_until.get(cam, -1)
+                or tile is None
+                or tile.face_x is None
+                or tile.face_y is None
+                or self._now - self._v4_at.get(cam, -(10**9)) < V4_EVERY_MS
+            ):
+                continue
+            dx, dy = tile.face_x - V4_TARGET_X, tile.face_y - V4_TARGET_Y
+            err = self.rules.V4_error
+            pan = V4_STEP if dx > err else -V4_STEP if dx < -err else 0.0
+            tilt = -V4_STEP if dy > err else V4_STEP if dy < -err else 0.0
+            if pan or tilt:
+                self._v4_at[cam] = self._now
+                self._intent(NudgeCamera(cam, pan, tilt))
+                self._decide(
+                    "hold",
+                    close_up(p.id),
+                    RuleId.V4,
+                    f"{cam.value}: utsnittet rettes (ansikt {tile.face_x:.2f}, {tile.face_y:.2f})",
+                )
+
     # -- framing variety (F1–F3) and slow zoom (Z1–Z3), spec 5.13 ----------------------------
 
     def _cameras_on_air(self) -> set[CameraId]:
@@ -1101,7 +1308,11 @@ class Engine:
         on_air = self._cameras_on_air()
         self._reframe_pending |= self._on_air_before - on_air  # F1: just went off air
         self._on_air_before = on_air
-        for name, fn in (("framing_variety", self._reframe), ("slow_zoom", self._slow_zoom)):
+        for name, fn in (
+            ("framing_variety", self._reframe),
+            ("slow_zoom", self._slow_zoom),
+            ("video_confirm", self._correct_framing),
+        ):
             try:
                 fn(inp, on_air)
             except Exception as exc:  # a switch never stops base mode (F-1)

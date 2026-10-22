@@ -62,3 +62,15 @@ Web-simulatoren med motoren i nettleseren (PL-03 trinn 2) og avspilling av ekte 
 | P9 | Sjekkliste | Gjennomgått av eier |
 
 Hver bryter er først ferdig når den er prøvd i studio (rapport i issuet), som før (M4-kriteriet i `features.md`).
+
+## 6. Senere utvidelser
+
+Ting som er vurdert, men ikke skal bygges før studioet er i drift:
+
+| Hva | Hvorfor senere |
+| --- | --- |
+| DeckLink-kort som capture (Blackmagic DeckLink Mini Recorder HD) | Regi-PC-en får kortet, men ikke alle studioer har det. INOGENI er enklere og er standard (D-068). CutCut finner allerede capture-kortet på navnet, så en DeckLink-kilde er mest oppsett og maskintest |
+| Teksting etter opptak | Live tekst er tatt ut (D-063). Etter opptaket betyr forsinkelsen ingenting |
+| Blikkretning (`V6`) | Eksperimentell i spesifikasjonen |
+| Tyngre taler-modell på GPU (ASD) | Bare hvis studioopptakene viser at ansikt og munn på CPU ikke er godt nok (D-067) |
+| Web-simulatoren med motoren i nettleseren (PL-03 trinn 2) | Trengs ikke i studio |

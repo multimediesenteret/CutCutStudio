@@ -12,6 +12,14 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P7 (F-2, F-4): videobekreftelse og reaksjonsbilder.
+  - Med «Videolag bekrefter» kutter motoren raskere til den som snakker når munnen beveger seg i riktig kamera. En mic som er aktiv mens munnen står stille, regnes som lekkasje.
+  - Et bilde uten brukbart ansikt eller som beveger seg, brukes ikke, og preview må stå stille før TAKE.
+  - Et ansikt som sitter feil i et nærbilde av lufta, rettes med små steg.
+  - Med «Reaksjonsklipp» får en lytter som smiler, nikker eller ler et kort reaksjonsbilde i talerens neste pause. Høyst ett per 20 s og aldri på korte svar. Begynner lytteren å snakke, blir lytteren taler.
+  - Reaksjonsbildet i lange svar viser den som reagerer mest.
+  - Nye regelverdier: `V1_factor`, `V1_leak_ms`, `V3_window_s`, `V4_error`, `V5_still_s` og `R1_react_min`.
+- Plan for studioet: liste over senere utvidelser, blant annet DeckLink som capture-kort.
 - P6 (VI-6, D-067): ansikt, munn, smil og nikk per kamerarute.
   - Videolaget finner ansiktet i hver kamerarute fem ganger i sekundet med YuNet (MIT) på CPU. Det regner ut om ansiktet er brukbart, om munnen beveger seg (og ikke bare hodet), smil og nikk.
   - Uten modellen går det lette videolaget som før. Modellen lastes ned med `tools/fetch_models.py`.

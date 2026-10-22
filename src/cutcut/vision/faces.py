@@ -63,12 +63,14 @@ class FaceReading:
     mouth: float = 0.0
     smile: float = 0.0
     nod: float = 0.0
+    x: float | None = None  # face centre as a share of the window (V4)
+    y: float | None = None
 
     def payload(self, source: str) -> dict[str, object]:
         """The ``vision.tile`` message (core/messages.py)."""
         return {
             "source": source,
-            "face": {"found": self.found, "size_ok": self.size_ok},
+            "face": {"found": self.found, "size_ok": self.size_ok, "x": self.x, "y": self.y},
             "mouth": round(self.mouth, 3),
             "smile": round(self.smile, 3),
             "nod": round(self.nod, 3),
@@ -184,7 +186,15 @@ class FaceTracker:
             turned = 0 < low < len(ys) - 1 or 0 < high < len(ys) - 1  # went and came back
             if turned and amp >= NOD_MIN:
                 nod = min(1.0, (amp - NOD_MIN) / (NOD_FULL - NOD_MIN))
-        return FaceReading(True, size_ok, mouth_score, smile, nod)
+        return FaceReading(
+            True,
+            size_ok,
+            mouth_score,
+            smile,
+            nod,
+            round((x + fw / 2) / w, 3),
+            round((y + fh / 2) / h, 3),
+        )
 
 
 @dataclass

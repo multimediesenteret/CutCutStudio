@@ -75,7 +75,16 @@ class StopZoom:
     camera: CameraId
 
 
-CameraIntent = FrameCamera | SlowZoom | StopZoom
+@dataclass(frozen=True)
+class NudgeCamera:
+    """V4: a small framing correction while the camera is off air (pan, tilt −1…1)."""
+
+    camera: CameraId
+    pan: float
+    tilt: float
+
+
+CameraIntent = FrameCamera | SlowZoom | StopZoom | NudgeCamera
 
 Intent = (
     SetPreview
@@ -87,4 +96,5 @@ Intent = (
     | FrameCamera
     | SlowZoom
     | StopZoom
+    | NudgeCamera
 )

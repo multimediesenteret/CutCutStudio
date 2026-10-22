@@ -27,9 +27,9 @@ from cutcut.common.store import Store
 from cutcut.core import messages
 from cutcut.core.engine import Engine, StepResult
 from cutcut.core.inputs import AtemReadback, Command, ContentState, Inputs, MicFrame, TileFrame
-from cutcut.core.intents import FrameCamera, Intent, SlowZoom, StopZoom
+from cutcut.core.intents import FrameCamera, Intent, NudgeCamera, SlowZoom, StopZoom
 
-CAMERA_INTENTS = (FrameCamera, SlowZoom, StopZoom)
+CAMERA_INTENTS = (FrameCamera, SlowZoom, StopZoom, NudgeCamera)
 
 log = logging.getLogger(__name__)
 

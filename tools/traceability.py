@@ -26,10 +26,8 @@ OUT_RULES = ROOT / "docs" / "reference" / "rules.md"
 
 # Rules implemented outside the engine or in later milestones (docs/plans/milestones.md).
 PLANNED: dict[str, str] = {
-    "PV3": "M4 – video_confirm",
     "S5": "M2 – Companion/ATEM-utfører",
-    **{f"R{i}": "M4 – reactions" for i in range(1, 4)},
-    **{f"V{i}": "M4 – video_confirm / reactions" for i in range(1, 7)},
+    "V6": "senere – blikkretning, eksperimentell (6.5)",
 }
 
 TEST_RE = re.compile(r"^\s*(?:async\s+)?def (test_([A-Z]+[0-9]+)_\w*)\(", re.M)
