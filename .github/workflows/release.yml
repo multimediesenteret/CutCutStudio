@@ -142,8 +142,9 @@ jobs:
         shell: pwsh
         run: |
           Get-ChildItem "$env:RUNNER_TEMP\CutCut\data\logs" -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
+            $name = $_.Name
             Write-Host "== $($_.FullName)"; Get-Content $_.FullName -Tail 40
-            Get-Content $_.FullName -Tail 15 | ForEach-Object { Write-Output "::error title=$($_.Name)::$_" }
+            Get-Content $_.FullName -Tail 15 | ForEach-Object { Write-Output "::error title=${name}::$_" }
           }
 
       - name: Clean up

@@ -110,6 +110,9 @@ function Stop-CutCut {
   }
 }
 
+# every error also goes to install.log, so the technician (and CI) can see why
+trap { Write-Log "FEIL: $_"; break }
+
 Write-Host "CutCut Studio · installer pakke"
 
 # 1. Checksum
@@ -161,8 +164,11 @@ Write-Log "Pakket ut"
 # 3. Try the new version against the studio setup before anything changes
 $py = Join-Path $Target "python\python.exe"
 $probe = "import cutcut; from cutcut.common.config import load_site; s = load_site(r'$Site'); print(cutcut.__version__, s.devices.studio)"
-$out = & $py -I -c $probe 2>&1
-if ($LASTEXITCODE -ne 0) {
+$ErrorActionPreference = "Continue"  # Python's warnings on stderr are not failures
+$out = (& $py -I -c $probe 2>&1 | Out-String).Trim()
+$code = $LASTEXITCODE
+$ErrorActionPreference = "Stop"
+if ($code -ne 0) {
   Remove-Item -Recurse -Force $Target
   throw "Den nye versjonen kan ikke lese studio-oppsettet i ${Site}: $out. Ingenting er endret."
 }
