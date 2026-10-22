@@ -43,6 +43,7 @@ from cutcut.common.config import (
     ConfigError,
     RuleParams,
     RulePresets,
+    ShowType,
     ShowTypes,
     Site,
     effective_rules,
@@ -104,6 +105,7 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
+SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
 STAFF_KEY: Final = "site.staff"  # technicians, entered in the app (not in the repository)
 LoginMode = Literal["open", "card"]
 HISTORY_KEEP: Final = 200
@@ -238,6 +240,8 @@ class Studio:
         self.on_devices: Callable[[Devices], None] | None = None
         self.login_mode: LoginMode = "card" if self.deps.simulator else "open"
         self._autosaved_at = -1e9
+        self.show_type: str = self.deps.show_types.default
+        self._load_show_type()
         self.staff: Staff = self.deps.site.staff
         self.on_staff: Callable[[Staff], None] | None = None  # the API's sign-in list
         self._load_staff()
@@ -317,6 +321,56 @@ class Studio:
     def _merged(self, show: ShowConfig) -> ShowConfig:
         """The show with the technician's preset, switches and fine tuning applied."""
         return self._merged_with(show, self.preset, self.features, self.overrides)
+
+    # -- show type (Innstillinger → Show-type, SE-6) ------------------------------------------
+
+    def _type(self) -> ShowType:
+        return self.deps.show_types.types[self.show_type]
+
+    def _load_show_type(self) -> None:
+        saved = self.deps.store.get_kv(SHOW_TYPE_KEY) if self.deps.store is not None else None
+        if isinstance(saved, str) and saved in self.deps.show_types.types:
+            self.show_type = saved
+        self._default_show_for_type()
+
+    def _default_show_for_type(self) -> None:
+        """The show a new session starts with: the studio's type, and «Kun lyd» is audio."""
+        d = self.sessions.default_show
+        update: dict[str, Any] = {"type": self.show_type}
+        if self._type().audio_only:
+            update["video"] = False
+        self.sessions.default_show = d.model_copy(update=update)
+
+    def check_show_type(self, name: str) -> str:
+        if name not in self.deps.show_types.types:
+            known = ", ".join(self.deps.show_types.types)
+            raise CommandError(f"Ukjent show-type «{name}». Velg en av: {known}.")
+        return name
+
+    def set_show_type(self, name: str, role: Role, actor: str) -> None:
+        """The studio's show type (D-036: chosen in the setup, never by the user on touch)."""
+        self._apply_show_type(self.check_show_type(name))
+        self._audit(role, actor, "show_type", type=name)
+        self._autosave()
+
+    def _apply_show_type(self, name: str) -> None:
+        self.show_type = name
+        self._default_show_for_type()
+        if self.deps.store is not None:
+            self.deps.store.put_kv(SHOW_TYPE_KEY, name, self.deps.clock.now())
+
+    def _start_with_type_preset(self) -> None:
+        """A new session starts on the type's rules preset; fine tuning is kept, and the
+        technician can still change the preset during the session."""
+        preset = self._type().rules_preset
+        if preset != self.preset:
+            self.preset = preset
+            self._save_tuning()
+            self._reconfigure()
+
+    def iso_wanted(self) -> bool:
+        """The ATEM is to record ISO: set on the show or on the studio's type (spec 7.7)."""
+        return self.show.iso_record or self._type().iso_record
 
     # -- technicians (Innstillinger → Teknikere) ---------------------------------------------
 
@@ -657,6 +711,7 @@ class Studio:
             devices=devices.values(self.devices),
             staff=self.staff,
             login_mode=self.login_mode,
+            show_type=self.show_type,
             tuning=setup_file.Tuning(
                 preset=self.preset,
                 features=self.features.model_dump(),
@@ -702,9 +757,12 @@ class Studio:
             except (ValueError, ConfigError) as exc:
                 raise CommandError(f"Regelinnstillingene i filen kan ikke brukes: {exc}") from exc
             changes.append(f"Regler: {tuning[0]}, {len(tuning[2])} finjusteringer")
+        if f.show_type is not None:
+            self.check_show_type(f.show_type)
+            changes.append(f"Show-type: {self.deps.show_types.types[f.show_type].name}")
         if f.login_mode is not None:
             changes.append(
-                f"Innlogging: {'Start-knapp' if f.login_mode == 'open' else 'adgangskort'}"
+                f"Innlogging: {'Start-knapp' if f.login_mode == 'open' else 'Adgangskort'}"
             )
         if f.baseline is not None and f.baseline.approved_at is not None:
             changes.append(
@@ -722,6 +780,8 @@ class Studio:
             self._reconfigure()
         if f.login_mode is not None:
             self._apply_login_mode(f.login_mode)
+        if f.show_type is not None:
+            self._apply_show_type(f.show_type)
         if f.baseline is not None and f.baseline.approved_at is not None:
             self._apply_baseline(f.baseline)
         self._audit(role, actor, "setup_import", studio=f.studio, changes=changes)
@@ -934,13 +994,13 @@ class Studio:
     def _iso_reading(self) -> health_checks.IsoReading:
         raw = self._atem_raw()
         if raw is None:
-            return health_checks.IsoReading(read=False, wanted=self.show.iso_record)
+            return health_checks.IsoReading(read=False, wanted=self.iso_wanted())
         iso = raw.iso
         if iso is None:
-            return health_checks.IsoReading(read=True, wanted=self.show.iso_record)
+            return health_checks.IsoReading(read=True, wanted=self.iso_wanted())
         return health_checks.IsoReading(
             read=True,
-            wanted=self.show.iso_record,
+            wanted=self.iso_wanted(),
             state=iso.state,
             error=iso.error,
             time_available_s=iso.time_available_s,
@@ -1355,6 +1415,7 @@ class Studio:
                 simulator=self.deps.simulator,
                 version=__version__,
                 show_types={k: v.name for k, v in self.deps.show_types.types.items()},
+                show_type=self.show_type,
                 show_id=self.show.id,
                 inputs=self._inputs(),
             ),
@@ -1434,7 +1495,10 @@ class Studio:
         return result
 
     def login(self, user: User, role: Role, actor: str, source: str = "card") -> None:
+        had = self.sessions.session
         self.apply(self._guard(self.sessions.login, user, self.now, self.deps.clock.now(), source))
+        if self.sessions.session is not had:
+            self._start_with_type_preset()
         self._audit(role, actor, "session_start", username=user.username)
 
     def logout(self, role: Role, actor: str) -> None:
@@ -1442,6 +1506,10 @@ class Studio:
         self._audit(role, actor, "session_end")
 
     def set_show(self, choice: ShowChoice, role: Role, actor: str) -> None:
+        update: dict[str, Any] = {"type": self.show_type}  # the studio decides (D-036)
+        if self._type().audio_only:
+            update["video"] = False
+        choice = choice.model_copy(update=update)
         show = self._show_for(choice.participants)
         self.apply(self._guard(self.sessions.set_show, choice, self.now))
         if show.id != self.show.id:

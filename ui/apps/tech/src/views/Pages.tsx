@@ -418,7 +418,7 @@ export function Recording({ ctx }: { ctx: Ctx }) {
           <span>Startet fra</span>
           <span>{state.recording.started_by ?? "–"}</span>
           <span>Publisering</span>
-          <span>Panopto, brukerens egen konto (ad-hoc)</span>
+          <span>Panopto: forberedt, ikke slått på (M4). Opptaket ligger på Pearl.</span>
           <span>Forbindelse</span>
           <span className={state.recording.online ? "" : "err-text"}>
             {state.recording.online ? "Svarer" : "Svarer ikke"}
@@ -466,7 +466,9 @@ export function Recording({ ctx }: { ctx: Ctx }) {
             <span>{s.mode}</span>
             <span>Panopto</span>
             <span>
-              {s.publish.folder} · {s.publish.state}
+              {s.publish.state === "disabled"
+                ? "forberedt, ikke slått på"
+                : `${s.publish.folder} · ${s.publish.state}`}
             </span>
           </div>
         ) : (
@@ -991,6 +993,39 @@ const COLORS = [
   ["P4", "Gjest 3", "oransje"],
 ] as const;
 
+/** The studio's show type (SE-6, D-036): chosen here, never by the user on touch. */
+function ShowTypePanel({ ctx }: { ctx: Ctx }) {
+  const { transport } = useStudio();
+  const studio = ctx.state.studio as { show_types: Record<string, string>; show_type?: string };
+  const current = studio.show_type ?? "podcast";
+  return (
+    <div className="panel">
+      <div className="ph">
+        <span className="lbl">Show-type</span>
+        <span className="muted small">Gjelder nye økter</span>
+      </div>
+      <div className="seg" role="group" aria-label="Show-type">
+        {Object.entries(studio.show_types).map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            className={current === k ? "sel" : ""}
+            aria-pressed={current === k}
+            disabled={ctx.role !== "admin"}
+            onClick={() => ctx.run(transport.send("PUT", "/api/settings/show-type", { type: k }))}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <p className="muted">
+        Typen gir regel-forhåndsvalget når en økt starter. «Kun lyd» tar bare opp lyd, med «Kun
+        lyd»-grafikken på program. Brukeren velger bare antall personer.
+      </p>
+    </div>
+  );
+}
+
 /** How users sign in (D-057). The card reader and card API come last; until then: Start. */
 function Login({ ctx }: { ctx: Ctx }) {
   const mode = ctx.state.touch.login ?? "open";
@@ -1092,6 +1127,7 @@ export function Settings({
         </div>
       </div>
       <Login ctx={ctx} />
+      <ShowTypePanel ctx={ctx} />
       <Technicians ctx={ctx} />
       <Alerts ctx={ctx} />
       <SetupFile ctx={ctx} />

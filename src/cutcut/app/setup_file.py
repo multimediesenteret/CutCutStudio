@@ -49,6 +49,7 @@ class SetupFile(BaseModel):
     devices: dict[str, str] | None = None  # the addresses that can be set on screen
     staff: Staff | None = None
     login_mode: Literal["open", "card"] | None = None
+    show_type: str | None = None
     tuning: Tuning | None = None
     baseline: Baseline | None = None
 

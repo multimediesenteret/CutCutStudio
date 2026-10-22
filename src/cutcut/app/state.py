@@ -21,6 +21,7 @@ class StudioInfo(_S):
     simulator: bool
     version: str
     show_types: dict[str, str]
+    show_type: str = "podcast"  # the studio's type (Innstillinger → Show-type, SE-6)
     show_id: str
     # ATEM input per multiview tile key (P1–P4, BIRD, WIDE, CONTENT), so the screens can
     # use the same «Camera n» names as the ATEM multiview (D-054).

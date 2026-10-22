@@ -80,6 +80,13 @@ function MorningDot({ state }: { state: StudioState }) {
   );
 }
 
+/** Where the recording goes. Panopto is prepared, not switched on (SE-7, spec 7.6): until it
+ * is, the recording stays in the studio, and the screen says so instead of promising more. */
+function whereSaved(session: StudioState["session"]): string {
+  if (!session || session.publish.state === "disabled") return "Lagres i studioet";
+  return `Lagres i Panopto: ${session.user.username}`;
+}
+
 export function Idle({ state, act }: { state: StudioState; act: Act }) {
   if (state.touch.login === "open") return <IdleOpen state={state} act={act} />;
   const problem = blocking(state);
@@ -87,7 +94,7 @@ export function Idle({ state, act }: { state: StudioState; act: Act }) {
     <section className="scr" id="idle">
       <div className="txt">
         <h1>Hold adgangskortet ditt mot leseren</h1>
-        <p className="intro">Så er studioet klart. Opptaket havner i din egen Panopto-konto.</p>
+        <p className="intro">Så er studioet klart for deg.</p>
         <StatusRow>
           {problem ? (
             <Chip level="err">Teknikeren er varslet om en feil</Chip>
@@ -311,7 +318,7 @@ export function Rec({ state, act }: { state: StudioState; act: Act }) {
         </div>
         <StatusRow>
           <Chip>{video ? "Video og lyd" : "Kun lyd"}</Chip>
-          <Chip>Lagres i Panopto: {state.session?.user.username ?? ""}</Chip>
+          <Chip>{whereSaved(state.session)}</Chip>
           <Chip>{state.engine.auto ? "Klipper automatisk" : "Tekniker klipper"}</Chip>
         </StatusRow>
       </div>
@@ -386,8 +393,10 @@ export function Done({ state, act }: { state: StudioState; act: Act }) {
         </span>
       </StatusRow>
       <p className="intro">
-        Opptaket kommer i Panopto-kontoen din ({session?.user.username ?? ""}) innen omtrent en
-        time. Du logges ut om {left} s.
+        {session?.publish.state === "disabled" || !session
+          ? "Opptaket er lagret i studioet."
+          : `Opptaket kommer i Panopto-kontoen din (${session.user.username}) innen omtrent en time.`}{" "}
+        Du logges ut om {left} s.
       </p>
       <button type="button" className="primary" onClick={() => act.run(act.cmd.logout())}>
         Ferdig, logg ut

@@ -52,7 +52,7 @@ test("card → choose → countdown → recording → hold to stop → done → 
 
   await expect(page.getByRole("heading", { name: "Nå i bildet" })).toBeVisible({ timeout: 8000 });
   await expect(page.locator(".recpill")).toBeVisible();
-  await expect(page.getByText("Lagres i Panopto: testa")).toBeVisible();
+  await expect(page.getByText("Lagres i studioet")).toBeVisible(); // Panopto is prepared, not on (SE-7)
 
   // A speaker gets the picture (real engine, simulated voice).
   await page.request.post("/api/sim/talk", { data: { participant: "P2", on: true } });

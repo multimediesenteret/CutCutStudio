@@ -1290,6 +1290,20 @@
         "title": "ShowIn",
         "type": "object"
       },
+      "ShowTypeIn": {
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "ShowTypeIn",
+        "type": "object"
+      },
       "StaffIn": {
         "additionalProperties": false,
         "properties": {
@@ -1340,6 +1354,11 @@
           },
           "show_id": {
             "title": "Show Id",
+            "type": "string"
+          },
+          "show_type": {
+            "default": "podcast",
+            "title": "Show Type",
             "type": "string"
           },
           "show_types": {
@@ -2819,6 +2838,48 @@
           }
         },
         "summary": "Setup Import",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/settings/show-type": {
+      "put": {
+        "description": "The studio's show type (SE-6, D-036): rules preset for new sessions, «Kun lyd»\nrecords audio only, ISO on the ATEM. Admin only.",
+        "operationId": "put_show_type_api_settings_show_type_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShowTypeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Show Type",
         "tags": [
           "config"
         ]
