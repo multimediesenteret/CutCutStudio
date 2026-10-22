@@ -171,7 +171,7 @@ function OnAir({ ctx }: { ctx: Ctx }) {
   const age = e.program_ms;
   const decisions = useSnapshot((s) => s.decisions);
   // «Neste» is only what the engine is waiting for right now: the newest decision, if it waits.
-  const newest = decisions[0];
+  const newest = decisions.find((d) => !d.switch); // shadow notes never block (F-1)
   const waiting = newest && (newest.action === "wait" || newest.action === "hold") ? newest : null;
   return (
     <div className="panel">
@@ -341,6 +341,7 @@ function DecisionList({
               {isCut(d) ? "→ " : d.action === "preview" ? "PVW " : ""}
               {shotName(ctx.state, d.shot)}{" "}
               {d.rule && <span className="tag">{ruleLabel(d.rule)}</span>}
+              {d.switch && <span className="tag">skygge · {d.switch}</span>}
             </span>
             <span className="why">{d.reason}</span>
           </li>

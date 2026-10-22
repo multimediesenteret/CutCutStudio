@@ -72,7 +72,8 @@ export function commands(t: Transport) {
     log: (since = 0) => t.get<components["schemas"]["Decision"][]>(`/api/log?since=${since}`),
     sessions: (days = 1) => t.get<SessionRow[]>(`/api/sessions?days=${days}`),
     show: (id: string) => t.get<ShowDetail>(`/api/shows/${encodeURIComponent(id)}`),
-    features: (changes: Record<string, boolean>) => t.send("POST", "/api/features", changes),
+    features: (changes: Record<string, boolean | "off" | "shadow" | "on">) =>
+      t.send("POST", "/api/features", changes),
     shadow: (on: boolean) => t.send("POST", "/api/shadow", { on }),
     ack: (alertId: number) => t.send("POST", `/api/alerts/${alertId}/ack`),
     morningCheck: () => t.send("POST", "/api/health/morning-check"),

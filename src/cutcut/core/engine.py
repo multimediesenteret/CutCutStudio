@@ -36,7 +36,7 @@ from cutcut.common.ids import (
     is_layout,
 )
 from cutcut.common.models.decision import Decision, DecisionAction
-from cutcut.common.models.show import ShowConfig
+from cutcut.common.models.show import FeatureMode, ShowConfig
 from cutcut.core import shots
 from cutcut.core.content import ContentTracker
 from cutcut.core.inputs import (
@@ -80,6 +80,8 @@ PREVIEW_LEAD_MS = 350
 IDLE_FALLBACK_MS = 1500
 # 10.4: a speaker cut shows the new shot on preview at least this long first (unless K3).
 MIN_PREVIEW_LEAD_MS = 300
+# F-1: a switch in shadow logs the same «would have» again only after this long.
+SHADOW_REPEAT_MS = 2000
 
 Timing = Literal["speaker", "insert", "soft", "now", "return"]
 
@@ -171,6 +173,8 @@ class Engine:
         self.idle_since: int | None = None
         self.bird_ms_total = 0
         self.content = ContentTracker()
+        self.failed_switches: set[str] = set()  # F-1: the studio moves these to shadow
+        self._shadow_seen: dict[tuple[str, str, str, RuleId], int] = {}
         self.last_bird_ms = -(10**9)
         self._now = now_ms
         self._decisions: list[Decision] = []
@@ -217,7 +221,12 @@ class Engine:
         self.quiet_until = now_ms + int(self.rules.manual_quiet_s * 1000)
 
     def set_config(self, config: EngineConfig) -> None:
-        """Takes effect from the next tick (ADR-0011: switches can change live)."""
+        """Takes effect from the next tick (ADR-0011: switches can change live). A failed
+        switch that the technician (or the studio) has moved runs again (F-1)."""
+        old = self.config.features
+        self.failed_switches -= {
+            n for n in self.failed_switches if config.features.mode(n) != old.mode(n)
+        }
         self.config = config
 
     def step(self, inp: Inputs) -> StepResult:
@@ -353,12 +362,20 @@ class Engine:
         camera = shots.camera_of(shot, self.show)
         if camera is not None and camera in inp.cameras_moving:
             return RuleId.S1
-        if self.config.features.video_confirm and inp.vision is not None and camera is not None:
+        video = self._mode("video_confirm")
+        if video != "off" and inp.vision is not None and camera is not None:
             tile = inp.vision.get(SourceId(camera.value))
+            why = None
             if tile is not None and tile.moving:
-                return RuleId.S1
-            if tile is not None and not tile.face_ok:
-                return RuleId.S2
+                why = RuleId.S1
+            elif tile is not None and not tile.face_ok:
+                why = RuleId.S2
+            if why is not None:
+                if video == "on":
+                    return why
+                self._shadow_note(
+                    "video_confirm", "wait", shot, why, "Videolaget ville holdt igjen bildet"
+                )
         speaker = shots.speaker_of(shot)
         if speaker is not None and self.speakers.get(speaker).muted:
             return RuleId.S6
@@ -936,6 +953,45 @@ class Engine:
                 self.vars[name] = value
                 self._intent(SetCompanionVariable(name, value))
 
+    # -- switches (spec 5.13, F-1) ------------------------------------------------------------
+
+    def _mode(self, name: str) -> FeatureMode:
+        """``off``, ``shadow`` or ``on``. A switch whose rules failed counts as off until the
+        studio has moved it to shadow (``failed_switches``)."""
+        if name in self.failed_switches:
+            return "off"
+        return self.config.features.mode(name)
+
+    def _shadow_note(
+        self,
+        switch: str,
+        action: DecisionAction,
+        shot: str,
+        rule: RuleId,
+        reason: str,
+        measures: dict[str, float] | None = None,
+    ) -> None:
+        """What a switch in shadow would have done: logged, never acted on. The same note is
+        logged again only after ``SHADOW_REPEAT_MS``, so the log does not fill every tick."""
+        key = (switch, action, shot, rule)
+        last = self._shadow_seen.get(key)
+        if last is not None and self._now - last < SHADOW_REPEAT_MS:
+            return
+        self._shadow_seen[key] = self._now
+        self._decide(action, shot, rule, reason, measures, switch=switch)
+
+    def _switch_failed(self, switch: str, exc: Exception) -> None:
+        """A switch's rules raised: base mode carries on without it (5.13)."""
+        if switch not in self.failed_switches:
+            self.failed_switches.add(switch)
+            self._decide(
+                "hold",
+                self.program,
+                RuleId.S2,
+                f"Bryteren {switch} feilet ({type(exc).__name__}); grunnmodus fortsetter",
+                switch=switch,
+            )
+
     def _intent(self, intent: Intent) -> None:
         if not self.shadow:
             self._intents.append(intent)
@@ -948,6 +1004,7 @@ class Engine:
         reason: str,
         measures: dict[str, float] | None = None,
         blocked_by: RuleId | None = None,
+        switch: str | None = None,
     ) -> None:
         self._seq += 1
         self._decisions.append(
@@ -962,10 +1019,11 @@ class Engine:
                 measures=dict(measures or {}),
                 blocked_by=blocked_by,
                 correlation_id=f"d-{self._seq}",
-                shadow=self.shadow,
+                shadow=self.shadow or switch is not None,
+                switch=switch,
             )
         )
-        if action == "cut" and not self.shadow:
+        if action == "cut" and not self.shadow and switch is None:
             for name, value in (("regi_rule", rule.value), ("regi_reason", reason)):
                 if self.vars.get(name) != value:
                     self.vars[name] = value

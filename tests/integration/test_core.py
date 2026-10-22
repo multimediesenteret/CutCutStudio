@@ -284,7 +284,11 @@ def test_companion_down_the_cut_goes_through_atem_bridge_S5(
 
 def test_missing_layout_macros_block_the_layout_switch_DA7(
     rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    import cutcut.app.studio as studio_mod
+
+    monkeypatch.setattr(studio_mod, "IMPLEMENTED_SWITCHES", frozenset({"layouts"}))
     client, bus, _, _, core = rig
     assert client.post("/api/login", json={"username": "admin1", "pin": PIN}).status_code == 200
     assert until(

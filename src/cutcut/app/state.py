@@ -100,10 +100,21 @@ class RecordingInfo(_S):
     iso: IsoInfo | None = None
 
 
+class SwitchInfo(_S):
+    """One switch beyond base mode (F-1): its mode, and whether it can be used now."""
+
+    key: str
+    mode: Literal["off", "shadow", "on"]
+    can_shadow: bool
+    can_on: bool
+    why: str | None = None  # why it cannot be switched on (or into shadow)
+
+
 class RulesInfo(_S):
     preset: Literal["rolig", "standard", "energisk"]
     features: dict[str, bool]
     overrides: dict[str, float]
+    switches: list[SwitchInfo] = []
 
 
 class AlertInfo(_S):

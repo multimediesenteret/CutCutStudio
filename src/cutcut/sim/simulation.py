@@ -117,7 +117,7 @@ class Simulation:
     def _after_step(self, result: StepResult) -> None:
         now = self.clock.mono_ms()
         for d in result.decisions:
-            if d.action == "cut" and d.rule is not RuleId.MANUAL:
+            if d.action == "cut" and d.rule is not RuleId.MANUAL and d.switch is None:
                 cam = camera_of(d.shot, self.show) if d.shot != "AUDIO_ONLY" else None
                 if cam is not None and cam in self.moving:
                     self.violations.append(f"{now} ms: cut to moving camera {cam.value}")
@@ -256,7 +256,7 @@ def run_scenario(
 
 def check(sc: Scenario, sim: Simulation) -> list[str]:
     failures: list[str] = []
-    cuts = [d for d in sim.decisions if d.action == "cut"]
+    cuts = [d for d in sim.decisions if d.action == "cut" and d.switch is None]
     for e in sc.expect:
         failures.extend(_check_one(e, sim, cuts))
     return failures

@@ -95,7 +95,7 @@ export function shotColor(shot: string | null | undefined): string {
 }
 
 export function isCut(d: Decision): boolean {
-  return d.action === "cut";
+  return d.action === "cut" && !d.switch;
 }
 
 export function isError(d: Decision): boolean {

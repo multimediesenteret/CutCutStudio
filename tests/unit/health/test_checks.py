@@ -207,7 +207,12 @@ def test_layout_macros_DA7() -> None:
     ]
 
 
-def test_H_ATEM_3_and_the_layout_switch_in_the_simulator(rig: Rig) -> None:
+def test_H_ATEM_3_and_the_layout_switch_in_the_simulator(
+    rig: Rig, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import cutcut.app.studio as studio_mod
+
+    monkeypatch.setattr(studio_mod, "IMPLEMENTED_SWITCHES", frozenset({"layouts"}))
     got = settle(rig, 2)
     assert got["H-ATEM-3"] == "green"
     assert rig.client.post("/api/features", json={"layouts": True}).status_code == 200

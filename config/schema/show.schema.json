@@ -160,6 +160,11 @@
       "additionalProperties": false,
       "description": "Switches from spec 5.13. Base mode is always on; bird and content default on.",
       "properties": {
+        "ai_tracking": {
+          "default": false,
+          "title": "Ai Tracking",
+          "type": "boolean"
+        },
         "bird": {
           "default": true,
           "title": "Bird",
@@ -184,6 +189,13 @@
           "default": false,
           "title": "Reactions",
           "type": "boolean"
+        },
+        "shadow": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Shadow",
+          "type": "array"
         },
         "slow_zoom": {
           "default": false,
@@ -326,11 +338,13 @@
     "features": {
       "$ref": "#/$defs/Features",
       "default": {
+        "ai_tracking": false,
         "bird": true,
         "content": true,
         "framing_variety": false,
         "layouts": false,
         "reactions": false,
+        "shadow": [],
         "slow_zoom": false,
         "video_confirm": false
       }

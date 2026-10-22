@@ -37,6 +37,7 @@ from cutcut.app.state import (
     SeatAudio,
     StudioInfo,
     StudioState,
+    SwitchInfo,
     TouchInfo,
 )
 from cutcut.common.clock import Clock
@@ -63,7 +64,13 @@ from cutcut.common.models.session import (
     TouchStep,
     User,
 )
-from cutcut.common.models.show import Features, RulesPreset, ShowConfig
+from cutcut.common.models.show import (
+    SWITCHES,
+    FeatureMode,
+    Features,
+    RulesPreset,
+    ShowConfig,
+)
 from cutcut.common.models.site import Devices, SmtpConfig, Staff
 from cutcut.common.platform.system import System
 from cutcut.common.store import Store
@@ -110,6 +117,8 @@ METERS_EVERY_MS: Final = 50  # 20 Hz (spec 10.2)
 LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
+# Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
+IMPLEMENTED_SWITCHES: Final = frozenset({"video_confirm"})
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)
@@ -250,6 +259,7 @@ class Studio:
         self.show_type: str = self.deps.show_types.default
         self._steps: list[SetupStep] | None = None  # setup helper, read on first use
         self._approved: dict[str, Approval] | None = None
+        self._failed_seen: set[str] = set()  # switches already moved to shadow (F-1)
         self._iso_since: int | None = None  # when CutCut started ISO (engine ms)
         self._iso_file: str | None = None
         self._iso_by: str | None = None
@@ -821,6 +831,7 @@ class Studio:
             self._last_state_ms = now
             self._publish_state()
         self._track_session()
+        self._switches_failed()
         self._audio_check(now)
         self._maybe_add_video_check()
         if not self._mv_checked and (
@@ -1796,8 +1807,11 @@ class Studio:
             recording=self._recording_info(),
             rules=RulesInfo(
                 preset=self.preset,
-                features=self.features.model_dump(),
+                features={
+                    k: v for k, v in self.features.model_dump().items() if isinstance(v, bool)
+                },
                 overrides=dict(self.overrides),
+                switches=self.switches_info(),
             ),
             alerts=[self._alert_info(a) for a in self.alerts if not a.acknowledged][-20:],
             runtime=RuntimeInfo(
@@ -1989,20 +2003,79 @@ class Studio:
         self.runtime.command(SetContentEnabled(enabled=enabled))
         self._audit(role, actor, "content", enabled=enabled)
 
-    def set_features(self, changes: dict[str, bool], role: Role, actor: str) -> None:
-        unknown = set(changes) - set(type(self.features).model_fields)
+    # -- switches: off, shadow, on (spec 5.13, F-1) -------------------------------------------
+
+    def _switch_prereq(self, name: str) -> tuple[bool, bool, str | None]:
+        """(can shadow, can switch on, why not). Shadow sends nothing, so it only needs the
+        rules and their measurements; «on» also needs the equipment to act."""
+        if name not in IMPLEMENTED_SWITCHES:
+            return False, False, "Reglene bygges før studioperioden (docs/plans/for-studio.md)."
+        if name in ("video_confirm", "reactions") and not self.runtime.vision_status.get("faces"):
+            why = "Krever den tunge delen av videolaget (ansikt og munn på GPU)."
+            return False, False, why
+        if name == "layouts":
+            found = self._atem_macros()
+            problems = macro_check(found) if found is not None else ["ATEM kan ikke leses"]
+            if problems:  # DA-7: the engine would take a SuperSource that shows something else
+                return True, False, f"{problems[0]}. Lag makroene i ATEM (7.2)."
+        return True, True, None
+
+    def switches_info(self) -> list[SwitchInfo]:
+        out = []
+        for name in SWITCHES:
+            can_shadow, can_on, why = self._switch_prereq(name)
+            out.append(
+                SwitchInfo(
+                    key=name,
+                    mode=self.features.mode(name),
+                    can_shadow=can_shadow,
+                    can_on=can_on,
+                    why=why,
+                )
+            )
+        return out
+
+    def set_features(self, changes: dict[str, bool | FeatureMode], role: Role, actor: str) -> None:
+        """``true``/``"on"``, ``false``/``"off"`` or ``"shadow"`` per switch. Base mode
+        switches (bird, content) are only on or off."""
+        known = set(type(self.features).model_fields) - {"shadow"}
+        unknown = set(changes) - known
         if unknown:
             raise CommandError(f"Ukjent bryter: {', '.join(sorted(unknown))}")
-        if changes.get("layouts") and not self.features.layouts:
-            found = self._atem_macros()
-            problems = macro_check(found) if found is not None else []
-            if problems:  # DA-7: the engine would take a SuperSource that shows something else
-                raise CommandError(
-                    f"Layoutene kan ikke slås på: {problems[0]}. Lag makroene i ATEM (7.2)."
-                )
-        self.features = self.features.model_copy(update=changes)
+        features = self.features
+        for name, value in changes.items():
+            mode: FeatureMode = ("on" if value else "off") if isinstance(value, bool) else value
+            if mode not in ("off", "shadow", "on"):
+                raise CommandError(f"Ugyldig verdi for {name}: {value}")
+            if name not in SWITCHES:
+                if mode == "shadow":
+                    raise CommandError(f"{name} er en del av grunnmodus og har ikke skygge.")
+                features = features.model_copy(update={name: mode == "on"})
+                continue
+            if mode != "off" and mode != features.mode(name):
+                can_shadow, can_on, why = self._switch_prereq(name)
+                if (mode == "on" and not can_on) or (mode == "shadow" and not can_shadow):
+                    raise CommandError(f"Bryteren kan ikke slås på: {why}")
+            features = features.with_mode(name, mode)
+        self.features = features
         self._reconfigure()
-        self._audit(role, actor, "features", **changes)
+        self._audit(role, actor, "features", **{k: str(v) for k, v in changes.items()})
+
+    def _switches_failed(self) -> None:
+        """A switch whose rules raised goes to shadow and the technician is told (F-1)."""
+        failed = self.engine.failed_switches - self._failed_seen
+        if not failed:
+            return
+        self._failed_seen |= failed
+        for name in sorted(failed):
+            if self.features.mode(name) == "on":
+                self.features = self.features.with_mode(name, "shadow")
+            self._alert(
+                "warn",
+                "F-1",
+                f"Bryteren {name} feilet og går nå i skygge. Grunnmodus klipper som før.",
+            )
+        self._reconfigure()
 
     def set_preset(self, preset: RulesPreset, role: Role, actor: str) -> None:
         self.preset = preset
