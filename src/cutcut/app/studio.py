@@ -118,7 +118,7 @@ LOG_KEEP: Final = 200
 TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
 # Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
-IMPLEMENTED_SWITCHES: Final = frozenset({"video_confirm"})
+IMPLEMENTED_SWITCHES: Final = frozenset({"video_confirm", "layouts"})
 MV_KEY: Final = "setup.multiview_map"  # rutekart saved in the app (VI-5), over the file
 SETUP_KEY: Final = "setup.approvals"  # step id → who approved it and when (HS-5)
 SHOW_TYPE_KEY: Final = "studio.show_type"  # podcast, intervju, panel, kun-lyd (SE-6, D-036)

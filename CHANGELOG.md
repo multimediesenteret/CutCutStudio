@@ -12,6 +12,11 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P3 (F-6): layouter, `L1`–`L4`.
+  - Med bryteren `layouts` på eller i skygge kan motoren velge bilde-i-bilde med taler og content (`L1`), to personer ved ping-pong (`L2`), firedelt når tre eller flere har snakket (`L3`), og firedelt med content når tre er med (`L4`).
+  - En layout står minst 6 s og brukes ikke igjen innen 30 s.
+  - Content, innskudd, stillhet og latter klippes som i grunnmodus. Alle fire layoutene er tillatt som standard, og et show kan utelate en.
+  - Simulatorscenario `panel-4-layouter`.
 - P2 (F-1): skygge per bryter.
   - Hver bryter utover grunnmodus kan være av, i skygge eller på (Regi → Brytere). I skygge kjører reglene og logges som «skygge · bryter» i beslutningsloggen, men klippingen er grunnmodusens.
   - Teknikervinduet viser hvorfor en bryter ikke kan slås på, for eksempel at den tunge delen av videolaget mangler eller at layout-makroene ikke finnes. Bryterne som ennå ikke er bygget, sier det.

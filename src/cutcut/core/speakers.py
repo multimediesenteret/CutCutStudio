@@ -54,6 +54,8 @@ class Speakers:
     all_silent_since: int | None = 0
     dominant: ParticipantId | None = None
     turns: deque[int] = field(default_factory=deque)  # times of dominant-speaker changes (T6)
+    # Who held the floor and when it started (L2, L3): kept for the longest window used.
+    floor: deque[tuple[int, ParticipantId]] = field(default_factory=deque)
     _last_turn_from: ParticipantId | None = None
 
     @classmethod
@@ -115,9 +117,13 @@ class Speakers:
             if self.dominant is not None:
                 self.turns.append(now)  # T6 counts confirmed changes of who holds the floor
             self.dominant = best.pid
+            self.floor.append((now, best.pid))
         window = int(rules.T6_window_s * 1000)
         while self.turns and now - self.turns[0] > window:
             self.turns.popleft()
+        keep = int(max(rules.T6_window_s, rules.L3_window_s) * 1000)
+        while len(self.floor) > 1 and now - self.floor[1][0] > keep:
+            self.floor.popleft()  # the oldest entry still says who held the floor at the start
 
     # -- queries ----------------------------------------------------------------------------
 
@@ -138,3 +144,12 @@ class Speakers:
 
     def pingpong(self, rules: RuleParams) -> bool:
         return len(self.turns) >= rules.T6_pingpong_switches
+
+    def recent(self, now: int, window_ms: int) -> set[ParticipantId]:
+        """Everyone who held the floor in the last ``window_ms``, and everyone talking now."""
+        out = {t.pid for t in self.speaking()}
+        for i, (_since, pid) in enumerate(self.floor):
+            until = self.floor[i + 1][0] if i + 1 < len(self.floor) else now
+            if now - until <= window_ms:
+                out.add(pid)
+        return out
