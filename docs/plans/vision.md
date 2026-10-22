@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M3 (lett) og M4 (tungt) · Spes. 2.1, 2.6, 5.4, 5.5, 6 (alle), 8.4 steg 6, 8.5 (`H-VID-*`); D-003, D-021; ADR-0003 · Mappe: `src/cutcut/vision/`
 
+**Leveransestatus 2026-10-22:** VI-1–VI-6 er bygget. Ansikt og munn (VI-6) går på CPU med YuNet (D-067), ikke på GPU. Maskintesten (VI-4) og treffsikkerhet på ekte bilde (`cutcut hwtest faces`) gjøres i studioperioden.
+
 ## 1. Formål og avgrensning
 
 Leser ATEM-multiviewen via INOGENI 4KXUSB3, deler bildet i ruter etter rutekartet og sender målinger per rute til `core` 5–15 ganger i sekundet. Tar aldri beslutninger selv (6).

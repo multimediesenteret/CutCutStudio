@@ -21,4 +21,4 @@ Tester (`tests/unit/supervisor/`) bruker ekte barneprosesser:
 - lar et barn henge og sjekker at det blir drept;
 - dreper supervisor hardt og sjekker at barna dør.
 
-De kjøres på Linux og Windows i CI. Tjenesten (WinSW) kommer i SO-2.
+De kjøres på Linux og Windows i CI. Windows-tjenesten (WinSW) og installasjonen står i `installer/`. Pid per prosess vises i `/api/health` og brukes av 72-timerstesten (`cutcut hwtest soak`).

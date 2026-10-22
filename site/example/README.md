@@ -8,3 +8,5 @@ Fiktivt studio for simulatoren og testene (C-8). Ingen ekte navn, IP-er eller ko
 | `staff.yaml` | Fiktive teknikere (`operator`) og administratorer (`admin`) |
 | `shows/*.yaml` | Show-oppsett for 1, 2, 3 og 4 deltakere |
 | `equipment/companion_map.yaml` | Knappene på Companion side 10 (spesifikasjonen 7.1) |
+| `equipment/multiview_map.yaml` | Rutekartet for videolaget (2 + 8) |
+| `equipment/companion/` | Companion-sidene som `.companionconfig`, laget med `cutcut companion-pages` |

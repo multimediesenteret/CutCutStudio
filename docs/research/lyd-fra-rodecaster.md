@@ -56,7 +56,9 @@ Motoren trenger hver mikrofon som et eget, rent spor med lav og stabil forsinkel
 - Samplingsfrekvens 48 kHz.
 - Ingen andre programmer skal åpne RØDECaster ASIO (ATEM og Pearl får lyd via hovedmiks/HDMI, ikke fra PC-en).
 
-## Maskintest: `tools/hw-test/audio_rodecaster.py`
+## Maskintest: `cutcut hwtest audio`
+
+(Planlagt som `tools/hw-test/audio_rodecaster.py`; bygget som `src/cutcut/hwtest/audio.py`, se `docs/studio/maskintest.md`.)
 
 Skal svare på Q21 og bekrefte anbefalingen. Måler og rapporterer:
 

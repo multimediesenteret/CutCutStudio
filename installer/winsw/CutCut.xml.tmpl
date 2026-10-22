@@ -2,12 +2,12 @@
   Windows-tjenesten «CutCut» (SO-2, spesifikasjonen 9.1, docs/plans/supervisor-ops.md).
   Laget av installer/install-services.ps1 fra denne malen; {{…}} fylles inn der.
   WinSW 2.12 (MIT). Tjenesten starter supervisor, som starter og passer på core,
-  atem-bridge og audio-capture. Krasjer supervisor selv, starter Windows den på nytt.
+  atem-bridge, audio-capture og vision. Krasjer supervisor selv, starter Windows den på nytt.
 -->
 <service>
   <id>CutCut</id>
   <name>CutCut Studio</name>
-  <description>Automatisk regi i podkaststudioet (supervisor: core, atem-bridge, audio-capture).</description>
+  <description>Automatisk regi i podkaststudioet (supervisor: core, atem-bridge, audio-capture, vision).</description>
   <executable>{{PYTHON}}</executable>
   <arguments>-m cutcut supervisor --site "{{SITE}}" --data "{{DATA}}" --port {{PORT}}{{UI_ARG}}</arguments>
   <workingdirectory>{{WORKDIR}}</workingdirectory>

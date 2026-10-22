@@ -54,7 +54,7 @@ Multimediesenteret har sagt at oppetid og at det fungerer er det viktigste, og a
 1. **Sendingen er aldri avhengig av CutCut (I1).** ATEM og Pearl går videre alene. CutCut kan krasje uten at noe faller ut på lufta.
 2. **Alt restarter av seg selv.** Hver prosess har hjerteslag; supervisor restarter den med økende pause. Supervisor restartes av Windows (WinSW). PC-en starter selv etter strømbrudd (BIOS + automatisk innlogging). Edge kiosk restartes av Windows tilordnet tilgang.
 3. **Tilstanden overlever omstart.** Økt, showvalg, opptaksstatus og brytere ligger i SQLite. `core` er tilbake innen 5 s med samme økt (10.4).
-4. **Grunnmodus er liten.** Lyd + regler + Companion + Pearl-status. Alt annet (bilde, GPU, live tekst, layouter) er brytere som kan feile uten at grunnmodus merker det.
+4. **Grunnmodus er liten.** Lyd + regler + Companion + Pearl-status. Alt annet (ansikt og munn, utsnitt, zoom, layouter, AI-tracking) er brytere som kan feile uten at grunnmodus merker det.
 5. **Feil vises før de merkes.** Helsesjekker, morgensjekk kl. 07:00, varsel til tekniker utenfor studio ved rødt over 1 min (Q29).
 6. **Brukeren ser aldri teknikk.** Touch viser én setning og «Trenger du hjelp?». Gule avvik vises aldri på touch.
 7. **Ingen vekst over tid.** Logger roteres, databasen ryddes, minne måles i 72-timerstest og nattlig i simulator-soak.

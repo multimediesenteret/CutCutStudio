@@ -14,7 +14,7 @@ Samme steg som setup-hjelperen på teknikersiden (`/tech` → Oppsett). Hvert st
 | 6 Multiview | `H-VID-1`, `H-VID-2`, `H-VID-3` | – |
 | 7 Companion | `H-COMP-1` | – |
 | 8 Makroer og grafikk | `H-ATEM-3` | – |
-| 9 Pearl og kort | `H-PRL-1` | – |
+| 9 Pearl og innlogging | `H-PRL-1` | – |
 | 10 Generalprøve | teknikeren | – |
 
 ## 1. Nett og IP
@@ -24,8 +24,8 @@ Alt utstyr må ha fast IP, ellers finner ikke CutCut det igjen etter en omstart.
 1. Koble alt utstyret til **studio-switchen** (egen switch, ingen VLAN): ATEM, Pearl, kameraene og regi-PC-en.
 2. Gi hver enhet fast IP etter IP-planen for studioet (ikke DHCP).
 3. Regi-PC-en har **to nettverkskort**: ett på studio-switchen med fast adresse i samme nett som utstyret, uten gateway, og ett på **campusnettet** for e-post og oppdateringer.
-4. Skriv adressene inn under **Enheter** på oppsettsiden.
-5. ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **XC** (Canon).
+4. Skriv adressene inn under **Utstyr og nettverk** på oppsettsiden.
+5. ATEM svarer på **9910/UDP**, Companion på **HTTP**, Pearl på **443**, kameraene på **VISCA** (OBSBOT) eller **VISCA** (Canon, til XC-kommandoene finnes, Q6).
 
 **Sjekk:** `H-NET-*`, `H-ATEM-1`, `H-COMP-1`, `H-PRL-1`, `H-CAM-C*`.
 
@@ -39,7 +39,7 @@ Strømsparing og oppdateringer midt i et opptak er den vanligste grunnen til at 
 4. Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**.
 5. Windows Update → Aktive timer: **07:00–23:00**.
 6. Tid: synkroniser mot **NTP** (samme tid som Pearl).
-7. Noter driverversjonene for NVIDIA, RØDECaster ASIO, capture-kortet og TWN3. **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
+7. Noter driverversjonene for NVIDIA, RØDECaster ASIO, og capture-kortet (INOGENI). **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
 
 **Sjekk:** `H-PC-*`, `H-PROC-*`.
 
@@ -63,7 +63,7 @@ ATEM må gå i 1080p50 fordi alle kameraene gjør det, og navnene må stemme så
 CutCut flytter bare kameraer som svarer på protokollen og står i manuell modus; ellers kan bildet endre seg uten at noen ba om det.
 
 1. **OBSBOT Tail 2:** fast IP, **VISCA over IP** og **OSC** på, NDI av, HDMI **1080p50**, manuell hvitbalanse og eksponering.
-2. **Canon CR-N300:** fast IP, **XC-protokoll** på, egen API-bruker, HDMI/SDI **1080/50P**, manuell hvitbalanse og eksponering.
+2. **Canon CR-N300:** fast IP, **VISCA over IP** på (XC senere, Q6), HDMI/SDI **1080/50P**, manuell hvitbalanse og eksponering.
 3. **Fugleperspektiv:** HDMI **1080p50**, manuell hvitbalanse.
 4. Kjør maskintesten per kamera: `cutcut hwtest camera --camera C2`.
 5. Farge: hold et **gråkort** foran hvert kamera, velg referansekameraet og trykk **Start fargematching**. Kameraer på program eller preview hoppes over.
@@ -89,7 +89,7 @@ CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute s
 2. CutCut finner INOGENI på navnet (`video` i devices.yaml) og leser **1080p50 YUY2**.
 3. Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden.
 4. Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**.
-5. Forsinkelsen fra ATEM til PC måles med et blinkende testbilde.
+5. Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision` (V4: PREVIEW byttes og tiden måles).
 
 **Sjekk:** `H-VID-1`, `H-VID-2`, `H-VID-3`.
 
@@ -97,7 +97,7 @@ CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute s
 
 Teknikerens knapper og ATEM- og Pearl-tilkoblingen går gjennom Companion.
 
-1. Importer **cutcut-pages.companionconfig** (side 10 og 11). Companion har ikke API for import, så dette gjøres for hånd.
+1. Importer de tre filene fra `cutcut companion-pages`: **cutcut-side-10**, **cutcut-side-11** og **cutcut-variabler** (`.companionconfig`). Companion har ikke API for import, så dette gjøres for hånd.
 2. Legg inn ATEM- og Pearl-tilkoblingen i Companion.
 3. Sjekken leser **cutcut_pages_version**.
 
@@ -112,14 +112,13 @@ Layoutene (to- og tredelt bilde) er makroer i ATEM; uten dem kan CutCut bare kut
 
 **Sjekk:** `H-ATEM-3`.
 
-## 9. Pearl og kort
+## 9. Pearl og innlogging
 
-Pearl tar opp; kortleseren sier hvem som bruker studioet.
+Pearl tar opp. Innloggingen avgjør hvem opptaket står på.
 
 1. Pearl: egen bruker for CutCut, én opptaker, inngang fra ATEM, **NTP** på.
-2. TWN3-leseren i **COM-port-modus**.
-3. Kort-API-nøkkelen legges i Windows Credential Manager, aldri i en fil.
-4. Ta et testopptak på **5 s** fra Pearl-menyen og sjekk at det finnes.
+2. Innlogging: **Start-knapp (uten kort)** under Innstillinger → Innlogging. Kortleser og kort-API settes opp senere (D-057).
+3. Ta et testopptak på **5 s** fra Pearl-menyen og sjekk at det finnes.
 
 **Sjekk:** `H-PRL-1`.
 

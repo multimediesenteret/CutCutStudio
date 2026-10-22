@@ -8,6 +8,6 @@ how:
   - "CutCut finner INOGENI på navnet (`video` i devices.yaml) og leser **1080p50 YUY2**."
   - "Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden."
   - "Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**."
-  - "Forsinkelsen fra ATEM til PC måles med et blinkende testbilde."
+  - "Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision` (V4: PREVIEW byttes og tiden måles)."
 checks: ["H-VID-1", "H-VID-2", "H-VID-3"]
 panel: multiview

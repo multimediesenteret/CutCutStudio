@@ -1,6 +1,8 @@
 # Plan: `sim` – simulator, scenarioer og avspilling
 
-Status: godkjent (D-046) · Milepæl: M1 · Spes. 10.3, 13.3; ADR-0013; `docs/simulator.md` · Mappe: `sim/`, `tests/integration/fakes/`
+Status: godkjent (D-046) · Milepæl: M1 · Spes. 10.3, 13.3; ADR-0013; `docs/simulator.md` · Mapper: `src/cutcut/sim/` (koden), `sim/scenarios/` (scenarioene)
+
+**Leveransestatus 2026-10-22:** SIM-1–SIM-7 er bygget. SIM-8 (avspilling av ekte forløp) venter på opptak fra studio (Q1).
 
 ## 1. Formål og avgrensning
 
@@ -8,12 +10,12 @@ Gjør at hele CutCut kan kjøres og testes uten utstyr, i CI og på en utviklers
 
 | Del | Innhold |
 | --- | --- |
-| `sim/voices.py` | Syntetiske talere: tur-taking, pauser, frasegrenser, krysstale, latter, småord, lekkasje mellom mic-er. Lager `MicFrame` direkte (samme melding som `audio-capture`, PL-02) |
-| `sim/vision.py` | Syntetiske ruter: ansikt funnet, munn, bevegelse, content-tilstander |
+| `src/cutcut/sim/voices.py` | Syntetiske talere: tur-taking, pauser, frasegrenser, krysstale, latter, småord, lekkasje mellom mic-er. Lager `MicFrame` direkte (samme melding som `audio-capture`, PL-02) |
+| `src/cutcut/sim/vision.py` | Syntetiske ruter: ansikt funnet, munn, bevegelse, content-tilstander |
 | `sim/devices/` | Falske enheter: ATEM-tilstand, Companion HTTP, Pearl REST, kameraer (VISCA/OSC/XC), kortleser, kort-API. Samme kode brukes som testservere i `tests/integration/` |
 | `sim/scenarios/*.yaml` | Ferdige scenarioer (liste under). Deterministiske med frø |
-| `sim/replay.py` | Avspilling av ekte forløp (nivå og VAD per mic) fra opptak (Q1) |
-| `sim/trace.py` | Skriver hele forløpet (tilstand, beslutninger, målere) som komprimert JSON for web-simulatoren |
+| `src/cutcut/sim/replay.py` (ikke bygget, SIM-8) | Avspilling av ekte forløp (nivå og VAD per mic) fra opptak (Q1) |
+| `src/cutcut/sim/trace.py` | Skriver hele forløpet (tilstand, beslutninger, målere) som komprimert JSON for web-simulatoren |
 | `cutcut sim` | Starter motor, simulator og begge skjermer lokalt (mål: under 10 min fra ren klone, 12.1) |
 
 **Scenarioer (fra `docs/simulator.md`):** monolog (1), samtale (2), panel (3 og 4), krysstale, lang stillhet, latter, laptop med ny slide, video på laptop, laptop koblet fra, vert med korte innskudd, programleder demper en gjest (`S6`). Feil: lyd borte (`S4`), Companion nede (`S5`), ATEM borte, kamera svarer ikke, Pearl stopper uten trykk, Pearl lite lagring, kortleser frakoblet, kort-API nede, videolaget dør.

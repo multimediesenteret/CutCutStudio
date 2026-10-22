@@ -6,7 +6,7 @@ Liten Node-prosess mellom ATEM-mikseren og CutCut `core` (ADR-0012). Den har ing
 | --- | --- | --- |
 | bro → core | `atem.state` | Ved endring (samlet i 30 ms) og hvert sekund: `model`, `program_input`, `preview_input`, `multiview` (layout, preview til venstre, ruter, safe area, lydmålere, tally, videoformat), `recording`, `macros`, `inputs` (navn på inngang 1–8), `aux` (hva hver AUX-utgang viser) og `iso` (ISO-disk, ledig tid, feil) |
 | bro → core | `atem.status` | `connected`, `last_error`, `model` hvert sekund |
-| core → bro | `atem.cmd` | `{id, op: "cut" | "preview" | "run_macro", args}` |
+| core → bro | `atem.cmd` | `{id, op: "cut" | "preview" | "run_macro" | "input_name" | "iso_start" | "iso_stop", args}`. `input_name` setter navn på en inngang (setup steg 3); `iso_*` styrer ISO-opptaket (DA-8) |
 | bro → core | `atem.ack` | `{id, ok, error}` |
 
 Broen sender ATEM-inngangsnumre; `core` slår opp hva de er i studio-oppsettet (`cutcut.devices.atem.bridge.input_map`). Meldingene har samme konvolutt som resten av bussen (`src/cutcut/common/models/bus.py`) og går over ZeroMQ på `127.0.0.1:5560/5561`.

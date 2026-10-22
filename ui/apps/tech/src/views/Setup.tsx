@@ -1,5 +1,5 @@
-// Oppsett (admin): equipment addresses and the multiview check (D-055). The full setup
-// wizard with checks per device comes in M3 (docs/plans/setup-health.md).
+// Oppsett (admin): equipment addresses and the multiview check (D-055), next to the setup
+// wizard with its ten steps (Wizard.tsx, docs/plans/setup-health.md).
 import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";

@@ -253,7 +253,7 @@ def check_readback(mv: MultiviewMap, rb: MultiviewReadback | None) -> list[Findi
                 "H-MV-9",
                 "info",
                 "ATEM",
-                "ATEM-multiviewen kan ikke leses ennå (kommer med atem-bridge i M2).",
+                "ATEM-multiviewen kan ikke leses ennå: atem-bridge har ikke svart.",
                 "Sjekk ruten manuelt mot tabellen.",
             )
         ]

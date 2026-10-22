@@ -1,6 +1,8 @@
 # Forprosjekt
 
-CutCut Studio er i **forprosjekt**. Det skrives ingen kode. Målet er at alt en AI-agent eller utvikler trenger for å bygge første versjon, ligger ferdig i dette repoet.
+> **Historisk.** Forprosjektet ble avsluttet 2026-10-21, og koden bygges nå (se [`docs/STATUS.md`](../STATUS.md)). Repoet er fasit (D-040): spesifikasjonen i `docs/spec/*.md` redigeres direkte, og beslutningsloggen er fortsatt der nye beslutninger føres.
+
+CutCut Studio var i **forprosjekt**: det ble ikke skrevet kode. Målet var at alt en AI-agent eller utvikler trenger for å bygge første versjon, ligger ferdig i dette repoet.
 
 ## Hvordan forprosjektet jobber
 

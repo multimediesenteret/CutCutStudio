@@ -1,5 +1,7 @@
 # Overlevering til utviklingsagenten
 
+> **Historisk dokument (2026-10-21).** Det beskriver overleveringen fra forprosjektet og er ikke oppdatert siden. Gjeldende status står i [`docs/STATUS.md`](../STATUS.md), og nyere beslutninger i [`beslutningslogg.md`](beslutningslogg.md) går foran. Endret siden: agenten merger selv når CI er grønn (D-052), repoet er offentlig (D-059), lisensen er Apache-2.0 (D-047), PDF-ene av spesifikasjonen er fjernet (D-061), og spørsmålene om PC, nett og kamerakart er besvart (D-054, D-062, D-064, D-065).
+
 Dato: 2026-10-21 · Fra: forprosjektet (Magnus Lian med Claude) · Til: AI-agent som skal bygge CutCut Studio
 
 Forprosjektet er ferdig. Alt som er avtalt ligger i repoet. Denne siden sier hva eieren gjør før agenten slippes til, hva agenten skal starte med, og hva som fortsatt mangler.

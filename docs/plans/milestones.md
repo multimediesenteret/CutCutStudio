@@ -11,8 +11,8 @@ Issues er forslag. De opprettes i GitHub (med milepæl og etikett) når produkte
 | **M0 Planer** | – | Disse planene | Produkteier har godkjent | Nå |
 | **M1 Simulator** | 0.1.0 | Hele CutCut uten utstyr: motor med grunnmodus, simulator, API, touch og tekniker; web-simulatoren på Vercel erstatter konseptet | Touch-flyten går i Playwright og alle regeltester er grønne | M0 godkjent, Q11 og Q12 besvart |
 | **M2 Studiotest** | 0.2.0 | CutCut klipper live i studio: lyd inn, ATEM, Companion (preview + TAKE), Pearl start/stopp og status, helse, supervisor som Windows-tjeneste. Økt startes fra teknikervinduet (kort kommer i M3). Først på test-PC-en (Dell SFF, Q28), så i studio | Testsendinger klippes via preview og vurderes av operatør; motoren står i dager uten tilsyn | M1 ferdig; test-PC klar |
-| **M3 Grunnmodus i drift** | 1.0.0 | CutCut klipper via preview, kortinnlogging, opptak fra touch, kameradrivere, content og fugleperspektiv, setup-hjelper, kiosk, installasjon med tilbakerulling | Akseptansekriteriene i 10.4 for grunnmodus, inkludert 72 timer | M2 ferdig |
-| **M4 Brytere** | 1.x | Videolag, utsnitt, reaksjoner, zoom, layouter, AI-tracking, live tekst, farge, Panopto | Hver bryter testet alene i studio | M3 i drift |
+| **M3 Grunnmodus i drift** | 1.0.0 | CutCut klipper via preview, innlogging med Start-knapp (kort senere, D-057), opptak fra touch, kameradrivere, content og fugleperspektiv, setup-hjelper, kiosk, installasjon med tilbakerulling | Akseptansekriteriene i 10.4 for grunnmodus, inkludert 72 timer | M2 ferdig |
+| **M4 Brytere** | 1.x | Videobekreftelse, utsnitt, reaksjoner, zoom, layouter, AI-tracking, farge; senere kortleser, kort-API og Panopto (D-057, D-065). Live tekst er tatt ut (D-063). Alt som kan bygges uten studio, er bygget før studioperioden (P1–P9, D-066) | Hver bryter testet alene i studio | Studioperioden (`docs/studio/testdag.md`) |
 
 Hver milepæl avsluttes med en demonstrasjon for produkteier: i M1 på Vercel, fra M2 i studio.
 
@@ -64,7 +64,7 @@ Hver milepæl avsluttes med en demonstrasjon for produkteier: i M1 på Vercel, f
 
 ### M4 Brytere (ca. 12 issues)
 
-F-1 … F-11, VI-6, CA-7 (se `features.md`).
+F-1 … F-11, VI-6, CA-7 (se `features.md`). Rekkefølgen før studio er P1–P9 i `for-studio.md` (issues #176–#184).
 
 ## Arbeidsflyt med gratis GitHub og Vercel Hobby
 

@@ -57,7 +57,7 @@ Protokoller, kommandoer, API-er og lenker til all leverandørdokumentasjon står
 | --- | --- | --- |
 | `ADR-01` | Én Windows 11-PC kjører alt: motor, Companion, touch-skjerm og teknikervindu | Én maskin å drifte; brukeren har én skjerm å forholde seg til |
 | `ADR-02` | Python 3.12 med strenge typer (mypy strict, Pydantic v2); avhengigheter låst med `uv`; egen Python i app-mappen | Lyd- og modelløkosystemet; samme installasjon hver gang, uavhengig av system-Python |
-| `ADR-03` | Tre prosesser (core, vision, stt) under en supervisor som kjører som Windows-tjeneste (WinSW) | Feil i bildeanalyse eller tekst stopper aldri klippingen |
+| `ADR-03` | Egne prosesser under en supervisor som kjører som Windows-tjeneste (WinSW): `core`, `audio-capture`, `vision` og `atem-bridge` (`stt` tatt ut, D-063) | Feil i bildeanalyse eller tekst stopper aldri klippingen |
 | `ADR-04` | Avstemmingssløyfe: hvert sekund sammenlignes ønsket og faktisk tilstand for ATEM, Pearl og kameraer; avvik logges og motoren tilpasser seg | Tåler tapte kommandoer og manuelle inngrep uten å «slåss» mot operatøren |
 | `ADR-05` | Alle enhetskommandoer er idempotente, har tidsavbrudd, går gjennom kø per enhet og har kretsbryter som pauser en enhet som feiler gjentatte ganger | Én treg enhet kan ikke henge resten |
 | `ADR-06` | Oppsett som YAML i git med skjema; kjøredata i SQLite (WAL); logg som JSON-linjer | Lett å lese, versjonere og gjenopprette |
@@ -266,8 +266,7 @@ features:                       # grunnmodus er alltid på; dette er bryterne i 
   framing_variety: false
   slow_zoom: false
   layouts: false
-  live_transcript: false
-  turn_prediction: false
+  ai_tracking: false
 layouts:                        # gjelder bare når features.layouts er på
   pip_speaker_content: false
   pip_two_people: false
@@ -479,8 +478,6 @@ Grunnmodus er lyd, regler, preview først, kuttpunkt, hold og release. Alt annet
 | `framing_variety` (`F`) | av | Kamera off air veksler mellom tett og videre utsnitt | PTZ |
 | `slow_zoom` (`Z`) | av | Langsom zoom under lange svar | PTZ som tåler sakte zoom |
 | `layouts` (`L`) | av | PiP og quad | ATEM-makroer |
-| `live_transcript` | av | Live tekst per mic | GPU |
-| `turn_prediction` | av | Forvarsel om turbytte | Eksperimentell |
 | ai\_tracking (AT) | av | Kameraet følger personen selv, per kamera | OBSBOT Tail 2 med OSC |
 
 **Reaksjonsklipp (`R`):**
@@ -868,7 +865,7 @@ Stegene og innholdet ligger i `site/<studio>/setup/*.yaml`, ikke i koden. Den sa
 | 6 Multiview | INOGENI 4KXUSB3 valgt som kilde i 1080p50 YUY2; rutekart over multiviewen; forsinkelse fra ATEM til PC måles med et blinkende testbilde | Rutekartet foreslås automatisk fra bildet; hjørner kan dras | Hver rute viser riktig kilde (ATEM bytter preview gjennom kildene og videolaget sjekker) |
 | 7 Companion | Import av `cutcut-pages.companionconfig` (side 10 og 11), ATEM- og Pearl-tilkobling i Companion | – (Companion har ikke API for import) | Leser `cutcut_pages_version`; trykker hver preview-knapp og leser ATEM-preview tilbake |
 | 8 Makroer og grafikk | Makroer fra 7.2, «Kun lyd»-grafikk og bakgrunn i mediaspillerne | Grafikk kan lastes opp via ATEM-protokollen | Makroene finnes med riktig nummer og navn; hver kjøres og SuperSource leses tilbake |
-| 9 Pearl og kort | Pearl-bruker, opptaker, inngang fra ATEM, NTP; TWN3 i COM-port-modus; kort-API-nøkkel | – | 5 s testopptak startes, stoppes og finnes; et testkort gir brukernavn |
+| 9 Pearl og innlogging | Pearl-bruker, opptaker, inngang fra ATEM, NTP; innlogging med Start-knapp (TWN3 i COM-port-modus og kort-API-nøkkel når kortinnloggingen kommer, D-057) | – | 5 s testopptak startes, stoppes og finnes |
 | 10 Generalprøve | Alle deltakere sitter og snakker | – | Motoren kjører 5 min i skyggemodus; viser kutt, kuttpunkt og eventuelle avvik |
 
 Kamerasteget har en egen side per kamera med live bilde, grenser, presets og test:
@@ -910,7 +907,7 @@ En egen helsetjeneste i regi-core sjekker hele tiden at alt er tilkoblet, svarer
 | `H-PRL-2` | Opptak kjører når det skal | 2 s | `started` under økt med opptak | Rødt med lyd |
 | `H-CARD-1` | TWN3 COM-port | 10 s | Porten er åpen | Gult |
 | `H-CARD-2` | Kort-API | 5 min, og ved hvert oppslag | Testoppslag under 3 s | Gult |
-| `H-PROC-*` | Hjerteslag fra core, audio-capture, vision, stt, atem-bridge, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
+| `H-PROC-*` | Hjerteslag fra core, audio-capture, vision, atem-bridge, touch-nettleser | 1 s | Hjerteslag hvert sekund | Gult; supervisor restarter |
 | `H-PC-*` | Disk, minne, CPU, GPU-temperatur, klokke (NTP) | 30 s | Under grenser; klokkeavvik under 1 s | Gult |
 
 I tillegg: `H-ATEM-4` sjekker ISO-disk og opptak hvert 10. sekund (gult under 60 minutter igjen, rødt hvis disken mangler når showet skal ta opp ISO), og `H-VID-2` sjekker at INOGENI-kortet leverer 1080p50 og at forsinkelsen er som målt ved oppsett.
@@ -1075,7 +1072,7 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 7. **Fugleperspektiv og content:** `B`- og `CT`-regler med content-deteksjon. Ferdig når alle moduser `N1`–`N4C` er testet.
 8. **Kameradrivere og oppsett:** `obsbot` og `canon_xc` med presets, grenser, kalibrering og hvitbalanse. Ferdig når grensene håndheves i driveren. Setup-hjelperen (8.4) og statussiden (8.5) bygges i samme steg, ett utstyr av gangen.
 9. **Drift:** supervisor, tjenester, kiosk, morgensjekk, helse-API, 72 timers test. Her er grunnmodus klar for produksjon.
-10. **Brytere, i denne rekkefølgen:** `video_confirm`, `framing_variety`, `reactions`, `slow_zoom`, `layouts`, `live_transcript`, `turn_prediction`. Hver testes alene i studio før den slås på; i skyggemodus når studioet er i drift (D-049).
+10. **Brytere:** `video_confirm`, `framing_variety`, `reactions`, `slow_zoom`, `layouts` og `ai_tracking` (live tekst og turbytte er tatt ut, D-063). Alle er bygget før studioperioden (D-066), og hver prøves alene i studio, først i skygge og så live, i rekkefølgen i `docs/studio/testdag.md`.
 11. **Fargematching og Panopto:** gråkort-måling og off-air-justering; publisering til Panopto når eierskapet er avklart.
 
 **Åpne spørsmål før bygging:**
@@ -1085,7 +1082,7 @@ Bygg i denne rekkefølgen, og la hvert steg være ferdig med tester før neste s
 - kort-API: tjenestenøkkel, svarformat, og om kortnummeret skal sendes som hex i normal eller omvendt byte-rekkefølge (sjekk mot Crestron-oppsettet).
 - Panopto: hvordan opprettes opptaket på brukerens egen konto når brukeren bare har vist kortet?
 - Montering og kabler for touch-skjermen: avstanden til PC-en avgjør om det trengs forlenger for skjermsignal og USB.
-- ATEM-modell: støtter `atem-connection` og Companion ATEM Mini Extreme ISO G2 fullt ut (tilstand, makroer, SuperSource, opptak)? Hvis ja: G2; hvis ikke: Extreme ISO.
+- ATEM-modell: avklart, studioet har ATEM Television Studio HD8 ISO (D-053). Støtten i `atem-connection` og Companion bekreftes med maskintesten (Q7).
 - OBSBOT AI-tracking: virker OSC SetAiEnable på deres fastvare, og hvor rolig blir tracking med fart «lat»?
 - Hvor lenge skal opptak ligge på Pearl og ATEM-disken før de slettes lokalt?
 
@@ -1128,7 +1125,6 @@ CutCutStudio/
     core/        # regimotor, moduser, regler, tilstand, beslutninger
     audio/       # VAD, dominans, frasegrenser (i core); capture/ = egen prosess audio-capture (ADR-0014)
     vision/      # capture, ruter, ansikt og munn, content, farge (egen prosess)
-    stt/         # live tekst (egen prosess, bryter)
     session/     # TWN3-kortleser, kortoppslag, økter, show-typer
     devices/     # companion, atem (klient mot atem-bridge), pearl, cameras/{base,obsbot,canon_xc}
     health/      # sjekkatalog, fasit-sammenligning, varsler

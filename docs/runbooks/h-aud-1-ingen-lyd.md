@@ -11,7 +11,7 @@ Bildet blir stående på fugleperspektivet, og automatikken står på pause. Opp
 
 ## Hva CutCut gjør selv
 
-Etter 2 s uten lyd kutter motoren til `BIRD` og setter AUTO på pause (`S4`). `audio-capture` prøver å åpne lydkortet på nytt hvert 5. sekund, og supervisor starter prosessen på nytt hvis den har falt. Når lyden er tilbake, går `H-AUD-1` grønn. AUTO slås på igjen av teknikeren.
+Etter 2 s uten lyd kutter motoren til `BIRD` og setter AUTO på pause (`S4`). `audio-capture` prøver å åpne lydkortet på nytt hvert 5. sekund, og supervisor starter prosessen på nytt hvis den har falt. Når lyden er tilbake, går `H-AUD-1` grønn, og AUTO fortsetter av seg selv når lyden har vært tilbake i 2 s.
 
 ## Sjekk først (under 2 minutter)
 
@@ -25,7 +25,7 @@ Etter 2 s uten lyd kutter motoren til `BIRD` og setter AUTO på pause (`S4`). `a
 2. USB ut: sett kabelen i samme port igjen. `audio-capture` finner kortet selv innen 5 s.
 3. Står grunnen «multitrack»: sett RØDECaster i multitrack-modus (USB 1), se `docs/studio/rodecaster-standardoppsett.md`.
 4. Står det at ASIO ikke kan åpnes: lukk andre programmer som bruker RØDECaster. CutCut prøver igjen selv, og bruker WASAPI som reserve.
-5. Slå **AUTO** på igjen i teknikervinduet når lyden er tilbake.
+5. AUTO fortsetter selv 2 s etter at lyden er tilbake. Står AUTO fortsatt av, var den slått av for hånd: slå den på i teknikervinduet.
 6. Bekreft at `H-AUD-1` er grønn i 30 s.
 
 ## Hvis det ikke hjelper

@@ -37,12 +37,12 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 - [ ] `docs/open-questions.md` oppdatert med svar som kom i perioden
 - [ ] Nye ADR-er for beslutninger tatt i perioden
 - [ ] Runbooks for hendelser i perioden
-- [ ] `docs/spec/` eksportert på nytt hvis spesifikasjonen er endret
+- [ ] `docs/spec/*.md` oppdatert hvis oppførselen er endret (Markdown er fasit; det finnes ingen PDF-er, D-061)
 - [ ] Oppsettsguide (`docs/setup/`) regenerert hvis setup-stegene er endret
 
 **Kvalitet**
 
-- [ ] CI grønn på `main`
+- [ ] CI grønn på release-PR-en, og siste ukentlige Windows-kjøring grønn (ingen CI ved push til `main`, D-059)
 - [ ] Simulator-test av hele flyten bestått
 - [ ] Maskintester i studio for endrede integrasjoner, rapporter lagt i issues
 - [ ] Studiotest for endrede regler eller brytere (skyggemodus når studioet er i drift, D-049)
@@ -58,5 +58,5 @@ Ingen release uten at hvert punkt er krysset av i release-PR-en.
 
 ## Branch-regler på GitHub (settes av eier)
 
-- `main` beskyttet: krever pull request, grønn CI og én godkjenning; ingen force-push.
+- `main` beskyttet: krever pull request og grønn CI; ingen force-push. Agenten merger selv når CI er grønn (D-052), unntatt det som står i `AGENTS.md` 10.
 - Tags `v*` kan bare lages av eier.

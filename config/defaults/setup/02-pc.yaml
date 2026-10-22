@@ -10,5 +10,5 @@ how:
   - "Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**."
   - "Windows Update → Aktive timer: **07:00–23:00**."
   - "Tid: synkroniser mot **NTP** (samme tid som Pearl)."
-  - "Noter driverversjonene for NVIDIA, RØDECaster ASIO, capture-kortet og TWN3. **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt."
+  - "Noter driverversjonene for NVIDIA, RØDECaster ASIO, og capture-kortet (INOGENI). **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt."
 checks: ["H-PC-*", "H-PROC-*"]

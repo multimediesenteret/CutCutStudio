@@ -1,11 +1,10 @@
 schema_version: 1
 number: 9
 id: pearl
-title: "Pearl og kort"
-why: "Pearl tar opp; kortleseren sier hvem som bruker studioet."
+title: "Pearl og innlogging"
+why: "Pearl tar opp. Innloggingen avgjør hvem opptaket står på."
 how:
   - "Pearl: egen bruker for CutCut, én opptaker, inngang fra ATEM, **NTP** på."
-  - "TWN3-leseren i **COM-port-modus**."
-  - "Kort-API-nøkkelen legges i Windows Credential Manager, aldri i en fil."
+  - "Innlogging: **Start-knapp (uten kort)** under Innstillinger → Innlogging. Kortleser og kort-API settes opp senere (D-057)."
   - "Ta et testopptak på **5 s** fra Pearl-menyen og sjekk at det finnes."
 checks: ["H-PRL-1"]

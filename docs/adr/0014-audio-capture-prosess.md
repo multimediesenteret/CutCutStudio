@@ -1,6 +1,8 @@
 # ADR-0014: Lyd via RØDE ASIO i egen prosess `audio-capture`
 
 - **Status:** Akseptert 2026-10-21 (D-046). Bekreftet i M0-planen `docs/plans/audio.md`, med presisering: `audio-capture` analyserer lyden og sender målinger (`audio.frame`) til `core`, ikke rå lyd. Rå lyd bare til `stt`. Maskintest (Q21) kan fortsatt gi ny ADR
+
+> **Merknad D-063 (2026-10-22):** `stt` er tatt ut av v1, så rå lyd sendes ikke ut av `audio-capture` i det hele tatt.
 - **Dato:** 2026-10-21
 - **Kilde:** beslutningslogg D-031; `docs/research/lyd-fra-rodecaster.md`
 

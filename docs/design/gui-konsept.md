@@ -1,6 +1,14 @@
 # GUI-konsept: touch og tekniker
 
-Dato: 2026-10-21 · Status: **konsept godkjent som retning** (D-036–D-039). Kode: `concept/`. Publiseres på Vercel.
+Dato: 2026-10-21 · Status: **konsept godkjent som retning** (D-036–D-039). Kode: `concept/`, arkivert på Vercel under `/concept/`. De ekte skjermene er i `ui/apps/touch` og `ui/apps/tech`.
+
+> **Slik appen avviker fra konseptet (2026-10-22).** Ved uenighet gjelder appen og beslutningsloggen:
+> - **Innlogging:** standard er Start-knappen uten kort (brukeren blir «Gjest», D-057). Kortet kommer senere.
+> - **Ferdig-skjermen** sier at opptaket er lagret i studioet; Panopto er ikke slått på (SE-7).
+> - **Show-type** velges av admin under Innstillinger → Show-type (SE-6), ikke av antall personer alene.
+> - **Live tekst** er tatt ut (D-063).
+> - **Innstillinger** har Teknikere, Varsling (med support-e-post), Oppsett (lagre og hente), Innlogging og Show-type.
+> - **Kamerakart:** «Camera 1» = verten, «Camera 2–4» = gjestene, «Camera 6» = oversikt, «Camera 7» = laptop (D-054). Ekte IP-er ligger bare i appen (D-060).
 
 ## Hvem skjermene er for
 

@@ -245,7 +245,7 @@ def test_core_checks_companion_pages_and_pearl(
     assert {"H-PC-1", "H-PC-2", "H-PC-3"} <= {r.id for r in core.studio.health.results()}
 
 
-def test_companion_down_the_cut_goes_through_atem_bridge_S5(
+def test_S5_companion_down_the_cut_goes_through_atem_bridge(
     rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
 ) -> None:
     """DA-7 end to end: Companion stops answering; the technician's cut still reaches the

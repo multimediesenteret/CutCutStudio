@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M2 (Pearl status, start og stopp) og M3 (kort, kort-API) · Spes. 2.5, 5.1 (`A`), 7.4, 7.5, 7.6 (forberedt), 8.1–8.2, 9.1, 10.4; D-013, D-014, D-016, D-036, D-043; ADR-0008; I6, I7, I8 · Mapper: `src/cutcut/session/`, `src/cutcut/devices/pearl/`
 
+**Leveransestatus 2026-10-22:** SE-1–SE-3, SE-6 og SE-7 er bygget. Kortleser og kort-API (SE-4, SE-5) er flyttet til etter idriftsetting (D-057, D-065); studioet bruker Start-knappen («Gjest»).
+
 ## 1. Formål og avgrensning
 
 Hele brukerreisen fra kort til ferdig opptak: kortleser, oppslag i kort-API, økt, showvalg (antall personer, video eller kun lyd), opptak i Pearl, utlogging. Panopto er bare forberedt i datamodell og GUI (7.6); publisering bygges i M4 (`features.md`).
@@ -49,7 +51,7 @@ IDLE ──kort/tekniker──► READY ──Start──► COUNTDOWN ──3-2
 - Falsk Pearl: start/stopp, `starting` som henger, `error`, stopp uten trykk, lite lagring.
 - Samtidig start fra touch og tekniker gir ett opptak; stopp fra én side kan ikke «vinnes» av den andre (10.4).
 - Kun lyd (`A`): ingen kamerabevegelser, mediaspiller-knappen trykkes, opptak som vanlig.
-- **Maskintester:** `tools/hw-test/pearl.py` (fastvare, opptaker-ID, 5 s testopptak, status mot Pearl sitt eget grensesnitt) og `tools/hw-test/twn3.py` (port, testkort gir samme hex som Crestron; UID skrives bare maskert i rapporten).
+- **Maskintester:** Pearl prøves i setup-steg 9 (5 s testopptak, status mot Pearl sitt eget grensesnitt); en egen `hwtest`-kommando for Pearl finnes ikke. Kortleseren får maskintest når den bygges (port, testkort gir riktig hex; UID skrives bare maskert).
 
 ## 6. Leveranser
 

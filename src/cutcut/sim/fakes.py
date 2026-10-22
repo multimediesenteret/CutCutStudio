@@ -1,8 +1,8 @@
 """In-process fake devices for the simulator and tests (SIM-3, SIM-4).
 
 They react to the engine's intents the way the real devices would, and can be told to
-fail. Network-level fakes (HTTP Companion and Pearl, VISCA cameras) are added next to the
-real clients in M2, sharing these state machines.
+fail. Network-level fakes (``fake_companion``, ``fake_pearl``, ``fake_visca``, ``fake_osc``) share
+these state machines.
 """
 
 from __future__ import annotations

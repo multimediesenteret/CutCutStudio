@@ -10,9 +10,13 @@ Kjører den ekte motoren og skallet mot syntetiske talere og falske enheter, ute
 | `fake_camera.py` | Falskt PTZ-kamera i prosessen (`CameraDriver`) som husker hver kommando som nådde det, så testene kan vise at ingenting når et kamera på lufta (I2) |
 | `fake_visca.py` | Falsk OBSBOT over ekte UDP som snakker VISCA over IP: presets, posisjon, zoom og moduser, med ACK, fullført og syntaksfeil som et ekte kamera. Kan tie helt (kamera borte fra nettet) |
 | `fake_osc.py` | OSC-siden av den falske OBSBOT-en over ekte UDP: kelvin, eksponering og AI-tracking havner i samme `FakeCamera` |
+| `fake_companion.py`, `fake_pearl.py` | Falsk Companion og Pearl over ekte HTTP (SIM-3), brukt av integrasjonstestene og `cutcut sim` |
+| `live.py` | Simulatoren i sanntid bak API-et: styre-endepunktene `/api/sim/…` (samtale, slides, feil) som teknikervinduet bruker under Helse |
+| `serve.py` | `cutcut sim [--site …] [--smoke] [--vision] [--cameras]`: motor, API og skjermer med alt utstyr simulert |
+| `trace.py` | `cutcut trace`: kjører scenarioene på falsk klokke og skriver forløpene web-simulatoren spiller av (`--check` i CI) |
 | `scenario.py` | Scenarioformatet i `sim/scenarios/*.yaml`: manus, feil og forventninger |
 | `simulation.py` | `Simulation` (motor + skall + talere + falske enheter på falsk klokke) og `run_scenario()` |
 
-**Scenarioer** (`sim/scenarios/`): monolog, samtale, panel med 3 og 4, krysstale, stillhet, laptop med slide og med video, vertens innskudd, dempet mic, og feil (lyd borte, kamera i bevegelse, Companion nede, operatør kutter på ATEM). Alle kjøres som tester; de stokastiske samtalene sjekker også akseptansekriteriene i 10.4 som kan måles uten utstyr (`K1`/`K2` ≥ 90 %, preview ≥ 300 ms i ≥ 95 %).
+**Scenarioer** (`sim/scenarios/`): monolog, samtale, panel med 3 og 4, panel med 4 og layouter, krysstale, stillhet, laptop med slide og med video, vertens innskudd, dempet mic, og feil (lyd borte, kamera i bevegelse, Companion nede, operatør kutter på ATEM). Alle kjøres som tester; de stokastiske samtalene sjekker også akseptansekriteriene i 10.4 som kan måles uten utstyr (`K1`/`K2` ≥ 90 %, preview ≥ 300 ms i ≥ 95 %).
 
-**Falske enheter over nett** (HTTP for Companion og Pearl, VISCA/OSC for kameraer) lages sammen med de ekte klientene i M2 og bruker tilstandsmaskinene her.
+**Falske enheter over nett** (HTTP for Companion og Pearl, VISCA/OSC for kameraer) bruker tilstandsmaskinene i `fakes.py` og `fake_camera.py`, så testene over nett og i prosessen oppfører seg likt.

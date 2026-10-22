@@ -4,7 +4,7 @@ id: companion
 title: "Companion"
 why: "Teknikerens knapper og ATEM- og Pearl-tilkoblingen går gjennom Companion."
 how:
-  - "Importer **cutcut-pages.companionconfig** (side 10 og 11). Companion har ikke API for import, så dette gjøres for hånd."
+  - "Importer de tre filene fra `cutcut companion-pages`: **cutcut-side-10**, **cutcut-side-11** og **cutcut-variabler** (`.companionconfig`). Companion har ikke API for import, så dette gjøres for hånd."
   - "Legg inn ATEM- og Pearl-tilkoblingen i Companion."
   - "Sjekken leser **cutcut_pages_version**."
 checks: ["H-COMP-1"]

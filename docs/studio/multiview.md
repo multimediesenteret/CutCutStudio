@@ -32,7 +32,7 @@ Bekreftet av Magnus Lian 2026-10-21: Camera 1 = programleder, Camera 2–4 = gje
 3. **Inngangene avviker fra spesifikasjonens forslag** (`BIRD` på 5, `LAPTOP` på 6): i studio er oversikten på 6 og laptopen på 7. CutCut leser dette fra `site/multimediesenteret/`, så ingen kode endres. SuperSource vises ikke i multiview; den trengs først med layouter (M4).
 4. **Overlegg:** safe area-merker er på i preview-ruta. Spesifikasjonen vil ha dem av (mindre støy i bildeanalysen). Navneskiltene heter «Camera n»; spesifikasjonen foreslår korte navn (`C1` …) som også vises i loggen.
 5. **Mediaspiller 1 er intern og brukes ikke** av studioet, så CutCut kan legge «Kun lyd»-grafikken der som spesifikasjonen sier (Q39 besvart).
-6. **Opptaksstatus-ruta** er ATEM sitt eget ISO-opptak. Pearl Nexus er fortsatt hovedopptaker (spesifikasjonen 2.2); ATEM-opptaket er av, som spesifikasjonen anbefaler.
+6. **Opptaksstatus-ruta** er ATEM sitt eget ISO-opptak. Pearl Nexus er hovedopptaker (spesifikasjonen 2.2). ISO-opptak i ATEM kan startes fra Opptak eller sammen med Pearl når show-typen tar opp ISO (DA-8, `iso_record`).
 
 ## Anbefalt oppsett (D-055)
 
@@ -49,11 +49,11 @@ CutCut regner ut det anbefalte oppsettet fra studioets show-oppsett og viser det
 
 **Innstillinger i ATEM Software Control → Multiview:** tally-rammer på, safe area av, lydmålere av, navneskilt på (CutCut kutter 4 % inn og ser dem ikke), utgang på HDMI til opptakskortet i 1080p50.
 
-**I studio i dag** avviker bare rute 7 og 8 (Media Player 1 og opptaksstatus), som CutCut ikke leser, og safe area er på. Det er forslag og en advarsel, ikke feil: CutCut virker med oppsettet slik det står. Bytter dere til det anbefalte, endres rutekartet (`equipment/multiview_map.yaml`) samtidig.
+**I studio i dag** avviker bare rute 7 og 8 (Media Player 1 og opptaksstatus), som CutCut ikke leser, og safe area er på. Det er forslag og en advarsel, ikke feil: CutCut virker med oppsettet slik det står. Bytter dere til det anbefalte, lages nytt rutekart i setup-steg 6 (finn rutene i bildet, dra hjørnene, «Lagre rutekart»). Det lagres i appen (VI-5); `equipment/multiview_map.yaml` er bare utgangspunktet.
 
 ## Feil oppdages ved oppstart
 
-Multiview-oppsettet endres ikke under bruk, så CutCut sjekker det **ved oppstart** (så snart ATEM kan leses, senest etter 30 s), i morgensjekken (M2) og når teknikeren trykker **Sjekk nå** under Oppsett (D-056). Teknikeren får varsel under Helse når noe ikke stemmer:
+Multiview-oppsettet endres ikke under bruk, så CutCut sjekker det **ved oppstart** (så snart ATEM kan leses, senest etter 30 s), i morgensjekken og når teknikeren trykker **Sjekk nå** under Oppsett (D-056). Teknikeren får varsel under Helse når noe ikke stemmer:
 
 | Sjekk | Nivå | Hva |
 | --- | --- | --- |
@@ -64,11 +64,12 @@ Multiview-oppsettet endres ikke under bruk, så CutCut sjekker det **ved oppstar
 | `H-MV-4` | Feil | Preview og program har byttet plass |
 | `H-MV-5` | Feil / advarsel | En rute viser noe annet enn rutekartet: feil hvis CutCut leser ruta, ellers advarsel |
 | `H-MV-6`, `H-MV-7`, `H-MV-8` | Advarsel | Safe area på, lydmålere på, tally av |
+| `H-MV-9` | Info | ATEM-multiviewen kan ikke leses ennå (`atem-bridge` har ikke svart) |
 | `H-MV-10` | Advarsel | Multiview er ikke 1080p50 |
 | `H-MV-11` | Forslag | Avvik fra det anbefalte oppsettet |
 
-Sjekk mot rutekart og show-oppsett virker allerede. Sjekk mot det ATEM viser (`H-MV-3`–`H-MV-10`) virker i simulatoren nå, og mot ekte ATEM når `atem-bridge` er på plass (M2). Prøv det i simulatoren: Helse → «Noen har endret ATEM-multiviewen», så Oppsett → Sjekk nå.
+Sjekken mot rutekart og show-oppsett, og mot det ATEM viser gjennom `atem-bridge` (`H-MV-3`–`H-MV-10`), er bygget. Mot ekte ATEM prøves den i studioperioden. Prøv det i simulatoren: Helse → «Noen har endret ATEM-multiviewen», så Oppsett → Sjekk nå.
 
 ## Hva som ikke endres
 
-Motoren, regelverket og skjermene er uavhengige av ATEM-modellen: de snakker om `C1`, `BIRD`, `LAPTOP` osv., og `devices.yaml` kobler det til innganger. Det som må tilpasses er studio-oppsettet (`site/multimediesenteret/`), Companion-knappekartet og rutekartet – ingen kodeendring i M1.
+Motoren, regelverket og skjermene er uavhengige av ATEM-modellen: de snakker om `C1`, `BIRD`, `LAPTOP` osv., og `devices.yaml` kobler det til innganger. Det som må tilpasses er studio-oppsettet (`site/multimediesenteret/`), Companion-knappekartet og rutekartet – ingen kodeendring.

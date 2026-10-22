@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M3 (drivere, presets, grenser) og M4 (AI-tracking, utsnitt, zoom, farge) · Spes. 2.4, 5.13 (`AT`, `F`, `Z`), 7.3, 8.4 steg 4, 8.5 (`H-CAM-*`, `H-CAM-MOVE`); D-005, D-022, D-023; ADR-0005; I2 · Mappe: `src/cutcut/devices/cameras/{base,obsbot,canon_xc}/`
 
+**Leveransestatus 2026-10-22:** CA-1–CA-7 er bygget. Canon går over VISCA til XC-kommandoene finnes (Q6). Utsnitt, zoom, AI-tracking og farge er bygget i P4, P5 og P8. Maskintesten (CA-5) gjøres i studioperioden.
+
 ## 1. Formål og avgrensning
 
 Felles `CameraDriver`-grensesnitt (7.3) med to drivere i v1. Grunnmodus trenger bare: status, posisjon (for `S1` og `H-CAM-MOVE`), hent preset off air, og sperre mot bevegelse på PGM/PVW. Resten (AI-tracking, langsom zoom, utsnittsvariasjon, fargejustering) er brytere i M4.
@@ -49,7 +51,7 @@ class GuardedCamera:            # pakker hver driver
 - Falske kameraer i `sim/devices/` som svarer på VISCA, OSC og XC, med treghet og bevegelse.
 - I2: egenskapstest der tilfeldige kommandoer sendes mens kameraet er på PGM/PVW → ingen når kameraet.
 - Klemming: kommando utenfor grense klemmes og logges (10.4 siste punkt).
-- **Maskintester** `tools/hw-test/obsbot.py` og `tools/hw-test/canon.py`: protokoll svarer, presets lagres og hentes, posisjon leses, manuell modus, laveste zoomfart (`Z3`), `SetAiEnable` virker (Q16). Bevegelse bare etter bekreftelse fra tekniker.
+- **Maskintester** `cutcut hwtest camera --camera C2` (KA1–KA7, ett kamera av gangen): protokoll svarer, presets lagres og hentes, posisjon leses, manuell modus, laveste zoomfart (`Z3`), `SetAiEnable` virker (Q16). Bevegelse bare etter bekreftelse fra tekniker.
 
 ## 6. Leveranser
 

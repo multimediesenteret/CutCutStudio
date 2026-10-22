@@ -2,6 +2,8 @@
 
 Status: godkjent (D-046) · Milepæl: M2 · Spes. 2.3, 3.1, 5.3, 5.7 (`S4`, `S6`), 5.10, 8.4 steg 5, 8.5 (`H-AUD-*`); D-031, D-032, D-035; ADR-0014; `docs/research/lyd-fra-rodecaster.md`, `docs/studio/rodecaster-standardoppsett.md` · Mappe: `src/cutcut/audio/`
 
+**Leveransestatus 2026-10-22:** AU-1–AU-7 er bygget og testet mot falske enheter og i Windows-CI. Maskintesten på ekte RØDECaster (AU-6) og mikrofonfasiten (AU-7) gjøres i studioperioden (`docs/studio/testdag.md`).
+
 ## 1. Formål og avgrensning
 
 Gi motoren pålitelige målinger per mikrofon døgnet rundt: hvem snakker, hvor sterkt, hvor er pausene og setningsslutt, og hvem er dempet på mikseren. Dekker regelgrunnlaget for `T1`, `T4`, `T9`, `K1`–`K4`, `S4`, `S6`, lydsjekken under nedtellingen på touch og mic-sjekken i setup-hjelperen (steg 5).
@@ -11,7 +13,7 @@ Gi motoren pålitelige målinger per mikrofon døgnet rundt: hvem snakker, hvor 
 - `core` blir ren regelkode (PL-04) og kan kjøres i simulator og nettleser uten lydbiblioteker.
 - Et driverheng rammer bare `audio-capture`; `core` følger `S4` og fortsetter.
 - Bussen bærer noen hundre små meldinger per sekund i stedet for 20 kanaler rå lyd.
-- Rå lyd sendes bare til `stt` når bryteren `live_transcript` er på (eget emne).
+- Rå lyd sendes aldri ut av `audio-capture` (live tekst og `stt` er tatt ut, D-063).
 
 ## 2. Grensesnitt
 
@@ -24,7 +26,6 @@ Gi motoren pålitelige målinger per mikrofon døgnet rundt: hvem snakker, hvor 
 | `audio.frame` | 100 Hz (10 ms) | Per mic `M1`–`M5`: `vad`, `level_db`, `dominance_db`, `active`, `pause_ms`, `phrase_end`, `pitch_falling`, `in_main_mix`, `leak_from` |
 | `audio.meters` | 20 Hz | Topp og RMS per mic for skjermene |
 | `audio.status` | 1 Hz + ved endring | Backend, enhet, buffer, over-/underflyt, kanalkart OK, siste feil |
-| `audio.pcm` | bare med `live_transcript` | 16 kHz mono per mic til `stt` |
 
 **Lekkasjematrise:** målt i setup-hjelperen (steg 5: én og én snakker), lagret i `baseline.yaml`. I drift: aktiv mic regnes som lekkasje hvis nivået forklares av en annen aktiv mic gjennom matrisen (+ margin).
 
@@ -54,7 +55,7 @@ Rå lyd lagres aldri på disk (personvern), unntatt i maskintest og setup når t
 - Gylne filer: kjente WAV-snutter (selvlaget, ingen persondata) gir kjente `audio.frame`-forløp.
 - Tidsbudsjett: en 10 ms-ramme for 5 mic-er analyseres på under 3 ms på CI-maskin.
 - Avspilling av ekte multitrack fra Q1 (når den kommer) mot motoren.
-- **Maskintest** `tools/hw-test/audio_rodecaster.py`: de sju punktene i research-notatet (enhet, kanalkart, synkronitet, 60 min dropouts, gjenoppretting etter USB-uttrekk, dempet kanal for Q24, WASAPI-reserve). Avgjør Q21, Q24 og ADR-0014.
+- **Maskintest** `cutcut hwtest audio` (A1–A7): de sju punktene i research-notatet (enhet, kanalkart, synkronitet, 60 min dropouts, gjenoppretting etter USB-uttrekk, dempet kanal for Q24, WASAPI-reserve). Avgjør Q21, Q24 og ADR-0014.
 - Soak: 72 timer på test-PC eller i studio (M2) uten minnevekst eller tapt strøm.
 
 ## 6. Leveranser
