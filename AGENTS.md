@@ -19,7 +19,8 @@ CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows
 | 1 | `docs/STATUS.md` | Hvor prosjektet står akkurat nå, og neste steg |
 | 2 | Denne filen, helt | Regler, oppsett, arbeidsflyt |
 | 2b | `docs/studio/testdag.md` og `docs/plans/for-studio.md` | Hva som gjenstår i studio, og rekkefølgen arbeidet før studio ble gjort i |
-| 2c | `docs/architecture/README.md` | Prosesser, dataflyt og hvor data ligger |
+| 2c | `docs/manual/README.md` | Manualen: oppsett, installasjon, funksjoner og drift, slik teknikeren ser det (PDF ved siden av) |
+| 2d | `docs/architecture/README.md` | Prosesser, dataflyt og hvor data ligger |
 | 3 | `docs/forprosjekt/beslutningslogg.md` | Alle beslutninger fra forprosjektet. **Nyere rader går foran spesifikasjonen** |
 | 4 | `docs/spec/01-app-spesifikasjon.md` | Hva som skal bygges. Særlig seksjon 0, 5, 11, 12 og 13 |
 | 5 | `docs/stack.md` | Teknologi, versjoner, utviklingsmiljø, CI |
@@ -119,6 +120,7 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 | Løser en hendelse som tok over 10 min | Ny runbook i `docs/runbooks/` |
 | Endrer API eller konfig | Genererte filer i `docs/reference/` (CI feiler ved avvik) |
 | Endrer noe brukeren merker | `CHANGELOG.md` under `[Unreleased]` |
+| Endrer noe brukeren eller teknikeren gjør eller ser (skjermer, oppsett, installasjon, utstyr, funksjoner) | Manualen `docs/manual/README.md`, og bygg PDF-en på nytt med `pnpm manual` (testen `test_manual` feiler ellers) |
 | Lager en release | Sjekklisten i `docs/RELEASE.md` |
 
 Repoet er fasit fra overleveringen 21.10.2026. Spesifikasjonen i `docs/spec/*.md` redigeres direkte her (Claude Docs-dokumentet er arkiv). Endringer i oppførsel avtales med produkteier, føres inn i beslutningsloggen og deretter i spesifikasjonen i samme pull request. PDF-ene er et øyeblikksbilde fra overleveringen.
