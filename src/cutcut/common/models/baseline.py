@@ -1,8 +1,8 @@
 """``site/<studio>/baseline.yaml``: what the setup wizard measured and the technician approved
 (spec 8.4, 9.3). Health compares the studio against it; audio-capture reads the leakage.
 
-Only the audio part exists so far (AU-4). Cameras, ATEM and Pearl are added with their
-setup steps.
+Audio (AU-4) and the ATEM (HS-7: format, input names, AUX outputs) so far. Cameras and Pearl
+are added with their setup steps.
 """
 
 from __future__ import annotations
@@ -41,8 +41,29 @@ class AudioBaseline(_Strict):
         return self
 
 
+class AtemBaseline(_Strict):
+    """The ATEM as the technician approved it (setup, «Lagre ATEM som fasit»). ``H-ATEM-2``
+    says when someone has changed it."""
+
+    video_mode: str = "1080p50"
+    input_names: dict[int, str] = Field(default_factory=dict)  # input → long name
+    aux: list[str] = Field(default_factory=list)  # what each AUX shows; AUX 2 is HDMI out 2
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+
+
+class VideoBaseline(_Strict):
+    """The capture card as measured by ``cutcut hwtest vision`` (``H-VID-2``)."""
+
+    width: int = 1920
+    height: int = 1080
+    delay_ms: float | None = None
+
+
 class Baseline(_Strict):
     schema_version: Literal[1] = 1
     approved_by: str | None = None
     approved_at: datetime | None = None
     audio: AudioBaseline = Field(default_factory=AudioBaseline)
+    atem: AtemBaseline | None = None
+    video: VideoBaseline | None = None

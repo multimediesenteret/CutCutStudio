@@ -559,3 +559,142 @@ def alert_mail(info: Callable[[], dict[str, object]], now: Callable[[], datetime
         return _result(cid, "green", "klar", "Varsler sendes på e-post.", now, expected=expected)
 
     return FuncCheck("H-VARSEL-1", 30.0, run, level="as_agreed")
+
+
+# -- H-ATEM-2, H-ATEM-4, H-VID-2: as set up, and the ATEM's own ISO disk (HS-7) --------------
+
+ISO_YELLOW_S = 3600  # spec 7.7: yellow under 60 minutes left
+
+
+@dataclass(frozen=True)
+class AtemSetupReading:
+    """What the ATEM shows now, against the approved fasit (``None``: none saved yet)."""
+
+    read: bool
+    video_mode: str | None = None
+    input_names: dict[int, str] | None = None
+    aux: list[str] | None = None
+    multiview_changed: str | None = None  # the multiview check's first error, if any
+    fasit_video_mode: str = "1080p50"
+    fasit_input_names: dict[int, str] | None = None
+    fasit_aux: list[str] | None = None
+
+
+def atem_setup(get: Callable[[], AtemSetupReading], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-ATEM-2``: format, input names, multiview and the AUX outputs (HDMI out 2) are as
+    approved. Red when the multiview is changed (CutCut would read the wrong windows), yellow
+    for the rest. Silent while the ATEM cannot be read: ``H-ATEM-1`` says that already."""
+
+    def run() -> CheckResult:
+        r = get()
+        cid, expected = "H-ATEM-2", "lik fasit"
+        if not r.read:
+            return _result(cid, "green", "venter", "Venter på ATEM (se H-ATEM-1).", now)
+        if r.multiview_changed:
+            msg = f"Multiview er endret: {r.multiview_changed}"
+            return _result(
+                cid, "red", "multiview endret", msg, now, expected=expected, level="as_agreed"
+            )
+        diffs: list[str] = []
+        if r.video_mode and r.video_mode != r.fasit_video_mode:
+            diffs.append(f"format {r.video_mode}, ikke {r.fasit_video_mode}")
+        if r.fasit_input_names is not None and r.input_names is not None:
+            for n, name in sorted(r.fasit_input_names.items()):
+                now_name = r.input_names.get(n)
+                if now_name != name:
+                    diffs.append(f"inngang {n} heter «{now_name or '–'}», ikke «{name}»")
+        if r.fasit_aux is not None and r.aux is not None:
+            for i, want in enumerate(r.fasit_aux):
+                got = r.aux[i] if i < len(r.aux) else None
+                if got != want:
+                    diffs.append(f"AUX {i + 1} viser {got or '–'}, ikke {want}")
+        if diffs:
+            more = f" (+{len(diffs) - 2} til)" if len(diffs) > 2 else ""
+            msg = "ATEM er endret siden fasiten: " + "; ".join(diffs[:2]) + more + "."
+            return _result(
+                cid, "yellow", f"{len(diffs)} avvik", msg, now, expected=expected,
+                level="as_agreed",
+            )  # fmt: skip
+        if r.fasit_input_names is None:
+            msg = f"{r.video_mode}. Ingen ATEM-fasit lagret ennå (Oppsett → ATEM)."
+            return _result(cid, "green", r.video_mode or "ok", msg, now, expected=expected)
+        msg = "Format, inngangsnavn, multiview og AUX er som i fasiten."
+        return _result(cid, "green", r.video_mode or "ok", msg, now, expected=expected)
+
+    return FuncCheck("H-ATEM-2", 30.0, run, level="as_agreed")
+
+
+@dataclass(frozen=True)
+class IsoReading:
+    read: bool
+    wanted: bool  # the show records ISO on the ATEM (spec 7.7)
+    state: str | None = None
+    error: str | None = None
+    time_available_s: float | None = None
+    disk: str | None = None
+    disk_status: str | None = None
+
+
+def atem_iso(get: Callable[[], IsoReading], now: Callable[[], datetime]) -> FuncCheck:
+    """``H-ATEM-4``: the ATEM's ISO disk. Yellow under 60 minutes left; red when the show is
+    to record ISO and there is no usable disk. Not for the user: Pearl records the programme."""
+
+    def run() -> CheckResult:
+        r = get()
+        cid = "H-ATEM-4"
+        expected = f"disk med over {ISO_YELLOW_S // 60} min ledig"
+        if not r.read:
+            return _result(cid, "green", "venter", "Venter på ATEM (se H-ATEM-1).", now)
+        missing = r.disk is None or r.disk_status in ("Removed", "Unformatted")
+        if missing:
+            why = "uformatert" if r.disk_status == "Unformatted" else "mangler"
+            if r.wanted:
+                msg = f"ISO-disken i ATEM {why}, og showet skal ta opp ISO."
+                return _result(cid, "red", f"disk {why}", msg, now, expected=expected)
+            msg = f"ISO-disken i ATEM {why}. Showet tar ikke opp ISO."
+            return _result(cid, "green", "ikke i bruk", msg, now, expected=expected)
+        if r.error and r.error not in ("None",):
+            status = "red" if r.wanted else "yellow"
+            msg = f"ISO-opptaket i ATEM melder {r.error} ({r.disk})."
+            return _result(cid, status, r.error, msg, now, expected=expected)
+        left = r.time_available_s
+        if left is not None and left < ISO_YELLOW_S:
+            msg = f"{r.disk}: {left / 60:.0f} min ledig til ISO-opptak."
+            return _result(cid, "yellow", f"{left / 60:.0f} min", msg, now, expected=expected)
+        value = f"{left / 60:.0f} min" if left is not None else (r.state or "ok")
+        msg = f"{r.disk}: {value} ledig." + (" Tar opp." if r.state == "Recording" else "")
+        return _result(cid, "green", value, msg, now, expected=expected)
+
+    return FuncCheck("H-ATEM-4", 10.0, run)
+
+
+def video_format(
+    status: Callable[[], dict[str, object]],
+    width: int,
+    height: int,
+    now: Callable[[], datetime],
+) -> FuncCheck:
+    """``H-VID-2``: the capture card delivers the full multiview (1920 × 1080), and the video
+    layer keeps up. Yellow: the windows are cut from a smaller or scaled picture."""
+
+    def run() -> CheckResult:
+        st = status()
+        cid, expected = "H-VID-2", f"{width} × {height}, minst 12 bilder/s"
+        size, fps = st.get("size"), st.get("fps")
+        if not isinstance(size, list | tuple) or len(size) != 2:
+            return _result(cid, "green", "venter", "Venter på bilder fra videolaget.", now)
+        w, h = size
+        if not isinstance(w, int) or not isinstance(h, int):
+            return _result(cid, "green", "venter", "Venter på bilder fra videolaget.", now)
+        if (w, h) != (width, height):
+            msg = f"Capture-kortet gir {w} × {h}, ikke {width} × {height}. Sjekk ATEM-utgangen."
+            return _result(cid, "yellow", f"{w} × {h}", msg, now, expected=expected)
+        if isinstance(fps, int | float) and fps < 12:
+            msg = f"Videolaget henger etter: {fps:.0f} bilder/s (skal være 15)."
+            return _result(
+                cid, "yellow", f"{fps:.0f} bilder/s", msg, now, expected=expected,
+                level="working",
+            )  # fmt: skip
+        return _result(cid, "green", f"{w} × {h}", "Capture-kortet gir hele bildet.", now)
+
+    return FuncCheck("H-VID-2", 5.0, run, level="as_agreed")

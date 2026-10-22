@@ -1,5 +1,57 @@
 {
   "$defs": {
+    "AtemBaseline": {
+      "additionalProperties": false,
+      "description": "The ATEM as the technician approved it (setup, «Lagre ATEM som fasit»). ``H-ATEM-2``\nsays when someone has changed it.",
+      "properties": {
+        "approved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved At"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved By"
+        },
+        "aux": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Aux",
+          "type": "array"
+        },
+        "input_names": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Input Names",
+          "type": "object"
+        },
+        "video_mode": {
+          "default": "1080p50",
+          "title": "Video Mode",
+          "type": "string"
+        }
+      },
+      "title": "AtemBaseline",
+      "type": "object"
+    },
     "AudioBaseline": {
       "additionalProperties": false,
       "description": "Leakage between mics, measured in setup step 5 (one person talks at a time).\n\n``leak_db[A][B]`` is how much quieter A's voice is on B's mic than on A's own, in dB\n(negative; typically −15 to −30 in a small studio). Missing pairs use the default.",
@@ -57,6 +109,36 @@
       ],
       "title": "MicId",
       "type": "string"
+    },
+    "VideoBaseline": {
+      "additionalProperties": false,
+      "description": "The capture card as measured by ``cutcut hwtest vision`` (``H-VID-2``).",
+      "properties": {
+        "delay_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delay Ms"
+        },
+        "height": {
+          "default": 1080,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "default": 1920,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "title": "VideoBaseline",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -86,6 +168,17 @@
       "default": null,
       "title": "Approved By"
     },
+    "atem": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AtemBaseline"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "audio": {
       "$ref": "#/$defs/AudioBaseline"
     },
@@ -94,6 +187,17 @@
       "default": 1,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "video": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VideoBaseline"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "title": "Baseline",

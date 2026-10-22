@@ -48,7 +48,7 @@ from cutcut.common.config import (
     effective_rules,
 )
 from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
-from cutcut.common.models.baseline import Baseline
+from cutcut.common.models.baseline import AtemBaseline, Baseline
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.multiview import MultiviewReadback
 from cutcut.common.models.session import (
@@ -77,6 +77,7 @@ from cutcut.core.inputs import (
 )
 from cutcut.core.intents import SetCompanionVariable
 from cutcut.core.runtime import CoreRuntime, Executor
+from cutcut.devices.atem.bridge import AtemStateRaw
 from cutcut.devices.atem.macros import check as macro_check
 from cutcut.devices.cameras.service import CameraService
 from cutcut.health import HealthCheck, HealthEngine, HealthEvent
@@ -290,6 +291,7 @@ class Studio:
         self._morning_day: date | None = None
         self.local_tz: tzinfo | None = None  # None: the PC's own time zone
         self._mv_errors = ""
+        self._mv_first_error: str | None = None
         self._mv_seen_error = False
         self.history: dict[str, SessionRecord] = {}
         self.mic_check: MicCheck | None = None
@@ -858,6 +860,10 @@ class Studio:
             checks += health_checks.pc(lambda: system.snapshot(self.deps.data_dir), now)
         if self.notifier is not None:
             checks.append(health_checks.alert_mail(self.alerts_info, now))
+        source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
+        if callable(getattr(source, "raw", None)):  # an ATEM that is read (not the simulator)
+            checks.append(health_checks.atem_setup(self._atem_setup_reading, now))
+            checks.append(health_checks.atem_iso(self._iso_reading, now))
         cams = self.deps.cameras
         if cams is not None and cams.guards:
             for cam in sorted(cams.guards, key=lambda c: c.value):
@@ -903,6 +909,62 @@ class Studio:
 
         return read
 
+    def _atem_raw(self) -> AtemStateRaw | None:
+        source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
+        raw_fn = getattr(source, "raw", None)
+        raw = raw_fn() if callable(raw_fn) else None
+        return raw if isinstance(raw, AtemStateRaw) else None
+
+    def _atem_setup_reading(self) -> health_checks.AtemSetupReading:
+        raw = self._atem_raw()
+        fasit = self.deps.site.baseline.atem
+        if raw is None:
+            return health_checks.AtemSetupReading(read=False)
+        return health_checks.AtemSetupReading(
+            read=True,
+            video_mode=raw.multiview.video_mode if raw.multiview else None,
+            input_names={i.number: i.long for i in raw.inputs},
+            aux=list(raw.aux),
+            multiview_changed=self._mv_first_error,
+            fasit_video_mode=fasit.video_mode if fasit else "1080p50",
+            fasit_input_names=dict(fasit.input_names) if fasit else None,
+            fasit_aux=list(fasit.aux) if fasit else None,
+        )
+
+    def _iso_reading(self) -> health_checks.IsoReading:
+        raw = self._atem_raw()
+        if raw is None:
+            return health_checks.IsoReading(read=False, wanted=self.show.iso_record)
+        iso = raw.iso
+        if iso is None:
+            return health_checks.IsoReading(read=True, wanted=self.show.iso_record)
+        return health_checks.IsoReading(
+            read=True,
+            wanted=self.show.iso_record,
+            state=iso.state,
+            error=iso.error,
+            time_available_s=iso.time_available_s,
+            disk=iso.disk,
+            disk_status=iso.disk_status,
+        )
+
+    def save_atem_baseline(self, role: Role, actor: str) -> dict[str, Any]:
+        """«Lagre ATEM som fasit»: format, input names and AUX as they are now (H-ATEM-2)."""
+        raw = self._atem_raw()
+        if raw is None:
+            raise CommandError("ATEM kan ikke leses nå. Sjekk at atem-bridge kjører.")
+        fasit = AtemBaseline(
+            video_mode=raw.multiview.video_mode if raw.multiview else "1080p50",
+            input_names={i.number: i.long for i in raw.inputs},
+            aux=list(raw.aux),
+            approved_by=actor,
+            approved_at=self.deps.clock.now(),
+        )
+        self._apply_baseline(self.deps.site.baseline.model_copy(update={"atem": fasit}))
+        self._audit(role, actor, "atem_baseline", video_mode=fasit.video_mode)
+        self._autosave()
+        return self.atem_status()
+
     def atem_status(self) -> dict[str, Any]:
         """What CutCut reads from the ATEM, in ATEM terms (setup screen, machine test DA-5)."""
         source: object = self.deps.atem if self.deps.atem is not None else self.deps.executor
@@ -924,6 +986,12 @@ class Studio:
             "recording": raw.recording if raw else None,
             "macros": {str(k): v for k, v in sorted((macros or {}).items())},
             "macro_problems": macro_check(macros) if macros is not None else [],
+            "inputs": {str(i.number): i.long for i in raw.inputs} if raw else {},
+            "aux": list(raw.aux) if raw else [],
+            "iso": raw.iso.model_dump() if raw and raw.iso else None,
+            "fasit": self.deps.site.baseline.atem.model_dump(mode="json")
+            if self.deps.site.baseline.atem
+            else None,
         }
 
     def _atem_macros(self) -> dict[int, str] | None:
@@ -1141,6 +1209,7 @@ class Studio:
         if key == self._mv_errors:
             return
         self._mv_errors = key
+        self._mv_first_error = errors[0]["message"] if errors else None
         if errors:
             more = f" (+{len(errors) - 1} til)" if len(errors) > 1 else ""
             self._alert("warn", "H-MV", f"Multiview: {errors[0]['message']}{more}")
@@ -1427,6 +1496,15 @@ class Studio:
             health_checks.video(
                 lambda: None if rt.vision_frame_ms is None else self.now - rt.vision_frame_ms,
                 lambda: rt.vision_status,
+                self.deps.clock.now,
+            )
+        )
+        video = self.deps.site.baseline.video
+        self.health.add(
+            health_checks.video_format(
+                lambda: rt.vision_status,
+                video.width if video else 1920,
+                video.height if video else 1080,
                 self.deps.clock.now,
             )
         )

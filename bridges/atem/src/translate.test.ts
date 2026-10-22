@@ -10,7 +10,7 @@ import { MP1, sourceName, statePayload } from "./translate.ts";
 const FIXTURE = resolve(import.meta.dirname, "../../../tests/fixtures/atem/state-studio.json");
 
 /** The studio as in the multiview photo (D-053): MP1 on program, Camera 1 on preview. */
-function cardApiState(): AtemState {
+function studioState(): AtemState {
   const win = (source: number, extra: object = {}) => ({
     source,
     windowIndex: 0,
@@ -21,7 +21,7 @@ function cardApiState(): AtemState {
   });
   return {
     info: { model: Enums.Model.TelevisionStudioHD8ISO },
-    video: { mixEffects: [{ programInput: MP1, previewInput: 1 }] },
+    video: { mixEffects: [{ programInput: MP1, previewInput: 1 }], auxilliaries: [10010, 6] },
     settings: {
       videoMode: Enums.VideoMode.P1080p50,
       multiViewers: [
@@ -43,7 +43,32 @@ function cardApiState(): AtemState {
         },
       ],
     },
-    recording: { status: { state: Enums.RecordingStatus.Idle } },
+    recording: {
+      status: {
+        state: Enums.RecordingStatus.Idle,
+        error: Enums.RecordingError.None,
+        recordingTimeAvailable: 5400,
+      },
+      properties: {
+        filename: "",
+        workingSet1DiskId: 1,
+        workingSet2DiskId: 0,
+        recordInAllCameras: true,
+      },
+      disks: {
+        1: {
+          diskId: 1,
+          volumeName: "ISO-SSD",
+          recordingTimeAvailable: 5400,
+          status: Enums.RecordingDiskStatus.Active,
+        },
+      },
+    },
+    inputs: {
+      1: { inputId: 1, shortName: "CAM1", longName: "Camera 1" },
+      2: { inputId: 2, shortName: "CAM2", longName: "Camera 2" },
+      6: { inputId: 6, shortName: "CAM6", longName: "Camera 6" },
+    },
     macro: {
       // ATEM index 9 is macro 10 in ATEM Software Control. 39 = 40 is missing on purpose.
       macroProperties: Object.assign([], {
@@ -58,7 +83,7 @@ function cardApiState(): AtemState {
 
 describe("atem.state payload", () => {
   it("matches the shared contract fixture", () => {
-    const payload = statePayload(cardApiState());
+    const payload = statePayload(studioState());
     const text = JSON.stringify(payload, null, 2) + "\n";
     if (process.env.UPDATE_FIXTURES) writeFileSync(FIXTURE, text);
     expect(text).toBe(readFileSync(FIXTURE, "utf8"));
@@ -76,7 +101,7 @@ describe("atem.state payload", () => {
   });
 
   it("numbers macros like ATEM Software Control (1-based) and skips empty slots", () => {
-    expect(statePayload(cardApiState()).macros).toEqual([
+    expect(statePayload(studioState()).macros).toEqual([
       { number: 10, name: "PIP_P1_CONTENT" },
       { number: 20, name: "PIP_P1_P2" },
       { number: 30, name: "QUAD4" },
@@ -90,7 +115,7 @@ describe("atem.state payload", () => {
   });
 
   it("reports a swapped preview/program and a non 2+8 layout", () => {
-    const s = cardApiState();
+    const s = studioState();
     const mv = s.settings.multiViewers[0] as unknown as {
       properties: { layout: number; programPreviewSwapped: boolean };
     };

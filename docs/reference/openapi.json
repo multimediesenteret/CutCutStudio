@@ -2914,6 +2914,30 @@
         ]
       }
     },
+    "/api/setup/atem/fasit": {
+      "post": {
+        "description": "«Lagre ATEM som fasit»: format, input names and AUX outputs as now (H-ATEM-2).",
+        "operationId": "atem_fasit_api_setup_atem_fasit_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Atem Fasit Api Setup Atem Fasit Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Atem Fasit",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
     "/api/setup/mics": {
       "delete": {
         "operationId": "mic_reset_api_setup_mics_delete",

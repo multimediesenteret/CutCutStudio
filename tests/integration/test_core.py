@@ -337,3 +337,41 @@ def test_program_window_disagrees_with_the_atem_H_VID_3(
     assert until(lambda: check() == "yellow", 15, send)
     seen["source"] = "C2"
     assert until(lambda: check() == "green", 10, send)
+
+
+def test_atem_as_set_up_and_its_iso_disk_H_ATEM_2_H_ATEM_4(
+    rig: tuple[TestClient, Bus, FakeCompanionState, FakePearlState, Any],
+) -> None:
+    """HS-7: the ATEM's format, input names and AUX against the approved fasit, and its disk."""
+    client, bus, _, _, _ = rig
+    assert client.post("/api/login", json={"username": "admin1", "pin": PIN}).status_code == 200
+    state = json.loads(json.dumps(ATEM))
+
+    def send() -> None:
+        bus.send("atem.state", "atem-bridge", state)
+        time.sleep(0.2)
+        client.post("/api/health/morning-check")  # every check now, not on its interval
+
+    def check(cid: str) -> dict[str, Any] | None:
+        rows = client.get("/api/health/checks").json()
+        return next((r for r in rows if r["id"] == cid), None)
+
+    assert until(lambda: (check("H-ATEM-4") or {}).get("value") == "90 min", 10, send)
+    assert until(lambda: (check("H-ATEM-2") or {}).get("value") == "1080p50", 10, send)
+    got = check("H-ATEM-2")
+    assert got is not None
+    assert got["status"] == "green"
+    assert "Ingen ATEM-fasit" in got["message"]
+
+    r = client.post("/api/setup/atem/fasit")
+    assert r.status_code == 200
+    assert r.json()["fasit"]["input_names"] == {"1": "Camera 1", "2": "Camera 2", "6": "Camera 6"}
+    assert r.json()["iso"]["disk"] == "ISO-SSD"
+
+    state["inputs"][1]["long"] = "Gjest"  # someone renames input 2 on the ATEM
+    state["iso"]["time_available_s"] = 1200
+    assert until(lambda: (check("H-ATEM-2") or {}).get("status") == "yellow", 10, send)
+    got = check("H-ATEM-2")
+    assert got is not None
+    assert "inngang 2 heter «Gjest», ikke «Camera 2»" in got["message"]
+    assert until(lambda: (check("H-ATEM-4") or {}).get("status") == "yellow", 10, send)

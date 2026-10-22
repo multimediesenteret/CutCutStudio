@@ -48,6 +48,23 @@ export interface MacroPayload {
   name: string;
 }
 
+export interface InputNamePayload {
+  number: number;
+  short: string;
+  long: string;
+}
+
+/** ISO recording on the ATEM's own disk (H-ATEM-4, spec 7.7). */
+export interface IsoPayload {
+  state: string | null;
+  error: string | null;
+  /** Seconds left on the working disk, as the ATEM reports it. */
+  time_available_s: number | null;
+  disk: string | null;
+  disk_status: string | null;
+  all_inputs: boolean;
+}
+
 export interface AtemStatePayload {
   connected: true;
   model: string;
@@ -56,6 +73,11 @@ export interface AtemStatePayload {
   multiview: MultiviewPayload | null;
   recording: string | null;
   macros: MacroPayload[];
+  /** Inputs 1–8 with the names set in the ATEM (H-ATEM-2). */
+  inputs: InputNamePayload[];
+  /** What each AUX output shows, as multiview sources (HDMI out 2 is an AUX, H-ATEM-2). */
+  aux: string[];
+  iso: IsoPayload | null;
 }
 
 /** The macros stored in the ATEM, for the layout check at start-up (DA-7, spec 7.2). */
@@ -92,6 +114,34 @@ export function multiview(state: AtemState): MultiviewPayload | null {
   };
 }
 
+export function inputNames(state: AtemState): InputNamePayload[] {
+  const out: InputNamePayload[] = [];
+  for (let n = 1; n <= 8; n++) {
+    const i = state.inputs?.[n];
+    if (i) out.push({ number: n, short: i.shortName, long: i.longName });
+  }
+  return out;
+}
+
+export function iso(state: AtemState): IsoPayload | null {
+  const rec = state.recording;
+  if (!rec) return null;
+  const diskId = rec.properties?.workingSet1DiskId;
+  const disk = diskId !== undefined ? rec.disks?.[diskId] : undefined;
+  const st = rec.status;
+  return {
+    state: st ? (Enums.RecordingStatus[st.state] ?? null) : null,
+    error:
+      st && st.error !== Enums.RecordingError.None
+        ? (Enums.RecordingError[st.error] ?? null)
+        : null,
+    time_available_s: st?.recordingTimeAvailable ?? disk?.recordingTimeAvailable ?? null,
+    disk: disk?.volumeName ?? null,
+    disk_status: disk ? (Enums.RecordingDiskStatus[disk.status] ?? null) : null,
+    all_inputs: rec.recordAllInputs ?? rec.properties?.recordInAllCameras ?? false,
+  };
+}
+
 export function statePayload(state: AtemState): AtemStatePayload {
   const me = state.video.mixEffects[0];
   return {
@@ -100,9 +150,13 @@ export function statePayload(state: AtemState): AtemStatePayload {
     program_input: me?.programInput ?? 0,
     preview_input: me?.previewInput ?? 0,
     multiview: multiview(state),
-    recording: state.recording?.status?.state !== undefined
-      ? (Enums.RecordingStatus[state.recording.status.state] ?? null)
-      : null,
+    recording:
+      state.recording?.status?.state !== undefined
+        ? (Enums.RecordingStatus[state.recording.status.state] ?? null)
+        : null,
     macros: macros(state),
+    inputs: inputNames(state),
+    aux: (state.video.auxilliaries ?? []).map((a) => sourceName(a)),
+    iso: iso(state),
   };
 }
