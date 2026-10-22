@@ -2246,7 +2246,7 @@ class Studio:
         if name not in IMPLEMENTED_SWITCHES:
             return False, False, "Reglene bygges før studioperioden (docs/plans/for-studio.md)."
         if name in ("video_confirm", "reactions") and not self.runtime.vision_status.get("faces"):
-            why = "Krever den tunge delen av videolaget (ansikt og munn på GPU)."
+            why = "Krever ansikt og munn i videolaget (modellen og videolaget må kjøre)."
             return False, False, why
         steered = set(self.deps.cameras.guards) if self.deps.cameras is not None else set()
         if name == "framing_variety":

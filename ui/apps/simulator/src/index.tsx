@@ -146,8 +146,8 @@ function Page() {
       <div className="notes">
         <div className="note">
           <b>Hva du ser</b>
-          Kortskanning, valg av personer, lydsjekk, opptak med automatisk klipping og ferdig-skjerm.
-          Hvert kutt har regel-ID i teknikervinduet.
+          Start, valg av personer, lydsjekk, opptak med automatisk klipping og ferdig-skjerm, slik
+          studioet er satt opp. Hvert kutt har regel-ID i teknikervinduet.
         </div>
         <div className="note">
           <b>Samme kode som i studio</b>

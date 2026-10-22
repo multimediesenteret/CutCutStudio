@@ -7,13 +7,21 @@ with its time. The browser plays it back with ``ReplayTransport`` – no engine 
 Format (version 1)::
 
     {"version": 1, "story": "...", "title": "...", "duration_ms": N, "keyframe_ms": K,
-     "messages": [[t_ms, {"type": ..., "seq": ..., "data": ...}], ...]}
+     "messages": [[t_ms, {"type": ..., "seq": ..., "data": ...}], ...],
+     "rest": [[t_ms, "/api/...", <answer>], ...]}
 
 A full state is stored every ``keyframe_ms`` (``"full": true``), so the player can jump.
+
+The studio is recorded as it is set up in the studio, so the web simulator mirrors the app
+there: Start button without a card (D-057), the PTZ cameras, and the health checks running.
+``rest`` holds the answers of the GET endpoints the screens read (Oppsett, Kameraer, Helse …),
+taken from the real API at each keyframe and stored when they change. The player gives the
+newest answer for a path, so those pages are not empty.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -25,12 +33,27 @@ from cutcut.common.ids import ParticipantId
 from cutcut.common.models.session import ShowChoice
 from cutcut.core.inputs import ContentState
 from cutcut.core.runtime import TICK_MS
-from cutcut.sim.fakes import TEST_CARDS
 from cutcut.sim.live import LiveSim, build_live_sim
 
 TRACE_VERSION: Final = 1
 KEYFRAME_MS: Final = 10_000
 METERS_EVERY_MS: Final = 100  # 10 Hz is enough for playback and halves the size
+HEALTH_EVERY_MS: Final = 1000
+# What the screens fetch over REST (ui/packages/client and the technician pages).
+REST_PATHS: Final = (
+    "/api/me",
+    "/api/rules",
+    "/api/cameras",
+    "/api/sessions?days=1",
+    "/api/settings/alerts",
+    "/api/settings/devices",
+    "/api/settings/staff",
+    "/api/setup/steps",
+    "/api/setup/atem",
+    "/api/setup/color",
+    "/api/setup/mics",
+    "/api/setup/multiview",
+)
 
 # Tick timings are measured in real time and would make the trace differ run to run (I3).
 _RUNTIME: Final = {"ticks": 0, "max_step_ms": 0.0, "skipped_ticks": 0}
@@ -46,8 +69,9 @@ class Story:
     steps: tuple[tuple[float, Action], ...]
 
 
-def _card(sim: LiveSim) -> None:
-    sim.card_reader.present(next(iter(TEST_CARDS)))
+def _start_button(sim: LiveSim) -> None:
+    """«Start» on the touch screen, as in the studio (D-057): a session for «Gjest»."""
+    sim.studio.start_without_card("touch", "touch")
 
 
 def _show(guests: int, laptop: bool = False) -> Action:
@@ -100,7 +124,7 @@ STORIES: Final[dict[str, Story]] = {
             title="Samtale med to personer",
             duration_s=150,
             steps=(
-                (3, _card),
+                (3, _start_button),
                 (7, _show(1)),
                 (10, _start),
                 (14, _talk(ParticipantId.P1, True)),
@@ -117,7 +141,7 @@ STORIES: Final[dict[str, Story]] = {
             title="Panel med tre personer og slides",
             duration_s=150,
             steps=(
-                (3, _card),
+                (3, _start_button),
                 (7, _show(2, laptop=True)),
                 (10, _start),
                 (14, _talk(ParticipantId.P1, True)),
@@ -145,9 +169,20 @@ def trace_site_dir() -> Path | None:
 
 
 def record(story: Story, *, seed: int = 1) -> dict[str, Any]:
+    from fastapi.testclient import TestClient
+
+    from cutcut.api.app import create_app
+
     clock = FakeClock()
-    sim, _ = build_live_sim(clock, seed=seed, site_dir=trace_site_dir())
+    sim, auth = build_live_sim(
+        clock, seed=seed, site_dir=trace_site_dir(), cameras=True, vision=True
+    )
     studio = sim.studio
+    studio.set_login_mode("open", "admin", "trace")  # the studio's own setting (D-057)
+    api = TestClient(create_app(studio, auth, run_loop=False))
+    loop = asyncio.new_event_loop()
+    rest: list[list[Any]] = []
+    last_rest: dict[str, str] = {}
     client = studio.hub.connect()
     messages: list[list[Any]] = []
     steps = sorted(story.steps, key=lambda s: s[0])
@@ -162,7 +197,16 @@ def record(story: Story, *, seed: int = 1) -> dict[str, Any]:
             next_step += 1
         sim.before_tick()
         studio.tick()
+        if t % HEALTH_EVERY_MS == 0:
+            cams = studio.deps.cameras
+            if cams is not None:  # as CameraService.run does: status every 10 s, position often
+                if t % 10_000 == 0:
+                    loop.run_until_complete(cams.poll_status())
+                loop.run_until_complete(cams.poll_positions())
+            loop.run_until_complete(studio.health.step())
         if t >= next_keyframe:
+            shows = tuple(f"/api/shows/{s}" for s in sorted(studio.deps.site.shows))
+            _snapshot_rest(api, REST_PATHS + shows, t, rest, last_rest)
             state = studio.state().model_dump(mode="json")
             state["runtime"] = _RUNTIME
             messages.append([t, {"type": "state", "seq": 0, "full": True, "data": state}])
@@ -183,6 +227,7 @@ def record(story: Story, *, seed: int = 1) -> dict[str, Any]:
         clock.advance(TICK_MS)
         t += TICK_MS
     studio.hub.disconnect(client)
+    loop.close()
     return {
         "version": TRACE_VERSION,
         "story": story.id,
@@ -191,7 +236,23 @@ def record(story: Story, *, seed: int = 1) -> dict[str, Any]:
         "duration_ms": end_ms,
         "keyframe_ms": KEYFRAME_MS,
         "messages": messages,
+        "rest": rest,
     }
+
+
+def _snapshot_rest(
+    api: Any, paths: tuple[str, ...], t: int, rest: list[list[Any]], last: dict[str, str]
+) -> None:
+    for path in paths:
+        res = api.get(path)
+        if res.status_code != 200:
+            continue
+        body = res.json()
+        key = path.split("?")[0]
+        text = json.dumps(body, sort_keys=True)
+        if last.get(key) != text:
+            last[key] = text
+            rest.append([t, key, body])
 
 
 def _round_meters(data: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:

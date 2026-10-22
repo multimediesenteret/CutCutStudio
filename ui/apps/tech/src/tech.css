@@ -851,7 +851,7 @@ td {
 }
 .colors {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
 }
 .colors div {
@@ -861,6 +861,14 @@ td {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+.colors .seat {
+  flex: none;
+}
+.colors div > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 /* login */
 .login {

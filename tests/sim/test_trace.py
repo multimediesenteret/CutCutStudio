@@ -59,3 +59,18 @@ def test_trace_command_writes_files(tmp_path: Path) -> None:
     assert main(["trace", "--out", str(tmp_path)]) == 0
     assert {p.name for p in tmp_path.iterdir()} == {f"{s}.json" for s in STORIES} | {"index.json"}
     assert default_trace_dir().name == "traces"
+
+
+def test_trace_mirrors_the_studio_setup() -> None:
+    """The web simulator shows the app as set up in the studio: Start button, «Gjest»,
+    and the pages that read REST (Oppsett, Kameraer, Helse) have answers (U-9)."""
+    trace = record(STORIES["samtale"])
+    states = [
+        m[1]["data"] for m in trace["messages"] if m[1]["type"] == "state" and m[1].get("full")
+    ]
+    assert states[0]["touch"]["login"] == "open"
+    users = [((s.get("session") or {}).get("user") or {}).get("display_name") for s in states]
+    assert "Gjest" in users
+    paths = {r[1] for r in trace["rest"]}
+    assert {"/api/setup/steps", "/api/cameras", "/api/rules", "/api/settings/staff"} <= paths
+    assert any(c["status"] != "unknown" for c in states[-1]["health"]["checks"])
