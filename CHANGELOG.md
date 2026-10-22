@@ -12,6 +12,10 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 - CI kjører ikke lenger ved push til `main`, og Windows-testene kjøres ukentlig og ved release (D-059).
 
 ### Added
+- P8 (F-10): fargematching med gråkort, i setup-steg 4.
+  - Med et gråkort foran hvert kamera finner CutCut kortet i hver kamerarute og måler farge og lys. Deretter justeres hvitbalanse (kelvin) og gain mot et valgt referansekamera, i høyst fem runder, til forskjellen er under 3 %.
+  - Kameraer på program eller preview hoppes over. Resultatet lagres i appen og brukes som start neste gang.
+  - API: `GET` og `POST /api/setup/color`.
 - P7 (F-2, F-4): videobekreftelse og reaksjonsbilder.
   - Med «Videolag bekrefter» kutter motoren raskere til den som snakker når munnen beveger seg i riktig kamera. En mic som er aktiv mens munnen står stille, regnes som lekkasje.
   - Et bilde uten brukbart ansikt eller som beveger seg, brukes ikke, og preview må stå stille før TAKE.

@@ -808,6 +808,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/setup/color": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Color
+         * @description Colour matching (6.4): the cameras, the last result and a run in progress.
+         */
+        get: operations["color_api_setup_color_get"];
+        put?: never;
+        /**
+         * Color Start
+         * @description Start colour matching against a reference camera, with a grey card in front of every
+         *     camera. Cameras on program or preview are skipped (I2).
+         */
+        post: operations["color_start_api_setup_color_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/setup/mics": {
         parameters: {
             query?: never;
@@ -1270,6 +1295,14 @@ export interface components {
             ts: string;
             /** Value */
             value: string;
+        };
+        /** ColorIn */
+        ColorIn: {
+            /**
+             * Reference
+             * @default C1
+             */
+            reference: string;
         };
         /** CompanionButton */
         CompanionButton: {
@@ -1880,7 +1913,7 @@ export interface components {
             /** Number */
             number: number;
             /** Panel */
-            panel?: ("devices" | "atem" | "mics" | "multiview") | null;
+            panel?: ("devices" | "atem" | "mics" | "multiview" | "color") | null;
             /**
              * Schema Version
              * @default 1
@@ -3442,6 +3475,63 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    color_api_setup_color_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    color_start_api_setup_color_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ColorIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

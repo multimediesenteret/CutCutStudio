@@ -182,6 +182,18 @@
         "title": "CheckResult",
         "type": "object"
       },
+      "ColorIn": {
+        "additionalProperties": false,
+        "properties": {
+          "reference": {
+            "default": "C1",
+            "title": "Reference",
+            "type": "string"
+          }
+        },
+        "title": "ColorIn",
+        "type": "object"
+      },
       "CompanionButton": {
         "additionalProperties": false,
         "properties": {
@@ -1535,7 +1547,8 @@
                   "devices",
                   "atem",
                   "mics",
-                  "multiview"
+                  "multiview",
+                  "color"
                 ],
                 "type": "string"
               },
@@ -3785,6 +3798,72 @@
           }
         },
         "summary": "Atem Fasit",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/api/setup/color": {
+      "get": {
+        "description": "Colour matching (6.4): the cameras, the last result and a run in progress.",
+        "operationId": "color_api_setup_color_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Color Api Setup Color Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Color",
+        "tags": [
+          "setup"
+        ]
+      },
+      "post": {
+        "description": "Start colour matching against a reference camera, with a grey card in front of every\ncamera. Cameras on program or preview are skipped (I2).",
+        "operationId": "color_start_api_setup_color_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColorIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Color Start Api Setup Color Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Color Start",
         "tags": [
           "setup"
         ]

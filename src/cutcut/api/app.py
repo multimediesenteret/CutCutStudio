@@ -91,6 +91,10 @@ class NudgeIn(_In):
     zoom: float = Field(default=0.0, ge=-1, le=1)
 
 
+class ColorIn(_In):
+    reference: str = "C1"
+
+
 class OnIn(_In):
     on: bool
 
@@ -350,6 +354,19 @@ def create_app(
         """«Godkjent» with the technician's name and time; refused while a check is red."""
         require(me, "admin")
         return studio.setup_approve(step, me.role, me.actor)
+
+    @app.get("/api/setup/color", tags=["setup"])
+    async def color(me: Who) -> dict[str, Any]:
+        """Colour matching (6.4): the cameras, the last result and a run in progress."""
+        require(me, "operator")
+        return studio.color_status()
+
+    @app.post("/api/setup/color", tags=["setup"])
+    async def color_start(body: ColorIn, me: Who) -> dict[str, Any]:
+        """Start colour matching against a reference camera, with a grey card in front of every
+        camera. Cameras on program or preview are skipped (I2)."""
+        require(me, "admin")
+        return studio.start_color_match(_cam(body.reference), me.role, me.actor)
 
     @app.get("/api/setup/mics", tags=["setup"])
     async def mics(me: Who) -> dict[str, Any]:
