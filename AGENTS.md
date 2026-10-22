@@ -2,7 +2,7 @@
 
 Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent eller menneske. Alt du trenger for å komme i gang står her eller er lenket herfra. Filen endres bare via pull request godkjent av et menneske.
 
-> **Fase nå: M1 Simulator.** M0-planene er godkjent (D-046); bygg etter `docs/plans/` og issuene i milepælen M1. Se `docs/STATUS.md` for hvor arbeidet står. Skyggemodus er ikke lenger en milepæl (D-049).
+> **Fase nå: klar for studioperioden (D-066).** Alt som kan bygges uten studio, er bygget og testet i CI (P1–P9 i `docs/plans/for-studio.md`). Det som står igjen, er maskintester og prøving i studio etter `docs/studio/testdag.md`. Se `docs/STATUS.md` for hvor arbeidet står.
 
 **Hovedprinsipp:** prosjektet skal kunne tas over av hvem som helst, når som helst, uten muntlig overlevering. Det som ikke står i repoet, finnes ikke.
 
@@ -10,7 +10,7 @@ Denne filen er inngangen for alle som tar over CutCut Studio, enten AI-agent ell
 
 ## 1. Hva prosjektet er (30 sekunder)
 
-CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows-PC i studio lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene via ATEM-multiviewen (INOGENI capture), og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM Mini Extreme ISO. PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP. Opptak går til Epiphan Pearl Nexus. Brukeren logger inn med adgangskortet på en touch-skjerm; teknikeren har et eget vindu med oppsett, overstyring og helsestatus.
+CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows-PC i studio lytter på hver mikrofon fra RØDECaster Pro II, ser kameraene via ATEM-multiviewen (INOGENI 4KXUSB3), og klipper som en menneskelig bilderegissør: neste bilde på preview først, kutt mellom setninger, aldri flytte et kamera som er på lufta. Kutt og layouter går gjennom Bitfocus Companion til ATEM Television Studio HD8 ISO. PTZ-kameraer (OBSBOT Tail 2, Canon CR-N300) styres over IP. Opptak går til Epiphan Pearl Nexus. Brukeren trykker Start på en touch-skjerm (adgangskort kommer senere, D-057); teknikeren har et eget vindu med oppsett, overstyring og helsestatus.
 
 ## 2. Les i denne rekkefølgen
 
@@ -18,7 +18,8 @@ CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows
 | --- | --- | --- |
 | 1 | `docs/STATUS.md` | Hvor prosjektet står akkurat nå, og neste steg |
 | 2 | Denne filen, helt | Regler, oppsett, arbeidsflyt |
-| 2b | `docs/forprosjekt/overlevering.md` | Startmelding, hva som mangler, rekkefølge for kilder til sannhet |
+| 2b | `docs/studio/testdag.md` og `docs/plans/for-studio.md` | Hva som gjenstår i studio, og rekkefølgen arbeidet før studio ble gjort i |
+| 2c | `docs/architecture/README.md` | Prosesser, dataflyt og hvor data ligger |
 | 3 | `docs/forprosjekt/beslutningslogg.md` | Alle beslutninger fra forprosjektet. **Nyere rader går foran spesifikasjonen** |
 | 4 | `docs/spec/01-app-spesifikasjon.md` | Hva som skal bygges. Særlig seksjon 0, 5, 11, 12 og 13 |
 | 5 | `docs/stack.md` | Teknologi, versjoner, utviklingsmiljø, CI |
@@ -32,11 +33,12 @@ CutCut Studio er Multimediesenterets live auto-regi for videopodcast. En Windows
 | – | `docs/design/` | Farger, GUI-konsept og visuelle regler for alle skjermer |
 | – | `concept/` | Klikkbart skjermkonsept (touch og tekniker) som UI-et skal bygges etter |
 | – | `docs/research/` | Research bak beslutninger (f.eks. lyd fra RØDECaster) |
+| – | `docs/forprosjekt/overlevering.md` | Historisk: overleveringen fra forprosjektet (2026-10-21) |
 | – | `docs/prototype/cutcut-prototype.html` | Eldre skisse; bare referanse for regel-ID-er. GUI bygges etter `concept/` |
 
 **Ved uenighet mellom dokumentene:** beslutningsloggen (nyeste rad) → aksepterte ADR-er → `docs/design/` og `docs/studio/` → `docs/spec/01` → `docs/spec/02` og `03` → `concept/` → `docs/prototype/`.
 
-Markdown-eksporten av spesifikasjonen mangler tegningene (`[embedded content: …]`). De finnes i PDF-ene i `docs/spec/`.
+Markdown-eksporten av spesifikasjonen mangler tegningene (`[embedded content: …]`). PDF-ene er fjernet (D-061); arkitekturen er tegnet på nytt i `docs/architecture/`.
 
 ## 3. Git-identitet (obligatorisk)
 
@@ -54,19 +56,19 @@ Grunnen er at web-delene publiseres på Vercel Hobby, som blokkerer utrulling n�
 - CI-jobben `commit-identity` feiler hvis en commit i en pull request har en annen forfatter eller committer.
 - Har du laget en commit med feil identitet: `git commit --amend --reset-author --no-edit` (siste commit), eller `git rebase -r <base> --exec "git commit --amend --no-edit --reset-author"` for flere.
 
-## 4. Første oppgave (milepæl M0, ferdig 2026-10-21)
+## 4. Milepæler og hvor du starter
 
-> Lag implementasjonsplaner i `docs/plans/<modul>.md` etter malen i spesifikasjonens 0.4, for alle moduler i rekkefølgen fra seksjon 11, og et forslag til GitHub-issues og milepæler M0–M4 i `docs/plans/milestones.md`. Bekreft eller avvis ADR-0012 (atem-bridge) i planen for ATEM. Skriv ingen produksjonskode før planene er godkjent. Oppdater `docs/STATUS.md` og legg spørsmål du trenger svar på i `docs/open-questions.md`.
+Milepælene (spesifikasjonen 13.5, `docs/plans/milestones.md`):
 
-Milepælene (spesifikasjonen 13.5):
+| Milepæl | Ferdig når | Status 2026-10-22 |
+| --- | --- | --- |
+| M0 Planer | Planer for alle moduler er godkjent av produkteier | Ferdig (D-046) |
+| M1 Simulator | Hele brukerflyten og alle regeltester virker uten utstyr | Ferdig |
+| M2 Studiotest | Motoren klipper live i studio via preview (lyd, ATEM, Companion, Pearl, supervisor). Ingen skyggerunde først (D-049) | Bygget; prøves i studioperioden |
+| M3 Grunnmodus i drift | Akseptansekriteriene i 10.4 for grunnmodus er oppfylt | Bygget; prøves i studioperioden |
+| M4 Brytere | Hver bryter testet alene i studio (D-049) | Bygget (P1–P9); prøves i studioperioden |
 
-| Milepæl | Ferdig når |
-| --- | --- |
-| M0 Planer | Planer for alle moduler er godkjent av produkteier |
-| M1 Simulator | Hele brukerflyten og alle regeltester virker uten utstyr |
-| M2 Studiotest | Motoren klipper live i studio via preview (lyd, ATEM, Companion, Pearl, supervisor). Ingen skyggerunde først (D-049) |
-| M3 Grunnmodus i drift | Akseptansekriteriene i 10.4 for grunnmodus er oppfylt |
-| M4 Brytere | Hver bryter testet alene i studio (D-049) |
+**Hvor du starter:** les `docs/STATUS.md` («Neste steg» og åpne issues). Er studioperioden ikke gjort, er jobben å støtte den: rette det maskintestene og prøvingen finner. Er den gjort, er jobben å justere grenseverdier mot opptakene (Q1, Q2) og lukke M2–M4.
 
 ## 5. Ufravikelige regler (spesifikasjonen 0.2)
 
@@ -86,13 +88,13 @@ En endring som bryter én av disse, avvises uansett hvor god den ellers er.
 Agenter jobber i et Linux-skymiljø uten ATEM, kameraer, RØDECaster, Pearl, kortleser eller kort-API. Derfor:
 
 - All logikk bygges og testes mot simulatoren (`sim/`) og falske enheter (`tests/integration/`), og skal kjøre på Linux. Windows-spesifikke deler (ASIO, WinSW, kiosk, Credential Manager) ligger bak adaptere med en falsk variant (se `docs/stack.md`).
-- Hver integrasjon får et maskintestskript i `tools/hw-test/<enhet>.py` som en tekniker kjører i studio. Skriptet skriver en rapport (JSON + Markdown); resultatet kommer tilbake som issue med malen «Maskintest-rapport».
+- Hver integrasjon har en maskintest, `cutcut hwtest <audio|atem|camera|vision|faces|soak>` (`src/cutcut/hwtest/`, `docs/studio/maskintest.md`), som en tekniker kjører i studio. Den skriver en rapport (JSON + Markdown); resultatet kommer tilbake som issue med malen «Maskintest-rapport».
 - Ekte kommandoer mot utstyr eller Multimediesenteret-tjenester kjøres bare når et menneske starter dem. Aldri fra automatiske tester.
 - Opptak fra studio (`docs/intake/opptak-og-klippeliste.md`) er «maskinvare på bånd»: motoren kjøres mot dem i tester.
 
 ## 7. Arbeidsflyt
 
-1. Ta en oppgave fra planen eller et issue. Én pull request = én leveranse, under én dags arbeid.
+1. Ta en oppgave fra planen eller et issue. Én pull request = én leveranse eller ett tema; heller færre og større enn mange små (D-059).
 2. Egen gren: `agent/<kort-beskrivelse>` for agenter, `<navn>/<kort-beskrivelse>` for mennesker. Ingen direkte push til `main`. Unntak i forprosjektet: rene dokumentasjonsendringer avtalt med produkteier i samtalen kan gå rett til `main`.
 3. Commit-meldinger etter *Conventional Commits*: `feat(core): …`, `fix(devices/obsbot): …`, `docs(spec): …`, `chore(ci): …`. Scope er modulnavnet fra `src/cutcut/`.
 4. Pull request med malen. CI må være grønn. **Agenten merger selv når all CI er grønn** (D-052), med metoden *rebase* så forfatteren beholdes og det ikke blir merge-commits (Vercel Hobby). Unntak som alltid krever et menneske står i 10.
@@ -121,7 +123,7 @@ Dokumentasjonen holdes oppdatert *i samme pull request* som koden den beskriver.
 
 Repoet er fasit fra overleveringen 21.10.2026. Spesifikasjonen i `docs/spec/*.md` redigeres direkte her (Claude Docs-dokumentet er arkiv). Endringer i oppførsel avtales med produkteier, føres inn i beslutningsloggen og deretter i spesifikasjonen i samme pull request. PDF-ene er et øyeblikksbilde fra overleveringen.
 
-## 9. Kode (fra M1)
+## 9. Kode
 
 Kortversjon; detaljer i `docs/stack.md` og spesifikasjonen 3 og 12.
 
@@ -132,7 +134,7 @@ Kortversjon; detaljer i `docs/stack.md` og spesifikasjonen 3 og 12.
 - Hver modul kan kjøres mot simulatoren uten utstyr.
 - Ingen hemmeligheter i git. De ligger i Windows Credential Manager via `keyring`. Testdata med kortnummer bruker bare det fiktive testkortet.
 
-Kommandoene for å bygge, teste og kjøre simulatoren står i `README.md` og `docs/stack.md` så snart de finnes. Den som legger til en ny kommando, dokumenterer den der.
+Kommandoene for å bygge, teste og kjøre simulatoren står i `README.md` og `docs/stack.md`. Den som legger til en ny kommando, dokumenterer den der og i README-en til modulen. CI kjører det samme som `uv run pytest`, `ruff`, `mypy` og `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test`.
 
 ## 10. Krever alltid et menneske
 
