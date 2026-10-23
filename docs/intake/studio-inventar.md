@@ -28,10 +28,10 @@ Faderkartet er bestemt (`docs/studio/rodecaster-standardoppsett.md`, D-032). Fyl
 
 | Fader / kanal | Deltaker og farge | Mic-modell | Kamera som ser personen |
 | --- | --- | --- | --- |
-| 1 / 3–4 | Programleder · magenta | | CAM 1 (antatt Canon CR-N300) |
-| 2 / 5–6 | Gjest 1 · cyan | | CAM 2 (antatt OBSBOT Tail 2) |
-| 3 / 7–8 | Gjest 2 · lilla | | CAM 3 (antatt OBSBOT Tail 2) |
-| 4 / 9–10 | Gjest 3 · oransje | | CAM 4 (antatt OBSBOT Tail 2) |
+| 1 / 3–4 | Programleder · magenta | | CAM 1 (OBSBOT Tail 2, D-070) |
+| 2 / 5–6 | Gjest 1 · cyan | | CAM 2 (OBSBOT Tail 2) |
+| 3 / 7–8 | Gjest 2 · lilla | | CAM 3 (OBSBOT Tail 2) |
+| 4 / 9–10 | Gjest 3 · oransje | | CAM 4 (OBSBOT Tail 2) |
 | 5 / 11–12 | Laptop (USB 2) | – | IN 6 |
 
 ## Filer som legges i `site/multimediesenteret/equipment/`

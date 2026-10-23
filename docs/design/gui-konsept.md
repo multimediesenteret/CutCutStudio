@@ -66,7 +66,7 @@ Regler:
 
 ## Antagelser i konseptet
 
-- **Kamerakart:** CAM 1 = Canon CR-N300 på programleder, CAM 2–4 = OBSBOT Tail 2 på gjestene, CAM 5 = fast fugleperspektiv, IN 6 = laptop. Ikke bekreftet (Q26). Det valgfrie halvtotal-kameraet `C7` vises ikke i konseptet.
+- **Kamerakart:** CAM 1 = programleder, CAM 2–4 = gjestene (i teststudioet OBSBOT Tail 2 på alle fire, D-070; konseptet viste Canon på CAM 1), CAM 5 = fast fugleperspektiv, IN 6 = laptop. Ikke bekreftet (Q26). Det valgfrie halvtotal-kameraet `C7` vises ikke i konseptet.
 - **Visningsnavn:** ID-ene i koden er `C1`–`C7` og `LAPTOP`; GUI viser «CAM 1» osv. og «IN 6».
 - **Live tekst** er slått på i konseptet for å vise funksjonen. I appen er den av som standard (spesifikasjonen 5.13).
 - **IP-adresser** i kamerasiden er fra forslaget i spesifikasjonen 2.6, ikke bekreftet (Q9).

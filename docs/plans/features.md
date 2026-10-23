@@ -62,4 +62,4 @@ YuNet-ansiktsmodellen (MIT) gjennom OpenCV på CPU (D-067), lastet ned med `tool
 
 ## 7. Åpne spørsmål
 
-- Q5 (Panopto), Q6 (Canon), Q16 (AI-tracking), Q19 (blandede kameraer), Q20 (GPU, besvart: RTX 4060 Ti, D-062).
+- Q5 (Panopto), Q6 (Canon), Q16 (AI-tracking), Q19 (blandede kameraer, besvart: én modell per studio, D-070), Q20 (GPU, besvart: RTX 4060 Ti, D-062).
