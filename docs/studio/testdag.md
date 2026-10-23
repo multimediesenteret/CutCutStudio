@@ -28,7 +28,7 @@ Rekkefølgen er viktig: hver del bygger på den forrige. Blokk 0 gjøres hjemme,
 | 1.6 | Tjenesten | `installer\install-services.ps1 -Root C:\CutCut -UiDir …`. Start Windows på nytt | Tjenesten starter selv; Helse → Prosesser viser alt i gang | SO-2 (#101) |
 | 1.7 | Kiosk og touch | `installer\kiosk\setup-kiosk.ps1 -Password … -AutoLogon`. Vanlig touch-skjerm. Start på nytt og lukk Edge | Edge kommer tilbake av seg selv | SO-6 (#103) |
 | 1.8 | Companion på samme PC | Installer Companion, importer sidene (`docs/studio/companion.md`) | Helse → `H-COMP-1` viser «sider v1» | DA-9 (#92) |
-| 1.9 | INOGENI 4KXUSB3 | Direkte i en USB 3-port på PC-en (ikke hub). Multiview-utgangen fra ATEM inn på kortet, 1080p50 | Helse → `H-VID-1` grønn | – |
+| 1.9 | INOGENI 4KXUSB3, og ATEM-ens USB-C | INOGENI direkte i en USB 3-port på PC-en (ikke hub), multiview-utgangen fra ATEM inn på kortet, 1080p50. Koble også USB-C fra ATEM-en til en USB 3-port, og velg Output → Webcam Out → **Multi View** i ATEM Software Control (finnes valget på HD8 ISO? Noter i Q41). INOGENI er valgt under Oppsett, steg 6 | Helse → `H-VID-1` grønn | Q41 |
 | 1.10 | Support-e-post | Teknikervinduet → Innstillinger → Varsling. Standard er eierens adresse | Vises på touch under «Hjelp» | – |
 | 1.11 | Feilsøkingsmodus på | Teknikervinduet → Helse → Feilsøkingsmodus → **24 timer**. Slå den på igjen hver dag i perioden | «Feilsøking» vises øverst i teknikervinduet | – |
 
@@ -41,7 +41,7 @@ Kommandoene og stegene står i [`maskintest.md`](maskintest.md). Hver test skriv
 | 2.1 | RØDECaster | `uv run cutcut hwtest audio --site C:\CutCut\site` | ca. 70 min | AU-6 (#83), Q21, Q24 |
 | 2.2 | ATEM og Companion | `uv run cutcut hwtest atem --site C:\CutCut\site --user …` | 10 min | DA-5 (#89), Q7 |
 | 2.3 | PTZ-kameraene, ett av gangen | `uv run cutcut hwtest camera --site C:\CutCut\site --camera C1` (så C2, C3 …) | 5 min per kamera | CA-5 (#142), Q16 |
-| 2.4 | Capture-kortet | Stopp `vision` under Helse → Prosesser, så `uv run cutcut hwtest vision --site C:\CutCut\site --user …` | ca. 65 min | VI-4 (#136) |
+| 2.4 | Multiview inn, A/B | Stopp `vision` under Helse → Prosesser, så `uv run cutcut hwtest vision --site C:\CutCut\site --user … --metode inogeni`, og det samme med `--metode atem_usb`. Start et ISO-opptak mens ATEM-en sender på USB-C. Velg metode i steg 6 ut fra resultatet | ca. 2 × 65 min | VI-4 (#136), Q41 |
 | 2.5 | Pearl | `uv run cutcut hwtest pearl --site C:\CutCut\site --user …`. Ikke under et opptak | ca. 5 min | SE-3, 10.4 |
 
 Fra 2.3 skrives to tall inn i oppsettet før bryterne prøves:
@@ -148,7 +148,7 @@ Fullstendige runbooks ligger i [`docs/runbooks/`](../runbooks/README.md).
 
 - **Ingen lyd:** Helse viser `H-AUD-1` med grunnen fra `audio-capture`. Vanligst: ASIO-driveren mangler, eller RØDECaster står ikke i multitrack-modus.
 - **ATEM svarer ikke:** sjekk IP under Oppsett, og at `atem-bridge` kjører under Helse → Prosesser. Er ATEM-adressen endret, startes `atem-bridge` på nytt neste gang supervisor starter den.
-- **Ingen kamerabilder:** `H-VID-1`. Sjekk at INOGENI sitter i en USB 3-port, og at ingen andre programmer har kortet åpent.
+- **Ingen kamerabilder:** `H-VID-1`. Sjekk at INOGENI (eller ATEM-ens USB-C) sitter i en USB 3-port, at riktig metode er valgt under Oppsett, steg 6, og at ingen andre programmer har enheten åpen.
 - **Touch er svart:** kiosk-vakten starter Edge på nytt etter 30 s. Loggen ligger i `C:\Users\cutcut-kiosk\AppData\Local\CutCut\kiosk-vakt.log`.
 - **En bryter går til skygge av seg selv:** den har feilet og varslet gult. Grunnen står under Regi og i varslene.
 - **Feilsøkingspakke:** teknikervinduet → Logg → «Feilsøkingspakke». Den har ingen passord, og den legges ved issuet.

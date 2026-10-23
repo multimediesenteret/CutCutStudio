@@ -96,8 +96,9 @@ def build_parser() -> argparse.ArgumentParser:
     vis = sub.add_parser(
         "vision",
         help="kjør videolaget: multiview inn, målinger per rute på bussen (VI-1)",
-        description="Leser multiviewen fra capture-kortet (INOGENI) eller en fil og "
-        "deler den i ruter. Kortet velges med `video` i devices.yaml.",
+        description="Leser multiviewen fra capture-enheten (INOGENI eller ATEM USB-C) eller "
+        "en fil og deler den i ruter. Metoden velges i oppsettet (steg 6) eller med `video` i "
+        "devices.yaml.",
     )
     vis.add_argument("--site", type=Path, required=True, help="studio-oppsett (rutekartet)")
     vis.add_argument(
@@ -118,7 +119,8 @@ def build_parser() -> argparse.ArgumentParser:
         "what",
         choices=["audio", "atem", "camera", "vision", "faces", "pearl", "soak", "akseptanse"],
         help="audio: RØDECaster (AU-6); atem: ATEM og Companion (DA-5); camera: PTZ (CA-5); "
-        "vision: capture-kortet, INOGENI (VI-4); faces: ansikt og munn på et opptak (P6); "
+        "vision: multiview inn i PC-en, INOGENI eller ATEM USB (VI-4, D-071); "
+        "faces: ansikt og munn på et opptak (P6); "
         "pearl: Epiphan Pearl (SE-3); soak: 72-timerstesten (SO-8); "
         "akseptanse: kriteriene i 10.4 fra en periode (T-M3)",
     )
@@ -153,6 +155,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help="capture-enhet etter nummer (vision; standard: kortet i devices.yaml etter navn)",
+    )
+    hw.add_argument(
+        "--metode",
+        choices=["inogeni", "atem_usb"],
+        default=None,
+        help="capture-metode som testes (vision; standard: den som er valgt i oppsettet)",
     )
 
     trace = sub.add_parser(
@@ -236,7 +244,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             if args.site is None:
                 parser.error("hwtest vision trenger --site")
-            return vision_test(args.site, args.device, args.minutes, out, args.api, args.user)
+            return vision_test(
+                args.site, args.device, args.minutes, out, args.api, args.user, args.metode
+            )
         if args.what == "faces":
             from cutcut.hwtest.faces import main as faces_test
 

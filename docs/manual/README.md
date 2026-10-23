@@ -22,7 +22,7 @@ Det finnes to skjermer: **touch-skjermen** i studio for brukeren, og **teknikerv
 
 ## Fysisk oppsett
 
-Kameraene og laptopen går til ATEM, lyden går til RØDECaster, og regi-PC-en får både multiview-bildet (via INOGENI) og lyden (via USB).
+Kameraene og laptopen går til ATEM, lyden går til RØDECaster, og regi-PC-en får både multiview-bildet (via INOGENI, eller rett fra ATEM over USB-C) og lyden (via USB).
 
 ![Fysisk oppsett: video, USB og nett](oppsett.png)
 
@@ -36,12 +36,10 @@ Alt utstyret er vanlig studioutstyr; CutCut styrer det over nett og USB fra én 
 | --- | --- | --- | --- |
 | Regi-PC (i5-12500, 16 GB, RTX 4060 Ti, 250 GB SSD) | Kjører CutCut og Companion | Studio-switch (kort 1), campusnett (kort 2), UPS | Alt |
 | ATEM Television Studio HD8 ISO | Bildemikser | Studio-switch; kameraene inn på SDI | Leser program, preview og multiview; kutter via Companion |
-| INOGENI 4KXUSB3 | Tar multiview-bildet inn i PC-en | ATEM multiview-utgang (HDMI) → USB 3 på PC-en | Ser kamerarutene, laptop-ruta og program |
+| INOGENI 4KXUSB3 (standard) | Tar multiview-bildet inn i PC-en | ATEM multiview-utgang (HDMI) → USB 3 på PC-en. Alternativ: ATEM-ens USB-C rett til PC-en (se under) | Ser kamerarutene, laptop-ruta og program |
 | RØDECaster Pro II | Lydmikser med fire mikrofoner | USB til PC-en (multitrack) | Måler hvem som snakker |
 | Camera 1–4: OBSBOT Tail 2 | Verten og gjest 1–3 | Studio-switch; ATEM inngang 1–4 | Presets, utsnitt, farge og AI-tracking over VISCA og OSC |
 | Camera 6: oversiktskamera | Fugleperspektiv | ATEM inngang 6 | Klippes til, styres ikke |
-
-**Anbefaling: samme kameramodell i hele studioet.** Like kameraer er mye enklere å fargematche, og presets og zoom oppfører seg likt. Teststudioet bruker OBSBOT Tail 2 på alle fire plassene. CutCut støtter også Canon CR-N300, og kan blande modeller om det trengs: modellen velges per kamera under **Utstyr og nettverk**. Et annet studio kan altså bruke Canon på alle plassene.
 | Laptop | Slides og video | ATEM inngang 7 | Vises når det kommer ny slide |
 | Epiphan Pearl Nexus | Opptak | Studio-switch; program fra ATEM | Starter, stopper og leser status |
 | Bitfocus Companion (+ Stream Deck) | Knappene mot ATEM | Kjører på regi-PC-en | CutCut trykker Companions knapper for preview og TAKE |
@@ -50,6 +48,10 @@ Alt utstyret er vanlig studioutstyr; CutCut styrer det over nett og USB fra én 
 | UPS | Strøm | PC, switch, ATEM, Pearl | – |
 
 Inngang 5 og 8 på ATEM brukes ikke. Kortleser (ELATEC TWN3) kommer senere.
+
+**Anbefaling: samme kameramodell i hele studioet.** Like kameraer er mye enklere å fargematche, og presets og zoom oppfører seg likt. Teststudioet bruker OBSBOT Tail 2 på alle fire plassene. CutCut støtter også Canon CR-N300, og kan blande modeller om det trengs: modellen velges per kamera under **Utstyr og nettverk**. Et annet studio kan altså bruke Canon på alle plassene.
+
+**Multiview inn i PC-en: INOGENI eller ATEM-ens USB-C.** I stedet for INOGENI kan ATEM-en sende multiviewen rett til PC-en over sin webkamera-utgang (USB-C): velg **Output → Webcam Out → Multi View** i ATEM Software Control, og **ATEM webkamera-utgang** under Oppsett, steg 6. Det sparer en boks og gjør multiview-utgangen ledig for en skjerm, men bildet kan være komprimert og litt mer forsinket. INOGENI er standard til begge er testet i studioperioden; CutCut tar hensyn til forsinkelsen for metoden som er valgt.
 
 ## Regi-PC: Windows og programvare
 
@@ -60,7 +62,7 @@ PC-en kjører vanlig Windows 11 Pro uten sentral administrasjon. CutCut-pakken h
 | Windows 11 Pro, 23H2 eller nyere | Operativsystem | Lokal administrator under oppsettet |
 | RØDECaster ASIO-driver | Lyden fra hver mikrofon | **Ikke** RØDE Virtual Devices-driveren; de kan ikke kjøre samtidig |
 | NVIDIA-driver | Skjermkortet | Brukes ikke av CutCut nå, men skal være oppdatert |
-| INOGENI 4KXUSB3 | Multiview inn | Trenger ingen driver; vises som et kamera i Windows |
+| INOGENI 4KXUSB3, eller ATEM-ens USB-C | Multiview inn | Trenger ingen driver; vises som et kamera i Windows («INOGENI» eller «Blackmagic Design») |
 | Bitfocus Companion 4.x eller 5.x | Knappene mot ATEM | Samme PC. CutCut-sidene importeres (steg 7) |
 | Microsoft Edge | Touch-skjermen i kiosk | Følger med Windows |
 | CutCut Studio | Selve appen | Zip fra GitHub-releasen; installeres som tjenesten `CutCut` |
@@ -81,7 +83,7 @@ PC-en kjører vanlig Windows 11 Pro uten sentral administrasjon. CutCut-pakken h
 Installasjonen tar en halv dag, og etterpå starter alt av seg selv når PC-en slås på. Gjør stegene i rekkefølge, som administrator.
 
 1. **Strøm og nett.** PC, switch, ATEM og Pearl på UPS. Alt utstyret på studio-switchen med faste IP-adresser etter IP-planen. Kort 1 på PC-en til switchen, kort 2 til campusnettet.
-2. **Kabler.** Kameraene til ATEM inngang 1–4 og 6, laptop på inngang 7. ATEMs multiview-utgang til INOGENI, og INOGENI i en USB 3-port på PC-en (ikke via hub). RØDECaster med USB til PC-en. Touch-skjermen med HDMI og USB.
+2. **Kabler.** Kameraene til ATEM inngang 1–4 og 6, laptop på inngang 7. ATEMs multiview-utgang til INOGENI, og INOGENI i en USB 3-port på PC-en (ikke via hub). Med ATEM-ens webkamera-utgang i stedet: USB-C fra ATEM-en rett i en USB 3-port. RØDECaster med USB til PC-en. Touch-skjermen med HDMI og USB.
 3. **Windows.** Installer drivere (RØDECaster ASIO, NVIDIA). Sett BIOS til «Power on after AC loss».
 4. **CutCut-pakken.** Last ned `cutcut-<versjon>-win64.zip` og `.sha256` fra GitHub-releasen. Kopier `site\multimediesenteret` fra repoet til `C:\CutCut\site`. Kjør:
 
@@ -117,7 +119,7 @@ Det studiospesifikke settes opp i teknikervinduet under **Oppsett**, i ti steg. 
 | 3 ATEM | 1080p50, inngangsnavn («Fiks for meg» setter dem) | ATEM svarer og har riktig oppsett |
 | 4 Kameraer | Manuell hvitbalanse og eksponering. Hold et gråkort foran hvert kamera og trykk **Start fargematching** | Kameraene er like referansekameraet |
 | 5 RØDECaster | Multitrack på. Én og én snakker i hver mikrofon; CutCut måler lekkasje og støy. Lagre som fasit | Riktig kanal per mikrofon, fasit lagret |
-| 6 Multiview | **Finn rutene i bildet**, dra hjørnene om nødvendig, **Lagre rutekart** | Hver rute viser riktig kamera |
+| 6 Multiview | Velg **Multiview-capture** (INOGENI eller ATEM webkamera-utgang). **Finn rutene i bildet**, dra hjørnene om nødvendig, **Lagre rutekart** | Hver rute viser riktig kamera |
 | 7 Companion | Importer CutCut-sidene | Companion svarer med «sider v1» |
 | 8 Makroer og grafikk | Lag layoutmakroene 10–40 i ATEM og «Kun lyd»-grafikken | Makrosjekken er grønn |
 | 9 Pearl og innlogging | Pearl-bruker og opptaker; ta et testopptak på 5 s. Innlogging: Start-knapp | Pearl er klar |
@@ -256,7 +258,7 @@ Sendingen og opptaket går videre selv om CutCut har problemer; start alltid und
 | Opptaket startet ikke | `H-PRL-1` | Pearl på nett og ledig plass. Start fra Pearl-menyen om det haster |
 | Kamera beveger seg ikke, eller har flyttet seg | `H-CAM-*`, `H-CAM-MOVE` | Strøm og nett til kameraet; manuell modus; hent preset |
 | Touch-skjermen er svart | `H-PROC-touch` | Vent 30 s: Edge startes på nytt av seg selv |
-| Ingen kamerabilder i teknikervinduet | `H-VID-1` | INOGENI i en USB 3-port; ingen andre programmer har kortet åpent |
+| Ingen kamerabilder i teknikervinduet | `H-VID-1` | INOGENI (eller ATEM-ens USB-C) i en USB 3-port; riktig metode valgt i steg 6; ingen andre programmer har enheten åpen |
 | Etter strømbrudd | – | PC-en starter selv. Sjekk at Helse er grønn før neste opptak |
 
 **Feilsøkingsmodus:** skjer noe som er vanskelig å forklare, slå på feilsøkingsmodus under Helse (for eksempel 8 timer) og prøv igjen. Alt motoren fikk inn og bestemte, tas da opp.
@@ -296,7 +298,7 @@ Alt CutCut bruker, ligger på regi-PC-en under `C:\CutCut`, og skjermene nås p�
 | Program | Bildet som tas opp og sendes |
 | Preview | Neste bilde, klart til å tas til program |
 | TAKE | Bytter preview til program |
-| Multiview | ATEMs oversikt over alle kildene i ett bilde; CutCut leser det gjennom INOGENI |
+| Multiview | ATEMs oversikt over alle kildene i ett bilde; CutCut leser det gjennom INOGENI eller ATEM-ens USB-C |
 | Rutekart | Hvor hver kamerarute ligger i multiview-bildet |
 | Fugleperspektiv (Bird) | Oversiktsbildet fra Camera 6 |
 | Content | Laptopen (slides og video) |

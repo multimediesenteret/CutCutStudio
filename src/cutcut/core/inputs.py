@@ -137,10 +137,15 @@ class EngineConfig:
     show: ShowConfig
     rules: RuleParams
     features: Features
+    # How far the video layer's picture lags the room (ATEM → capture → frame, D-071). The
+    # picture rules that line the picture up with sound (V1) allow for it.
+    vision_delay_ms: int = 0
 
     @classmethod
-    def from_show(cls, show: ShowConfig, rules: RuleParams) -> EngineConfig:
-        return cls(show=show, rules=rules, features=show.features)
+    def from_show(
+        cls, show: ShowConfig, rules: RuleParams, *, vision_delay_ms: int = 0
+    ) -> EngineConfig:
+        return cls(show=show, rules=rules, features=show.features, vision_delay_ms=vision_delay_ms)
 
 
 @dataclass(frozen=True)

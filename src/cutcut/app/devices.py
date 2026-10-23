@@ -15,9 +15,22 @@ from typing import Any, Final
 from pydantic import ValidationError
 from ruamel.yaml import YAML
 
-from cutcut.common.models.site import Devices
+from cutcut.common.ids import CameraId
+from cutcut.common.models.site import (
+    CAPTURE_DELAY_MS,
+    CAPTURE_LABELS,
+    CAPTURE_NAMES,
+    Devices,
+)
 
 DEVICES_KEY: Final = "site.devices"
+
+# The PTZ models CutCut has a driver for (devices/cameras/factory.py). One model in the whole
+# studio is recommended (D-070), but each camera can be set on its own.
+CAMERA_MODELS: Final = ("OBSBOT Tail 2", "Canon CR-N300")
+
+# Multiview capture (D-071): the method, the device name and the measured delay per method.
+VIDEO_KEYS: Final = ["video.method", "video.name"] + [f"video.delay_ms.{m}" for m in CAPTURE_NAMES]
 
 
 class DeviceSettingsError(ValueError):
@@ -27,6 +40,8 @@ class DeviceSettingsError(ValueError):
 def editable_keys(devices: Devices) -> list[str]:
     keys = ["atem.ip", "pearl.ip", "companion.url"]
     keys += [f"cameras.{cid.value}.ip" for cid in devices.cameras]
+    keys += [f"cameras.{cid.value}.model" for cid in devices.cameras]
+    keys += VIDEO_KEYS
     keys += [
         "alerts.enabled",
         "alerts.email",
@@ -59,6 +74,13 @@ def apply(base: Devices, overrides: dict[str, str]) -> Devices:
         raise DeviceSettingsError(f"Kan ikke endres her: {', '.join(unknown)}")
     data = base.model_dump(mode="json")
     for key, value in overrides.items():
+        if key.startswith("cameras.") and key.endswith(".model"):
+            cam = base.cameras.get(CameraId(key.split(".")[1]))
+            file_model = cam.model if cam is not None else None
+            if value not in model_options(file_model):
+                raise DeviceSettingsError(
+                    f"Ukjent kameramodell «{value}». Velg {' eller '.join(CAMERA_MODELS)}."
+                )
         _set(data, key, value)
     try:
         return Devices.model_validate(data)
@@ -76,6 +98,10 @@ def _why(exc: ValidationError) -> str:
         return "To enheter kan ikke ha samme IP-adresse."
     if "IPv4" in msg or "ip" in loc:
         return f"Ugyldig IP-adresse ({loc}). Skriv den som fire tall, f.eks. 10.10.10.21."
+    if loc.startswith("video.method"):
+        return "Velg INOGENI eller ATEM webkamera-utgang."
+    if loc.startswith("video.delay_ms"):
+        return "Forsinkelsen må være et helt antall millisekunder mellom 0 og 1000."
     if "url" in loc.lower():
         return f"Ugyldig adresse ({loc}). Skriv den som http://adresse:port."
     return f"{loc}: {msg}"
@@ -87,19 +113,56 @@ def rows(base: Devices, effective: Devices, overrides: dict[str, str]) -> list[d
     e = effective.model_dump(mode="json")
     out = []
     for key in editable_keys(base):
-        if key.startswith(("alerts.", "support.")):
-            continue  # shown under Innstillinger → Varsling, not with the equipment
-        out.append(
-            {
-                "key": key,
-                "kind": "url" if key.endswith(".url") else "ip",
-                "value": _get(e, key),
-                "file_value": _get(b, key),
-                "overridden": key in overrides,
-                "model": _get(e, key.rsplit(".", 1)[0] + ".model"),
-            }
-        )
+        if key.startswith(("alerts.", "support.", "video.")) or key.endswith(".model"):
+            continue  # Varsling, the capture panel, and the model choice inside the row
+        row: dict[str, Any] = {
+            "key": key,
+            "kind": "url" if key.endswith(".url") else "ip",
+            "value": _get(e, key),
+            "file_value": _get(b, key),
+            "overridden": key in overrides,
+            "model": _get(e, key.rsplit(".", 1)[0] + ".model"),
+        }
+        if key.startswith("cameras."):
+            model_key = key.rsplit(".", 1)[0] + ".model"
+            row["model_key"] = model_key
+            row["model_options"] = list(model_options(_get(b, model_key)))
+            row["model_overridden"] = model_key in overrides
+        out.append(row)
     return out
+
+
+def model_options(file_model: str | None) -> tuple[str, ...]:
+    """The models a camera can be set to: those with a driver, and what the file says (the
+    bird's-eye camera is «Oversikt …», steered by no one)."""
+    if file_model and file_model not in CAMERA_MODELS:
+        return (*CAMERA_MODELS, file_model)
+    return CAMERA_MODELS
+
+
+def video_info(base: Devices, effective: Devices, overrides: dict[str, str]) -> dict[str, Any]:
+    """The multiview capture panel (Oppsett, steg 6, D-071)."""
+    v = effective.video
+    return {
+        "kind": v.kind,
+        "method": v.method,
+        "method_overridden": "video.method" in overrides,
+        "file_method": base.video.method,
+        "name": v.name,
+        "name_used": v.device_name,
+        "methods": [
+            {
+                "value": m,
+                "label": CAPTURE_LABELS[m],
+                "device_name": CAPTURE_NAMES[m],
+                "delay_ms": v.delay_ms.get(m),  # type: ignore[call-overload]  # literal key
+                "assumed_delay_ms": CAPTURE_DELAY_MS[m],
+            }
+            for m in CAPTURE_NAMES
+        ],
+        "delay_ms": v.expected_delay_ms,
+        "measured": v.method in v.delay_ms,
+    }
 
 
 def values(devices: Devices) -> dict[str, str]:

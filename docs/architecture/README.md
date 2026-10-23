@@ -22,7 +22,7 @@ flowchart LR
     LOGS[["JSON-linjer<br/>data/logs/"]]
   end
   RODE["RØDECaster Pro II<br/>USB 1 multitrack"] --> AUD
-  ATEM["ATEM Television Studio HD8 ISO"] -- "multiview 1080p50<br/>INOGENI (USB 3)" --> VIS
+  ATEM["ATEM Television Studio HD8 ISO"] -- "multiview 1080p50<br/>INOGENI eller ATEM USB-C" --> VIS
   AUD -- "målinger 50 Hz<br/>ZeroMQ PUB→:5560" --> CORE
   VIS -- "fliser, content" --> CORE
   CORE -- "kutt, preview<br/>(HTTP)" --> COMP
@@ -44,7 +44,7 @@ flowchart LR
 | --- | --- | --- |
 | `core` | Regimotor, økt, API, lagring, varsler | Nei – men sendingen går videre (I1), og `core` er tilbake innen 5 s med samme økt |
 | `audio-capture` | Leser mic-ene, sender målinger (ikke lyd) (ADR-0014, PL-02) | Nei – uten lyd går motoren til fugleperspektiv (`S4`) |
-| `vision` | Multiview fra INOGENI: content, bevegelse, programbekreftelse, kamerabilder, og ansikt og munn for bryterne (YuNet på CPU, D-067) | Ja – grunnmodus mister bare content-delen |
+| `vision` | Multiview fra INOGENI eller ATEM-ens USB-C (valgt i oppsettet, `vision.source`, D-071): content, bevegelse, programbekreftelse, kamerabilder, og ansikt og munn for bryterne (YuNet på CPU, D-067) | Ja – grunnmodus mister bare content-delen |
 | `atem-bridge` | Tilbakelesing og makrosjekk mot ATEM | Ja (motoren stoler da på Companion-kvittering) |
 | `supervisor` | Starter alt, ser hjerteslag, restarter med økende pause | Ja (Windows restarter den) |
 

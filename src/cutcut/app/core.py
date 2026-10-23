@@ -191,13 +191,15 @@ def build_core(opts: CoreOptions) -> Core:
     studio.on_audio_config = lambda cfg: send("audio.config", cfg)  # setup step 5 → audio-capture
     studio.on_vision_want = lambda: send("vision.want", {})  # thumbnails while someone looks
     studio.on_vision_map = lambda m: send("vision.map", m.model_dump(mode="json"))
+    studio.on_vision_source = lambda src: send("vision.source", src)  # capture method (D-071)
 
     async def map_pusher() -> None:
-        """The rutekart saved in the app, again every 10 s: a restarted video layer reads the
-        file first and gets this within seconds (VI-5)."""
+        """The rutekart saved in the app and the capture method, again every 10 s: a restarted
+        video layer reads the files first and gets these within seconds (VI-5, D-071)."""
         while True:
             if studio.multiview_in_app and studio.deps.site.multiview is not None:
                 send("vision.map", studio.deps.site.multiview.model_dump(mode="json"))
+            studio.send_vision_source()
             await asyncio.sleep(10)
 
     def before_tick() -> None:

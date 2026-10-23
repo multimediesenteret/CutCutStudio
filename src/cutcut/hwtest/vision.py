@@ -1,17 +1,20 @@
 """Machine test for the capture card (VI-4, docs/plans/vision.md 5).
 
 ``cutcut hwtest vision --site C:\\CutCut\\site [--device N] [--user tekniker1]`` reads the ATEM
-multiview through the capture card with the same code as ``cutcut vision``, and writes the same
-report as the other machine tests. In the studio the card is the INOGENI 4KXUSB3, found by name
-from ``video`` in devices.yaml; ``--device`` picks a number instead. Set the ATEM multiview
-output to 1080p50, and use a USB 3 port straight on the motherboard.
+multiview through the capture device with the same code as ``cutcut vision``, and writes the
+same report as the other machine tests. The device is the one for the capture method chosen in
+the setup helper (D-071): the INOGENI 4KXUSB3 on the multiview output, or the ATEM's webcam
+output over USB-C with Multi View chosen. ``--metode inogeni|atem_usb`` tests the other one
+without changing the setting, so the two can be compared; ``--device`` picks a number instead.
+Set the ATEM to 1080p50, and use a USB 3 port straight on the motherboard.
 
 | Step | What |
 | --- | --- |
 | V1 | The card opens and delivers a picture |
 | V2 | Format 1920 × 1080 and how many frames per second arrive (50 expected) |
 | V3 | The rutekart fits: every window with a CutCut source has a picture |
-| V4 | Delay ATEM → PC: the preview changes (Companion), and the preview window follows |
+| V4 | Delay ATEM → PC: the preview changes (Companion), and the preview window follows. The
+  result is saved for the method tested (``video.delay_ms``), and the engine uses it |
 | V5 | Stability: no lost frames, black pictures or re-opens over ``--minutes`` (60) |
 
 V4 only changes PREVIEW, never what is on air, and needs CutCut and Companion running
@@ -34,6 +37,7 @@ import httpx
 from cutcut.common.config import Site, load_site
 from cutcut.common.ids import SourceId
 from cutcut.common.models.multiview import MultiviewMap
+from cutcut.common.models.site import CAPTURE_LABELS, CAPTURE_NAMES
 from cutcut.devices.atem.bridge import site_input_map
 from cutcut.devices.companion.client import CompanionHttp
 from cutcut.hwtest.atem import companion_url, cutcut_session
@@ -68,12 +72,16 @@ class VisionTest:
     minutes: float = 60.0
     clock: Callable[[], float] = time.perf_counter
     sleep: Callable[[float], None] = time.sleep
+    method: str | None = None  # the capture method tested (D-071), for the report
+    save_delay: Callable[[int], bool] | None = None  # V4's result to CutCut (video.delay_ms)
     report: Report = field(init=False)
     fps: float = 0.0
 
     def __post_init__(self) -> None:
         self.report = Report("video", datetime.now().astimezone())
         self.report.env["source"] = self.source.name
+        if self.method is not None:
+            self.report.env["method"] = CAPTURE_LABELS.get(self.method, self.method)
 
     def _frame(self, within_s: float) -> Any:
         end = self.clock() + within_s
@@ -199,7 +207,7 @@ class VisionTest:
             if t_atem is not None and t_pic is not None:
                 atem_ms.append((t_atem - t0) * 1000)
                 delays.append((t_pic - t0) * 1000)
-        details = {
+        details: dict[str, Any] = {
             "to_picture_ms": [round(d) for d in delays],
             "to_atem_ms": [round(d) for d in atem_ms],
         }
@@ -208,13 +216,18 @@ class VisionTest:
             self.report.add(Step("V4", title, "feil", msg, details))
             return
         pic, atem = statistics.median(delays), statistics.median(atem_ms)
+        to_pc = round(max(0.0, pic - atem))
+        details["atem_to_pc_ms"] = to_pc
+        saved = ""
+        if self.save_delay is not None and self.save_delay(to_pc):
+            saved = " Lagret som forsinkelse for denne metoden; motoren bruker den."
         self.report.add(
             Step(
                 "V4",
                 title,
                 "ok",
                 f"Fra knapp til bilde på PC-en {pic:.0f} ms (ATEM leste preview etter "
-                f"{atem:.0f} ms); ATEM → PC ca. {max(0.0, pic - atem):.0f} ms.",
+                f"{atem:.0f} ms); ATEM → PC ca. {to_pc} ms.{saved}",
                 details,
             )
         )
@@ -305,6 +318,7 @@ def main(
     out: Path,
     api_url: str | None,
     user: str | None,
+    method: str | None = None,
 ) -> int:
     site = load_site(site_dir)
     switch: PreviewSwitch | None = None
@@ -318,15 +332,40 @@ def main(
         print("Studioet har ikke noe rutekart (equipment/multiview_map.yaml).")
         return 2
     video = site.devices.video
+    chosen: str = video.method
+    name = video.device_name
+    if api is not None:  # what the setup helper says (the app's setting wins over the file)
+        v = api.get("/api/settings/devices").json().get("video") or {}
+        chosen, name = str(v.get("method") or chosen), str(v.get("name_used") or name)
+    if method is not None and method != chosen:
+        chosen, name = method, CAPTURE_NAMES[method]
     source = OpenCvSource(
         device if device is not None else video.index,
         width=video.width,
         height=video.height,
         fps=video.fps,
-        device_name=None if device is not None else video.name,
+        device_name=None if device is not None else name,
     )
-    print(f"Maskintest capture-kort · {source.name} · {len(site.multiview.tiles)} ruter")
-    test = VisionTest(site.multiview, source, ConsoleOperator(), switch, minutes)
+    print(
+        f"Maskintest multiview inn · {CAPTURE_LABELS.get(chosen, chosen)} · {source.name} · "
+        f"{len(site.multiview.tiles)} ruter"
+    )
+
+    def save_delay(ms: int) -> bool:
+        if api is None:
+            return False
+        res = api.put("/api/settings/devices", json={f"video.delay_ms.{chosen}": str(ms)})
+        return res.status_code == 200
+
+    test = VisionTest(
+        site.multiview,
+        source,
+        ConsoleOperator(),
+        switch,
+        minutes,
+        method=chosen,
+        save_delay=save_delay if api is not None else None,
+    )
     locked = api is not None and api.post("/api/lock", json={"on": True}).status_code == 200
     try:
         report = test.run()

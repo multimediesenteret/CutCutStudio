@@ -4,10 +4,10 @@ id: multiview
 title: "Multiview"
 why: "CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde."
 how:
-  - "ATEM: multiview ut på **HDMI** til INOGENI 4KXUSB3, i **1080p50**."
-  - "CutCut finner INOGENI på navnet (`video` i devices.yaml) og leser **1080p50 YUY2**."
+  - "Velg **Multiview-capture** øverst: **INOGENI 4KXUSB3** (multiview ut på HDMI til INOGENI, INOGENI i en USB 3-port på hovedkortet) eller **ATEM webkamera-utgang** (USB-C fra ATEM til PC-en, og i ATEM Software Control: Output → Webcam Out → **Multi View**). Begge i **1080p50**."
+  - "CutCut finner enheten på navnet («INOGENI» eller «Blackmagic Design») og bytter med en gang, uten omstart. Anbefalt: samme metode i hele semesteret; A/B-testen i studioperioden avgjør standarden (Q41)."
   - "Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden."
   - "Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**."
-  - "Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision` (V4: PREVIEW byttes og tiden måles)."
+  - "Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision --user <deg>` (V4: PREVIEW byttes og tiden måles). Den lagres for metoden, og motoren bruker den. Den andre metoden testes med `--metode atem_usb` eller `--metode inogeni`."
 checks: ["H-VID-1", "H-VID-2", "H-VID-3"]
 panel: multiview

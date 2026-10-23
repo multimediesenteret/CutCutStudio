@@ -1,10 +1,12 @@
 """Where the multiview picture comes from (VI-1).
 
-* :class:`OpenCvSource` – the capture card through DirectShow, or a video file. In the studio
-  that is the INOGENI 4KXUSB3 (a UVC device, no driver), found by part of its DirectShow name
-  («INOGENI») so the number can change without a setting. Frames are taken at 15 Hz; the rest
-  are dropped early to save CPU. A device that stops delivering is opened again every 5 s,
-  forever.
+* :class:`OpenCvSource` – the capture device through DirectShow, or a video file. In the
+  studio that is the INOGENI 4KXUSB3 or the ATEM's own webcam output (D-071); both are UVC
+  devices without a driver, found by part of their DirectShow name («INOGENI», «Blackmagic
+  Design») so the number can change without a setting. :meth:`OpenCvSource.use_device`
+  changes the device while running (``vision.source`` from core). Frames are taken at 15 Hz;
+  the rest are dropped early to save CPU. A device that stops delivering is opened again every
+  5 s, forever.
 * :class:`SyntheticSource` – draws a multiview from the rutekart (tests, simulator, demo):
   grey cameras, a moving square where someone moves, and the laptop tile as black (no signal),
   a still slide or video.
@@ -164,6 +166,20 @@ class OpenCvSource:
         self._last_frame = now
         result: Frame = frame
         return result
+
+    def use_device(self, name: str) -> bool:
+        """Open the device with ``name`` in its DirectShow name from the next read (the capture
+        method chosen on the setup screen, D-071). True when it changed."""
+        if self.is_file or not name or name == self.device_name:
+            return False
+        self.close()
+        self.device_name = name
+        self.name = f"«{name}»"
+        self.found_as = None
+        self.last_error = None
+        self._next_open = 0.0
+        log.info("Video: bytter til %s", self.name)
+        return True
 
     def close(self) -> None:
         if self._cap is not None:

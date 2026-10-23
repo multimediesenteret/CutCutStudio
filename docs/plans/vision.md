@@ -6,7 +6,7 @@ Status: godkjent (D-046) · Milepæl: M3 (lett) og M4 (tungt) · Spes. 2.1, 2.6,
 
 ## 1. Formål og avgrensning
 
-Leser ATEM-multiviewen via INOGENI 4KXUSB3, deler bildet i ruter etter rutekartet og sender målinger per rute til `core` 5–15 ganger i sekundet. Tar aldri beslutninger selv (6).
+Leser ATEM-multiviewen via INOGENI 4KXUSB3 eller ATEM-ens webkamera-utgang (USB-C, D-071), deler bildet i ruter etter rutekartet og sender målinger per rute til `core` 5–15 ganger i sekundet. Tar aldri beslutninger selv (6).
 
 **Delt i to (PL-06), så grunnmodus aldri avhenger av GPU:**
 

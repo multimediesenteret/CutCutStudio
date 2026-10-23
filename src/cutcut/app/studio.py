@@ -301,6 +301,8 @@ class Studio:
         self._file_multiview = self.deps.site.multiview  # equipment/multiview_map.yaml
         self.multiview_in_app = False
         self.on_vision_map: Callable[[MultiviewMap], None] | None = None  # core: «vision.map»
+        # core: «vision.source», the capture method and device name (D-071)
+        self.on_vision_source: Callable[[dict[str, Any]], None] | None = None
         self._load_multiview()
         self.staff: Staff = self.deps.site.staff
         self.on_staff: Callable[[Staff], None] | None = None  # the API's sign-in list
@@ -762,6 +764,7 @@ class Studio:
         self.device_overrides, self.devices = updated, effective
         if self.on_devices is not None:
             self.on_devices(effective)  # e.g. point the Companion and Pearl clients elsewhere
+        self.send_vision_source()
         if self.deps.store is not None:
             self.deps.store.put_kv(devices.DEVICES_KEY, updated, self.deps.clock.now())
         self._reconfigure()
@@ -771,6 +774,9 @@ class Studio:
             "studio": self.devices.studio,
             "atem_model": self.devices.atem.model,
             "rows": devices.rows(self.deps.site.devices, self.devices, self.device_overrides),
+            "video": devices.video_info(
+                self.deps.site.devices, self.devices, self.device_overrides
+            ),
         }
 
     # -- ISO recording on the ATEM's disk (spec 7.7, DA-8) -------------------------------
@@ -888,7 +894,7 @@ class Studio:
         merged = self._merged(show)
         rules = effective_rules(merged, self.deps.presets)
         return Engine(
-            EngineConfig.from_show(merged, rules),
+            self._engine_config(merged, rules),
             now_ms=self.deps.clock.mono_ms(),
             wall_clock=self.deps.clock.now(),
         )
@@ -1588,6 +1594,16 @@ class Studio:
         )
         if self.on_vision_map is not None and self.deps.site.multiview is not None:
             self.on_vision_map(self.deps.site.multiview)
+
+    def vision_source(self) -> dict[str, Any]:
+        """What the video layer should open (``vision.source``): changes on the setup screen
+        apply without a restart (D-071)."""
+        v = self.devices.video
+        return {"method": v.method, "name": v.device_name, "delay_ms": v.expected_delay_ms}
+
+    def send_vision_source(self) -> None:
+        if self.on_vision_source is not None:
+            self.on_vision_source(self.vision_source())
 
     def _mv_picture(self) -> Any | None:
         """The newest whole multiview from the video layer (BGR array), or ``None``."""
@@ -2424,8 +2440,14 @@ class Studio:
         """ADR-0011: switches and presets change live, from the next tick."""
         merged = self._merged(self.show)
         rules = effective_rules(merged, self.deps.presets)
-        self.engine.set_config(EngineConfig.from_show(merged, rules))
+        self.engine.set_config(self._engine_config(merged, rules))
         self._save_tuning()
+
+    def _engine_config(self, show: ShowConfig, rules: RuleParams) -> EngineConfig:
+        """The engine's settings, with the picture delay of the chosen capture method (D-071)."""
+        dev = getattr(self, "devices", self.deps.site.devices)
+        delay = dev.video.expected_delay_ms if dev.video.kind != "none" else 0
+        return EngineConfig.from_show(show, rules, vision_delay_ms=delay)
 
     def _check_shot(self, shot: str) -> None:
         if not is_shot(shot):

@@ -34,12 +34,12 @@ Alt utstyr må ha fast IP, ellers finner ikke CutCut det igjen etter en omstart.
 Strømsparing og oppdateringer midt i et opptak er den vanligste grunnen til at en studio-PC stopper.
 
 1. Strøm: PC, ATEM, RØDECaster og studio-switchen på **UPS**. BIOS: **slå på etter strømbrudd**.
-2. Installer **NVIDIA-driveren** og **Companion** på denne PC-en. INOGENI trenger ingen driver; sett den i en **USB 3-port rett på hovedkortet**.
+2. Installer **NVIDIA-driveren** og **Companion** på denne PC-en. INOGENI trenger ingen driver; sett den i en **USB 3-port rett på hovedkortet**. Brukes ATEM-ens webkamera-utgang i stedet (steg 6), går USB-C-kabelen fra ATEM-en til en slik port.
 3. Strømplan: **Høy ytelse**, skjerm og disk slås aldri av.
 4. Enhetsbehandling → USB-rotnav: fjern haken for **La datamaskinen slå av denne enheten**.
 5. Windows Update → Aktive timer: **07:00–23:00**.
 6. Tid: synkroniser mot **NTP** (samme tid som Pearl).
-7. Noter driverversjonene for NVIDIA, RØDECaster ASIO, og capture-kortet (INOGENI). **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
+7. Noter driverversjonene for NVIDIA, RØDECaster ASIO, og capture-enheten (INOGENI, eller ATEM-firmware ved webkamera-utgang). **Ikke oppdater** dem midt i et semester uten å kjøre veiviseren på nytt.
 
 **Sjekk:** `H-PC-*`, `H-PROC-*`.
 
@@ -85,11 +85,11 @@ CutCut kutter etter hvem som snakker, så hver mikrofon må komme inn på sitt e
 
 CutCut ser kameraene gjennom multiviewen, så rutekartet må vise hvilken rute som er hvilken kilde.
 
-1. ATEM: multiview ut på **HDMI** til INOGENI 4KXUSB3, i **1080p50**.
-2. CutCut finner INOGENI på navnet (`video` i devices.yaml) og leser **1080p50 YUY2**.
+1. Velg **Multiview-capture** øverst: **INOGENI 4KXUSB3** (multiview ut på HDMI til INOGENI, INOGENI i en USB 3-port på hovedkortet) eller **ATEM webkamera-utgang** (USB-C fra ATEM til PC-en, og i ATEM Software Control: Output → Webcam Out → **Multi View**). Begge i **1080p50**.
+2. CutCut finner enheten på navnet («INOGENI» eller «Blackmagic Design») og bytter med en gang, uten omstart. Anbefalt: samme metode i hele semesteret; A/B-testen i studioperioden avgjør standarden (Q41).
 3. Sett opp multiviewen i ATEM som det anbefalte oppsettet under **Multiview** på oppsettsiden.
 4. Trykk **Foreslå fra bildet**: CutCut finner rutene i bildet og leser kildene fra ATEM. Dra hjørnene på plass om noe er skjevt, og trykk **Lagre rutekart**.
-5. Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision` (V4: PREVIEW byttes og tiden måles).
+5. Forsinkelsen fra ATEM til PC måles med maskintesten `cutcut hwtest vision --user <deg>` (V4: PREVIEW byttes og tiden måles). Den lagres for metoden, og motoren bruker den. Den andre metoden testes med `--metode atem_usb` eller `--metode inogeni`.
 
 **Sjekk:** `H-VID-1`, `H-VID-2`, `H-VID-3`.
 
