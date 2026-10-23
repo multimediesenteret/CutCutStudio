@@ -76,6 +76,7 @@ class Harness:
     overrides: dict[str, float] = field(default_factory=dict)
     preset: str = "standard"
     shadow: bool = False
+    vision_delay_ms: int = 0
 
     def __post_init__(self) -> None:
         self.show = make_show(
@@ -86,7 +87,8 @@ class Harness:
             preset=self.preset,
         )
         self.rules = effective_rules(self.show, load_rule_presets())
-        self.engine = Engine(EngineConfig.from_show(self.show, self.rules), shadow=self.shadow)
+        config = EngineConfig.from_show(self.show, self.rules, vision_delay_ms=self.vision_delay_ms)
+        self.engine = Engine(config, shadow=self.shadow)
         self.now = 0
         self.voices = {p.id: Voice() for p in self.show.participants}
         self.laptop = Voice()

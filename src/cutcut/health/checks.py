@@ -176,8 +176,8 @@ def video(
                 "H-VID-1",
                 "yellow",
                 f"{fps} bilder/s",
-                "Videolaget får for få bilder. Sjekk USB 3-porten til INOGENI, og at multiviewen "
-                "fra ATEM går i 1080p50.",
+                "Videolaget får for få bilder. Sjekk USB 3-kabelen til capture-enheten (INOGENI "
+                "eller ATEM-ens USB-C), og at multiviewen fra ATEM går i 1080p50.",
                 now,
                 expected=expected,
             )

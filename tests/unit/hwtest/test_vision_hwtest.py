@@ -79,7 +79,13 @@ class Switch:
         return self.now
 
 
-def run(card_kw: dict[str, Any] | None = None, *, switch: bool = True, **kw: Any) -> Report:
+def run(
+    card_kw: dict[str, Any] | None = None,
+    *,
+    switch: bool = True,
+    test_kw: dict[str, Any] | None = None,
+    **kw: Any,
+) -> Report:
     clock = Clock()
     card = Card(clock, **(card_kw or {}))
     for k, v in kw.items():
@@ -99,6 +105,7 @@ def run(card_kw: dict[str, Any] | None = None, *, switch: bool = True, **kw: Any
         minutes=0.1,
         clock=clock,
         sleep=clock.sleep,
+        **(test_kw or {}),
     )
     return test.run()
 
@@ -139,3 +146,18 @@ def test_no_picture() -> None:
     r = run(dead=True)
     assert results(r)["V1"] == "feil"
     assert r.result == "feil"
+
+
+def test_the_delay_is_saved_for_the_method_tested_D071() -> None:
+    saved: list[int] = []
+
+    def save(ms: int) -> bool:
+        saved.append(ms)
+        return True
+
+    r = run(test_kw={"method": "atem_usb", "save_delay": save})
+    assert saved == [80]
+    assert r.env["method"] == "ATEM webkamera-utgang (USB-C)"
+    v4 = next(s for s in r.steps if s.id == "V4")
+    assert "Lagret" in v4.summary
+    assert v4.details["atem_to_pc_ms"] == 80

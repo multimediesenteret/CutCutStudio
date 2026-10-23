@@ -64,6 +64,25 @@ def test_V1_an_active_mic_with_a_still_mouth_is_leakage() -> None:
     assert [d for d in h.waits() if d.blocked_by is RuleId.V1]
 
 
+def test_V1_waits_for_a_late_picture() -> None:
+    """D-071: the mouth shows up in the picture after the sound (here 450 ms, e.g. a slower
+    capture method). Without the delay it looks like leakage; with it, it is a speaker."""
+
+    def run(delay: int) -> Harness:
+        h = started(features=VC, vision_delay_ms=delay)
+        tiles(h)
+        h.talk("P2")
+        h.run(450)
+        tiles(h, mouth={"P2": 0.8})
+        h.run(3000)
+        return h
+
+    assert [d for d in run(0).waits() if d.blocked_by is RuleId.V1]
+    late = run(500)
+    assert not [d for d in late.waits() if d.blocked_by is RuleId.V1]
+    assert late.program == "CU:P2"
+
+
 def test_V1_off_means_the_mic_alone_decides() -> None:
     h = started()
     tiles(h)

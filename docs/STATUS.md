@@ -11,7 +11,7 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 - **Versjon:** `0.1.0` (2026-10-22), første release med Windows-pakke på GitHub. Endringer: `CHANGELOG.md`.
 - **Fase:** klar for studioperioden. Plan og rekkefølge for arbeidet før perioden: [`docs/plans/for-studio.md`](plans/for-studio.md) (P1–P9, alle ferdige).
 - **Milepæler:** M0 og M1 er ferdige. M2 (studiotest), M3 (grunnmodus i drift) og M4 (brytere) er bygget; de lukkes når studioprøvene i `testdag.md` er gjort og rapportert i issuene.
-- **Spesifikasjon:** v1 med endringer fra beslutningsloggen (D-001–D-070); repoet er fasit (D-040).
+- **Spesifikasjon:** v1 med endringer fra beslutningsloggen (D-001–D-071); repoet er fasit (D-040).
 - **Vercel:** web-simulatoren er forsiden på https://cutcutstudio2026.vercel.app; konseptet ligger som arkiv på `/concept/`.
 
 ## Hva som er bygget
@@ -22,7 +22,7 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 | Regimotor | Grunnmodus (`T`, `PV`, `K`, `H`, `S`, `B`, `CT`, overstyring), skyggemodus per bryter, og bryterreglene `L`, `F`, `Z`, `AT`, `V`, `R` | `core.md`, `features.md` |
 | Lyd | `audio-capture` med ASIO/WASAPI, VAD, frasegrenser, lekkasje, dempet mic (`S6`), mic-sjekk | `audio.md` |
 | Utstyr | Companion (preview + TAKE, `S5` reservekutt), `atem-bridge`, ISO-opptak, Pearl, PTZ-kameraer (OBSBOT over VISCA og OSC, Canon over VISCA) med kameravakt (I2) | `devices-*.md` |
-| Videolag | INOGENI funnet på navnet, rutekart (også fra bildet), content, bevegelse, programbekreftelse, kamerabilder, ansikt og munn (YuNet på CPU) | `vision.md` |
+| Videolag | Multiview fra INOGENI eller ATEM-ens USB-C, valgt i oppsettet og funnet på navnet (D-071), forsinkelsen tatt hensyn til i motoren, rutekart (også fra bildet), content, bevegelse, programbekreftelse, kamerabilder, ansikt og munn (YuNet på CPU) | `vision.md` |
 | Økt og skjermer | Touch med Start-knapp («Gjest»), teknikervindu med roller, show-typer, «Kun lyd», web-simulator | `session.md`, `ui.md` |
 | Oppsett og helse | Setup-hjelperen med ti steg (rutekart, mikrofonfasit, fargematching), helsekatalogen, morgensjekk, varsling (av), support-e-post | `setup-health.md` |
 | Drift | Supervisor, Windows-tjeneste, kiosk, `setup-pc.ps1`, pakke med tilbakerulling, nattlig backup, runbooks, 72-timerstest (`cutcut hwtest soak`) | `supervisor-ops.md` |

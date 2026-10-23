@@ -13,6 +13,8 @@ cameras:
   C3: { ip: 10.10.10.23, model: "OBSBOT Tail 2" }   # Camera 3 · gjest 2
   C4: { ip: 10.10.10.24, model: "OBSBOT Tail 2" }   # Camera 4 · gjest 3
   C5: { model: "Oversikt (Camera 6 på ATEM)" }      # fugleperspektiv / overview
+# Multiview inn i PC-en (D-071): INOGENI er standard. ATEM-ens webkamera-utgang velges i
+# appen (Oppsett, steg 6) eller her med:  video: { method: atem_usb }
 card_reader: { usb_id: "09D8:0320" }
 api_port: 8080
 # Varsel på e-post (HS-3): av, og mottakere legges inn i appen (Innstillinger → Varsling).

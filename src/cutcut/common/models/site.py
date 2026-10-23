@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from ipaddress import IPv4Address
-from typing import Literal, Self
+from typing import Annotated, Final, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
@@ -84,17 +84,51 @@ class AudioDevice(_Strict):
     buffer: int = Field(default=256, ge=64, le=2048)  # samples; raise on dropouts
 
 
+CaptureMethod = Literal["inogeni", "atem_usb"]
+
+# What each capture method is called in Windows (part of the DirectShow name), and the delay
+# from the ATEM to a frame in the video layer that the engine assumes until `hwtest vision`
+# (V4) has measured it. Starting points, not measurements (docs/research/multiview-over-usb.md).
+CAPTURE_NAMES: Final[dict[str, str]] = {
+    "inogeni": "INOGENI",
+    "atem_usb": "Blackmagic Design",
+}
+CAPTURE_DELAY_MS: Final[dict[str, int]] = {"inogeni": 60, "atem_usb": 120}
+CAPTURE_LABELS: Final[dict[str, str]] = {
+    "inogeni": "INOGENI 4KXUSB3 (HDMI → USB 3)",
+    "atem_usb": "ATEM webkamera-utgang (USB-C)",
+}
+
+
 class VideoDevice(_Strict):
-    """Where the video layer takes the ATEM multiview from: the INOGENI 4KXUSB3 (a UVC device
-    to Windows, D-068), found by part of its DirectShow name. ``index`` is used when no name
-    matches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone."""
+    """Where the video layer takes the ATEM multiview from (D-071): the INOGENI 4KXUSB3 on the
+    ATEM's multiview output (D-068), or the ATEM's own webcam output over USB-C with Multi View
+    chosen in ATEM Software Control. Both are UVC devices to Windows, found by part of their
+    DirectShow name (``name``, or the method's usual name when empty). ``index`` is used when
+    no name matches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.
+
+    ``delay_ms`` holds the measured delay from the ATEM to a frame per method (``hwtest
+    vision`` V4), so both can be compared; for a method not measured yet the engine assumes
+    its starting point."""
 
     kind: Literal["uvc", "none"] = "uvc"
-    name: str = "INOGENI"  # part of the DirectShow name, case-insensitive
+    method: CaptureMethod = "inogeni"
+    name: str = ""  # part of the DirectShow name, case-insensitive; empty = by method
     index: int = Field(default=0, ge=0, le=15)
     width: int = 1920
     height: int = 1080
     fps: int = Field(default=50, ge=24, le=60)
+    delay_ms: dict[CaptureMethod, Annotated[int, Field(ge=0, le=1000)]] = Field(
+        default_factory=dict
+    )
+
+    @property
+    def device_name(self) -> str:
+        return self.name.strip() or CAPTURE_NAMES[self.method]
+
+    @property
+    def expected_delay_ms(self) -> int:
+        return self.delay_ms.get(self.method, CAPTURE_DELAY_MS[self.method])
 
 
 class SupportConfig(_Strict):

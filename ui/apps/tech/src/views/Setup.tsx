@@ -4,6 +4,7 @@ import { useStudio } from "@cutcut/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { inputName, type Ctx } from "../lib";
 import { AtemSetup } from "./AtemSetup";
+import { Capture } from "./Capture";
 import { ColorMatch } from "./ColorMatch";
 import { type EditMap, MapEditor } from "./MapEditor";
 import { Wizard } from "./Wizard";
@@ -15,6 +16,9 @@ interface DeviceRow {
   file_value: string | null;
   overridden: boolean;
   model: string | null;
+  model_key?: string; // cameras: the model is a choice (D-070)
+  model_options?: string[];
+  model_overridden?: boolean;
 }
 
 interface DevicesInfo {
@@ -108,12 +112,16 @@ function Devices({ ctx }: { ctx: Ctx }) {
     );
   }
 
-  const changed = Object.entries(draft).filter(
-    ([k, v]) => v.trim() !== (info.rows.find((r) => r.key === k)?.value ?? ""),
-  );
+  const inUse = (k: string): string => {
+    const row = info.rows.find((r) => r.key === k);
+    if (row) return row.value ?? "";
+    return info.rows.find((r) => r.model_key === k)?.model ?? "";
+  };
+  const changed = Object.entries(draft).filter(([k, v]) => v.trim() !== inUse(k));
   const invalid = changed.some(([k, v]) => {
     const row = info.rows.find((r) => r.key === k);
-    return row ? localError(row, v) !== null : true;
+    if (row) return localError(row, v) !== null;
+    return !info.rows.some((r) => r.model_key === k);
   });
 
   const save = (e: FormEvent) => {
@@ -144,7 +152,9 @@ function Devices({ ctx }: { ctx: Ctx }) {
       <p className="muted">
         Adressene varierer fra studio til studio. Endringer lagres her, overlever omstart og gjelder
         fra neste tilkobling. Blå verdi = endret fra <span className="mono">devices.yaml</span>.
-        Last ned filen og legg den i studio-repoet når oppsettet er ferdig.
+        Last ned filen og legg den i studio-repoet når oppsettet er ferdig. Bruk helst samme
+        kameramodell på alle plassene (enklere å fargematche); modellen kan likevel velges per
+        kamera.
       </p>
       <div className="scroll">
         <table>
@@ -164,7 +174,24 @@ function Devices({ ctx }: { ctx: Ctx }) {
                 <tr key={row.key}>
                   <td>{deviceLabel(ctx, row)}</td>
                   <td className="muted">
-                    {row.key === "atem.ip" ? (info.atem_model ?? "–") : (row.model ?? "–")}
+                    {row.model_key && row.model_options ? (
+                      <select
+                        aria-label={`Modell for ${deviceLabel(ctx, row)}`}
+                        className={`model-select ${row.model_overridden ? "changed" : ""}`}
+                        value={draft[row.model_key] ?? row.model ?? ""}
+                        onChange={(e) =>
+                          setDraft({ ...draft, [row.model_key as string]: e.target.value })
+                        }
+                      >
+                        {row.model_options.map((m) => (
+                          <option key={m}>{m}</option>
+                        ))}
+                      </select>
+                    ) : row.key === "atem.ip" ? (
+                      (info.atem_model ?? "–")
+                    ) : (
+                      (row.model ?? "–")
+                    )}
                   </td>
                   <td>
                     <input
@@ -393,7 +420,10 @@ function Multiview({ ctx }: { ctx: Ctx }) {
             Player 1 med «Kun lyd»-grafikken.
           </li>
           <li>Tally-rammer på, safe area av, lydmålere av, navneskilt på.</li>
-          <li>Multiview ut på HDMI til opptakskortet i regi-PC-en, 1080p50.</li>
+          <li>
+            Multiview ut på HDMI til INOGENI, eller på webkamera-utgangen (Output → Webcam Out →
+            Multi View) med ATEM USB-C, 1080p50.
+          </li>
         </ul>
       </details>
     </div>
@@ -540,7 +570,12 @@ export function Setup({ ctx }: { ctx: Ctx }) {
       ctx={ctx}
       panels={{
         devices: <Devices ctx={ctx} />,
-        multiview: <Multiview ctx={ctx} />,
+        multiview: (
+          <>
+            <Capture ctx={ctx} />
+            <Multiview ctx={ctx} />
+          </>
+        ),
         atem: <AtemSetup ctx={ctx} />,
         mics: <Mics ctx={ctx} />,
         color: <ColorMatch ctx={ctx} />,

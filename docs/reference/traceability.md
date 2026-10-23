@@ -62,7 +62,7 @@ Generert av `tools/traceability.py` (spesifikasjonen 12.1). Ikke rediger for hå
 | `AT4` | Implementert | `src/cutcut/devices/cameras/service.py` | 1 |
 | `AT5` | Implementert | `src/cutcut/app/studio.py` | 1 |
 | `AT6` | Implementert | `src/cutcut/app/studio.py` | 1 |
-| `V1` | Implementert | `src/cutcut/core/engine.py` | 3 |
+| `V1` | Implementert | `src/cutcut/core/engine.py` | 4 |
 | `V2` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `V3` | Implementert | `src/cutcut/core/engine.py` | 2 |
 | `V4` | Implementert | `src/cutcut/core/engine.py` | 2 |

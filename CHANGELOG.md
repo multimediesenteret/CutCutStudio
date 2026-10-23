@@ -4,6 +4,16 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 
 ## [Unreleased]
 
+### Added
+- Multiview kan tas inn på to måter, valgt under Oppsett, steg 6 («Multiview-capture»): INOGENI 4KXUSB3 (standard) eller ATEM-ens webkamera-utgang over USB-C med Multi View valgt. Videolaget bytter enhet uten omstart, og motoren venter på bildet så lenge forsinkelsen for metoden tilsier. `cutcut hwtest vision --metode inogeni|atem_usb` tester hver metode og lagrer den målte forsinkelsen (D-071, Q41).
+- Kameramodellen kan velges per kamera under Utstyr og nettverk (OBSBOT Tail 2 eller Canon CR-N300). Anbefalingen er samme modell i hele studioet (D-070).
+
+### Changed
+- Teststudioet har OBSBOT Tail 2 på alle fire plassene; manualen og tegningen viser det (D-070).
+
+### Fixed
+- Tabellen over utstyret i manualen ble delt i to av anbefalingsavsnittet; den er hel igjen.
+
 ## [0.1.0] – 2026-10-22
 
 Første release: alt som kan bygges før studioperioden (D-066). Pakken installeres på regi-PC-en etter `docs/manual/` og `docs/studio/tjenester.md`, og prøves etter `docs/studio/testdag.md`.

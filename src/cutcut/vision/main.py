@@ -53,15 +53,18 @@ def main(
             width=video.width,
             height=video.height,
             fps=video.fps,
-            device_name=video.name or None,
+            device_name=video.device_name,
         )
 
+    follow_setup = not synthetic and file is None and device is None  # not with --device/--file
     wanted_until = [0.0]
     current = [site.multiview]
 
     async def listen(sub: Subscriber) -> None:
         """``vision.want`` from core: someone has the technician window open (D-056).
-        ``vision.map``: the rutekart saved in the setup helper (VI-5), resent every 10 s."""
+        ``vision.map``: the rutekart saved in the setup helper (VI-5), resent every 10 s.
+        ``vision.source``: the capture method chosen in the setup helper (D-071), also every
+        10 s; a new device name opens that device without a restart."""
         while True:
             msg = await sub.recv()
             if msg is None:
@@ -77,12 +80,18 @@ def main(
                 if new != current[0]:
                     log.info("nytt rutekart fra setup-hjelperen (%s)", new.layout)
                     current[0] = new
+            elif msg.topic == "vision.source" and follow_setup and isinstance(source, OpenCvSource):
+                name = str(msg.payload.get("name") or "")
+                if source.use_device(name):
+                    log.info("capture-metode fra oppsettet: %s", msg.payload.get("method"))
 
     async def go() -> None:
         ctx = zmq.asyncio.Context.instance()
         pub = Publisher(ctx, "vision", SystemClock(), connect=endpoint(EVENTS_IN_PORT))
         sub = Subscriber(
-            ctx, connect=endpoint(EVENTS_OUT_PORT), topics=["vision.want", "vision.map"]
+            ctx,
+            connect=endpoint(EVENTS_OUT_PORT),
+            topics=["vision.want", "vision.map", "vision.source"],
         )
         task = asyncio.create_task(listen(sub))
         try:

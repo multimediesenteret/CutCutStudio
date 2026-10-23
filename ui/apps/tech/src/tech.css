@@ -1004,6 +1004,21 @@ td {
 .addr.bad {
   border-color: var(--pgm);
 }
+.model-select {
+  width: 100%;
+  max-width: 230px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  padding: 0 8px;
+  font: inherit;
+}
+.model-select.changed {
+  color: var(--eye);
+  font-weight: 700;
+}
 .err-text {
   color: var(--pgm);
 }

@@ -423,8 +423,23 @@
     },
     "VideoDevice": {
       "additionalProperties": false,
-      "description": "Where the video layer takes the ATEM multiview from: the INOGENI 4KXUSB3 (a UVC device\nto Windows, D-068), found by part of its DirectShow name. ``index`` is used when no name\nmatches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.",
+      "description": "Where the video layer takes the ATEM multiview from (D-071): the INOGENI 4KXUSB3 on the\nATEM's multiview output (D-068), or the ATEM's own webcam output over USB-C with Multi View\nchosen in ATEM Software Control. Both are UVC devices to Windows, found by part of their\nDirectShow name (``name``, or the method's usual name when empty). ``index`` is used when\nno name matches (or off Windows). ``none``: no video layer, CutCut cuts on sound alone.\n\n``delay_ms`` holds the measured delay from the ATEM to a frame per method (``hwtest\nvision`` V4), so both can be compared; for a method not measured yet the engine assumes\nits starting point.",
       "properties": {
+        "delay_ms": {
+          "additionalProperties": {
+            "maximum": 1000,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "propertyNames": {
+            "enum": [
+              "inogeni",
+              "atem_usb"
+            ]
+          },
+          "title": "Delay Ms",
+          "type": "object"
+        },
         "fps": {
           "default": 50,
           "maximum": 60,
@@ -453,8 +468,17 @@
           "title": "Kind",
           "type": "string"
         },
+        "method": {
+          "default": "inogeni",
+          "enum": [
+            "inogeni",
+            "atem_usb"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
         "name": {
-          "default": "INOGENI",
+          "default": "",
           "title": "Name",
           "type": "string"
         },
@@ -559,11 +583,13 @@
     "video": {
       "$ref": "#/$defs/VideoDevice",
       "default": {
+        "delay_ms": {},
         "fps": 50,
         "height": 1080,
         "index": 0,
         "kind": "uvc",
-        "name": "INOGENI",
+        "method": "inogeni",
+        "name": "",
         "width": 1920
       }
     }

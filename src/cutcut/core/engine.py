@@ -1167,16 +1167,21 @@ class Engine:
 
     def _mouth_moves(self, pid: ParticipantId) -> bool:
         at = self._mouth_at.get(pid)
-        return self._vision_on() and at is not None and self._now - at <= MOUTH_RECENT_MS
+        recent = MOUTH_RECENT_MS + self.config.vision_delay_ms
+        return self._vision_on() and at is not None and self._now - at <= recent
 
     def _mouth_still(self, pid: ParticipantId, since: int | None) -> bool:
-        """V1 leakage: the mic has been active for V1_leak_ms and the mouth has not moved."""
+        """V1 leakage: the mic has been active for V1_leak_ms and the mouth has not moved.
+
+        The picture lags the sound by ``vision_delay_ms`` (D-071): a mouth seen at ``at`` moved
+        at ``at - delay``, and the mouth gets that much longer to show up."""
         if not self._vision_on() or since is None or not self._still_since:
             return False
-        if self._now - since < self.rules.V1_leak_ms:
+        delay = self.config.vision_delay_ms
+        if self._now - since < self.rules.V1_leak_ms + delay:
             return False
         at = self._mouth_at.get(pid)
-        return at is None or at < since
+        return at is None or at - delay < since
 
     def _pv3(self, p: Proposal, inp: Inputs) -> RuleId | None:
         """PV3: with video, the preview window must show a valid, still face before TAKE."""

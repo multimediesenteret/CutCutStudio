@@ -14,7 +14,7 @@ I drift brukes én protokoll per enhet: den som snakker direkte med enheten, er 
 | Canon CR-N300 | XC-protokollen (HTTP) | VISCA over IP | XC gir farge og eksponering med direkte verdier |
 | Epiphan Pearl Nexus | REST API v2.0 (HTTPS, Basic-autentisering) | Companion sin Pearl-modul for knapper | Offisielt API med status for opptak, innganger og lagring |
 | RØDECaster Pro II | ASIO, USB 1 multitrack | – | Rene spor med lav forsinkelse |
-| INOGENI 4KXUSB3 | UVC, YUY2 1080p50 | – | Standard webkamera i Windows, ingen driver |
+| INOGENI 4KXUSB3 | UVC, YUY2 1080p50 | ATEM-ens webkamera-utgang (USB-C) med Multi View valgt (D-071) | Standard webkamera i Windows, ingen driver |
 | ELATEC TWN3 | Virtuell COM-port | – | Uavhengig av tastaturfokus |
 | Kort-API | HTTPS med tjenestenøkkel | Tekniker kan starte økt uten kort | Bare ved innlogging, aldri i sanntid |
 
@@ -187,6 +187,7 @@ Fra OBSBOT sin OSC-definisjon for Tail 2. Kameraet er server: det tar imot på p
 | --- | --- | --- |
 | RØDECaster Pro II | USB 1, multitrack på, pre-fader; RØDECaster ASIO-driver | Virtual Devices-driveren er ikke kompatibel med ASIO og installeres ikke. USB 2 gir bare stereomiks |
 | INOGENI 4KXUSB3 | HDMI 1.4a inn og gjennomgang; USB 3.0 UVC; YUY2/NV12 ukomprimert, MJPEG bare på USB 2; 1080p50 støttet; strøm fra USB (5 V, 900 mA) | Ingen driver. Forsinkelse er ikke oppgitt og måles. Har egen VISCA-port (RS-232) som ikke brukes |
+| ATEM webkamera-utgang (HD8 ISO) | 2 × USB-C; webkamera 720p/1080p i programmets bildefrekvens; Windows ser «Blackmagic Design» som webkamera. Kilde velges i ATEM Software Control: Outputs → Webcam Out | Alternativ til INOGENI (D-071). Ikke bekreftet at Multi View kan velges på HD8 ISO, at bildet er ukomprimert, eller at ISO-opptak går samtidig: testes (Q41, `docs/research/multiview-over-usb.md`) |
 | ELATEC TWN3 MIFARE (USB) | Moduser: tastatur-emulering, virtuell COM-port, transparent. Settes opp med TWNConfig (skriptet bestemmer format: hex, omvendt hex, desimal) | Bruk samme skript og format som i Crestron-studioene. USB-ID i COM-modus: `09D8:0320` |
 | Kort-API | adressen fra IT-avdelingen (settes i appen) | Nøkkel og svarformat kommer; skal gi brukernavn og visningsnavn |
 | iiyama ProLite T2254MSC-B2AG | 21,5″, 1920 × 1080, PCAP 10 punkt over USB, HDMI og DisplayPort, USB-hub, VESA 100 | Fungerer med Windows uten driver; kortleseren kan sitte i hubben |
@@ -224,6 +225,7 @@ Her ligger kildene. Filer som er lastet ned eller fått fra leverandør, legges 
 
 - [RØDECaster Virtual Devices og ASIO](https://help.rode.com/hc/en-us/articles/11891033629839-What-is-the-Virtual-Devices-Driver-for-the-R%C3%98DECaster-Pro-II-Duo) · [RØDECaster USB-oppsett](https://rode.com/en-si/user-guides/rodecaster-pro-ii/a-guide-to-setting-up-usb-connections-on-the-rodecaster-pro-ii)
 - [INOGENI 4KXUSB3 datablad](https://www.fullcompass.com/common/files/88448-4KXUSB3SpecSheet.pdf) · [Produktside](https://inogeni.com/product/4kxusb3/)
+- [ATEM Television Studio HD8 ISO, tekniske data](https://www.blackmagicdesign.com/products/atemtelevisionstudio/techspecs/W-APS-21) · [ATEM Mini Extreme ISO G2, tekniske data](https://www.blackmagicdesign.com/products/atemmini/techspecs/W-APS-17)
 - [ELATEC TWN3 MIFARE datablad](https://www.ELATEC-rfid.com/fileadmin/Documents/Data-Sheet/elatec-twn3-mifare-data-sheet-en.pdf) · [Oppsett av TWN-lesere med TWNConfig](https://cdn1.papercut.com/files/mf/docs/PaperCut%20MF%20-%20General%20Elatec%20TWN%20Reader%20Tasks%20-%202016-06-15.pdf)
 - [iiyama ProLite T2254MSC-B2AG](https://iiyama.com/ie_en/products/prolite-t2254msc-b2ag/) · [ProDVX TMP-22X](https://www.prodvx.com/products/3022105-tmp-22x)
 

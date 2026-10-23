@@ -64,22 +64,31 @@ uv run cutcut hwtest camera --site C:\CutCut\site --camera C2
 
 Steg som flytter kameraet eller endrer fargen, spør først. Bekreft bare når kameraet ikke er på program eller preview (I2). Canon hopper over KA6 og KA7 til XC er på plass (Q6).
 
-## Capture-kortet INOGENI (VI-4)
+## Multiview inn i PC-en: INOGENI eller ATEM USB-C (VI-4, D-071)
 
-Stopp videolaget først: kortet kan bare åpnes av ett program om gangen. Med `--user` måles også forsinkelsen, og da må CutCut og Companion kjøre:
+Stopp videolaget først: enheten kan bare åpnes av ett program om gangen. Med `--user` måles også forsinkelsen, og da må CutCut og Companion kjøre:
 
 ```powershell
 uv run cutcut hwtest vision --site C:\CutCut\site --user tekniker1
 ```
 
-Kortet finnes på navnet fra `video` i `devices.yaml` (standard «INOGENI»). Finner testen det ikke, kan det velges etter nummer med `--device 0`.
+Testen bruker metoden som er valgt under Oppsett, steg 6 (med `--user`; ellers `video` i `devices.yaml`), og finner enheten på navnet: «INOGENI» eller «Blackmagic Design». Finner testen den ikke, kan den velges etter nummer med `--device 0`.
+
+**A/B-test av de to metodene (Q41).** Kjør testen én gang per metode, uten å bytte i oppsettet. Koble til begge: INOGENI på multiview-utgangen, og USB-C fra ATEM-en med **Output → Webcam Out → Multi View** valgt i ATEM Software Control.
+
+```powershell
+uv run cutcut hwtest vision --site C:\CutCut\site --user tekniker1 --metode inogeni
+uv run cutcut hwtest vision --site C:\CutCut\site --user tekniker1 --metode atem_usb
+```
+
+Sammenlign V2–V5 i de to rapportene, og se på rutene i teknikervinduet (skarphet i ansikt og munn). Start også et ISO-opptak på ATEM-en mens webkamera-utgangen er i bruk, og sjekk at begge går. V4 lagrer den målte forsinkelsen for metoden som ble testet (admin), og motoren bruker den når den metoden er valgt.
 
 | Steg | Hva skjer | Svarer på |
 | --- | --- | --- |
 | V1 Kortet | Kortet åpnes og gir bilder | |
 | V2 Format | 1920 × 1080 og bilder per sekund (50 ventet) | |
 | V3 Rutekart | Alle ruter med en CutCut-kilde har bilde | |
-| V4 Forsinkelse | Bytter PREVIEW mellom to kameraer fem ganger og måler når ATEM og når preview-ruta på PC-en viser det. Endrer ikke program | `H-VID-2` |
+| V4 Forsinkelse | Bytter PREVIEW mellom to kameraer fem ganger og måler når ATEM og når preview-ruta på PC-en viser det. Endrer ikke program. Lagrer ATEM → PC for metoden (`video.delay_ms`) | `H-VID-2`, D-071 |
 | V5 Stabilitet | Leser bilder i `--minutes` (60): tapte bilder, svarte bilder og gjenåpninger | |
 
 Motoren låses (LÅS) mens testen kjører, og låses opp etterpå.

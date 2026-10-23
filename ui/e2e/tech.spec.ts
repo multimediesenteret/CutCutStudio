@@ -111,3 +111,41 @@ test("oppsett: equipment addresses are saved and the multiview is checked (D-055
     await page.request.post("/api/sim/fault", { data: { kind: "multiview_wrong", on: false } });
   }
 });
+
+test("oppsett: multiview capture method and camera model are chosen on screen (D-070, D-071)", async ({
+  page,
+}) => {
+  await page.goto("/tech/#oppsett");
+  await page.getByRole("button", { name: /^6 Multiview/ }).click();
+  const group = page.getByRole("group", { name: "Multiview capture-metode" });
+  await expect(group.getByRole("button", { name: /INOGENI/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  try {
+    await group.getByRole("button", { name: /ATEM webkamera-utgang/ }).click();
+    await expect(group.getByRole("button", { name: /ATEM webkamera-utgang/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(page.getByText("«Blackmagic Design»", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("ATEM Software Control: Output → Webcam Out → Multi View.", { exact: true }),
+    ).toBeVisible();
+  } finally {
+    await page.request.put("/api/settings/devices", { data: { "video.method": null } });
+  }
+
+  await page.getByRole("button", { name: /^1 Nett og IP/ }).click();
+  const model = page.getByLabel(/Modell for Camera 2/);
+  await model.selectOption("Canon CR-N300");
+  try {
+    await page.getByRole("button", { name: "Lagre endringer" }).click();
+    await expect(page.getByText("Lagret", { exact: true })).toBeVisible();
+    const info = await (await page.request.get("/api/settings/devices")).json();
+    const c2 = info.rows.find((r: { key: string }) => r.key === "cameras.C2.ip");
+    expect(c2.model).toBe("Canon CR-N300");
+  } finally {
+    await page.request.put("/api/settings/devices", { data: { "cameras.C2.model": null } });
+  }
+});
