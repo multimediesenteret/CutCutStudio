@@ -76,3 +76,4 @@ Ting som er vurdert, men ikke skal bygges før studioet er i drift:
 | Blikkretning (`V6`) | Eksperimentell i spesifikasjonen |
 | Tyngre taler-modell på GPU (ASD) | Bare hvis studioopptakene viser at ansikt og munn på CPU ikke er godt nok (D-067) |
 | Web-simulatoren med motoren i nettleseren (PL-03 trinn 2) | Trengs ikke i studio |
+| Statuslys i rommet (Kuando Busylight UC Omega): rødt under opptak, grønt når klart, blått ved feil, valgfritt per tilstand i appen | Forslaget er klart (`docs/research/statuslys-busylight.md`), men en test med én lampe må avgjøre metoden først (Q42) |

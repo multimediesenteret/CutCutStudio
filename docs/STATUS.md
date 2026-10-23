@@ -51,4 +51,4 @@ Alle åpne issues gjelder enten studioprøver eller ting som er utsatt med vilje
 1. **Eier:** les gjennom sjekklista `docs/studio/testdag.md` (P9, #184), og book studioperioden.
 2. **Studioperioden:** følg `testdag.md` punkt for punkt; lim rapportene inn i issuene.
 3. **Agent, etter perioden:** juster grenseverdier mot opptakene (Q1, Q2), bygg SIM-8 (avspilling av ekte forløp), og lukk M2–M4 når rapportene er godkjent.
-4. **Senere utvidelser:** `docs/plans/for-studio.md` 6 (DeckLink som capture, teksting etter opptak, `V6`, tyngre taler-modell, web-simulator trinn 2), og kortinnlogging, e-postvarsling og Panopto.
+4. **Senere utvidelser:** `docs/plans/for-studio.md` 6 (DeckLink som capture, statuslys i rommet (Busylight, Q42), teksting etter opptak, `V6`, tyngre taler-modell, web-simulator trinn 2), og kortinnlogging, e-postvarsling og Panopto.
