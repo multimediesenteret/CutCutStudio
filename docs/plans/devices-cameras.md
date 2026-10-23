@@ -70,4 +70,4 @@ class GuardedCamera:            # pakker hver driver
 - Q6: Canon XC-kommandoliste.
 - Q16: virker `SetAiEnable` på studioets fastvare?
 - Q26: kamerakart og antall OBSBOT.
-- Q19: blandes OBSBOT og Canon i samme show (fargematching)?
+- Q19 (besvart, D-070): én kameramodell per studio anbefales; teststudioet har bare OBSBOT. Blanding skal fortsatt virke.

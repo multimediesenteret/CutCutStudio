@@ -38,9 +38,10 @@ Alt utstyret er vanlig studioutstyr; CutCut styrer det over nett og USB fra én 
 | ATEM Television Studio HD8 ISO | Bildemikser | Studio-switch; kameraene inn på SDI | Leser program, preview og multiview; kutter via Companion |
 | INOGENI 4KXUSB3 | Tar multiview-bildet inn i PC-en | ATEM multiview-utgang (HDMI) → USB 3 på PC-en | Ser kamerarutene, laptop-ruta og program |
 | RØDECaster Pro II | Lydmikser med fire mikrofoner | USB til PC-en (multitrack) | Måler hvem som snakker |
-| Camera 1: Canon CR-N300 | Verten | Studio-switch; SDI/HDMI til ATEM inngang 1 | Presets og utsnitt over VISCA |
-| Camera 2–4: OBSBOT Tail 2 | Gjest 1–3 | Studio-switch; ATEM inngang 2–4 | Presets, utsnitt, farge og AI-tracking over VISCA og OSC |
+| Camera 1–4: OBSBOT Tail 2 | Verten og gjest 1–3 | Studio-switch; ATEM inngang 1–4 | Presets, utsnitt, farge og AI-tracking over VISCA og OSC |
 | Camera 6: oversiktskamera | Fugleperspektiv | ATEM inngang 6 | Klippes til, styres ikke |
+
+**Anbefaling: samme kameramodell i hele studioet.** Like kameraer er mye enklere å fargematche, og presets og zoom oppfører seg likt. Teststudioet bruker OBSBOT Tail 2 på alle fire plassene. CutCut støtter også Canon CR-N300, og kan blande modeller om det trengs: modellen velges per kamera under **Utstyr og nettverk**. Et annet studio kan altså bruke Canon på alle plassene.
 | Laptop | Slides og video | ATEM inngang 7 | Vises når det kommer ny slide |
 | Epiphan Pearl Nexus | Opptak | Studio-switch; program fra ATEM | Starter, stopper og leser status |
 | Bitfocus Companion (+ Stream Deck) | Knappene mot ATEM | Kjører på regi-PC-en | CutCut trykker Companions knapper for preview og TAKE |
