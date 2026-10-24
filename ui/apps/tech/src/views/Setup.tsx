@@ -450,6 +450,14 @@ interface MicStatus {
     leak_db: Record<string, Record<string, number>>;
     noise_floor_db: Record<string, number>;
   };
+  /** P13: the leakage audio-capture measures in this session (shadow or on). */
+  session?: {
+    mode: "off" | "shadow" | "on";
+    differ_frames: number;
+    solo_s: Record<string, number>;
+    leak_db: Record<string, Record<string, number>>;
+    speech_db: Record<string, number>;
+  } | null;
 }
 
 const MIC_WHO: Record<string, string> = {
@@ -544,6 +552,46 @@ function Mics({ ctx }: { ctx: Ctx }) {
           })}
         </tbody>
       </table>
+      {st.session && st.session.mode !== "off" && (
+        <div style={{ marginTop: 12 }}>
+          <span className="lbl">
+            Denne økten · lyd tilpasser seg ({st.session.mode === "on" ? "på" : "skygge"})
+          </span>
+          <table>
+            <thead>
+              <tr>
+                <th>Mic</th>
+                <th>Talt alene</th>
+                <th>Talenivå</th>
+                <th>Mest lekkasje, økten</th>
+                <th>Fasit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {st.mics.map((m) => {
+                const row = st.session?.leak_db[m];
+                const worst = row ? Math.max(...Object.values(row)) : null;
+                const fasit = st.saved.leak_db[m];
+                const worstFasit = fasit ? Math.max(...Object.values(fasit)) : null;
+                return (
+                  <tr key={m}>
+                    <td className="mono">{m}</td>
+                    <td className="tnum">{st.session?.solo_s[m] ?? 0} s</td>
+                    <td className="tnum">{db(st.session?.speech_db[m])}</td>
+                    <td className="tnum">{db(worst)}</td>
+                    <td className="tnum">{db(worstFasit)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="muted small">
+            Lekkasjen måles på nytt når én person snakker alene, innenfor ±6 dB fra fasit, og
+            starter på nytt ved hver økt. I skygge styrer fasit kuttene; uenige 10 ms-rammer så
+            langt: {st.session.differ_frames}.
+          </p>
+        </div>
+      )}
       <div className="row" style={{ display: "flex", gap: 10, marginTop: 12 }}>
         <button type="button" className="btn" disabled={busy} onClick={() => measure("noise")}>
           Mål støy (3 s stille)

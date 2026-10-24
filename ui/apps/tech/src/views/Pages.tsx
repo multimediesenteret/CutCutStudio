@@ -147,6 +147,12 @@ const FEATURES: { key: string; name: string; ids: string; d: string; base?: bool
     ids: "P12",
     d: "Sitter alle foran sitt kamera? Skygge: bare logg",
   },
+  {
+    key: "audio_adapt",
+    name: "Lyd tilpasser seg økten",
+    ids: "P13",
+    d: "Lekkasjen måles på nytt i økten, innenfor ±6 dB",
+  },
 ];
 
 const MODES = [

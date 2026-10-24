@@ -57,6 +57,7 @@ SWITCHES: tuple[str, ...] = (
     "layouts",
     "ai_tracking",
     "seat_check",
+    "audio_adapt",
 )
 FeatureMode = Literal["off", "shadow", "on"]
 
@@ -73,8 +74,10 @@ class Features(_Strict):
     layouts: bool = False
     ai_tracking: bool = False  # AT1–AT6, OBSBOT only (spec 5.12, P5)
     seat_check: bool = False  # P12: does each person sit in front of their camera?
-    # switches that run without acting (F-1); the seat check starts in shadow (D-072)
-    shadow: list[str] = Field(default_factory=lambda: ["seat_check"])
+    audio_adapt: bool = False  # P13: the leakage of this session, in audio-capture
+    # switches that run without acting (F-1); the seat check and the audio adaptation start in
+    # shadow, so the studio period gives data to judge them by (D-072)
+    shadow: list[str] = Field(default_factory=lambda: ["seat_check", "audio_adapt"])
 
     @model_validator(mode="after")
     def _shadow_ok(self) -> Self:

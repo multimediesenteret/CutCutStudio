@@ -165,6 +165,11 @@
           "title": "Ai Tracking",
           "type": "boolean"
         },
+        "audio_adapt": {
+          "default": false,
+          "title": "Audio Adapt",
+          "type": "boolean"
+        },
         "bird": {
           "default": true,
           "title": "Bird",
@@ -345,6 +350,7 @@
       "$ref": "#/$defs/Features",
       "default": {
         "ai_tracking": false,
+        "audio_adapt": false,
         "bird": true,
         "content": true,
         "framing_variety": false,
@@ -352,7 +358,8 @@
         "reactions": false,
         "seat_check": false,
         "shadow": [
-          "seat_check"
+          "seat_check",
+          "audio_adapt"
         ],
         "slow_zoom": false,
         "video_confirm": false

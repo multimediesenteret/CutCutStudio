@@ -18,13 +18,13 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Final, Literal
 
 import numpy as np
 
 from cutcut.audio.channels import DEFAULT_MAP, MAIN_MIX
 from cutcut.audio.dsp import SILENCE_DB, Array, Decimator, rms_db
-from cutcut.audio.leak import LeakDetector
+from cutcut.audio.leak import AdaptiveLeak, LeakDetector
 from cutcut.audio.mainmix import MainMixWatch
 from cutcut.audio.phrase import PhraseTracker
 from cutcut.audio.vad import BLOCK, Vad, make_vad
@@ -63,6 +63,12 @@ class Analyzer:
             for mic, channel in (mics or DEFAULT_MAP).items()
         }
         self.leak = LeakDetector(leak_db)
+        # P13: the leakage of this session; «off», «shadow» (leak_adapt beside leak) or «on»
+        self.adapt = AdaptiveLeak(self.leak)
+        self.adapt_mode: Literal["off", "shadow", "on"] = "off"
+        self.differ = 0  # frames where the adapted leakage said something else (shadow)
+        self.speech_db: dict[MicId, float] = {}  # each person's speech level this session
+        self.session: str | None = None
         self.main_mix = main_mix
         self.mainmix = MainMixWatch()
 
@@ -93,6 +99,17 @@ class Analyzer:
         levels = {mic: m.level_db for mic, m in self.mics.items()}
         active = {mic: m.active for mic, m in self.mics.items()}
         leak = self.leak.feed(levels, active)
+        leak_adapt: dict[MicId, bool] | None = None
+        if self.adapt_mode != "off":
+            solo = self.adapt.observe(self.leak.smoothed())
+            if solo is not None:  # P13: the person's own level, for the technician
+                prev = self.speech_db.get(solo, levels[solo])
+                self.speech_db[solo] = prev + 0.002 * (levels[solo] - prev)
+            leak_adapt = self.leak.decide(active, self.adapt.gain)
+            if leak_adapt != leak:
+                self.differ += 1
+            if self.adapt_mode == "on":
+                leak, leak_adapt = leak_adapt, leak  # «leak» drives the engine
         if self.main_mix is not None and max(self.main_mix) < block.shape[1]:
             main_db = max(rms_db(block[:, ch]) for ch in self.main_mix)
             in_mix = self.mainmix.feed(
@@ -117,4 +134,6 @@ class Analyzer:
                 "leak": leak.get(mic, False),
                 "laughter": False,
             }
+            if leak_adapt is not None:  # the other opinion, for the shadow comparison
+                out[mic.value]["leak_other"] = leak_adapt.get(mic, False)
         return {"mics": out}

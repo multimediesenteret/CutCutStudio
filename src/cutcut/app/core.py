@@ -201,6 +201,7 @@ def build_core(opts: CoreOptions) -> Core:
             if studio.multiview_in_app and studio.deps.site.multiview is not None:
                 send("vision.map", studio.deps.site.multiview.model_dump(mode="json"))
             studio.send_vision_source()
+            studio.send_audio_adapt()
             await asyncio.sleep(10)
 
     def before_tick() -> None:

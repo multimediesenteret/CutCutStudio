@@ -21,10 +21,10 @@ def test_modes() -> None:
     assert f.mode("seat_check") == "shadow"  # P12 starts in shadow (D-072)
     f = f.with_mode("video_confirm", "shadow")
     assert f.mode("video_confirm") == "shadow"
-    assert f.shadow == ["seat_check", "video_confirm"]
+    assert f.shadow == ["seat_check", "audio_adapt", "video_confirm"]
     f = f.with_mode("video_confirm", "on")
     assert f.mode("video_confirm") == "on"
-    assert f.shadow == ["seat_check"]
+    assert f.shadow == ["seat_check", "audio_adapt"]
     with pytest.raises(ValueError, match="både på og i skygge"):
         Features(video_confirm=True, shadow=["video_confirm"])
     with pytest.raises(ValueError, match="kan ikke gå i skygge"):
@@ -81,6 +81,7 @@ def test_the_technician_sees_why_and_cannot_switch_on_what_is_missing(rig: Rig) 
         "layouts",
         "ai_tracking",
         "seat_check",
+        "audio_adapt",
     }
     vc = switches["video_confirm"]
     assert vc["mode"] == "off"

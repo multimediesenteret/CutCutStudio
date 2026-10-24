@@ -185,6 +185,7 @@ Grunnmodus klipper på lyden og er alltid på; alt annet er brytere som slås p�
 | Vekslende utsnitt | Kameraer av lufta veksler mellom tett og vid | Presets tett og vid per kamera |
 | Langsom zoom | Zoomer sakte inn på en taler som snakker lenge | Kamera som tåler sakte zoom |
 | AI-tracking | OBSBOT følger personen selv; CutCut flytter det ikke da | OBSBOT Tail 2 |
+| Lyd tilpasser seg økten | Lekkasjen mellom mikrofonene måles på nytt når én person snakker alene, innenfor ±6 dB fra fasit fra steg 5, og starter på nytt ved hver økt. Skygge (standard): fasit styrer kuttene, og Oppsett → steg 5 viser økten ved siden av fasit | Lekkasje målt i steg 5 |
 | Plassjekk | De første 2 minuttene: sitter hver person foran sitt kamera? Sammenligner hvem som snakker med hvilket bilde som viser en munn som beveger seg. I skygge (standard) logges det bare | Ansikt og munn i videolaget |
 | Videolag bekrefter | Munnbevegelse i bildet bekrefter hvem som snakker, og avslører lekkasje | Videolaget med ansikt og munn |
 | Reaksjonsklipp | Viser en lytter som smiler eller nikker, i talerens pause | Videolag bekrefter |

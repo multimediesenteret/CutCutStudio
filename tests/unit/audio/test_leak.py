@@ -241,3 +241,50 @@ def test_core_does_not_cut_to_a_muted_person_S6(muted: bool) -> None:
             rt.tick()
             shots.append(rt.engine.program)
     assert ("CU:P2" in shots[-100:]) is not muted
+
+
+# -- P13: the session's own leakage ----------------------------------------------------------
+
+
+def test_P13_adaptive_leak_learns_the_session_within_limits() -> None:
+    from cutcut.audio.leak import ADAPT_LIMIT_DB, AdaptiveLeak
+
+    base = LeakDetector({MicId.M1: {MicId.M2: -18.0}})
+    ad = AdaptiveLeak(base)
+    # M1 talks alone; M2 hears it 13 dB down (the mic was moved closer)
+    for _ in range(20_000):
+        assert ad.observe({MicId.M1: -20.0, MicId.M2: -33.0, MicId.M3: -75.0}) is MicId.M1
+    assert ad.gain(MicId.M1, MicId.M2) == pytest.approx(-13.0, abs=0.5)
+    assert MicId.M3 not in ad.adapted[MicId.M1]  # at the noise floor: not measurable
+    # a wild measurement is held within the limit of setup's value
+    far = AdaptiveLeak(LeakDetector({MicId.M1: {MicId.M2: -30.0}}))
+    for _ in range(20_000):
+        far.observe({MicId.M1: -20.0, MicId.M2: -32.0})
+    assert far.gain(MicId.M1, MicId.M2) == -30.0 + ADAPT_LIMIT_DB
+    # two people talking: nothing is measured
+    before = dict(ad.solo_frames)
+    assert ad.observe({MicId.M1: -20.0, MicId.M2: -24.0}) is None
+    assert ad.solo_frames == before
+    ad.reset()
+    assert ad.gain(MicId.M1, MicId.M2) == -18.0
+
+
+def test_P13_shadow_publishes_the_other_opinion_and_on_uses_it() -> None:
+    from cutcut.audio.main import apply_config
+
+    x = studio(4.0, {MicId.M1: (0.5, 3.5)}, leak_db=-14.0)
+    # setup measured −22 dB; in this session the mics leak −14 dB (within the ±6 dB limit:
+    # the session's matrix can reach −16 dB)
+    a = Analyzer(leak_db={MicId.M1: {m: -22.0 for m in MicId if m != MicId.M1}})
+    off = run(x, a)
+    assert "leak_other" not in off[200]["M2"]
+    apply_config(a, {"adapt": "shadow", "session": "s1"})
+    a.adapt.adapted[MicId.M1] = {m: -14.0 for m in MicId if m != MicId.M1}  # learned
+    shadow = run(x, a)
+    assert share(shadow, "M2", "leak", 1.0, 3.4) < 0.5  # setup's matrix misses it
+    assert share(shadow, "M2", "leak_other", 1.0, 3.4) > 0.9  # the session's catches it
+    apply_config(a, {"adapt": "on", "session": "s1"})
+    on = run(x, a)
+    assert share(on, "M2", "leak", 1.0, 3.4) > 0.9
+    apply_config(a, {"session": "s2"})  # a new session starts over
+    assert a.adapt.adapted == {}
