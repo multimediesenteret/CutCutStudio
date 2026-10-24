@@ -42,7 +42,9 @@ class CameraId(StrEnum):
 
 
 class SourceId(StrEnum):
-    """Everything that can be routed in the ATEM: cameras, the laptop and SuperSource."""
+    """Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.
+    ``OTHER`` is anything else the technician put on air (black, bars, a colour, a media player
+    with a logo): CutCut leaves it alone until a known source is back (P10)."""
 
     C1 = "C1"
     C2 = "C2"
@@ -52,6 +54,7 @@ class SourceId(StrEnum):
     LAPTOP = "LAPTOP"
     C7 = "C7"
     SUPERSOURCE = "SUPERSOURCE"
+    OTHER = "OTHER"
 
 
 class Mode(StrEnum):

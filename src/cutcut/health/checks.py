@@ -415,11 +415,24 @@ ATEM_GRACE_S = 15.0  # atem-bridge needs a few seconds to connect after start
 
 
 def atem(
-    connected: Callable[[], bool], uptime_s: Callable[[], float], now: Callable[[], datetime]
+    connected: Callable[[], bool],
+    uptime_s: Callable[[], float],
+    now: Callable[[], datetime],
+    *,
+    foreign: Callable[[], bool] = lambda: False,
 ) -> FuncCheck:
-    """``H-ATEM-1``: program and preview can be read (spec 8.5). Red, also for the user."""
+    """``H-ATEM-1``: program and preview can be read (spec 8.5). Red, also for the user. A logo
+    or black on program is not an error (P10): green, and AUTO waits."""
 
     def run() -> CheckResult:
+        if connected() and foreign():
+            return _result(
+                "H-ATEM-1",
+                "green",
+                "annen kilde på lufta",
+                "ATEM svarer. Noe annet enn et kamera er på lufta; AUTO venter.",
+                now,
+            )
         if connected():
             return _result("H-ATEM-1", "green", "tilkoblet", "ATEM svarer.", now)
         if uptime_s() < ATEM_GRACE_S:

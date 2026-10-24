@@ -149,3 +149,25 @@ test("oppsett: multiview capture method and camera model are chosen on screen (D
     await page.request.put("/api/settings/devices", { data: { "cameras.C2.model": null } });
   }
 });
+
+test("overview: a graphic on air makes AUTO wait, and Helse stays green (P10)", async ({
+  page,
+}) => {
+  await page.goto("/tech/");
+  await page.request.post("/api/sim/fault", { data: { kind: "graphic_on_air", on: true } });
+  try {
+    await expect(page.getByText(/AUTO venter: annen kilde på lufta/)).toBeVisible();
+    await expect
+      .poll(async () => {
+        const checks = (await (await page.request.get("/api/health/checks")).json()) as {
+          id: string;
+          status: string;
+          value: string;
+        }[];
+        return checks.find((c) => c.id === "H-ATEM-1")?.value;
+      })
+      .toBe("annen kilde på lufta");
+  } finally {
+    await page.request.post("/api/sim/fault", { data: { kind: "graphic_on_air", on: false } });
+  }
+});

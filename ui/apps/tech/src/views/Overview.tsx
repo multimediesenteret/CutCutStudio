@@ -96,13 +96,18 @@ function Multiview({ ctx }: { ctx: Ctx }) {
   const pvw = tileOf(state.engine.preview);
   const rec = state.touch.step === "rec";
   const isDarkKey = document.documentElement.getAttribute("data-theme") ?? "system";
-  const note = audioOnly
-    ? "Kun lyd: kameraene brukes ikke"
-    : !rec
-      ? "Ingen opptak: motoren står på total"
-      : state.engine.auto
-        ? "AUTO på"
-        : "AUTO av";
+  const note =
+    state.engine.hold === "graphic"
+      ? `AUTO venter: annen kilde på lufta${state.engine.hold_input ? ` (inngang ${state.engine.hold_input})` : ""}`
+      : state.engine.hold === "atem"
+        ? "AUTO venter: ATEM kan ikke leses"
+        : audioOnly
+          ? "Kun lyd: kameraene brukes ikke"
+          : !rec
+            ? "Ingen opptak: motoren står på total"
+            : state.engine.auto
+              ? "AUTO på"
+              : "AUTO av";
   return (
     <div className="panel">
       <div className="ph">

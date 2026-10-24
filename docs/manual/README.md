@@ -173,6 +173,8 @@ Grunnmodus klipper på lyden og er alltid på; alt annet er brytere som slås p�
 - **Laptop som content:** ny slide vises; video på laptopen holdes i bildet.
 - **Sikkerhet:** aldri kutt til et kamera som beveger seg; uten lyd går bildet til fugleperspektiv og AUTO venter til lyden er tilbake.
 - **Kun lyd:** ingen kameraer, «Kun lyd»-grafikken på program.
+- **Grafikk på lufta:** setter teknikeren svart, fargebarer eller en logo på program, venter AUTO til et kamera er tilbake, og fortsetter 5 s etter. Oversikt viser «AUTO venter». Ligger studioet på en logo mellom øktene, tar CutCut over når opptaket starter.
+- **Uten ATEM:** kan ATEM-en ikke leses på 2 s, trykker CutCut ikke TAKE, fordi det ville vært i blinde.
 - **Tempo:** Rolig, Standard eller Energisk endrer hvor fort og hvor ofte det klippes.
 
 **Bryterne** har tre stillinger: **Av**, **Skygge** (reglene kjører og logges, men klipper ikke; se Logg → Skygge) og **På**. Prøv alltid en bryter i skygge før den slås på. En bryter som feiler, går selv tilbake til skygge og varsler gult.

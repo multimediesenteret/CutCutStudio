@@ -81,6 +81,7 @@ Alle brytere **av**. Dette er sendingen slik den skal fungere fra første dag.
 | 4.3 | Ansikt på ekte bilde | `uv run cutcut hwtest faces --site C:\CutCut\site --file <multiview.mp4 fra 4.2>` | F1 minst 90 % brukbart per rute; F3 under 200 ms | P6 |
 | 4.4 | Feil underveis | Under en prøvesending: drep `vision`, så `core` i Oppgavebehandling | Kuttingen fortsetter uten `vision`; `core` tilbake innen 5 s med samme oppsett | – |
 | 4.5 | Lekkasje | Én person snakker høyt i 10 min | Ingen kutt til andre | – |
+| 4.7 | Grafikk på lufta (P10) | Under en prøvesending: sett svart, så mediaspiller 2, så mediaspiller 1 med logoen på program fra ATEM-panelet. Så et kamera tilbake | AUTO venter mens grafikken står, Helse er grønn («annen kilde på lufta»); AUTO fortsetter 5 s etter at kameraet er tilbake | – |
 | 4.6 | Content | Koble til laptop, bytt slide, trekk ut kabelen | Slide vist innen 1 s; laptop ute av utvalget innen 1 s | – |
 
 Klippelista (Q2) lages etterpå av en erfaren klipper, fra opptakene i 4.2.

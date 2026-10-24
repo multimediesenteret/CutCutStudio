@@ -374,6 +374,34 @@
             "title": "Content Enabled",
             "type": "boolean"
           },
+          "hold": {
+            "anyOf": [
+              {
+                "enum": [
+                  "graphic",
+                  "atem"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hold"
+          },
+          "hold_input": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hold Input"
+          },
           "lock": {
             "title": "Lock",
             "type": "boolean"
@@ -1707,7 +1735,7 @@
         "type": "object"
       },
       "SourceId": {
-        "description": "Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.",
+        "description": "Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.\n``OTHER`` is anything else the technician put on air (black, bars, a colour, a media player\nwith a logo): CutCut leaves it alone until a known source is back (P10).",
         "enum": [
           "C1",
           "C2",
@@ -1716,7 +1744,8 @@
           "C5",
           "LAPTOP",
           "C7",
-          "SUPERSOURCE"
+          "SUPERSOURCE",
+          "OTHER"
         ],
         "title": "SourceId",
         "type": "string"
