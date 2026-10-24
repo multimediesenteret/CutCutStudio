@@ -27,6 +27,7 @@ Alt i CutCut som kan bygges og testes uten studio, er bygget og testet i CI mot 
 | Oppsett og helse | Setup-hjelperen med ti steg (rutekart, mikrofonfasit, fargematching), helsekatalogen, morgensjekk, varsling (av), support-e-post | `setup-health.md` |
 | Drift | Supervisor, Windows-tjeneste, kiosk, `setup-pc.ps1`, pakke med tilbakerulling, nattlig backup, runbooks, 72-timerstest (`cutcut hwtest soak`) | `supervisor-ops.md` |
 | Maskintester og akseptanse | `cutcut hwtest audio · atem · camera · vision · pearl · faces · soak · akseptanse` | `docs/studio/maskintest.md` |
+| Forbedringer P10–P14 (D-072) | Grafikk på lufta respekteres og ingen blind TAKE uten ATEM (P10); `cutcut opptak importer` for opptak til justering (P11); plassjekk (P12, skygge); lyd som tilpasser seg økten (P13, skygge); «Sjekk dagens oppsett» (P14) | `p10-p14.md` |
 | Feilsøkingsmodus | Under Helse: tar opp alt som kommer inn til motoren i 1–72 timer (`data\debug`), for studioperioden og feilsøking | `docs/studio/maskintest.md` |
 
 Manual for oppsett og drift: [`docs/manual/`](manual/README.md) (PDF ved siden av, `pnpm manual`). Hvordan det henger sammen: [`docs/architecture/`](architecture/README.md). Hva som er endret for brukeren: `CHANGELOG.md` under `[Unreleased]`.
@@ -48,7 +49,7 @@ Alle åpne issues gjelder enten studioprøver eller ting som er utsatt med vilje
 
 ## Neste steg
 
-1. **Eier:** les gjennom sjekklista `docs/studio/testdag.md` (P9, #184), og book studioperioden. Planen `docs/plans/p10-p14.md` bygges (D-072): P10 er ferdig.
+1. **Eier:** les gjennom sjekklista `docs/studio/testdag.md` (P9, #184), og book studioperioden. Planen `docs/plans/p10-p14.md` er bygget (D-072); plassjekken og lydtilpasningen står i skygge og prøves i perioden (testdag 5.7 og 5.8).
 2. **Studioperioden:** følg `testdag.md` punkt for punkt; lim rapportene inn i issuene.
 3. **Agent, etter perioden:** juster grenseverdier mot opptakene (Q1, Q2), bygg SIM-8 (avspilling av ekte forløp), og lukk M2–M4 når rapportene er godkjent.
 4. **Senere utvidelser:** `docs/plans/for-studio.md` 6 (DeckLink som capture, statuslys i rommet (Busylight, Q42), teksting etter opptak, `V6`, tyngre taler-modell, web-simulator trinn 2), og kortinnlogging, e-postvarsling og Panopto.
