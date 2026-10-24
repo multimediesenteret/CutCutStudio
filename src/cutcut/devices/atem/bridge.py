@@ -165,18 +165,20 @@ class AtemBridgeClient:
         return (source, None) if source is not None else None
 
     def readback(self) -> AtemReadback | None:
-        """None when the ATEM is not readable; core then makes no cuts (I1)."""
+        """None when the ATEM is not readable (bridge down or state too old); the engine then
+        stops taking after ``EngineConfig.atem_required_ms`` (P10, Q45)."""
         st = self._fresh()
         if st is None:
             return None
-        program = self._source(st.program_input)
-        if program is None:
-            return None  # something CutCut does not know (black, bars): leave it to people
-        preview = self._source(st.preview_input)
+        # Something CutCut does not know (black, bars, a logo) is still a readable ATEM: it is
+        # reported as OTHER, and the engine waits until a known source is back (P10).
+        program = self._source(st.program_input) or (SourceId.OTHER, None)
+        preview = self._source(st.preview_input) or (SourceId.OTHER, None)
         return AtemReadback(
             program=program[0],
-            preview=preview[0] if preview else program[0],
+            preview=preview[0],
             program_layout=program[1],
+            program_input=st.program_input,
         )
 
     def multiview_readback(self) -> MultiviewReadback | None:

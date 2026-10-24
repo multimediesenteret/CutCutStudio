@@ -216,6 +216,11 @@ class Engine:
         self._zoom: tuple[str, CameraId, int] | None = None
         self._shadow_seen: dict[tuple[str, str, str, RuleId], int] = {}
         self.last_bird_ms = -(10**9)
+        # P10: something else is on air (a logo, black), or the ATEM cannot be read: AUTO
+        # waits. ``hold`` says which, for the screens; None when the engine may cut.
+        self.hold: Literal["graphic", "atem"] | None = None
+        self.hold_input: int | None = None
+        self._atem_missing_since: int | None = None
         self._now = now_ms
         self._decisions: list[Decision] = []
         self._intents: list[Intent] = []
@@ -283,11 +288,14 @@ class Engine:
             self.content_enabled and self.config.features.content,
             self.rules,
         )
+        held = self._hold(inp)
         self._reconcile(inp)
         self._observe(inp)
         self.mode = Mode.for_show(len(self.show.participants), self.content.active, self.audio_only)
 
-        if self.audio_only:
+        if held:
+            pass  # P10: a person put something else on air, or the ATEM cannot be read
+        elif self.audio_only:
             self._audio_only()
         elif not self._safety(inp) and not self.paused:
             self._auto(inp)
@@ -325,10 +333,77 @@ class Engine:
                     self.audio_only = False
                     self.insert = None
 
+    def _foreign(self, inp: Inputs) -> bool:
+        """P10: program shows something that is not a CutCut shot: black, bars, a colour, a
+        media player with a logo. Media player 1 is the «Kun lyd» graphic only in an audio-only
+        show; in any other show it is a graphic the technician put up. The studio may rest on a
+        logo between sessions: the opening cut at the show's start (B1) takes over from it."""
+        if inp.atem is None or self._now < self.settle_until:
+            return False  # our own cut has not reached the read-back yet (the opening, a TAKE)
+        if inp.atem.program is SourceId.OTHER:
+            return True
+        return inp.atem.program_layout == AUDIO_ONLY and not self.audio_only
+
+    def _hold(self, inp: Inputs) -> bool:
+        """P10 (I5, ADR-0004): AUTO waits while a person has something else on air, and once the
+        ATEM has not been readable for ``atem_required_ms`` (Q45), since a TAKE would be blind.
+        Nothing is cut, not even by the safety rules. A known source back counts as a manual
+        cut: AUTO goes on after ``manual_quiet_s``."""
+        required = self.config.atem_required_ms
+        if inp.atem is None and required is not None:
+            if self._atem_missing_since is None:
+                self._atem_missing_since = self._now
+            missing = self._now - self._atem_missing_since >= required
+        else:
+            self._atem_missing_since = None
+            missing = False
+        now: Literal["graphic", "atem"] | None = (
+            "graphic" if self._foreign(inp) else "atem" if missing else None
+        )
+        if now == self.hold:
+            return now is not None
+        before, self.hold = self.hold, now
+        if now is not None:
+            self.candidate = None
+            self.pv_state = PreviewState.IDLE
+        if now == "graphic":
+            n = inp.atem.program_input if inp.atem is not None else None
+            self.hold_input = n
+            what = f"inngang {n}" if n is not None else "mediaspiller 1"
+            self._decide(
+                "hold",
+                self.program,
+                RuleId.MANUAL,
+                f"Annen kilde på lufta ({what}); AUTO venter til et kamera er tilbake",
+            )
+        elif now == "atem":
+            self._decide(
+                "hold",
+                self.program,
+                RuleId.S5,
+                f"ATEM kan ikke leses på {_sec(required or 0)}; AUTO venter",
+            )
+        elif self._now < self.settle_until:
+            self.hold_input = None  # CutCut took over itself (the opening at the show's start)
+            self._decide("hold", self.program, RuleId.MANUAL, "CutCut tok over fra grafikken")
+        else:
+            self.hold_input = None
+            self.quiet_until = self._now + int(self.rules.manual_quiet_s * 1000)
+            why = "ATEM kan leses igjen" if before == "atem" else "Kilden er tilbake på lufta"
+            self._decide(
+                "hold",
+                self.program,
+                RuleId.MANUAL,
+                f"{why}; venter {_sec(self.rules.manual_quiet_s * 1000)}",
+            )
+        return now is not None
+
     def _reconcile(self, inp: Inputs) -> None:
         """ATEM is the truth (ADR-0004, I5). A difference we did not cause is a person."""
         if self.shadow or inp.atem is None or self._now < self.settle_until:
             return
+        if self._foreign(inp):
+            return  # P10: what was on air before stays the engine's program until it is back
         actual = shots.shot_for(inp.atem.program, self.show, inp.atem.program_layout)
         if actual is None or actual == self.program:
             return
@@ -645,8 +720,9 @@ class Engine:
             return
         host_shot = close_up(host)
         if shots.available(BIRD, self.show, self.config.features):
-            if self.program != BIRD:
+            if self.program != BIRD or self.hold == "graphic":  # P10: also over a logo
                 self._take_direct(BIRD, RuleId.B1, "Åpning: fugleperspektiv", force=True)
+                self.settle_until = self._now + SETTLE_MS  # until the ATEM shows it
             self.insert = Insert(
                 RuleId.B1, host_shot, host, self._now + int(self.rules.B1_open_s * 1000)
             )

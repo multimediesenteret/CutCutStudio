@@ -137,9 +137,14 @@ def test_core_reads_the_atem_cuts_via_companion_and_records_on_pearl(
     client, bus, cstate, pstate, core = rig
     assert client.post("/api/login", json={"username": "tekniker1", "pin": PIN}).status_code == 200
 
-    # atem-bridge reports the ATEM; core sees it (and its multiview) within a moment.
+    # atem-bridge reports the ATEM; core sees it (and its multiview) within a moment. The
+    # recorded state has the podcast logo on program; here the bird's-eye camera is on air
+    # (the opening shot), since this fake ATEM never follows the cuts and would keep the logo
+    # up, and CutCut leaves a logo alone (P10, tests/rules/test_other_source.py).
+    on_camera = {**ATEM, "program_input": 6}
+
     def atem() -> None:
-        bus.send("atem.state", "atem-bridge", ATEM)
+        bus.send("atem.state", "atem-bridge", on_camera)
 
     assert until(lambda: core.bridge.readback() is not None, 5, atem)
     mv = client.get("/api/setup/multiview").json()

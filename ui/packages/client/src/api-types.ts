@@ -1405,6 +1405,16 @@ export interface components {
             content_active: boolean;
             /** Content Enabled */
             content_enabled: boolean;
+            /**
+             * Hold
+             * @default null
+             */
+            hold: ("graphic" | "atem") | null;
+            /**
+             * Hold Input
+             * @default null
+             */
+            hold_input: number | null;
             /** Lock */
             lock: boolean;
             /** Mode */
@@ -2016,9 +2026,11 @@ export interface components {
         /**
          * SourceId
          * @description Everything that can be routed in the ATEM: cameras, the laptop and SuperSource.
+         *     ``OTHER`` is anything else the technician put on air (black, bars, a colour, a media player
+         *     with a logo): CutCut leaves it alone until a known source is back (P10).
          * @enum {string}
          */
-        SourceId: "C1" | "C2" | "C3" | "C4" | "C5" | "LAPTOP" | "C7" | "SUPERSOURCE";
+        SourceId: "C1" | "C2" | "C3" | "C4" | "C5" | "LAPTOP" | "C7" | "SUPERSOURCE" | "OTHER";
         /** StaffIn */
         StaffIn: {
             /** Admins */

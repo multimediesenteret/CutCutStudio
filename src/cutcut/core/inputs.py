@@ -73,6 +73,7 @@ class AtemReadback:
     program: SourceId
     preview: SourceId
     program_layout: str | None = None  # layout shot when program is SuperSource
+    program_input: int | None = None  # the ATEM's input number (shown when it is OTHER)
 
 
 # --- operator commands (spec 5.2 step 1, 10.1) -----------------------------------------
@@ -140,12 +141,27 @@ class EngineConfig:
     # How far the video layer's picture lags the room (ATEM → capture → frame, D-071). The
     # picture rules that line the picture up with sound (V1) allow for it.
     vision_delay_ms: int = 0
+    # With an ATEM to read (the studio and the live simulator): no takes once it has not been
+    # readable for this long, since Companion would cut blind (P10, Q45). None: no such rule
+    # (the rule tests and the offline simulation, which have no ATEM).
+    atem_required_ms: int | None = None
 
     @classmethod
     def from_show(
-        cls, show: ShowConfig, rules: RuleParams, *, vision_delay_ms: int = 0
+        cls,
+        show: ShowConfig,
+        rules: RuleParams,
+        *,
+        vision_delay_ms: int = 0,
+        atem_required_ms: int | None = None,
     ) -> EngineConfig:
-        return cls(show=show, rules=rules, features=show.features, vision_delay_ms=vision_delay_ms)
+        return cls(
+            show=show,
+            rules=rules,
+            features=show.features,
+            vision_delay_ms=vision_delay_ms,
+            atem_required_ms=atem_required_ms,
+        )
 
 
 @dataclass(frozen=True)

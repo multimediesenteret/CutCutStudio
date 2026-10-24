@@ -41,6 +41,7 @@ Motoren bestemmer hva som legges på preview og program (spesifikasjonen 5). Pla
 | `AT1`–`AT6` (bryter `ai_tracking`) | Ferdig (P5) |
 | `V1`–`V5`, `PV3`, `R1`–`R3` (bryterne `video_confirm`, `reactions`) | Ferdig (P7). `V6` (blikkretning) er eksperimentell og står i `PLANNED` |
 | Overstyring (`MANUAL`): manuelt kutt, AUTO, LÅS, manuell preview, endring på ATEM av en person (I5), Kun lyd (`A`) | Ferdig |
+| Annen kilde på lufta (P10): svart, barer eller logo på program gir `hold = graphic`, og ingenting kuttes, heller ikke sikkerhetsreglene, før en kjent kilde er tilbake. Med `atem_required_ms` (studio og live-simulator) gir 2 s uten ATEM-avlesning `hold = atem` (Q45) | Ferdig |
 
 ## Valg som ikke står eksplisitt i spesifikasjonen
 

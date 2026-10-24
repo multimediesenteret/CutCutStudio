@@ -599,6 +599,7 @@ interface SimStatus {
   companion_online: boolean;
   moving: string[];
   multiview_wrong?: boolean;
+  graphic_on_air?: boolean;
   pearl_online?: boolean;
   disk_full?: boolean;
 }
@@ -617,6 +618,11 @@ const FAULTS: { kind: string; label: string; on: (s: SimStatus) => boolean; came
     kind: "multiview_wrong",
     label: "Noen har endret ATEM-multiviewen (H-MV)",
     on: (s) => !!s.multiview_wrong,
+  },
+  {
+    kind: "graphic_on_air",
+    label: "Teknikeren setter svart eller en logo på lufta (AUTO venter)",
+    on: (s) => !!s.graphic_on_air,
   },
   {
     kind: "pearl_offline",

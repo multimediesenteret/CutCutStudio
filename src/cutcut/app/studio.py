@@ -159,6 +159,7 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
+ATEM_REQUIRED_MS: Final = 2_000  # P10, Q45: no blind TAKE after this long without read-back
 MORNING_HOUR: Final = 7  # spec 8.5: «hver morgen kl. 07:00» (local time)
 STARTUP_CHECK_MS: Final = 20_000
 HEARD_MS: Final = 300  # audio check: this much speech on a mic counts as heard
@@ -1230,6 +1231,7 @@ class Studio:
                 lambda: self.runtime.atem is not None,
                 lambda: (clock.mono_ms() - self._started_ms) / 1000,
                 now,
+                foreign=lambda: self.engine.hold == "graphic",
             ),
             health_checks.companion(
                 self._companion_reading, self.devices.companion.pages_version, now
@@ -1907,6 +1909,8 @@ class Studio:
                 content_active=e.content.active,
                 audio_ok=not e.s4_paused,
                 program_ms=max(0, now - e.program_since),
+                hold=e.hold,
+                hold_input=e.hold_input,
             ),
             participants=[
                 ParticipantInfo(
@@ -2447,7 +2451,18 @@ class Studio:
         """The engine's settings, with the picture delay of the chosen capture method (D-071)."""
         dev = getattr(self, "devices", self.deps.site.devices)
         delay = dev.video.expected_delay_ms if dev.video.kind != "none" else 0
-        return EngineConfig.from_show(show, rules, vision_delay_ms=delay)
+        return EngineConfig.from_show(
+            show,
+            rules,
+            vision_delay_ms=delay,
+            atem_required_ms=getattr(self, "atem_required_ms", None),
+        )
+
+    def require_atem(self, ms: int = ATEM_REQUIRED_MS) -> None:
+        """There is an ATEM to read (core, the live simulator): AUTO stops taking when it has
+        not been readable for ``ms`` (P10, Q45)."""
+        self.atem_required_ms: int | None = ms
+        self.engine.set_config(self._engine_config(self._merged(self.show), self.engine.rules))
 
     def _check_shot(self, shot: str) -> None:
         if not is_shot(shot):

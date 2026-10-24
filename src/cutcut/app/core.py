@@ -190,6 +190,7 @@ def build_core(opts: CoreOptions) -> Core:
     studio.on_devices = on_devices
     studio.on_audio_config = lambda cfg: send("audio.config", cfg)  # setup step 5 → audio-capture
     studio.on_vision_want = lambda: send("vision.want", {})  # thumbnails while someone looks
+    studio.require_atem()  # P10: no blind TAKE when the ATEM cannot be read
     studio.on_vision_map = lambda m: send("vision.map", m.model_dump(mode="json"))
     studio.on_vision_source = lambda src: send("vision.source", src)  # capture method (D-071)
 

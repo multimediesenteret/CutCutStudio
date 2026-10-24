@@ -64,6 +64,9 @@ class EngineInfo(_S):
     content_active: bool
     audio_ok: bool
     program_ms: int
+    # P10: AUTO waits because a graphic is on air, or the ATEM cannot be read
+    hold: Literal["graphic", "atem"] | None = None
+    hold_input: int | None = None
 
 
 class ParticipantInfo(_S):

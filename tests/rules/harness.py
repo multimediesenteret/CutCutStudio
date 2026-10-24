@@ -77,6 +77,7 @@ class Harness:
     preset: str = "standard"
     shadow: bool = False
     vision_delay_ms: int = 0
+    atem_required_ms: int | None = None
 
     def __post_init__(self) -> None:
         self.show = make_show(
@@ -87,7 +88,12 @@ class Harness:
             preset=self.preset,
         )
         self.rules = effective_rules(self.show, load_rule_presets())
-        config = EngineConfig.from_show(self.show, self.rules, vision_delay_ms=self.vision_delay_ms)
+        config = EngineConfig.from_show(
+            self.show,
+            self.rules,
+            vision_delay_ms=self.vision_delay_ms,
+            atem_required_ms=self.atem_required_ms,
+        )
         self.engine = Engine(config, shadow=self.shadow)
         self.now = 0
         self.voices = {p.id: Voice() for p in self.show.participants}

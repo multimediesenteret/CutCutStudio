@@ -19,7 +19,7 @@ from cutcut.api.auth import Auth, Identity
 from cutcut.app.studio import Studio, StudioDeps
 from cutcut.common.clock import Clock
 from cutcut.common.config import example_site_dir, load_rule_presets, load_show_types, load_site
-from cutcut.common.ids import CameraId, ParticipantId
+from cutcut.common.ids import CameraId, ParticipantId, SourceId
 from cutcut.common.models.session import User
 from cutcut.common.models.site import CameraDevice, SmtpConfig
 from cutcut.common.platform.secrets import FakeSecretStore
@@ -157,6 +157,7 @@ def build_live_sim(
         cameras=service,
     )
     studio = Studio(deps)
+    studio.require_atem()  # P10: as in the studio, no blind TAKE without the ATEM
     if service is not None:
         service.on_moving = studio.runtime.feed_cameras_moving  # S1 from the position polls
     secrets = FakeSecretStore({"operator_pin": SIM_PIN, "admin_pin": SIM_PIN})
@@ -205,6 +206,7 @@ class FaultIn(_In):
         "multiview_wrong",
         "pearl_offline",
         "disk_full",
+        "graphic_on_air",
     ]
     on: bool
     camera: CameraId | None = None
@@ -224,6 +226,7 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                 "companion_online": sim.atem.companion_online,
                 "moving": sorted(c.value for c in sim.moving),
                 "multiview_wrong": sim.mv_wrong,
+                "graphic_on_air": sim.atem.program is SourceId.OTHER,
                 "pearl_online": sim.pearl.online,
                 "disk_full": sim.studio.deps.system is not None
                 and sim.studio.deps.system.snapshot(Path(".")).disk_free_gb < 2,
@@ -287,6 +290,8 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                     sim.card_reader.connected = not body.on
                 case "multiview_wrong":
                     sim.multiview_wrong(body.on)
+                case "graphic_on_air":  # P10: a technician puts black (or a logo) on air
+                    sim.atem.operator_cut(SourceId.OTHER if body.on else SourceId.C5)
                 case "pearl_offline":
                     sim.pearl.online = not body.on
                 case "disk_full":
