@@ -505,6 +505,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/seat-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Seat Check
+         * @description P12: «Bytt i CutCut» (``swap``), «Vi bytter plass» (``moved``) or ``ignore``. From
+         *     the touch screen as well as the technician window.
+         */
+        post: operations["seat_check_api_seat_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/session": {
         parameters: {
             query?: never;
@@ -1870,6 +1891,14 @@ export interface components {
              */
             vision: boolean;
         };
+        /** SeatActionIn */
+        SeatActionIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "swap" | "moved" | "ignore";
+        };
         /**
          * SeatAudio
          * @description The audio check during the 3-2-1 countdown, per participant (AU-7).
@@ -1892,6 +1921,38 @@ export interface components {
              * @default false
              */
             muted: boolean;
+        };
+        /**
+         * SeatInfo
+         * @description P12: someone seems to sit in front of the wrong camera, or their camera is empty.
+         */
+        SeatInfo: {
+            /**
+             * Can Swap
+             * @default false
+             */
+            can_swap: boolean;
+            /** Expected */
+            expected: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "wrong" | "swap" | "empty";
+            /** Message */
+            message: string;
+            /**
+             * Other
+             * @default null
+             */
+            other: string | null;
+            /**
+             * Seen
+             * @default null
+             */
+            seen: string | null;
         };
         /** Session */
         Session: {
@@ -2184,6 +2245,11 @@ export interface components {
             login: "open" | "card";
             /** Notice */
             notice: string | null;
+            /**
+             * Seat Check
+             * @default []
+             */
+            seat_check: components["schemas"]["SeatInfo"][];
             /**
              * Step
              * @enum {string}
@@ -3003,6 +3069,39 @@ export interface operations {
                 "application/json": {
                     [key: string]: number | null;
                 };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    seat_check_api_seat_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SeatActionIn"];
             };
         };
         responses: {

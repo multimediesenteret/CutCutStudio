@@ -39,6 +39,18 @@ class SeatAudio(_S):
     loud: bool = False  # close to clipping
 
 
+class SeatInfo(_S):
+    """P12: someone seems to sit in front of the wrong camera, or their camera is empty."""
+
+    id: str  # participant
+    kind: Literal["wrong", "swap", "empty"]
+    expected: str  # their camera, «C2»
+    seen: str | None = None  # where their mouth was seen
+    other: str | None = None  # who they swapped with
+    message: str
+    can_swap: bool = False  # «Bytt i CutCut» is possible
+
+
 class TouchInfo(_S):
     step: Literal["idle", "ready", "countdown", "rec", "done"]
     countdown_ms: int
@@ -49,6 +61,7 @@ class TouchInfo(_S):
     # How users sign in (D-057): «open» = a Start button, no card; «card» = access card + API.
     login: Literal["open", "card"] = "open"
     audio_check: list[SeatAudio] = []
+    seat_check: list[SeatInfo] = []  # P12, only when the switch is on
 
 
 class EngineInfo(_S):

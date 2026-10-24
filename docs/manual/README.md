@@ -136,7 +136,7 @@ Brukeren trenger bare tre trykk: Start, Start opptak og Avslutt opptak. Resten g
 1. **Velkommen.** Trykk **Start**. Den grønne prikken «Studio klart» betyr at kamera, lyd og opptak er sjekket.
 2. **Hvem er med?** Velg antall personer (programleder er alltid med; gjestene har hver sin farge og mikrofon). Velg **Video og lyd** eller **Kun lyd**. Tegningen viser hvor folk skal sitte. Trykk **Start opptak**.
 3. **Lydsjekk.** Nedtelling 3–2–1 mens alle sier noen ord. Mikrofonene får en hake når de er hørt.
-4. **Opptak.** Skjermen viser hva som er i bildet nå og hvem som snakker. CutCut klipper selv. **Trenger du hjelp?** varsler teknikeren og viser support-e-posten; opptaket går videre.
+4. **Opptak.** Skjermen viser hva som er i bildet nå og hvem som snakker. CutCut klipper selv. Ser det ut som noen sitter foran feil kamera (plassjekken), kommer et gult felt: **Vi bytter plass**, **Bytt i CutCut** (CutCut bruker det andre kameraet resten av økten) eller **Det stemmer**. **Trenger du hjelp?** varsler teknikeren og viser support-e-posten; opptaket går videre.
 5. **Avslutt opptak:** hold knappen inne i 2 sekunder. Et kort trykk gjør ingenting, så ingen avslutter ved et uhell.
 6. **Ferdig.** «Opptaket er lagret», med lengde. Velg **Ferdig, logg ut** eller **Ta et nytt opptak**. Brukeren logges ut av seg selv etter 30 s, eller etter 3 minutter uten trykk på valgskjermen.
 
@@ -185,6 +185,7 @@ Grunnmodus klipper på lyden og er alltid på; alt annet er brytere som slås p�
 | Vekslende utsnitt | Kameraer av lufta veksler mellom tett og vid | Presets tett og vid per kamera |
 | Langsom zoom | Zoomer sakte inn på en taler som snakker lenge | Kamera som tåler sakte zoom |
 | AI-tracking | OBSBOT følger personen selv; CutCut flytter det ikke da | OBSBOT Tail 2 |
+| Plassjekk | De første 2 minuttene: sitter hver person foran sitt kamera? Sammenligner hvem som snakker med hvilket bilde som viser en munn som beveger seg. I skygge (standard) logges det bare | Ansikt og munn i videolaget |
 | Videolag bekrefter | Munnbevegelse i bildet bekrefter hvem som snakker, og avslører lekkasje | Videolaget med ansikt og munn |
 | Reaksjonsklipp | Viser en lytter som smiler eller nikker, i talerens pause | Videolag bekrefter |
 

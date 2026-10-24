@@ -108,8 +108,26 @@ function Multiview({ ctx }: { ctx: Ctx }) {
             : state.engine.auto
               ? "AUTO på"
               : "AUTO av";
+  const seats = state.touch.seat_check ?? [];
   return (
     <div className="panel">
+      {seats.length > 0 && (
+        <div className="row seatcheck" role="alert" style={{ marginBottom: 10 }}>
+          <span className="hst warn">
+            <i />
+            Plassjekk
+          </span>
+          <span>{seats.map((s) => s.message).join(" ")}</span>
+          {seats.some((s) => s.can_swap) && (
+            <button type="button" className="btn" onClick={() => run(cmd.seatCheck("swap"))}>
+              Bytt i CutCut
+            </button>
+          )}
+          <button type="button" className="btn" onClick={() => run(cmd.seatCheck("ignore"))}>
+            Ignorer
+          </button>
+        </div>
+      )}
       <div className="ph">
         <span className="lbl">Multiview · klikk for å klippe manuelt</span>
         <span className="muted small">{note}</span>

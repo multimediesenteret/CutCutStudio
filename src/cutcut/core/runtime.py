@@ -118,6 +118,15 @@ class CoreRuntime:
         return self._mics
 
     @property
+    def latest_tiles(self) -> dict[SourceId, TileFrame] | None:
+        """The newest measurement per camera window, or None when the video layer is silent
+        (read-only use: the seat check, P12)."""
+        now = self.clock.mono_ms()
+        if self._last_vision_ms is None or now - self._last_vision_ms > VISION_STALE_MS:
+            return None
+        return dict(self._vision)
+
+    @property
     def atem(self) -> AtemReadback | None:
         """What the ATEM shows now (None: not connected). For ``H-ATEM-1``."""
         return self._atem
