@@ -147,6 +147,7 @@ IMPLEMENTED_SWITCHES: Final = frozenset(
         "slow_zoom",
         "ai_tracking",
         "seat_check",
+        "audio_adapt",
     }
 )
 VERDICT_TEXT: Final[dict[str, str]] = {
@@ -987,6 +988,8 @@ class Studio:
     def mic_check_status(self) -> dict[str, Any]:
         status = self._mic_check().status(self.now)
         status["saved"] = self.deps.site.baseline.audio.model_dump(mode="json")
+        # P13: what audio-capture has measured in this session (shadow or on)
+        status["session"] = self.runtime.audio_status.get("adapt")
         status["simulator"] = self.deps.simulator
         return status
 
@@ -1191,6 +1194,7 @@ class Studio:
         sid = session.session_id if session is not None else None
         if sid != self._seat_session:  # a new session: no swap, no findings, no check
             self._seat_session = sid
+            self.send_audio_adapt()  # P13: and the audio adaptation starts over
             if self.seat_swap or self.seat_findings:
                 self.seat_swap, self.seat_findings = {}, []
                 self._reconfigure()
@@ -1732,6 +1736,20 @@ class Studio:
         apply without a restart (D-071)."""
         v = self.devices.video
         return {"method": v.method, "name": v.device_name, "delay_ms": v.expected_delay_ms}
+
+    def send_audio_adapt(self) -> None:
+        """P13: the switch and the session to audio-capture (``audio.config``); also every 10 s
+        from core, for a restarted audio-capture. A new session starts the adaptation over."""
+        cb = getattr(self, "on_audio_config", None)
+        if cb is None:
+            return
+        session = self.sessions.session
+        cb(
+            {
+                "adapt": self.features.mode("audio_adapt"),
+                "session": session.session_id if session is not None else None,
+            }
+        )
 
     def send_vision_source(self) -> None:
         if self.on_vision_source is not None:
@@ -2454,6 +2472,10 @@ class Studio:
         rules and their measurements; «on» also needs the equipment to act."""
         if name not in IMPLEMENTED_SWITCHES:
             return False, False, "Reglene bygges før studioperioden (docs/plans/for-studio.md)."
+        if name == "audio_adapt":  # P13: starts from setup's leakage matrix
+            if not self.deps.site.baseline.audio.leak_db:
+                return True, False, "Mål lekkasjen i oppsettet (steg 5, RØDECaster) først."
+            return True, True, None
         if name == "seat_check":  # P12: shadow only logs, so it may run without faces
             if not self.runtime.vision_status.get("faces"):
                 return True, False, "Krever ansikt og munn i videolaget (modellen og videolaget)."
@@ -2581,6 +2603,7 @@ class Studio:
         rules = effective_rules(merged, self.deps.presets)
         self.engine.set_config(self._engine_config(merged, rules))
         self._save_tuning()
+        self.send_audio_adapt()
 
     def _engine_config(self, show: ShowConfig, rules: RuleParams) -> EngineConfig:
         """The engine's settings, with the picture delay of the chosen capture method (D-071)."""

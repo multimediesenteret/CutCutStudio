@@ -38,6 +38,18 @@ async def listen_config(sub: Subscriber, analyzer: Analyzer) -> None:
 
 
 def apply_config(analyzer: Analyzer, payload: dict[str, Any]) -> None:
+    """``leak_db`` (setup step 5), ``adapt`` (P13: off, shadow, on) and ``session`` (a new
+    session starts the adaptation from setup's matrix again). Each key is optional."""
+    mode = payload.get("adapt")
+    if mode in ("off", "shadow", "on") and mode != analyzer.adapt_mode:
+        analyzer.adapt_mode = mode
+        log.info("Lydtilpasning: %s", mode)
+    session = payload.get("session")
+    if "session" in payload and session != getattr(analyzer, "session", None):
+        analyzer.session = session
+        analyzer.adapt.reset()
+        analyzer.speech_db = {}
+        analyzer.differ = 0
     raw = payload.get("leak_db")
     if not isinstance(raw, dict):
         return

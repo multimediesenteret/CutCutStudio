@@ -27,6 +27,17 @@ def _status(backend: Backend, analyzer: Analyzer, frames: int, ok: bool) -> dict
         "vad": analyzer.vad_name,
         "frames": frames,
         "ok": running,
+        # P13: the session's leakage next to setup's, for Helse → Lyd
+        "adapt": {
+            "mode": analyzer.adapt_mode,
+            "differ_frames": analyzer.differ,
+            "solo_s": {k.value: v / 100 for k, v in analyzer.adapt.solo_frames.items()},
+            "leak_db": {
+                s.value: {d.value: v for d, v in row.items()}
+                for s, row in analyzer.adapt.matrix().items()
+            },
+            "speech_db": {k.value: round(v, 1) for k, v in analyzer.speech_db.items()},
+        },
         **detail,
     }
 
