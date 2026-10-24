@@ -51,6 +51,7 @@ class LiveSim:
     audio_lost: bool = False
     moving: set[CameraId] = field(default_factory=set)
     mv_wrong: bool = False
+    before_graphic: SourceId = SourceId.C5  # what was on air when «grafikk på lufta» was set
     vision: SimVision | None = None  # cutcut sim --vision
 
     def __post_init__(self) -> None:
@@ -291,7 +292,11 @@ def sim_routes(sim: LiveSim) -> Callable[[FastAPI, Callable[..., Awaitable[Ident
                 case "multiview_wrong":
                     sim.multiview_wrong(body.on)
                 case "graphic_on_air":  # P10: a technician puts black (or a logo) on air
-                    sim.atem.operator_cut(SourceId.OTHER if body.on else SourceId.C5)
+                    if body.on and sim.atem.program is not SourceId.OTHER:
+                        sim.before_graphic = sim.atem.program
+                        sim.atem.operator_cut(SourceId.OTHER)
+                    elif not body.on and sim.atem.program is SourceId.OTHER:
+                        sim.atem.operator_cut(sim.before_graphic)
                 case "pearl_offline":
                     sim.pearl.online = not body.on
                 case "disk_full":

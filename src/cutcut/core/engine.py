@@ -75,6 +75,9 @@ from cutcut.core.speakers import Speakers
 
 # Time the ATEM gets to show our take before a difference counts as a manual change (I5).
 SETTLE_MS = 600
+# P10: the same when the show starts over a logo; generous, since a late read-back here would
+# look like a person's cut and pause AUTO for manual_quiet_s.
+TAKEOVER_SETTLE_MS = 2000
 # Audio must be back this long before AUTO resumes after S4.
 AUDIO_RECOVER_MS = 2000
 # T9: a pause this long counts as "a short pause" for soft cut timing.
@@ -317,7 +320,10 @@ class Engine:
                     self.lock = on
                     self._decide("hold", self.program, RuleId.MANUAL, f"LÅS {'på' if on else 'av'}")
                 case ManualCut(shot=shot):
-                    self._take_direct(shot, RuleId.MANUAL, "Manuelt kutt", force=True)
+                    if self.hold == "graphic":  # P10: the technician cuts away from the logo
+                        self._take_over(shot, RuleId.MANUAL, "Manuelt kutt")
+                    else:
+                        self._take_direct(shot, RuleId.MANUAL, "Manuelt kutt", force=True)
                     self.quiet_until = self._now + int(self.rules.manual_quiet_s * 1000)
                 case ManualPreview(shot=shot):
                     self.manual_preview = shot
@@ -329,6 +335,8 @@ class Engine:
                     self.audio_only = audio_only
                     if not audio_only:
                         self._opening()
+                    elif self.hold == "graphic":  # P10: «Kun lyd» replaces the resting logo
+                        self._take_over(AUDIO_ONLY, RuleId.MANUAL, "Kun lyd: fast grafikk")
                 case EndShow():
                     self.audio_only = False
                     self.insert = None
@@ -338,8 +346,10 @@ class Engine:
         media player with a logo. Media player 1 is the «Kun lyd» graphic only in an audio-only
         show; in any other show it is a graphic the technician put up. The studio may rest on a
         logo between sessions: the opening cut at the show's start (B1) takes over from it."""
-        if inp.atem is None or self._now < self.settle_until:
+        if self._now < self.settle_until:
             return False  # our own cut has not reached the read-back yet (the opening, a TAKE)
+        if inp.atem is None:
+            return self.hold == "graphic"  # a gap in the read-back does not end the graphic
         if inp.atem.program is SourceId.OTHER:
             return True
         return inp.atem.program_layout == AUDIO_ONLY and not self.audio_only
@@ -358,7 +368,7 @@ class Engine:
             self._atem_missing_since = None
             missing = False
         now: Literal["graphic", "atem"] | None = (
-            "graphic" if self._foreign(inp) else "atem" if missing else None
+            "atem" if missing else "graphic" if self._foreign(inp) else None
         )
         if now == self.hold:
             return now is not None
@@ -367,9 +377,10 @@ class Engine:
             self.candidate = None
             self.pv_state = PreviewState.IDLE
         if now == "graphic":
-            n = inp.atem.program_input if inp.atem is not None else None
-            self.hold_input = n
-            what = f"inngang {n}" if n is not None else "mediaspiller 1"
+            rb = inp.atem
+            mp1 = rb is not None and rb.program_layout == AUDIO_ONLY
+            self.hold_input = rb.program_input if rb is not None else None
+            what = "mediaspiller 1" if mp1 else f"inngang {self.hold_input}"
             self._decide(
                 "hold",
                 self.program,
@@ -720,15 +731,24 @@ class Engine:
             return
         host_shot = close_up(host)
         if shots.available(BIRD, self.show, self.config.features):
-            if self.program != BIRD or self.hold == "graphic":  # P10: also over a logo
+            if self.hold == "graphic":  # P10: the studio rested on a logo
+                self._take_over(BIRD, RuleId.B1, "Åpning: fugleperspektiv")
+            elif self.program != BIRD:
                 self._take_direct(BIRD, RuleId.B1, "Åpning: fugleperspektiv", force=True)
-                self.settle_until = self._now + SETTLE_MS  # until the ATEM shows it
             self.insert = Insert(
                 RuleId.B1, host_shot, host, self._now + int(self.rules.B1_open_s * 1000)
             )
             self._decide("hold", BIRD, RuleId.B1, "Åpning: fugleperspektiv, så verten")
+        elif self.hold == "graphic":
+            self._take_over(host_shot, RuleId.B1, "Åpning: verten")
         else:
             self._take_direct(host_shot, RuleId.B1, "Åpning: verten", force=True)
+
+    def _take_over(self, shot: str, rule: RuleId, reason: str) -> None:
+        """P10: the show starts while a logo is on air. CutCut cuts over it at once, and gives
+        the ATEM ``TAKEOVER_SETTLE_MS`` to show it before the read-back counts again."""
+        self._take_direct(shot, rule, reason, force=True)
+        self.settle_until = self._now + TAKEOVER_SETTLE_MS
 
     def _propose_crosstalk(self, inp: Inputs) -> Proposal | None:
         sp, r = self.speakers, self.rules
