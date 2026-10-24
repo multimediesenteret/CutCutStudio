@@ -30,6 +30,7 @@ Status: **godkjent av produkteier 2026-10-21 (D-046)**, med endring D-049 (ingen
 | 12 | [`supervisor-ops.md`](supervisor-ops.md) | Supervisor, WinSW, kiosk, morgensjekk, installasjon, utrulling | 9 | M2–M3 |
 | 13 | [`features.md`](features.md) | Bryterne og steg 11 (farge, Panopto) | 10–11 | M4 |
 | – | [`for-studio.md`](for-studio.md) | Rekkefølgen for alt som lages før studioperioden (D-066): capture og nett, skyggemodus, bryterne, tung videoanalyse, farge, sjekkliste | 10–11 | M4 |
+| – | [`p10-p14.md`](p10-p14.md) | Forslag 2026-10-24: annen kilde på lufta (feil i dag), opptak til justering, plassjekk, lyd som tilpasser seg økten, rask sjekk før økt | – | M4 og senere |
 | – | [`milestones.md`](milestones.md) | Milepæler, issues, arbeidsflyt for GitHub og Vercel | – | – |
 
 ## Beslutninger planene foreslår

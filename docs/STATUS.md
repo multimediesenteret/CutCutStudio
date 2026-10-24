@@ -42,13 +42,14 @@ Alle åpne issues gjelder enten studioprøver eller ting som er utsatt med vilje
 
 - Studioets mikser er ATEM Television Studio HD8 ISO, ikke Mini Extreme ISO som spesifikasjonen 2.2 er skrevet for (D-053). Det påvirker oppsett og rutekart, ikke motoren.
 - Canon CR-N300 styres over VISCA til Canons XC-kommandoliste finnes (Q6): posisjon og presets virker, hvitbalanse og eksponering ikke.
+- En logo, svart eller mediaspiller på program gir rødt `H-ATEM-1`, og AUTO kan klippe vekk fra den. Rettes i P10 (`docs/plans/p10-p14.md`).
 - `V6` (blikkretning) og `H-AUD-2` (støy i stillhet) er ikke bygget.
 - Grenseverdiene i reglene og i ansiktsanalysen er startpunkter. De justeres mot opptakene fra studioperioden (Q1, Q2).
 - Den lokale Playwright-testen `simulator.spec.ts` kan feile av og til på trege maskiner; i CI er den grønn.
 
 ## Neste steg
 
-1. **Eier:** les gjennom sjekklista `docs/studio/testdag.md` (P9, #184), og book studioperioden.
+1. **Eier:** les gjennom sjekklista `docs/studio/testdag.md` (P9, #184), og book studioperioden. Ta stilling til planen `docs/plans/p10-p14.md` (Q43–Q45): P10 retter en feil og bør bygges før perioden.
 2. **Studioperioden:** følg `testdag.md` punkt for punkt; lim rapportene inn i issuene.
 3. **Agent, etter perioden:** juster grenseverdier mot opptakene (Q1, Q2), bygg SIM-8 (avspilling av ekte forløp), og lukk M2–M4 når rapportene er godkjent.
 4. **Senere utvidelser:** `docs/plans/for-studio.md` 6 (DeckLink som capture, statuslys i rommet (Busylight, Q42), teksting etter opptak, `V6`, tyngre taler-modell, web-simulator trinn 2), og kortinnlogging, e-postvarsling og Panopto.
