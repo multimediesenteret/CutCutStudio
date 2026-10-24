@@ -84,6 +84,7 @@ Alle brytere **av**. Dette er sendingen slik den skal fungere fra første dag.
 | 4.6 | Content | Koble til laptop, bytt slide, trekk ut kabelen | Slide vist innen 1 s; laptop ute av utvalget innen 1 s | – |
 | 4.7 | Grafikk på lufta (P10) | Under en prøvesending: sett svart, så mediaspiller 2, så mediaspiller 1 med logoen på program fra ATEM-panelet. Så et kamera tilbake | AUTO venter mens grafikken står, Helse er grønn («annen kilde på lufta»); AUTO fortsetter 5 s etter at kameraet er tilbake | – |
 | 4.8 | Opptak til justering (P11) | Før hver sending i 4.2: samtykke fra alle ([`samtykke-opptak.md`](../intake/samtykke-opptak.md)), feilsøkingsmodus på, RØDECaster multitrack-opptak til kort på, ATEM ISO på, multiview-opptak på. Etterpå: `uv run cutcut opptak importer --episode <navn> --samtykke --out D:\opptak --wav M1=… --wav M2=…`. Sjekk også at RØDECaster-en tar opp til kort mens CutCut får USB-lyden | Importen viser match over 0,6 for hver mikrofon og ingen OBS | Q1 |
+| 4.9 | Sjekk dagens oppsett (P14) | Hver morgen i perioden: Helse → **Sjekk dagens oppsett**, med gråkort første dag. Sett én gang en gjest ved feil kamera og skru ned én fader | Grønt når alt er riktig; feil plass og nedskrudd fader meldes i navnerunden | – |
 
 Klippelista (Q2) lages etterpå av en erfaren klipper, fra opptakene i 4.2.
 

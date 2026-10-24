@@ -205,7 +205,7 @@ Kommer senere: innlogging med adgangskort, e-postvarsling og publisering til Pan
 Studioet passer på seg selv; teknikeren trenger bare å se på Helse når prikken på touch-skjermen er gul.
 
 - **Morgensjekk:** hver morgen kl. 07:00 og ved hver oppstart kjøres alle sjekkene. Resultatet vises som en liten prikk på touch-skjermens velkomstside: grønn, eller gul når teknikeren har noe å se på. Brukeren ser aldri detaljene.
-- **Før et viktig opptak:** åpne teknikervinduet, se at Helse er grønn og at alle kameraene har bilde under Oversikt.
+- **Før et viktig opptak:** åpne teknikervinduet → Helse → **Sjekk dagens oppsett**. Den sjekker Helse og multiviewen, og tar en navnerunde: alle setter seg og sier navnet sitt, én om gangen, så CutCut hører mikrofonene og ser at munnen beveger seg i riktig kamera. Med gråkort foran kameraene måles fargen også. Tar rundt to minutter.
 - **Under opptak:** følg med under Oversikt. Klikk på en rute i multiview for å klippe selv; **Auto på** tar CutCut tilbake. **Lås bildet** holder bildet som det er.
 - **Når brukeren trykker «Trenger du hjelp?»**, kommer et varsel i teknikervinduet. Opptaket går videre.
 - **Om natten** (kl. 03–05, aldri under en økt) rydder CutCut gamle data og tar en kopi av databasen.
