@@ -163,6 +163,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="capture-metode som testes (vision; standard: den som er valgt i oppsettet)",
     )
 
+    rec = sub.add_parser(
+        "opptak",
+        help="opptak til justering fra studioperioden (P11): importer og rydd",
+        description="Setter WAV-filene fra RØDECaster sammen med feilsøkingsopptaket og "
+        "beslutningene til en avspillingspakke. Krever samtykke (D-072). Pakkene ligger "
+        "utenfor git og slettes etter 12 måneder.",
+    )
+    rec_sub = rec.add_subparsers(dest="rec_cmd", required=True)
+    imp = rec_sub.add_parser("importer", help="lag en pakke av ett opptak")
+    imp.add_argument(
+        "--wav",
+        action="append",
+        default=[],
+        help="mikrofon=fil, f.eks. M1=mic1.wav, eller M2=multitrack.wav:3 for kanal 3",
+    )
+    imp.add_argument("--episode", required=True, help="navn på pakken, f.eks. 2026-11-04-a")
+    imp.add_argument("--samtykke", action="store_true", help="alle har skrevet under (D-072)")
+    imp.add_argument("--data", type=Path, default=None, help="CutCuts datamappe")
+    imp.add_argument("--out", type=Path, required=True, help="mappe for pakkene (ikke i git)")
+    clean = rec_sub.add_parser("rydd", help="slett pakker som har gått ut på tid")
+    clean.add_argument("--out", type=Path, required=True, help="mappen med pakkene")
+    clean.add_argument("--ja", action="store_true", help="slett (uten: vis bare)")
+
     trace = sub.add_parser(
         "trace",
         help="skriv simulerte forløp som JSON for web-simulatoren (Vercel)",
@@ -292,6 +315,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         print(f"Skrev i {out}: {', '.join(changed) or 'ingen endringer'}")
         return 0
+    if args.command == "opptak":
+        from cutcut.recordings.importer import main_clean, main_import
+
+        if args.rec_cmd == "rydd":
+            return main_clean(args.out, args.ja)
+        data = args.data
+        if data is None:
+            from cutcut.app.core import default_data_dir
+
+            studio_pc = Path(r"C:\CutCut\data")
+            data = studio_pc if studio_pc.exists() else default_data_dir()
+        return main_import(args.wav, args.episode, args.samtykke, data, args.out)
     if args.command == "trace":
         from cutcut.sim.trace import default_trace_dir, write_all
 

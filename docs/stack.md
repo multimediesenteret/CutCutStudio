@@ -75,6 +75,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 corepack enable && pnpm install && pnpm build
 pnpm manual                   # bygger docs/manual/CutCut-Studio-manual.pdf fra docs/manual/README.md
 uv run cutcut sim             # alt simulert på http://127.0.0.1:8080/touch/ og /tech/
+uv run cutcut opptak importer --episode … --samtykke --out … --wav M1=…   # P11, src/cutcut/recordings
 ```
 
 ## CI (GitHub Actions)

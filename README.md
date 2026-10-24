@@ -70,7 +70,8 @@ For hånd (feilsøking):
 ```bash
 uv run cutcut supervisor --site site/multimediesenteret --data data   # alt, som tjenesten
 uv run cutcut core --site site/multimediesenteret                     # bare motor, API og skjermer
-uv run cutcut hwtest <audio|atem|camera|vision|faces|soak> --site …   # maskintestene
+uv run cutcut hwtest <audio|atem|camera|vision|faces|pearl|soak|akseptanse> --site …   # maskintestene
+uv run cutcut opptak importer --episode … --samtykke --out … --wav M1=…   # opptak til justering (P11)
 ```
 
 Passord og PIN-er ligger i Windows Credential Manager (`pearl_password`, `operator_pin`, `admin_pin`). Ekte IP-adresser, teknikere og varsling legges inn i appen og ligger bare på studio-PC-en (D-060).
