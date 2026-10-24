@@ -62,6 +62,7 @@ class SeatCheck:
     solo_ms: dict[ParticipantId, int] = field(default_factory=dict)
     mouth_ms: dict[ParticipantId, dict[CameraId, int]] = field(default_factory=dict)
     face_ms: dict[ParticipantId, int] = field(default_factory=dict)
+    min_solo_ms: int = MIN_SOLO_MS  # the quick check (P14) asks for less: a name each
 
     def feed(
         self,
@@ -89,7 +90,7 @@ class SeatCheck:
             self.face_ms[pid] = self.face_ms.get(pid, 0) + dt_ms
 
     def ready(self, pid: ParticipantId) -> bool:
-        return self.solo_ms.get(pid, 0) >= MIN_SOLO_MS
+        return self.solo_ms.get(pid, 0) >= self.min_solo_ms
 
     def done(self) -> bool:
         return all(self.ready(pid) for pid in self.seats)

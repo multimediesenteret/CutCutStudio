@@ -431,6 +431,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/quick-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quick Check
+         * @description P14 «Sjekk dagens oppsett»: the running or last report.
+         */
+        get: operations["get_quick_check_api_quick_check_get"];
+        put?: never;
+        /**
+         * Start Quick Check
+         * @description Start it: health, multiview, a name round and, with ``color``, the grey card.
+         */
+        post: operations["start_quick_check_api_quick_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recording": {
         parameters: {
             query?: never;
@@ -1775,6 +1799,14 @@ export interface components {
              */
             target: "panopto";
         };
+        /** QuickCheckIn */
+        QuickCheckIn: {
+            /**
+             * Color
+             * @default false
+             */
+            color: boolean;
+        };
         /** RecordingIn */
         RecordingIn: {
             /**
@@ -2956,6 +2988,63 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quick_check_api_quick_check_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    start_quick_check_api_quick_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuickCheckIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

@@ -24,6 +24,7 @@ from cutcut import __version__
 from cutcut.app import devices, setup_file
 from cutcut.app.debugrec import DebugRecorder
 from cutcut.app.hub import Hub
+from cutcut.app.quickcheck import QuickCheck
 from cutcut.app.seatcheck import Seat, SeatCheck, SeatFinding, swapped
 from cutcut.app.state import (
     AlertInfo,
@@ -170,6 +171,7 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
+QUICK_KEY: Final = "quick_check.last"  # P14: the last report, for Helse after a restart
 SEAT_RUN_MS: Final = 120_000  # P12: how long into the recording the seat check runs
 ATEM_REQUIRED_MS: Final = 2_000  # P10, Q45: no blind TAKE after this long without read-back
 MORNING_HOUR: Final = 7  # spec 8.5: «hver morgen kl. 07:00» (local time)
@@ -402,6 +404,11 @@ class Studio:
         self.seat_findings: list[SeatFinding] = []
         self.seat_swap: dict[ParticipantId, CameraId] = {}
         self._seat_session: str | None = None
+        # P14: «Sjekk dagens oppsett»
+        self.quick: QuickCheck | None = None
+        self._quick_ms = self.now
+        self._quick_reported = False
+        self.quick_done_at: datetime | None = None
         self._load_debug()  # last: turning it on raises an alert
 
     # -- configuration --------------------------------------------------------------------
@@ -664,6 +671,53 @@ class Studio:
 
     def debug_info(self) -> dict[str, Any]:
         return self.debug.info()
+
+    # -- «Sjekk dagens oppsett» (P14) ------------------------------------------------------------
+
+    def start_quick_check(self, color: bool, role: Role, actor: str) -> dict[str, Any]:
+        """Health, multiview, a name round (mics and seats) and, with a grey card, colour."""
+        if self.sessions.step in (TouchStep.COUNTDOWN, TouchStep.REC):
+            raise CommandError("Sjekken kan ikke kjøres under opptak.")
+        if self.quick is not None and self.quick.phase != "ferdig":
+            raise CommandError("Sjekken går allerede.")
+        show = self.engine.show
+        self.quick = QuickCheck(
+            started_ms=self.now,
+            seats={p.id: Seat(p.mic, p.camera) for p in show.participants},
+            names={p.id: p.name for p in show.participants},
+            health=self.health.results,
+            multiview=self.multiview_status,
+            grab=self._grab if color else None,
+        )
+        self._quick_ms, self._quick_reported = self.now, False
+        self._audit(role, actor, "quick_check_start", color=color)
+        return self.quick_check_info()
+
+    def _quick_tick(self, now: int) -> None:
+        q = self.quick
+        if q is None:
+            return
+        dt, self._quick_ms = now - self._quick_ms, now
+        q.tick(now, dt, self.runtime.latest_mics, self.runtime.latest_tiles)
+        if q.phase == "ferdig" and not self._quick_reported:
+            self._quick_reported = True
+            report = q.json()
+            self.quick_done_at = self.deps.clock.now()
+            self.debug.event("quick_check", report)
+            self._audit("operator", "cutcut", "quick_check", **report)
+            if self.deps.store is not None:
+                value = {**report, "at": self.quick_done_at.isoformat(timespec="seconds")}
+                self.deps.store.put_kv(QUICK_KEY, value, self.quick_done_at)
+            log.info("Sjekk dagens oppsett: %s", report["result"])
+
+    def quick_check_info(self) -> dict[str, Any]:
+        if self.quick is not None:
+            out = self.quick.json()
+            if self.quick.phase == "ferdig" and self.quick_done_at is not None:
+                out["at"] = self.quick_done_at.isoformat(timespec="seconds")
+            return out
+        saved = self.deps.store.get_kv(QUICK_KEY) if self.deps.store is not None else None
+        return saved if isinstance(saved, dict) else {"phase": "ikke kjørt", "steps": []}
 
     def set_login_mode(self, mode: LoginMode, role: Role, actor: str) -> None:
         """«Innlogging» in the technician's settings (D-057). Card login needs the card reader
@@ -962,6 +1016,7 @@ class Studio:
         self._switches_failed()
         self._audio_check(now)
         self._seat_tick(now)
+        self._quick_tick(now)
         self._maybe_add_video_check()
         if not self._mv_checked and (
             self._mv_readback() is not None or now - self._started_ms >= MULTIVIEW_STARTUP_WAIT_MS

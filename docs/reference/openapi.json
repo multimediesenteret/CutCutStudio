@@ -1087,6 +1087,18 @@
         "title": "PublishState",
         "type": "object"
       },
+      "QuickCheckIn": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "default": false,
+            "title": "Color",
+            "type": "boolean"
+          }
+        },
+        "title": "QuickCheckIn",
+        "type": "object"
+      },
       "RecordingIn": {
         "additionalProperties": false,
         "properties": {
@@ -3190,6 +3202,72 @@
         "summary": "Preview",
         "tags": [
           "override"
+        ]
+      }
+    },
+    "/api/quick-check": {
+      "get": {
+        "description": "P14 «Sjekk dagens oppsett»: the running or last report.",
+        "operationId": "get_quick_check_api_quick_check_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Quick Check Api Quick Check Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Quick Check",
+        "tags": [
+          "status"
+        ]
+      },
+      "post": {
+        "description": "Start it: health, multiview, a name round and, with ``color``, the grey card.",
+        "operationId": "start_quick_check_api_quick_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickCheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Start Quick Check Api Quick Check Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start Quick Check",
+        "tags": [
+          "status"
         ]
       }
     },

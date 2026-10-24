@@ -5,6 +5,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 ## [Unreleased]
 
 ### Added
+- «Sjekk dagens oppsett» under Helse: Helse, multiview, en navnerunde der CutCut hører hver mikrofon og ser at munnen beveger seg i riktig kamera, og valgfritt farge med gråkort. Tar rundt to minutter (P14, D-072).
 - Lyd som tilpasser seg økten: lekkasjen mellom mikrofonene måles på nytt mens én person snakker alene, innenfor ±6 dB fra fasit, og starter på nytt ved hver økt. Bryteren står i skygge som standard, og Oppsett → steg 5 viser økten ved siden av fasit (P13, D-072).
 - Plassjekk: de første 2 minuttene ser CutCut om hver person sitter foran sitt kamera. Med bryteren på vises et gult felt på touch med **Vi bytter plass**, **Bytt i CutCut** eller **Det stemmer**; i skygge (standard) logges det bare (P12, D-072).
 - Grafikk på lufta respekteres: setter teknikeren svart, fargebarer eller en logo på program, venter AUTO til et kamera er tilbake, og Helse er grønn i stedet for «ATEM svarer ikke». CutCut trykker heller ikke TAKE når ATEM-en ikke kan leses (P10, D-072).

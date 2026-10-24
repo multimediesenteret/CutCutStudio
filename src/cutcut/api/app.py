@@ -81,6 +81,10 @@ class StepIn(_In):
     step: TouchStep
 
 
+class QuickCheckIn(_In):
+    color: bool = False  # a grey card is in front of every camera
+
+
 class SeatActionIn(_In):
     action: Literal["swap", "moved", "ignore"]
 
@@ -206,6 +210,18 @@ def create_app(
         """Feilsøkingsmodus: on or off, until when, and how much is recorded."""
         require(me, "operator")
         return studio.debug_info()
+
+    @app.get("/api/quick-check", tags=["status"])
+    async def get_quick_check(me: Who) -> dict[str, Any]:
+        """P14 «Sjekk dagens oppsett»: the running or last report."""
+        require(me, "operator")
+        return studio.quick_check_info()
+
+    @app.post("/api/quick-check", tags=["status"])
+    async def start_quick_check(body: QuickCheckIn, me: Who) -> dict[str, Any]:
+        """Start it: health, multiview, a name round and, with ``color``, the grey card."""
+        require(me, "operator")
+        return studio.start_quick_check(body.color, me.role, me.actor)
 
     @app.put("/api/debug", tags=["status"])
     async def put_debug(body: DebugIn, me: Who) -> dict[str, Any]:
