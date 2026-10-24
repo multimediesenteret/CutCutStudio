@@ -6,6 +6,7 @@ Etter [Keep a Changelog](https://keepachangelog.com/no/1.1.0/) og SemVer.
 
 ### Added
 - Grafikk på lufta respekteres: setter teknikeren svart, fargebarer eller en logo på program, venter AUTO til et kamera er tilbake, og Helse er grønn i stedet for «ATEM svarer ikke». CutCut trykker heller ikke TAKE når ATEM-en ikke kan leses (P10, D-072).
+- `cutcut opptak importer` setter lydfilene fra RØDECaster-ens eget opptak sammen med feilsøkingsopptaket og beslutningene til en avspillingspakke, plassert i tid ut fra lydnivået. Krever samtykke; `cutcut opptak rydd` sletter pakker etter 12 måneder (P11, D-072).
 - Multiview kan tas inn på to måter, valgt under Oppsett, steg 6 («Multiview-capture»): INOGENI 4KXUSB3 (standard) eller ATEM-ens webkamera-utgang over USB-C med Multi View valgt. Videolaget bytter enhet uten omstart, og motoren venter på bildet så lenge forsinkelsen for metoden tilsier. `cutcut hwtest vision --metode inogeni|atem_usb` tester hver metode og lagrer den målte forsinkelsen (D-071, Q41).
 - Kameramodellen kan velges per kamera under Utstyr og nettverk (OBSBOT Tail 2 eller Canon CR-N300). Anbefalingen er samme modell i hele studioet (D-070).
 
