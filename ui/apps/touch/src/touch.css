@@ -512,6 +512,39 @@ h2 {
 #rec {
   gap: 48px;
 }
+/* P12: someone seems to sit at the wrong camera */
+#rec .seatcheck {
+  background: var(--wait-soft);
+  border: 2px solid var(--wait);
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+#rec .seatcheck p {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+#rec .seatcheck .row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#rec .seatcheck button {
+  min-height: 56px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--ink);
+  color: var(--surface);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 600;
+}
+#rec .seatcheck button.quiet {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
 #rec .left {
   flex: 1.55;
   display: flex;

@@ -300,9 +300,32 @@ export function Rec({ state, act }: { state: StudioState; act: Act }) {
   const [label, color] = shotLabel(state, program);
   const talking = state.participants.filter((_, i) => levels[i]?.speaking).map((p) => p.id);
   const video = state.session?.show.video ?? true;
+  const seats = state.touch.seat_check ?? [];
   return (
     <section className="scr" id="rec">
       <div className="left">
+        {seats.length > 0 && (
+          <div className="seatcheck" role="alert">
+            <p>{seats.map((s) => s.message).join(" ")}</p>
+            <div className="row">
+              <button type="button" onClick={() => act.run(act.cmd.seatCheck("moved"))}>
+                Vi bytter plass
+              </button>
+              {seats.some((s) => s.can_swap) && (
+                <button type="button" onClick={() => act.run(act.cmd.seatCheck("swap"))}>
+                  Bytt i CutCut
+                </button>
+              )}
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => act.run(act.cmd.seatCheck("ignore"))}
+              >
+                Det stemmer
+              </button>
+            </div>
+          </div>
+        )}
         <h2>Nå i bildet</h2>
         <div className="onair">
           <ShotPicture

@@ -107,6 +107,7 @@ For hver bryter:
 | 5.4 | `ai_tracking` (`AT1`–`AT6`) | KA7 godkjent (Q16) | Kameraet følger rolig; CutCut flytter det ikke selv mens tracking er på |
 | 5.5 | `video_confirm` (`V1`, `V2`, `V5`, `PV3`) | 4.3 godkjent; videolaget med ansikt i gang | Færre kutt på lekkasje; ingen kutt til bilde uten ansikt eller i bevegelse |
 | 5.6 | `reactions` (`R1`–`R3`, `V3`) | `video_confirm` på | Reaksjonsbilder i talerens pause, maks ett per pause, og ikke på korte svar |
+| 5.7 | `seat_check` (P12) | Ansikt og munn i videolaget. Står i skygge fra start | Tre sendinger: alle riktig, én gjest ved feil kamera, to som har byttet plass. Logg → søk «Plassjekk»: riktig svar innen 2 min? Så **På**: det gule feltet på touch, og «Bytt i CutCut» gir riktig person i bildet |
 
 Til slutt: alle godkjente brytere på samtidig i én prøvesending, så alle av igjen. Med alle av skal kuttene være som i grunnmodus.
 

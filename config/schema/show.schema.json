@@ -190,6 +190,11 @@
           "title": "Reactions",
           "type": "boolean"
         },
+        "seat_check": {
+          "default": false,
+          "title": "Seat Check",
+          "type": "boolean"
+        },
         "shadow": {
           "items": {
             "type": "string"
@@ -345,7 +350,10 @@
         "framing_variety": false,
         "layouts": false,
         "reactions": false,
-        "shadow": [],
+        "seat_check": false,
+        "shadow": [
+          "seat_check"
+        ],
         "slow_zoom": false,
         "video_confirm": false
       }

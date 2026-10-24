@@ -56,6 +56,7 @@ SWITCHES: tuple[str, ...] = (
     "slow_zoom",
     "layouts",
     "ai_tracking",
+    "seat_check",
 )
 FeatureMode = Literal["off", "shadow", "on"]
 
@@ -71,7 +72,9 @@ class Features(_Strict):
     slow_zoom: bool = False
     layouts: bool = False
     ai_tracking: bool = False  # AT1–AT6, OBSBOT only (spec 5.12, P5)
-    shadow: list[str] = Field(default_factory=list)  # switches that run without acting (F-1)
+    seat_check: bool = False  # P12: does each person sit in front of their camera?
+    # switches that run without acting (F-1); the seat check starts in shadow (D-072)
+    shadow: list[str] = Field(default_factory=lambda: ["seat_check"])
 
     @model_validator(mode="after")
     def _shadow_ok(self) -> Self:

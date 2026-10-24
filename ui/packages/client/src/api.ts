@@ -51,6 +51,9 @@ export function commands(t: Transport) {
     stopRecording: () => t.send("POST", "/api/recording", { action: "stop" }),
     logout: () => t.send("DELETE", "/api/session"),
     help: () => t.send("POST", "/api/help"),
+    /** P12: «Bytt i CutCut», «Vi bytter plass» or ignore. */
+    seatCheck: (action: "swap" | "moved" | "ignore") =>
+      t.send("POST", "/api/seat-check", { action }),
     touched: () => t.send("POST", "/api/touch/touched"),
     again: () => t.send("POST", "/api/touch/again"),
     startWithoutCard: () => t.send("POST", "/api/touch/start"),

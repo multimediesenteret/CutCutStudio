@@ -1417,6 +1417,25 @@
         "title": "RuntimeInfo",
         "type": "object"
       },
+      "SeatActionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "swap",
+              "moved",
+              "ignore"
+            ],
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "SeatActionIn",
+        "type": "object"
+      },
       "SeatAudio": {
         "additionalProperties": false,
         "description": "The audio check during the 3-2-1 countdown, per participant (AU-7).",
@@ -1445,6 +1464,70 @@
           "id"
         ],
         "title": "SeatAudio",
+        "type": "object"
+      },
+      "SeatInfo": {
+        "additionalProperties": false,
+        "description": "P12: someone seems to sit in front of the wrong camera, or their camera is empty.",
+        "properties": {
+          "can_swap": {
+            "default": false,
+            "title": "Can Swap",
+            "type": "boolean"
+          },
+          "expected": {
+            "title": "Expected",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "wrong",
+              "swap",
+              "empty"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "other": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Other"
+          },
+          "seen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seen"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "expected",
+          "message"
+        ],
+        "title": "SeatInfo",
         "type": "object"
       },
       "Session": {
@@ -2134,6 +2217,14 @@
               }
             ],
             "title": "Notice"
+          },
+          "seat_check": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SeatInfo"
+            },
+            "title": "Seat Check",
+            "type": "array"
           },
           "step": {
             "enum": [
@@ -3258,6 +3349,48 @@
         "summary": "Rule Overrides",
         "tags": [
           "tuning"
+        ]
+      }
+    },
+    "/api/seat-check": {
+      "post": {
+        "description": "P12: «Bytt i CutCut» (``swap``), «Vi bytter plass» (``moved``) or ``ignore``. From\nthe touch screen as well as the technician window.",
+        "operationId": "seat_check_api_seat_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeatActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Seat Check",
+        "tags": [
+          "session"
         ]
       }
     },

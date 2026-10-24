@@ -24,6 +24,7 @@ from cutcut import __version__
 from cutcut.app import devices, setup_file
 from cutcut.app.debugrec import DebugRecorder
 from cutcut.app.hub import Hub
+from cutcut.app.seatcheck import Seat, SeatCheck, SeatFinding, swapped
 from cutcut.app.state import (
     AlertInfo,
     EngineInfo,
@@ -37,6 +38,7 @@ from cutcut.app.state import (
     RulesInfo,
     RuntimeInfo,
     SeatAudio,
+    SeatInfo,
     StudioInfo,
     StudioState,
     SwitchInfo,
@@ -53,7 +55,7 @@ from cutcut.common.config import (
     default_config_dir,
     effective_rules,
 )
-from cutcut.common.ids import CameraId, MicId, RuleId, is_shot
+from cutcut.common.ids import CameraId, MicId, ParticipantId, RuleId, is_shot
 from cutcut.common.models.baseline import AtemBaseline, Baseline
 from cutcut.common.models.decision import Decision
 from cutcut.common.models.multiview import MultiviewMap, MultiviewReadback
@@ -137,7 +139,15 @@ TUNING_KEY: Final = "studio.tuning"
 LOGIN_KEY: Final = "studio.login"
 # Switches whose rules exist (docs/plans/for-studio.md); the others say they are being built.
 IMPLEMENTED_SWITCHES: Final = frozenset(
-    {"video_confirm", "reactions", "layouts", "framing_variety", "slow_zoom", "ai_tracking"}
+    {
+        "video_confirm",
+        "reactions",
+        "layouts",
+        "framing_variety",
+        "slow_zoom",
+        "ai_tracking",
+        "seat_check",
+    }
 )
 VERDICT_TEXT: Final[dict[str, str]] = {
     "on_program": "Kameraet er på program (I2). Prøv når det er av lufta.",
@@ -159,6 +169,7 @@ HISTORY_KEEP: Final = 200
 # The multiview is set up once and not changed during use, so it is checked at start-up
 # (as soon as the ATEM can be read, or after this long without it) and on request (D-056).
 MULTIVIEW_STARTUP_WAIT_MS: Final = 30_000
+SEAT_RUN_MS: Final = 120_000  # P12: how long into the recording the seat check runs
 ATEM_REQUIRED_MS: Final = 2_000  # P10, Q45: no blind TAKE after this long without read-back
 MORNING_HOUR: Final = 7  # spec 8.5: «hver morgen kl. 07:00» (local time)
 STARTUP_CHECK_MS: Final = 20_000
@@ -383,6 +394,13 @@ class Studio:
         self._check: dict[str, dict[str, int | bool]] = {}
         self._check_step: TouchStep = TouchStep.IDLE
         self._check_ms = self.now
+        # P12: the seat check (app/seatcheck.py)
+        self.seat_check: SeatCheck | None = None
+        self._seat_ms = self.now
+        self._seat_rec_at: int | None = None
+        self.seat_findings: list[SeatFinding] = []
+        self.seat_swap: dict[ParticipantId, CameraId] = {}
+        self._seat_session: str | None = None
         self._load_debug()  # last: turning it on raises an alert
 
     # -- configuration --------------------------------------------------------------------
@@ -703,6 +721,11 @@ class Studio:
             features=features.model_dump(),
             rules_override={**show.rules_override, **overrides},
         )
+        # P12: «Bytt i CutCut» gives a person another camera for this session.
+        swap = getattr(self, "seat_swap", {})
+        for p in data["participants"]:
+            if p["id"] in swap:
+                p["camera"] = swap[p["id"]]
         # Camera addresses come from the equipment settings, which the technician can change.
         for cid, cam in data["cameras"].items():
             device = self.devices.cameras.get(cid)
@@ -937,6 +960,7 @@ class Studio:
         self._tracking_off_after_session()
         self._switches_failed()
         self._audio_check(now)
+        self._seat_tick(now)
         self._maybe_add_video_check()
         if not self._mv_checked and (
             self._mv_readback() is not None or now - self._started_ms >= MULTIVIEW_STARTUP_WAIT_MS
@@ -1154,6 +1178,112 @@ class Studio:
         elif self._check_step is TouchStep.COUNTDOWN and step is TouchStep.REC:
             self._report_audio_check()
         self._check_step = step
+
+    # -- the seat check (P12) ---------------------------------------------------------------------
+
+    def _seats(self) -> dict[ParticipantId, Seat]:
+        return {p.id: Seat(p.mic, p.camera) for p in self.engine.show.participants}
+
+    def _seat_tick(self, now: int) -> None:
+        """Runs during the countdown and the first two minutes of the recording, once per
+        session (again after «Vi bytter plass»). Shadow: the result is only logged."""
+        session = self.sessions.session
+        sid = session.session_id if session is not None else None
+        if sid != self._seat_session:  # a new session: no swap, no findings, no check
+            self._seat_session = sid
+            if self.seat_swap or self.seat_findings:
+                self.seat_swap, self.seat_findings = {}, []
+                self._reconfigure()
+            self.seat_check, self._seat_rec_at = None, None
+        dt, self._seat_ms = now - self._seat_ms, now
+        mode = self.features.mode("seat_check")
+        step = self.sessions.step
+        video = session is not None and session.show.video
+        if mode == "off" or not video:
+            self.seat_check = None
+            return
+        if step is TouchStep.COUNTDOWN and self.seat_check is None and self._seat_rec_at is None:
+            self.seat_check = SeatCheck(self._seats())
+        check = self.seat_check
+        if check is None or step not in (TouchStep.COUNTDOWN, TouchStep.REC):
+            return
+        if step is TouchStep.REC and self._seat_rec_at is None:
+            self._seat_rec_at = now
+        check.feed(dt, self.runtime.latest_mics, self.runtime.latest_tiles)
+        over = self._seat_rec_at is not None and now - self._seat_rec_at >= SEAT_RUN_MS
+        # report as soon as someone is clearly in the wrong seat; else when all have talked
+        if check.done() or over or check.findings():
+            self.seat_check = None
+            self._seat_report(check, mode)
+
+    def _seat_report(self, check: SeatCheck, mode: FeatureMode) -> None:
+        findings = check.findings()
+        detail = {
+            "mode": mode,
+            "findings": [
+                {
+                    "id": f.pid.value,
+                    "kind": f.kind,
+                    "expected": f.expected.value,
+                    "seen": f.seen.value if f.seen else None,
+                    "share": f.share,
+                }
+                for f in findings
+            ],
+            "solo_ms": {k.value: v for k, v in check.solo_ms.items()},
+        }
+        self.debug.event("seat_check", detail)
+        self._audit("operator", "cutcut", "seat_check", **detail)
+        log.info("Plassjekk (%s): %s", mode, detail["findings"] or "alle sitter riktig")
+        if mode != "on" or not findings:
+            return
+        self.seat_findings = findings
+        msg = " ".join(self._seat_text(f) for f in findings)
+        self._alert("warn", "SEAT", msg)
+        self.notice, self.notice_until = msg, self.now + 30_000
+        self.hub.publish("touch", {"notice": msg})
+
+    def _seat_text(self, f: SeatFinding) -> str:
+        names = {p.id: p.name for p in self.show.participants}
+        name = names.get(f.pid, f.pid.value)
+        if f.kind == "empty":
+            return f"Kamera {f.expected.value[1:]} ser ikke {name}."
+        if f.kind == "swap" and f.other is not None:
+            return f"{name} og {names.get(f.other, f.other.value)} ser ut til å ha byttet plass."
+        seen = f.seen.value[1:] if f.seen else "?"
+        return f"{name} ser ut til å sitte ved kamera {seen}."
+
+    def seat_info(self) -> list[SeatInfo]:
+        cams = set(self.show.cameras)
+        return [
+            SeatInfo(
+                id=f.pid.value,
+                kind=f.kind,
+                expected=f.expected.value,
+                seen=f.seen.value if f.seen else None,
+                other=f.other.value if f.other else None,
+                message=self._seat_text(f),
+                can_swap=f.seen is not None and f.seen in cams,
+            )
+            for f in self.seat_findings
+        ]
+
+    def seat_action(self, action: str, role: Role, actor: str) -> None:
+        """«Bytt i CutCut» (``swap``, allowed while recording, D-072), «Vi bytter plass»
+        (``moved``: the check runs again) or «Ignorer»."""
+        if action not in ("swap", "moved", "ignore"):
+            raise CommandError(f"Ukjent valg: {action}")
+        findings, self.seat_findings = self.seat_findings, []
+        self.notice = None
+        if action == "swap":
+            first = next((f for f in findings if f.seen in self.show.cameras), None)
+            if first is None:
+                raise CommandError("Ingen plass å bytte til.")
+            self.seat_swap.update(swapped(self._seats(), first))
+            self._reconfigure()
+        elif action == "moved":
+            self.seat_check, self._seat_rec_at = SeatCheck(self._seats()), self.now
+        self._audit(role, actor, "seat_action", choice=action)
 
     def audio_check_info(self) -> list[SeatAudio]:
         return [
@@ -1895,6 +2025,7 @@ class Studio:
                 else 0,
                 login=self.login_mode,
                 audio_check=self.audio_check_info(),
+                seat_check=self.seat_info(),
             ),
             engine=EngineInfo(
                 mode=e.mode.value,
@@ -2323,6 +2454,10 @@ class Studio:
         rules and their measurements; «on» also needs the equipment to act."""
         if name not in IMPLEMENTED_SWITCHES:
             return False, False, "Reglene bygges før studioperioden (docs/plans/for-studio.md)."
+        if name == "seat_check":  # P12: shadow only logs, so it may run without faces
+            if not self.runtime.vision_status.get("faces"):
+                return True, False, "Krever ansikt og munn i videolaget (modellen og videolaget)."
+            return True, True, None
         if name in ("video_confirm", "reactions") and not self.runtime.vision_status.get("faces"):
             why = "Krever ansikt og munn i videolaget (modellen og videolaget må kjøre)."
             return False, False, why

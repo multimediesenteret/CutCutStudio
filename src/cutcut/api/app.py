@@ -81,6 +81,10 @@ class StepIn(_In):
     step: TouchStep
 
 
+class SeatActionIn(_In):
+    action: Literal["swap", "moved", "ignore"]
+
+
 class RecordingIn(_In):
     action: Literal["start", "stop"]
 
@@ -589,6 +593,13 @@ def create_app(
     async def ack(alert_id: int, me: Who) -> Ok:
         require(me, "operator")
         studio.acknowledge(alert_id, me.role, me.actor)
+        return Ok()
+
+    @app.post("/api/seat-check", tags=["session"])
+    async def seat_check(body: SeatActionIn, me: Who) -> Ok:
+        """P12: «Bytt i CutCut» (``swap``), «Vi bytter plass» (``moved``) or ``ignore``. From
+        the touch screen as well as the technician window."""
+        studio.seat_action(body.action, me.role, me.actor)
         return Ok()
 
     @app.post("/api/recording", tags=["session"])

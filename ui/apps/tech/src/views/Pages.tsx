@@ -141,6 +141,12 @@ const FEATURES: { key: string; name: string; ids: string; d: string; base?: bool
   { key: "slow_zoom", name: "Langsom zoom", ids: "Z1–Z3", d: "Maks 10 % over 15 s" },
   { key: "layouts", name: "Layouter (PiP/quad)", ids: "L1–L4", d: "ATEM-makroer via Companion" },
   { key: "ai_tracking", name: "AI-tracking", ids: "AT1–AT6", d: "OBSBOT følger personen" },
+  {
+    key: "seat_check",
+    name: "Plassjekk",
+    ids: "P12",
+    d: "Sitter alle foran sitt kamera? Skygge: bare logg",
+  },
 ];
 
 const MODES = [
